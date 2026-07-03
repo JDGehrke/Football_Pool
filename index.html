@@ -10,24 +10,21 @@
             --card-bg: #ffffff;
             --text-main: #1a202c;
             --text-muted: #4a5568;
-            --primary: #013369; /* NFL Blue */
-            --accent: #d50a0a;  /* NFL Red */
+            --primary: #013369;
+            --accent: #d50a0a;
             --border-color: #e2e8f0;
             --success: #2f855a;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
             padding: 20px;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+        .container { max-width: 1000px; margin: 0 auto; }
 
         header {
             text-align: center;
@@ -36,20 +33,10 @@
             color: white;
             padding: 30px 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        header h1 {
-            margin: 0 0 10px 0;
-            font-size: 24pt;
-            letter-spacing: 0.5px;
-        }
-
-        header p {
-            margin: 0;
-            color: #cbd5e0;
-            font-size: 11pt;
-        }
+        header h1 { margin: 0 0 10px 0; font-size: 24pt; }
+        header p { margin: 0; color: #cbd5e0; font-size: 11pt; }
 
         .timestamp {
             display: inline-block;
@@ -63,7 +50,6 @@
         .card {
             background-color: var(--card-bg);
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             padding: 24px;
             margin-bottom: 30px;
             border: 1px solid var(--border-color);
@@ -78,190 +64,47 @@
             padding-bottom: 8px;
         }
 
-        /* Responsive Table Container */
-        .table-responsive {
-            overflow-x: auto;
-        }
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 10pt; }
+        th { background-color: #f8fafc; color: var(--text-muted); padding: 12px 16px; border-bottom: 2px solid var(--border-color); font-size: 8.5pt; text-transform: uppercase; }
+        td { padding: 14px 16px; border-bottom: 1px solid var(--border-color); }
+        tr:hover { background-color: #f8fafc; }
+        .rank { font-weight: bold; color: var(--text-muted); width: 50px; }
+        .player-name { font-weight: 600; color: var(--primary); }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 10pt;
-        }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 9pt; font-weight: bold; }
+        .badge-win { background-color: #e6fffa; color: var(--success); }
+        .badge-cold { background-color: #fff5f5; color: #9b2c2c; }
+        .badge-neutral { background-color: #f7fafc; color: #4a5568; }
 
-        th {
-            background-color: #f8fafc;
-            color: var(--text-muted);
-            font-weight: 600;
-            padding: 12px 16px;
-            border-bottom: 2px solid var(--border-color);
-            text-transform: uppercase;
-            font-size: 8.5pt;
-            letter-spacing: 0.5px;
-        }
-
-        td {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        tr:hover {
-            background-color: #f8fafc;
-        }
-
-        .rank {
-            font-weight: bold;
-            color: var(--text-muted);
-            width: 50px;
-        }
-
-        .player-name {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 9pt;
-            font-weight: bold;
-        }
-
-        .badge-win {
-            background-color: #e6fffa;
-            color: var(--success);
-        }
-
-        /* Flex-based CSS Bar Chart */
-        .chart-container {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin-top: 10px;
-        }
-
-        .chart-row {
-            display: flex;
-            align-items: center;
-        }
-
-        .chart-label {
-            width: 120px;
-            font-weight: 600;
-            font-size: 10pt;
-            color: var(--text-main);
-        }
-
-        .chart-bar-wrapper {
-            flex-grow: 1;
-            background-color: #edf2f7;
-            border-radius: 6px;
-            height: 24px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .chart-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), #004b93);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 10px;
-            transition: width 0.4s ease;
-        }
-
-        /* Style top performer bar differently */
-        .chart-row:first-child .chart-bar {
-            background: linear-gradient(90deg, #0d9488, #2cc7b8);
-        }
-
-        .chart-value {
-            color: white;
-            font-size: 9pt;
-            font-weight: bold;
-        }
+        .chart-container { display: flex; flex-direction: column; gap: 16px; }
+        .chart-row { display: flex; align-items: center; }
+        .chart-label { width: 140px; font-weight: 600; font-size: 10pt; }
+        .chart-bar-wrapper { flex-grow: 1; background-color: #edf2f7; border-radius: 6px; height: 24px; overflow: hidden; }
+        .chart-bar { height: 100%; background: linear-gradient(90deg, var(--primary), #004b93); border-radius: 6px; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; }
+        .chart-value { color: white; font-size: 9pt; font-weight: bold; }
         
-        .chart-row:first-child .chart-label {
-            color: #0d9488;
-        }
-
-        /* Footer styling */
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 9pt;
-            color: var(--text-muted);
-        }
+        /* Leader styling highlight */
+        .chart-row.leader-row .chart-bar { background: linear-gradient(90deg, #0d9488, #2cc7b8); }
+        .chart-row.leader-row .chart-label { color: #0d9488; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        
-        <!-- Dashboard Header -->
         <header>
             <h1>🏈 Family NFL Pick 'Em Pool</h1>
-            <p>Live Leaderboard & Responses — Week 1</p>
-            <div class="timestamp">Last Updated: Thursday, 7:24 PM (Live)</div>
+            <p id="week-title">Loading standings...</p>
+            <div class="timestamp" id="update-time">Syncing...</div>
         </header>
 
-        <!-- Section 1: Pure CSS Graph Dashboard -->
         <div class="card">
             <h2>Win Standings Visualization</h2>
-            <div class="chart-container">
-                <!-- Row 1 -->
-                <div class="chart-row">
-                    <div class="chart-label">Uncle Bob ⭐</div>
-                    <div class="chart-bar-wrapper">
-                        <div class="chart-bar" style="width: 87.5%;">
-                            <span class="chart-value">14 Wins</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Row 2 -->
-                <div class="chart-row">
-                    <div class="chart-label">Mom</div>
-                    <div class="chart-bar-wrapper">
-                        <div class="chart-bar" style="width: 75%;">
-                            <span class="chart-value">12 Wins</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Row 3 -->
-                <div class="chart-row">
-                    <div class="chart-label">You (Script Admin)</div>
-                    <div class="chart-bar-wrapper">
-                        <div class="chart-bar" style="width: 68.75%;">
-                            <span class="chart-value">11 Wins</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Row 4 -->
-                <div class="chart-row">
-                    <div class="chart-label">Cousin Sarah</div>
-                    <div class="chart-bar-wrapper">
-                        <div class="chart-bar" style="width: 56.25%;">
-                            <span class="chart-value">9 Wins</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Row 5 -->
-                <div class="chart-row">
-                    <div class="chart-label">Grandpa</div>
-                    <div class="chart-bar-wrapper">
-                        <div class="chart-bar" style="width: 37.5%;">
-                            <span class="chart-value">6 Wins</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="chart-container" id="chart-content">
+                <!-- JavaScript handles this -->
             </div>
         </div>
 
-        <!-- Section 2: Summary Leaderboard Table -->
         <div class="card">
             <h2>Detailed Pool Leaderboard</h2>
             <div class="table-responsive">
@@ -276,57 +119,78 @@
                             <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td class="rank">1</td>
-                            <td class="player-name">Uncle Bob</td>
-                            <td>14</td>
-                            <td>2</td>
-                            <td>87.5%</td>
-                            <td><span class="badge badge-win">Leader</span></td>
-                        </tr>
-                        <tr>
-                            <td class="rank">2</td>
-                            <td class="player-name">Mom</td>
-                            <td>12</td>
-                            <td>4</td>
-                            <td>75.0%</td>
-                            <td><span class="badge" style="background-color: #f7fafc; color: #4a5568;">--</span></td>
-                        </tr>
-                        <tr>
-                            <td class="rank">3</td>
-                            <td class="player-name">You (Script Admin)</td>
-                            <td>11</td>
-                            <td>5</td>
-                            <td>68.75%</td>
-                            <td><span class="badge" style="background-color: #f7fafc; color: #4a5568;">--</span></td>
-                        </tr>
-                        <tr>
-                            <td class="rank">4</td>
-                            <td class="player-name">Cousin Sarah</td>
-                            <td>9</td>
-                            <td>7</td>
-                            <td>56.25%</td>
-                            <td><span class="badge" style="background-color: #f7fafc; color: #4a5568;">--</span></td>
-                        </tr>
-                        <tr>
-                            <td class="rank">5</td>
-                            <td class="player-name">Grandpa</td>
-                            <td>6</td>
-                            <td>10</td>
-                            <td>37.5%</td>
-                            <td><span class="badge" style="background-color: #fff5f5; color: #9b2c2c;">Cold Streak</span></td>
-                        </tr>
+                    <tbody id="table-content">
+                        <!-- JavaScript handles this -->
                     </tbody>
                 </table>
             </div>
         </div>
-
-        <footer>
-            <p>Automated via GitHub Actions & Python. Data pulls live from Google Forms.</p>
-        </footer>
-
     </div>
 
+    <script>
+        // Fetch data with a timestamp to completely bypass browser caching issues
+        fetch(`data.json?v=${new Date().getTime()}`)
+            .then(response => response.json())
+            .then(data => {
+                // 1. Update Header Text
+                document.getElementById('week-title').innerText = `Live Leaderboard & Responses — ${data.week}`;
+                document.getElementById('update-time').innerText = `Last Updated: ${data.last_updated} (Live)`;
+
+                const standings = data.standings;
+                
+                // Find max wins to calculate relative bar percentage sizing accurately
+                const maxWins = Math.max(...standings.map(p => p.wins)) || 1;
+
+                let chartHTML = '';
+                let tableHTML = '';
+
+                standings.forEach((player, index) => {
+                    // Determine if they are in 1st place
+                    const isLeader = index === 0 || player.status === 'Leader';
+                    const rowClass = isLeader ? 'chart-row leader-row' : 'chart-row';
+                    const labelDecoration = isLeader ? `${player.name} ⭐` : player.name;
+                    
+                    // Calculate visual width scaling relative to the current frontrunner
+                    const barWidth = (player.wins / maxWins) * 100;
+
+                    // Build Chart Row Component
+                    chartHTML += `
+                        <div class="${rowClass}">
+                            <div class="chart-label">${labelDecoration}</div>
+                            <div class="chart-bar-wrapper">
+                                <div class="chart-bar" style="width: ${barWidth}%">
+                                    <span class="chart-value">${player.wins} Wins</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Handle status badges nicely
+                    let badgeClass = 'badge badge-neutral';
+                    if (player.status === 'Leader') badgeClass = 'badge badge-win';
+                    if (player.status === 'Cold Streak') badgeClass = 'badge badge-cold';
+
+                    // Build Table Row Component
+                    tableHTML += `
+                        <tr>
+                            <td class="rank">${player.rank}</td>
+                            <td class="player-name">${player.name}</td>
+                            <td>${player.wins}</td>
+                            <td>${player.losses}</td>
+                            <td>${player.pct}%</td>
+                            <td><span class="${badgeClass}">${player.status}</span></td>
+                        </tr>
+                    `;
+                });
+
+                // 2. Inject the built HTML blocks into the DOM containers
+                document.getElementById('chart-content').innerHTML = chartHTML;
+                document.getElementById('table-content').innerHTML = tableHTML;
+            })
+            .catch(error => {
+                console.error("Error parsing pool data json:", error);
+                document.getElementById('week-title').innerText = "Error loading latest scores.";
+            });
+    </script>
 </body>
 </html>
