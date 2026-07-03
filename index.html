@@ -3,36 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NFL Pick 'Em Pool Dashboard</title>
+    <title>NFL Pick 'Em Pool Dashboard Prototype</title>
     <style>
         :root {
             --bg-color: #f4f6f9;
             --card-bg: #ffffff;
             --text-main: #1a202c;
             --text-muted: #4a5568;
-            --primary: #013369;
-            --accent: #d50a0a;
+            --primary: #013369; /* NFL Blue */
+            --accent: #d50a0a;  /* NFL Red */
             --border-color: #e2e8f0;
             --success: #2f855a;
+            --success-bg: #e6fffa;
+            --fail: #e53e3e;
+            --fail-bg: #fff5f5;
+            --tiebreaker-color: #6b46c1;
+            --tiebreaker-bg: #faf5ff;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
             padding: 20px;
         }
 
-        .container { max-width: 1000px; margin: 0 auto; }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
 
         header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             background: linear-gradient(135deg, var(--primary), #001e3d);
             color: white;
             padding: 30px 20px;
             border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         header h1 { margin: 0 0 10px 0; font-size: 24pt; }
@@ -47,11 +56,74 @@
             font-size: 9pt;
         }
 
+        /* --- PURE CSS TAB CONTROLS --- */
+        .tab-system {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tab-input {
+            display: none;
+        }
+
+        .tab-headers {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .tab-label {
+            padding: 10px 24px;
+            font-weight: 600;
+            font-size: 11pt;
+            cursor: pointer;
+            color: var(--text-muted);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .tab-label:hover {
+            background-color: rgba(1, 51, 105, 0.05);
+            color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        #tab-overall:checked ~ .tab-headers .label-overall,
+        #tab-weekly:checked ~ .tab-headers .label-weekly,
+        #tab-player:checked ~ .tab-headers .label-player {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        #tab-overall:checked ~ #content-overall,
+        #tab-weekly:checked ~ #content-weekly,
+        #tab-player:checked ~ #content-player {
+            display: block;
+        }
+
+        /* --- LAYOUT & CARDS --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
         .card {
             background-color: var(--card-bg);
             border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             padding: 24px;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             border: 1px solid var(--border-color);
         }
 
@@ -65,132 +137,610 @@
         }
 
         .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 10pt; }
-        th { background-color: #f8fafc; color: var(--text-muted); padding: 12px 16px; border-bottom: 2px solid var(--border-color); font-size: 8.5pt; text-transform: uppercase; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 10pt;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--border-color);
+            text-transform: uppercase;
+            font-size: 8.5pt;
+        }
+
         td { padding: 14px 16px; border-bottom: 1px solid var(--border-color); }
         tr:hover { background-color: #f8fafc; }
+
         .rank { font-weight: bold; color: var(--text-muted); width: 50px; }
         .player-name { font-weight: 600; color: var(--primary); }
-
-        .badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 9pt; font-weight: bold; }
-        .badge-win { background-color: #e6fffa; color: var(--success); }
-        .badge-cold { background-color: #fff5f5; color: #9b2c2c; }
-        .badge-neutral { background-color: #f7fafc; color: #4a5568; }
-
-        .chart-container { display: flex; flex-direction: column; gap: 16px; }
-        .chart-row { display: flex; align-items: center; }
-        .chart-label { width: 140px; font-weight: 600; font-size: 10pt; }
-        .chart-bar-wrapper { flex-grow: 1; background-color: #edf2f7; border-radius: 6px; height: 24px; overflow: hidden; }
-        .chart-bar { height: 100%; background: linear-gradient(90deg, var(--primary), #004b93); border-radius: 6px; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; }
-        .chart-value { color: white; font-size: 9pt; font-weight: bold; }
         
-        /* Leader styling highlight */
-        .chart-row.leader-row .chart-bar { background: linear-gradient(90deg, #0d9488, #2cc7b8); }
-        .chart-row.leader-row .chart-label { color: #0d9488; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 6px; font-size: 9pt; font-weight: bold; }
+        .badge-win { background-color: var(--success-bg); color: var(--success); }
+        .badge-cold { background-color: var(--fail-bg); color: var(--fail); }
+        .badge-neutral { background-color: #edf2f7; color: var(--text-muted); }
+        .badge-tiebreaker { background-color: var(--tiebreaker-bg); color: var(--tiebreaker-color); border: 1px solid #e9d8fd; }
+
+        /* CSS Bar Chart Styles */
+        .chart-container { display: flex; flex-direction: column; gap: 14px; }
+        .chart-row { display: flex; align-items: center; }
+        .chart-label { width: 130px; font-weight: 600; font-size: 10pt; }
+        .chart-bar-wrapper { flex-grow: 1; background-color: #edf2f7; border-radius: 6px; height: 24px; overflow: hidden; }
+        .chart-bar { height: 100%; background: linear-gradient(90deg, var(--primary), #004b93); display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; }
+        .chart-value { color: white; font-size: 9pt; font-weight: bold; }
+        .chart-row:first-child .chart-bar { background: linear-gradient(90deg, #0d9488, #2cc7b8); }
+        .chart-row:first-child .chart-label { color: #0d9488; }
+
+        /* Pick Matrix Styles */
+        .pick-cell { text-align: center; font-weight: 600; font-size: 9.5pt; }
+        .pick-correct { background-color: var(--success-bg) !important; color: var(--success); border: 1px solid #b2f5ea; }
+        .pick-incorrect { background-color: var(--fail-bg) !important; color: var(--fail); border: 1px solid #feb2b2; }
+        .pick-pending { background-color: #f7fafc; color: var(--text-muted); font-weight: normal; }
+        .game-header { text-align: center; font-size: 8pt !important; min-width: 85px; }
+        .game-status-sub { display: block; font-weight: normal; color: var(--text-muted); font-size: 7.5pt; text-transform: none; margin-top: 2px;}
+
+        /* --- INDIVIDUAL PROFILE CONTROLS --- */
+        .selector-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .selector-box label {
+            font-weight: 600;
+            font-size: 11pt;
+            color: var(--primary);
+        }
+
+        .styled-select {
+            padding: 8px 16px;
+            font-size: 10pt;
+            font-weight: 600;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background-color: white;
+            color: var(--text-main);
+            outline: none;
+            cursor: pointer;
+        }
+
+        .styled-select:focus {
+            border-color: var(--primary);
+        }
+
+        /* Standalone SVGs for line graphing */
+        .svg-chart-container {
+            width: 100%;
+            height: 180px;
+            margin-top: 15px;
+        }
+
+        .svg-graph {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .graph-grid-line {
+            stroke: var(--border-color);
+            stroke-width: 1;
+            stroke-dasharray: 4,4;
+        }
+
+        .graph-line {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 4;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .graph-point {
+            fill: white;
+            stroke: var(--accent);
+            stroke-width: 3;
+        }
+
+        .graph-label-text {
+            font-size: 9pt;
+            font-weight: 600;
+            fill: var(--text-muted);
+            text-anchor: middle;
+        }
+
+        .graph-value-text {
+            font-size: 10pt;
+            font-weight: bold;
+            fill: var(--primary);
+            text-anchor: middle;
+        }
+
+        /* View Switching Logic Container */
+        .player-profile-view {
+            display: none;
+        }
+        .player-profile-view.active {
+            display: block;
+        }
+
     </style>
 </head>
 <body>
 
     <div class="container">
+        
+        <!-- Header -->
         <header>
             <h1>🏈 Family NFL Pick 'Em Pool</h1>
-            <p id="week-title">Loading standings...</p>
-            <div class="timestamp" id="update-time">Syncing...</div>
+            <p>Live Dashboard — Week 2 Active</p>
+            <div class="timestamp">Last Updated: Sunday, 3:45 PM EST</div>
         </header>
 
-        <div class="card">
-            <h2>Win Standings Visualization</h2>
-            <div class="chart-container" id="chart-content">
-                <!-- JavaScript handles this -->
-            </div>
-        </div>
+        <div class="tab-system">
+            <!-- Navigation inputs -->
+            <input type="radio" id="tab-overall" name="dashboard-tabs" class="tab-input" checked>
+            <input type="radio" id="tab-weekly" name="dashboard-tabs" class="tab-input">
+            <input type="radio" id="tab-player" name="dashboard-tabs" class="tab-input">
 
-        <div class="card">
-            <h2>Detailed Pool Leaderboard</h2>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="rank">Rank</th>
-                            <th>Player</th>
-                            <th>Correct Picks</th>
-                            <th>Incorrect Picks</th>
-                            <th>Win %</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-content">
-                        <!-- JavaScript handles this -->
-                    </tbody>
-                </table>
+            <!-- Tab Headers Bar -->
+            <div class="tab-headers">
+                <label for="tab-overall" class="tab-label label-overall">🏆 Season Overall</label>
+                <label for="tab-weekly" class="tab-label label-weekly">📅 Week 2 Details</label>
+                <label for="tab-player" class="tab-label label-player">👤 Player Profiles</label>
+            </div>
+
+            <!-- ================= OVERALL TAB CONTENT ================= -->
+            <div id="content-overall" class="tab-content">
+                <div class="card">
+                    <h2>Total Win Standings Visualization</h2>
+                    <div class="chart-container">
+                        <div class="chart-row">
+                            <div class="chart-label">Mom ⭐</div>
+                            <div class="chart-bar-wrapper"><div class="chart-bar" style="width: 100%;"><span class="chart-value">19 Wins</span></div></div>
+                        </div>
+                        <div class="chart-row">
+                            <div class="chart-label">Uncle Bob</div>
+                            <div class="chart-bar-wrapper"><div class="chart-bar" style="width: 89.4%;"><span class="chart-value">17 Wins</span></div></div>
+                        </div>
+                        <div class="chart-row">
+                            <div class="chart-label">You</div>
+                            <div class="chart-bar-wrapper"><div class="chart-bar" style="width: 84.2%;"><span class="chart-value">16 Wins</span></div></div>
+                        </div>
+                        <div class="chart-row">
+                            <div class="chart-label">Cousin Sarah</div>
+                            <div class="chart-bar-wrapper"><div class="chart-bar" style="width: 68.4%;"><span class="chart-value">13 Wins</span></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>Detailed Full Season Leaderboard</h2>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="rank">Rank</th>
+                                    <th>Player</th>
+                                    <th>Total Correct</th>
+                                    <th>Total Incorrect</th>
+                                    <th>Win %</th>
+                                    <th>Weekly Wins 👑</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="rank">1</td>
+                                    <td class="player-name">Mom</td>
+                                    <td>19</td>
+                                    <td>5</td>
+                                    <td>79.1%</td>
+                                    <td><span class="badge badge-win">1 (Week 2 Pending)</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="rank">2</td>
+                                    <td class="player-name">Uncle Bob</td>
+                                    <td>17</td>
+                                    <td>7</td>
+                                    <td>70.8%</td>
+                                    <td><span class="badge badge-win">1 (Week 1)</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="rank">3</td>
+                                    <td class="player-name">You</td>
+                                    <td>16</td>
+                                    <td>8</td>
+                                    <td>66.6%</td>
+                                    <td><span class="badge-trend" style="color: var(--text-muted);">0</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="rank">4</td>
+                                    <td class="player-name">Cousin Sarah</td>
+                                    <td>13</td>
+                                    <td>11</td>
+                                    <td>54.1%</td>
+                                    <td><span class="badge badge-cold">0</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- NEW REQUESTED VISUAL: WEEKLY WINNERS RANKING WITH MNF TIEBREAKER -->
+                <div class="card">
+                    <h2>Weekly Crown Standings & Tiebreaker</h2>
+                    <p style="font-size: 9pt; color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">
+                        Ranked by number of weeks won. Tiebreaker: <strong>Lowest average score difference from MNF games</strong> (calculated only for weeks won).
+                    </p>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="rank">Rank</th>
+                                    <th>Player</th>
+                                    <th>Weekly Crowns Won</th>
+                                    <th>Weeks Won List</th>
+                                    <th>MNF Avg Delta (On Winning Weeks Only)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="rank">1</td>
+                                    <td class="player-name">Uncle Bob</td>
+                                    <td>1</td>
+                                    <td>Week 1</td>
+                                    <td><span class="badge badge-tiebreaker">± 3.0 Pts</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="rank">2</td>
+                                    <td class="player-name">Mom</td>
+                                    <td>1</td>
+                                    <td>Week 2 (Proj.)</td>
+                                    <td><span class="badge badge-tiebreaker">± 5.0 Pts</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="rank">3</td>
+                                    <td class="player-name">You</td>
+                                    <td>0</td>
+                                    <td>—</td>
+                                    <td><span class="badge badge-neutral">N/A</span></td>
+                                </tr>
+                                <tr>
+                                    <td class="rank">4</td>
+                                    <td class="player-name">Cousin Sarah</td>
+                                    <td>0</td>
+                                    <td>—</td>
+                                    <td><span class="badge badge-neutral">N/A</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= WEEKLY TAB CONTENT ================= -->
+            <div id="content-weekly" class="tab-content">
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h2>Week 2 Pick Matrix</h2>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Player</th>
+                                        <th class="game-header">BUF @ MIA<span class="game-status-sub">Final: BUF</span></th>
+                                        <th class="game-header">SF @ MIN<span class="game-status-sub">Final: MIN</span></th>
+                                        <th class="game-header">CIN @ KC<span class="game-status-sub">Live: KC 17-14</span></th>
+                                        <th class="game-header">ATL @ PHI<span class="game-status-sub">Monday Night</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="player-name">Mom</td>
+                                        <td class="pick-cell pick-correct">BUF</td>
+                                        <td class="pick-cell pick-correct">MIN</td>
+                                        <td class="pick-cell pick-correct">KC</td>
+                                        <td class="pick-cell pick-pending">PHI</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="player-name">Uncle Bob</td>
+                                        <td class="pick-cell pick-incorrect">MIA</td>
+                                        <td class="pick-cell pick-incorrect">SF</td>
+                                        <td class="pick-cell pick-correct">KC</td>
+                                        <td class="pick-cell pick-pending">ATL</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="player-name">You</td>
+                                        <td class="pick-cell pick-correct">BUF</td>
+                                        <td class="pick-cell pick-incorrect">SF</td>
+                                        <td class="pick-cell pick-correct">KC</td>
+                                        <td class="pick-cell pick-pending">PHI</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="player-name">Cousin Sarah</td>
+                                        <td class="pick-cell pick-incorrect">MIA</td>
+                                        <td class="pick-cell pick-incorrect">SF</td>
+                                        <td class="pick-cell pick-incorrect">CIN</td>
+                                        <td class="pick-cell pick-pending">PHI</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>MNF Tiebreaker</h2>
+                        <p style="font-size: 9pt; color: var(--text-muted); margin-top: -10px; margin-bottom: 15px;">Predictions: <strong>ATL @ PHI</strong></p>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Player</th>
+                                        <th>Total Pts</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="player-name">Mom</td>
+                                        <td>52</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="player-name">You</td>
+                                        <td>44</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="player-name">Uncle Bob</td>
+                                        <td>41</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="player-name">Cousin Sarah</td>
+                                        <td>38</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PLAYER PROFILE TAB CONTENT ================= -->
+            <div id="content-player" class="tab-content">
+                
+                <div class="card">
+                    <div class="selector-box">
+                        <label for="player-select">Select Family Member:</label>
+                        <select id="player-select" class="styled-select" onchange="switchProfile(this.value)">
+                            <option value="you">You</option>
+                            <option value="mom">Mom</option>
+                            <option value="uncle_bob">Uncle Bob</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- PROFILE SUB-VIEW: YOU -->
+                <div id="profile-you" class="player-profile-view active">
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <h2>Your Current Week Picks</h2>
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Matchup</th>
+                                            <th>Pick</th>
+                                            <th>Game Status</th>
+                                            <th>Result</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="player-name">BUF @ MIA</td>
+                                            <td><strong>BUF</strong></td>
+                                            <td>Final</td>
+                                            <td><span class="badge badge-win">Correct</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="player-name">SF @ MIN</td>
+                                            <td><strong>SF</strong></td>
+                                            <td>Final</td>
+                                            <td><span class="badge badge-cold">Incorrect</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="player-name">CIN @ KC</td>
+                                            <td><strong>KC</strong></td>
+                                            <td>Live 3Q</td>
+                                            <td><span class="badge badge-win">Winning</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="player-name">ATL @ PHI</td>
+                                            <td><strong>PHI</strong></td>
+                                            <td>Monday Night</td>
+                                            <td><span class="badge badge-neutral">Pending</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h2>Weekly Correct Picks Tracker</h2>
+                            <div class="svg-chart-container">
+                                <svg class="svg-graph" viewBox="0 0 300 160">
+                                    <line x1="50" y1="110" x2="250" y2="110" class="graph-grid-line" />
+                                    <line x1="50" y1="50" x2="250" y2="50" class="graph-grid-line" />
+                                    <line x1="80" y1="110" x2="220" y2="50" class="graph-line" />
+
+                                    <!-- Week 1 -->
+                                    <circle cx="80" cy="110" r="5" class="graph-point" />
+                                    <text x="80" y="135" class="graph-label-text">Week 1</text>
+                                    <text x="80" y="95" class="graph-value-text">11</text>
+
+                                    <!-- Week 2 -->
+                                    <circle cx="220" cy="50" r="5" class="graph-point" style="stroke: #0d9488;" />
+                                    <text x="220" y="135" class="graph-label-text">Week 2*</text>
+                                    <text x="220" y="35" class="graph-value-text" style="fill: #0d9488;">5</text>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PROFILE SUB-VIEW: MOM -->
+                <div id="profile-mom" class="player-profile-view">
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <h2>Mom's Current Week Picks</h2>
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Matchup</th>
+                                            <th>Pick</th>
+                                            <th>Game Status</th>
+                                            <th>Result</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="player-name">BUF @ MIA</td>
+                                            <td><strong>BUF</strong></td>
+                                            <td>Final</td>
+                                            <td><span class="badge badge-win">Correct</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="player-name">SF @ MIN</td>
+                                            <td><strong>MIN</strong></td>
+                                            <td>Final</td>
+                                            <td><span class="badge badge-win">Correct</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="player-name">CIN @ KC</td>
+                                            <td><strong>KC</strong></td>
+                                            <td>Live 3Q</td>
+                                            <td><span class="badge badge-win">Winning</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="player-name">ATL @ PHI</td>
+                                            <td><strong>PHI</strong></td>
+                                            <td>Monday Night</td>
+                                            <td><span class="badge badge-neutral">Pending</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h2>Weekly Correct Picks Tracker</h2>
+                            <div class="svg-chart-container">
+                                <svg class="svg-graph" viewBox="0 0 300 160">
+                                    <line x1="50" y1="100" x2="250" y2="100" class="graph-grid-line" />
+                                    <line x1="50" y1="40" x2="250" y2="40" class="graph-grid-line" />
+                                    <line x1="80" y1="100" x2="220" y2="40" class="graph-line" />
+
+                                    <!-- Week 1 -->
+                                    <circle cx="80" cy="100" r="5" class="graph-point" />
+                                    <text x="80" y="125" class="graph-label-text">Week 1</text>
+                                    <text x="80" y="85" class="graph-value-text">12</text>
+
+                                    <!-- Week 2 -->
+                                    <circle cx="220" cy="40" r="5" class="graph-point" style="stroke: #0d9488;" />
+                                    <text x="220" y="125" class="graph-label-text">Week 2*</text>
+                                    <text x="220" y="25" class="graph-value-text" style="fill: #0d9488;">7</text>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PROFILE SUB-VIEW: UNCLE BOB -->
+                <div id="profile-uncle_bob" class="player-profile-view">
+                    <div class="dashboard-grid">
+                        <div class="card">
+                            <h2>Uncle Bob's Current Week Picks</h2>
+                            <div class="table-responsive">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Matchup</th>
+                                            <th>Pick</th>
+                                            <th>Game Status</th>
+                                            <th>Result</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="player-name">BUF @ MIA</td>
+                                            <td><strong>MIA</strong></td>
+                                            <td>Final</td>
+                                            <td><span class="badge badge-cold">Incorrect</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="player-name">SF @ MIN</td>
+                                            <td><strong>SF</strong></td>
+                                            <td>Final</td>
+                                            <td><span class="badge badge-cold">Incorrect</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="player-name">CIN @ KC</td>
+                                            <td><strong>KC</strong></td>
+                                            <td>Live 3Q</td>
+                                            <td><span class="badge badge-win">Winning</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="player-name">ATL @ PHI</td>
+                                            <td><strong>ATL</strong></td>
+                                            <td>Monday Night</td>
+                                            <td><span class="badge badge-neutral">Pending</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h2>Weekly Correct Picks Tracker</h2>
+                            <div class="svg-chart-container">
+                                <svg class="svg-graph" viewBox="0 0 300 160">
+                                    <line x1="50" y1="60" x2="250" y2="60" class="graph-grid-line" />
+                                    <line x1="50" y1="130" x2="250" y2="130" class="graph-grid-line" />
+                                    <line x1="80" y1="60" x2="220" y2="130" class="graph-line" />
+
+                                    <!-- Week 1 -->
+                                    <circle cx="80" cy="60" r="5" class="graph-point" />
+                                    <text x="80" y="155" class="graph-label-text">Week 1</text>
+                                    <text x="80" y="45" class="graph-value-text">14</text>
+
+                                    <!-- Week 2 -->
+                                    <circle cx="220" cy="130" r="5" class="graph-point" style="stroke: #0d9488;" />
+                                    <text x="220" y="155" class="graph-label-text">Week 2*</text>
+                                    <text x="220" y="115" class="graph-value-text" style="fill: #0d9488;">3</text>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 
+    <!-- Dropdown switcher logic -->
     <script>
-        // Fetch data with a timestamp to completely bypass browser caching issues
-        fetch(`data.json?v=${new Date().getTime()}`)
-            .then(response => response.json())
-            .then(data => {
-                // 1. Update Header Text
-                document.getElementById('week-title').innerText = `Live Leaderboard & Responses — ${data.week}`;
-                document.getElementById('update-time').innerText = `Last Updated: ${data.last_updated} (Live)`;
-
-                const standings = data.standings;
-                
-                // Find max wins to calculate relative bar percentage sizing accurately
-                const maxWins = Math.max(...standings.map(p => p.wins)) || 1;
-
-                let chartHTML = '';
-                let tableHTML = '';
-
-                standings.forEach((player, index) => {
-                    // Determine if they are in 1st place
-                    const isLeader = index === 0 || player.status === 'Leader';
-                    const rowClass = isLeader ? 'chart-row leader-row' : 'chart-row';
-                    const labelDecoration = isLeader ? `${player.name} ⭐` : player.name;
-                    
-                    // Calculate visual width scaling relative to the current frontrunner
-                    const barWidth = (player.wins / maxWins) * 100;
-
-                    // Build Chart Row Component
-                    chartHTML += `
-                        <div class="${rowClass}">
-                            <div class="chart-label">${labelDecoration}</div>
-                            <div class="chart-bar-wrapper">
-                                <div class="chart-bar" style="width: ${barWidth}%">
-                                    <span class="chart-value">${player.wins} Wins</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-                    // Handle status badges nicely
-                    let badgeClass = 'badge badge-neutral';
-                    if (player.status === 'Leader') badgeClass = 'badge badge-win';
-                    if (player.status === 'Cold Streak') badgeClass = 'badge badge-cold';
-
-                    // Build Table Row Component
-                    tableHTML += `
-                        <tr>
-                            <td class="rank">${player.rank}</td>
-                            <td class="player-name">${player.name}</td>
-                            <td>${player.wins}</td>
-                            <td>${player.losses}</td>
-                            <td>${player.pct}%</td>
-                            <td><span class="${badgeClass}">${player.status}</span></td>
-                        </tr>
-                    `;
-                });
-
-                // 2. Inject the built HTML blocks into the DOM containers
-                document.getElementById('chart-content').innerHTML = chartHTML;
-                document.getElementById('table-content').innerHTML = tableHTML;
-            })
-            .catch(error => {
-                console.error("Error parsing pool data json:", error);
-                document.getElementById('week-title').innerText = "Error loading latest scores.";
-            });
+        function switchProfile(playerId) {
+            const profiles = document.querySelectorAll('.player-profile-view');
+            profiles.forEach(p => p.classList.remove('active'));
+            
+            const target = document.getElementById(`profile-${playerId}`);
+            if (target) {
+                target.classList.add('active');
+            }
+        }
     </script>
 </body>
 </html>
