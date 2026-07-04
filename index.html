@@ -114,6 +114,10 @@
             margin-bottom: 30px;
         }
 
+        .dashboard-full-row {
+            margin-bottom: 30px;
+        }
+
         @media (max-width: 768px) {
             .dashboard-grid { grid-template-columns: 1fr; }
         }
@@ -177,13 +181,12 @@
         .chart-row:first-child .chart-bar { background: linear-gradient(90deg, #0d9488, #2cc7b8); }
         .chart-row:first-child .chart-label { color: #0d9488; }
 
-        /* Pick Matrix Styles */
+        /* Pick Matrix / Weekly Selection Styles */
         .pick-cell { text-align: center; font-weight: 600; font-size: 9.5pt; }
         .pick-correct { background-color: var(--success-bg) !important; color: var(--success); border: 1px solid #b2f5ea; }
         .pick-incorrect { background-color: var(--fail-bg) !important; color: var(--fail); border: 1px solid #feb2b2; }
         .pick-pending { background-color: #f7fafc; color: var(--text-muted); font-weight: normal; }
         .game-header { text-align: center; font-size: 8pt !important; min-width: 85px; }
-        .game-status-sub { display: block; font-weight: normal; color: var(--text-muted); font-size: 7.5pt; text-transform: none; margin-top: 2px;}
 
         /* --- INDIVIDUAL PROFILE CONTROLS --- */
         .selector-box {
@@ -269,6 +272,16 @@
             display: block;
         }
 
+        /* Weekly Selection Dropdown Styling Customization */
+        .weekly-dropdown-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
     </style>
 </head>
 <body>
@@ -291,7 +304,7 @@
             <!-- Tab Headers Bar -->
             <div class="tab-headers">
                 <label for="tab-overall" class="tab-label label-overall">🏆 Season Overall</label>
-                <label for="tab-weekly" class="tab-label label-weekly">📅 Week 2 Details</label>
+                <label for="tab-weekly" class="tab-label label-weekly">📅 Week Details</label>
                 <label for="tab-player" class="tab-label label-player">👤 Player Profiles</label>
             </div>
 
@@ -371,7 +384,6 @@
                     </div>
                 </div>
 
-                <!-- NEW REQUESTED VISUAL: WEEKLY WINNERS RANKING WITH MNF TIEBREAKER -->
                 <div class="card">
                     <h2>Weekly Crown Standings & Tiebreaker</h2>
                     <p style="font-size: 9pt; color: var(--text-muted); margin-top: -10px; margin-bottom: 20px;">
@@ -425,82 +437,45 @@
 
             <!-- ================= WEEKLY TAB CONTENT ================= -->
             <div id="content-weekly" class="tab-content">
-                <div class="dashboard-grid">
-                    <div class="card">
-                        <h2>Week 2 Pick Matrix</h2>
-                        <div class="table-responsive">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Player</th>
-                                        <th class="game-header">BUF @ MIA<span class="game-status-sub">Final: BUF</span></th>
-                                        <th class="game-header">SF @ MIN<span class="game-status-sub">Final: MIN</span></th>
-                                        <th class="game-header">CIN @ KC<span class="game-status-sub">Live: KC 17-14</span></th>
-                                        <th class="game-header">ATL @ PHI<span class="game-status-sub">Monday Night</span></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="player-name">Mom</td>
-                                        <td class="pick-cell pick-correct">BUF</td>
-                                        <td class="pick-cell pick-correct">MIN</td>
-                                        <td class="pick-cell pick-correct">KC</td>
-                                        <td class="pick-cell pick-pending">PHI</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="player-name">Uncle Bob</td>
-                                        <td class="pick-cell pick-incorrect">MIA</td>
-                                        <td class="pick-cell pick-incorrect">SF</td>
-                                        <td class="pick-cell pick-correct">KC</td>
-                                        <td class="pick-cell pick-pending">ATL</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="player-name">You</td>
-                                        <td class="pick-cell pick-correct">BUF</td>
-                                        <td class="pick-cell pick-incorrect">SF</td>
-                                        <td class="pick-cell pick-correct">KC</td>
-                                        <td class="pick-cell pick-pending">PHI</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="player-name">Cousin Sarah</td>
-                                        <td class="pick-cell pick-incorrect">MIA</td>
-                                        <td class="pick-cell pick-incorrect">SF</td>
-                                        <td class="pick-cell pick-incorrect">CIN</td>
-                                        <td class="pick-cell pick-pending">PHI</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                
+                <!-- DYNAMIC DROPDOWN SELECTION COMPONENT -->
+                <div class="card">
+                    <div class="weekly-dropdown-container">
+                        <div class="selector-box">
+                            <label for="week-select">Select Historical Pool Week:</label>
+                            <select id="week-select" class="styled-select" onchange="renderWeeklyTable()">
+                                <option value="Week 1">Week 1</option>
+                                <option value="Week 2" selected>Week 2 (Current)</option>
+                            </select>
                         </div>
                     </div>
+                    
+                    <div class="table-responsive">
+                        <table id="dynamic-picks-table">
+                            <!-- Populated Dynamically by JavaScript -->
+                        </table>
+                    </div>
+                </div>
 
-                    <div class="card">
-                        <h2>MNF Tiebreaker</h2>
-                        <p style="font-size: 9pt; color: var(--text-muted); margin-top: -10px; margin-bottom: 15px;">Predictions: <strong>ATL @ PHI</strong></p>
+                <div class="dashboard-grid">
+                    <!-- DYNAMIC MNF TIEBREAKER SNAPSHOT BOX -->
+                    <div class="card" style="grid-column: span 2;">
+                        <h2>Monday Night Football Tiebreaker Tracker</h2>
+                        <p style="font-size: 9pt; color: var(--text-muted); margin-top: -10px; margin-bottom: 15px;">
+                            Game Tracking: <strong id="tiebreaker-game-title">Loading...</strong> — Status: <span id="tiebreaker-game-status" class="badge badge-neutral" style="font-size: 8pt;">Loading...</span>
+                        </p>
                         <div class="table-responsive">
                             <table>
                                 <thead>
                                     <tr>
                                         <th>Player</th>
-                                        <th>Total Pts</th>
+                                        <th style="text-align: center;">Pick Outcome</th>
+                                        <th style="text-align: center;">Your Prediction</th>
+                                        <th style="text-align: center;">Tiebreaker Margin Differential</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="player-name">Mom</td>
-                                        <td>52</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="player-name">You</td>
-                                        <td>44</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="player-name">Uncle Bob</td>
-                                        <td>41</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="player-name">Cousin Sarah</td>
-                                        <td>38</td>
-                                    </tr>
+                                <tbody id="tiebreaker-table-body">
+                                    <!-- Calculated dynamically by JavaScript -->
                                 </tbody>
                             </table>
                         </div>
@@ -588,6 +563,47 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- TEAM ACCURACY MATRIX (YOU) -->
+                    <div class="dashboard-full-row card">
+                        <h2>Team Choice Accuracy vs. Pool Baseline</h2>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>NFL Franchise</th>
+                                        <th>Times Picked</th>
+                                        <th>Your Accuracy</th>
+                                        <th>Pool Average Accuracy</th>
+                                        <th>Performance Rating</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="player-name">Buffalo Bills</td>
+                                        <td>2</td>
+                                        <td><strong>100%</strong> (2/2)</td>
+                                        <td>85.0%</td>
+                                        <td><span class="badge badge-win">Above Pool Avg (+15.0%)</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="player-name">San Francisco 49ers</td>
+                                        <td>2</td>
+                                        <td><strong>50.0%</strong> (1/2)</td>
+                                        <td>75.0%</td>
+                                        <td><span class="badge badge-cold">Below Pool Avg (-25.0%)</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="player-name">Kansas City Chiefs</td>
+                                        <td>1</td>
+                                        <td><strong>100%</strong> (1/1)</td>
+                                        <td>100%</td>
+                                        <td><span class="badge badge-neutral">Even With Pool</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- PROFILE SUB-VIEW: MOM -->
@@ -654,6 +670,47 @@
                                     <text x="220" y="25" class="graph-value-text" style="fill: #0d9488;">7</text>
                                 </svg>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- TEAM ACCURACY MATRIX (MOM) -->
+                    <div class="dashboard-full-row card">
+                        <h2>Team Choice Accuracy vs. Pool Baseline</h2>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>NFL Franchise</th>
+                                        <th>Times Picked</th>
+                                        <th>Mom's Accuracy</th>
+                                        <th>Pool Average Accuracy</th>
+                                        <th>Performance Rating</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="player-name">Minnesota Vikings</td>
+                                        <td>2</td>
+                                        <td><strong>100%</strong> (2/2)</td>
+                                        <td>45.0%</td>
+                                        <td><span class="badge badge-win">Above Pool Avg (+55.0%)</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="player-name">Buffalo Bills</td>
+                                        <td>2</td>
+                                        <td><strong>100%</strong> (2/2)</td>
+                                        <td>85.0%</td>
+                                        <td><span class="badge badge-win">Above Pool Avg (+15.0%)</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="player-name">San Francisco 49ers</td>
+                                        <td>0</td>
+                                        <td><strong>0%</strong> (0/0)</td>
+                                        <td>75.0%</td>
+                                        <td><span class="badge badge-neutral">No Picks Logged</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -724,14 +781,193 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- TEAM ACCURACY MATRIX (UNCLE BOB) -->
+                    <div class="dashboard-full-row card">
+                        <h2>Team Choice Accuracy vs. Pool Baseline</h2>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>NFL Franchise</th>
+                                        <th>Times Picked</th>
+                                        <th>Bob's Accuracy</th>
+                                        <th>Pool Average Accuracy</th>
+                                        <th>Performance Rating</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="player-name">Miami Dolphins</td>
+                                        <td>2</td>
+                                        <td><strong>50.0%</strong> (1/2)</td>
+                                        <td>60.0%</td>
+                                        <td><span class="badge badge-cold">Below Pool Avg (-10.0%)</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="player-name">San Francisco 49ers</td>
+                                        <td>2</td>
+                                        <td><strong>100%</strong> (2/2)</td>
+                                        <td>75.0%</td>
+                                        <td><span class="badge badge-win">Above Pool Avg (+25.0%)</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="player-name">Kansas City Chiefs</td>
+                                        <td>1</td>
+                                        <td><strong>100%</strong> (1/1)</td>
+                                        <td>100%</td>
+                                        <td><span class="badge badge-neutral">Even With Pool</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
             </div>
         </div>
     </div>
 
-    <!-- Dropdown switcher logic -->
+    <!-- Dropdown switcher & Weekly data generation engine logic -->
     <script>
+        // Data block matching the exact dictionary structural setup planned for the Python automation module.
+        const poolWeeklyData = {
+            "Week 1": {
+                "matchups": [
+                    { "game": "BAL @ KC", "status": "Final: KC", "picks": { "Mom": "KC", "Uncle Bob": "KC", "You": "BAL", "Cousin Sarah": "KC" } },
+                    { "game": "GB @ PHI", "status": "Final: PHI", "picks": { "Mom": "PHI", "Uncle Bob": "GB", "You": "PHI", "Cousin Sarah": "GB" } },
+                    { "game": "DAL @ CLE", "status": "Final: DAL", "picks": { "Mom": "CLE", "Uncle Bob": "DAL", "You": "DAL", "Cousin Sarah": "CLE" } }
+                ],
+                "tiebreaker": {
+                    "game": "DAL @ CLE",
+                    "status": "Final",
+                    "totalScore": 50,
+                    "players": {
+                        "Mom": { "pick": "Incorrect", "predicted": 38 },
+                        "Uncle Bob": { "pick": "Correct", "predicted": 51 },
+                        "You": { "pick": "Correct", "predicted": 48 },
+                        "Cousin Sarah": { "pick": "Incorrect", "predicted": 45 }
+                    }
+                }
+            },
+            "Week 2": {
+                "matchups": [
+                    { "game": "BUF @ MIA", "status": "Final: BUF", "picks": { "Mom": "BUF", "Uncle Bob": "MIA", "You": "BUF", "Cousin Sarah": "MIA" } },
+                    { "game": "SF @ MIN", "status": "Final: MIN", "picks": { "Mom": "MIN", "Uncle Bob": "SF", "You": "SF", "Cousin Sarah": "SF" } },
+                    { "game": "CIN @ KC", "status": "Live: KC 17-14", "picks": { "Mom": "KC", "Uncle Bob": "KC", "You": "KC", "Cousin Sarah": "CIN" } },
+                    { "game": "ATL @ PHI", "status": "Pending", "picks": { "Mom": "PHI", "Uncle Bob": "ATL", "You": "PHI", "Cousin Sarah": "PHI" } }
+                ],
+                "tiebreaker": {
+                    "game": "ATL @ PHI",
+                    "status": "Pending",
+                    "totalScore": null,
+                    "players": {
+                        "Mom": { "pick": "Correct", "predicted": 52 },
+                        "You": { "pick": "Correct", "predicted": 44 },
+                        "Uncle Bob": { "pick": "Incorrect", "predicted": 41 },
+                        "Cousin Sarah": { "pick": "Correct", "predicted": 38 }
+                    }
+                }
+            }
+        };
+
+        function renderWeeklyTable() {
+            const selectedWeek = document.getElementById("week-select").value;
+            const weekData = poolWeeklyData[selectedWeek];
+            const table = document.getElementById("dynamic-picks-table");
+            
+            if (!weekData || !weekData.matchups || weekData.matchups.length === 0) {
+                table.innerHTML = `<tr><td style="padding: 20px; text-align: center; color: var(--text-muted);">No matchups parsed for this week.</td></tr>`;
+                return;
+            }
+
+            const games = weekData.matchups;
+            const players = Object.keys(games[0].picks);
+            
+            // 1. Matchup Grid Header Generation
+            let tableHTML = `
+                <thead>
+                    <tr>
+                        <th>Matchup Grid</th>
+                        <th>Game Status</th>
+            `;
+            players.forEach(p => {
+                tableHTML += `<th style="text-align: center;">${p}</th>`;
+            });
+            tableHTML += `</tr></thead><tbody>`;
+
+            // 2. Matchup Grid Row Compilation Loop
+            games.forEach(g => {
+                tableHTML += `<tr>`;
+                tableHTML += `<td class="player-name">${g.game}</td>`;
+                tableHTML += `<td><span class="badge badge-neutral" style="font-size: 8pt;">${g.status}</span></td>`;
+                
+                players.forEach(p => {
+                    const chosenPick = g.picks[p];
+                    let cellularClass = "pick-cell pick-pending";
+                    
+                    if (g.status.includes("Final:")) {
+                        const actualWinner = g.status.split("Final: ")[1].trim();
+                        cellularClass = (chosenPick === actualWinner) ? "pick-cell pick-correct" : "pick-cell pick-incorrect";
+                    }
+
+                    tableHTML += `<td class="${cellularClass}">${chosenPick}</td>`;
+                });
+                tableHTML += `</tr>`;
+            });
+            tableHTML += `</tbody>`;
+            table.innerHTML = tableHTML;
+
+            // 3. Trigger Tiebreaker Rendering Module
+            renderTiebreakerBlock(selectedWeek);
+        }
+
+        function renderTiebreakerBlock(selectedWeek) {
+            const weekData = poolWeeklyData[selectedWeek];
+            const tbody = document.getElementById("tiebreaker-table-body");
+            
+            if (!weekData || !weekData.tiebreaker) {
+                document.getElementById("tiebreaker-game-title").innerText = "N/A";
+                document.getElementById("tiebreaker-game-status").innerText = "N/A";
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:15px;">No tiebreaker tracking for this timeframe.</td></tr>`;
+                return;
+            }
+
+            const data = weekData.tiebreaker;
+            document.getElementById("tiebreaker-game-title").innerText = data.game;
+            document.getElementById("tiebreaker-game-status").innerText = `${data.status} ${data.totalScore ? '(' + data.totalScore + ' Pts Total)' : ''}`;
+
+            let rowsHTML = "";
+            Object.keys(data.players).forEach(player => {
+                const pData = data.players[player];
+                
+                // Style Pick straight-up accuracy badge
+                let outcomeBadge = `<span class="badge badge-neutral">${pData.pick}</span>`;
+                if (pData.pick === "Correct") outcomeBadge = `<span class="badge badge-win">✓ Correct Pick</span>`;
+                if (pData.pick === "Incorrect") outcomeBadge = `<span class="badge badge-cold">✗ Incorrect Pick</span>`;
+
+                // Run structural delta validation checks 
+                let marginDisplay = "";
+                if (data.status === "Final" && data.totalScore !== null) {
+                    const delta = Math.abs(pData.predicted - data.totalScore);
+                    marginDisplay = `<span class="badge badge-tiebreaker" style="font-weight:bold;">± ${delta} Pts</span> <span style="font-size:8pt; color:var(--text-muted); display:block; margin-top:2px;">(Predicted ${pData.predicted} vs Actual ${data.totalScore})</span>`;
+                } else {
+                    marginDisplay = `<span class="badge badge-neutral" style="font-style:italic; font-weight:normal; color:var(--text-muted);">Awaiting Final Game Result</span>`;
+                }
+
+                rowsHTML += `
+                    <tr>
+                        <td class="player-name">${player}</td>
+                        <td style="text-align: center;">${outcomeBadge}</td>
+                        <td style="text-align: center; font-weight:600; color:var(--primary);">${pData.predicted} Pts</td>
+                        <td style="text-align: center;">${marginDisplay}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = rowsHTML;
+        }
+
         function switchProfile(playerId) {
             const profiles = document.querySelectorAll('.player-profile-view');
             profiles.forEach(p => p.classList.remove('active'));
@@ -741,6 +977,9 @@
                 target.classList.add('active');
             }
         }
+
+        // Initialize table generation logic on page load
+        document.addEventListener("DOMContentLoaded", renderWeeklyTable);
     </script>
 </body>
 </html>
