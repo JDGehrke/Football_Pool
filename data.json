@@ -2,7 +2,7 @@
   "last_updated": "Thursday, 10:35 PM",
   "week": "Week 1",
   "standings": [
-    { "rank": 1, "name": "Uncle Bob", "wins": 16, "losses": 0, "pct": 100.0, "status": "Leader" },
+    { "rank": 1, "name": "Uncle Bob", "wins": 15, "losses": 1, "pct": 93.8, "status": "Leader" },
     { "rank": 2, "name": "Mom", "wins": 12, "losses": 4, "pct": 75.0, "status": "--" },
     { "rank": 3, "name": "You (Script Admin)", "wins": 11, "losses": 5, "pct": 68.8, "status": "--" },
     { "rank": 4, "name": "Cousin Sarah", "wins": 9, "losses": 7, "pct": 56.3, "status": "--" },
