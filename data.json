@@ -1,4 +1,10 @@
 {
+  "metadata": {
+    "title": "🏈 Family NFL Pick 'Em Pool",
+    "subtitle": "Live Dashboard — Active Season",
+    "lastUpdated": "Sunday, 3:45 PM EST"
+  },
+  "players": ["Mom", "Uncle Bob", "You", "Cousin Sarah"],
   "weeks": {
     "Week 1": {
       "matchups": [
@@ -11,7 +17,7 @@
         "status": "Final",
         "totalScore": 50,
         "players": {
-          "Mom": { "pick": "Incorrect", "predicted": 38 },
+          "Mom": { "pick": "Incorrect", "predicted": 69 },
           "Uncle Bob": { "pick": "Correct", "predicted": 51 },
           "You": { "pick": "Correct", "predicted": 48 },
           "Cousin Sarah": { "pick": "Incorrect", "predicted": 45 }
