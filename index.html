@@ -54,20 +54,29 @@
     .text-success { color: var(--success); font-weight: bold; }
     .text-danger { color: var(--danger); font-weight: bold; }
     .badge-win { background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; }
-    .badge-loss { background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; }
     .badge-status { background: #f1f5f9; color: var(--text-muted); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
     
     select { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.95rem; outline: none; }
 
-    /* CSS BAR CHART */
-    .bar-container { background: #e2e8f0; border-radius: 4px; height: 12px; width: 100%; overflow: hidden; display: flex; }
-    .bar-fill { background: var(--secondary-color); height: 100%; border-radius: 4px; }
+    /* STANDALONE BAR CHART STYLES */
+    .chart-bar-row { display: flex; align-items: center; margin-bottom: 12px; gap: 15px; }
+    .chart-bar-label { width: 120px; font-weight: 600; font-size: 0.9rem; text-align: right; }
+    .chart-bar-track { flex: 1; background: #f1f5f9; border-radius: 6px; height: 24px; overflow: hidden; position: relative; }
+    .chart-bar-fill { background: var(--secondary-color); height: 100%; border-radius: 6px; transition: width 0.4s ease; }
+    .chart-bar-value { width: 50px; font-weight: bold; font-size: 0.9rem; }
 
     /* PICK MATRIX */
     .matrix-wrapper { overflow-x: auto; }
     .pick-correct { background-color: #dcfce7 !important; color: #166534; font-weight: bold; }
     .pick-incorrect { background-color: #fee2e2 !important; color: #991b1b; }
     .pick-pending { background-color: #ffffff; color: var(--text-main); }
+
+    /* LINE CHART CONTAINER */
+    .line-chart-wrapper { display: flex; align-items: flex-end; gap: 15px; height: 200px; padding-top: 20px; padding-bottom: 20px; border-left: 2px solid var(--border-color); border-bottom: 2px solid var(--border-color); margin-top: 15px; }
+    .chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+    .chart-pillar { width: 60%; background: var(--secondary-color); border-radius: 4px 4px 0 0; min-height: 4px; transition: height 0.3s ease; }
+    .chart-col-label { margin-top: 8px; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+    .chart-col-val { font-size: 0.8rem; font-weight: bold; margin-bottom: 4px; }
   </style>
 </head>
 <body>
@@ -81,13 +90,20 @@
 
   <!-- TAB NAVIGATION -->
   <div class="tab-headers">
-    <button class="tab-btn active" onclick="switchTab('overall')">Season Overall</button>
-    <button class="tab-btn" onclick="switchTab('weekly')">Week Details</button>
-    <button class="tab-btn" onclick="switchTab('player')">Player Profiles</button>
+    <button class="tab-btn active" onclick="switchTab('overall', event)">Season Overall</button>
+    <button class="tab-btn" onclick="switchTab('weekly', event)">Week Details</button>
+    <button class="tab-btn" onclick="switchTab('player', event)">Player Profiles</button>
   </div>
 
   <!-- ================= OVERALL TAB ================= -->
   <div id="tab-overall" class="tab-content active">
+    
+    <!-- Restored Standalone Bar Chart -->
+    <div class="card">
+      <h3>Season Wins Overview</h3>
+      <div id="standalone-bar-chart"></div>
+    </div>
+
     <div class="card">
       <h3>Full Season Leaderboard</h3>
       <table id="leaderboard-table">
@@ -99,7 +115,6 @@
             <th>Losses</th>
             <th>Win %</th>
             <th>Games Back</th>
-            <th style="width: 20%;">Progress</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -166,11 +181,27 @@
     <!-- Top KPI Cards -->
     <div id="player-kpi-banner" class="kpi-grid"></div>
 
+    <!-- Restored Original Performance Chart -->
     <div class="card">
-      <h3>Weekly Performance Progression</h3>
-      <div id="player-chart-container" style="height: 200px; width: 100%;">
-        <!-- SVG Line Chart inserted via JS -->
-      </div>
+      <h3>Weekly Performance Trend</h3>
+      <div id="player-trend-chart" class="line-chart-wrapper"></div>
+    </div>
+
+    <!-- Restored Team Performance Table -->
+    <div class="card">
+      <h3>Team Pick Accuracy Breakdown</h3>
+      <table id="team-accuracy-table">
+        <thead>
+          <tr>
+            <th>Team</th>
+            <th>Times Picked</th>
+            <th>Correct</th>
+            <th>Incorrect</th>
+            <th>Accuracy %</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
   </div>
 
@@ -223,42 +254,50 @@
           incorrect: 0,
           crowns: 0,
           winningDeltas: [],
-          weeklyHistory: {}
+          weeklyHistory: {},
+          teamStats: {}
         };
       });
 
       // Process each week
       Object.entries(poolData.weeks || {}).forEach(([weekKey, weekData]) => {
-        const weekWinnerScores = {};
+        const matchups = weekData.matchups || [];
         const tiebreakerActual = weekData.tiebreaker?.actualTotalScore;
+
+        // Check if week is completely finished (all matchups have non-null winner)
+        const isWeekComplete = matchups.length > 0 && matchups.every(m => m.winner !== null && m.winner !== undefined);
 
         (poolData.players || []).forEach(p => {
           computedStats[p].weeklyHistory[weekKey] = { correct: 0, incorrect: 0, diff: null };
         });
 
         // Tally matchups
-        (weekData.matchups || []).forEach(m => {
+        matchups.forEach(m => {
           if (m.winner) {
             Object.entries(m.picks || {}).forEach(([p, pick]) => {
               if (computedStats[p]) {
+                // Initialize team stats tracker
+                if (!computedStats[p].teamStats[pick]) {
+                  computedStats[p].teamStats[pick] = { picked: 0, correct: 0, incorrect: 0 };
+                }
+                computedStats[p].teamStats[pick].picked++;
+
                 if (pick === m.winner) {
                   computedStats[p].correct++;
                   computedStats[p].weeklyHistory[weekKey].correct++;
+                  computedStats[p].teamStats[pick].correct++;
                 } else {
                   computedStats[p].incorrect++;
                   computedStats[p].weeklyHistory[weekKey].incorrect++;
+                  computedStats[p].teamStats[pick].incorrect++;
                 }
               }
             });
           }
         });
 
-        // Compute tiebreaker differentials for weekly crown
-        let maxWins = -1;
+        // Compute tiebreaker differentials
         (poolData.players || []).forEach(p => {
-          const pWins = computedStats[p].weeklyHistory[weekKey].correct;
-          if (pWins > maxWins) maxWins = pWins;
-
           const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal;
           if (typeof tiebreakerActual === 'number' && typeof pred === 'number') {
             const diff = Math.abs(pred - tiebreakerActual);
@@ -266,28 +305,36 @@
           }
         });
 
-        // Determine Weekly Crown winner(s)
-        if (maxWins > 0) {
-          const topPlayers = poolData.players.filter(p => computedStats[p].weeklyHistory[weekKey].correct === maxWins);
-          
-          let crownWinner = topPlayers[0];
-          if (topPlayers.length > 1) {
-            // Tiebreaker check: lowest differential wins
-            let minDiff = Infinity;
-            topPlayers.forEach(p => {
-              const d = computedStats[p].weeklyHistory[weekKey].diff;
-              if (d !== null && d < minDiff) {
-                minDiff = d;
-                crownWinner = p;
-              }
-            });
-          }
+        // Determine Weekly Crown winner ONLY if the week is fully completed
+        if (isWeekComplete) {
+          let maxWins = -1;
+          poolData.players.forEach(p => {
+            const pWins = computedStats[p].weeklyHistory[weekKey].correct;
+            if (pWins > maxWins) maxWins = pWins;
+          });
 
-          if (computedStats[crownWinner]) {
-            computedStats[crownWinner].crowns++;
-            const crownDiff = computedStats[crownWinner].weeklyHistory[weekKey].diff;
-            if (crownDiff !== null) {
-              computedStats[crownWinner].winningDeltas.push(crownDiff);
+          if (maxWins > 0) {
+            const topPlayers = poolData.players.filter(p => computedStats[p].weeklyHistory[weekKey].correct === maxWins);
+            
+            let crownWinner = topPlayers[0];
+            if (topPlayers.length > 1) {
+              // Tiebreaker check: lowest differential wins
+              let minDiff = Infinity;
+              topPlayers.forEach(p => {
+                const d = computedStats[p].weeklyHistory[weekKey].diff;
+                if (d !== null && d < minDiff) {
+                  minDiff = d;
+                  crownWinner = p;
+                }
+              });
+            }
+
+            if (computedStats[crownWinner]) {
+              computedStats[crownWinner].crowns++;
+              const crownDiff = computedStats[crownWinner].weeklyHistory[weekKey].diff;
+              if (crownDiff !== null) {
+                computedStats[crownWinner].winningDeltas.push(crownDiff);
+              }
             }
           }
         }
@@ -296,25 +343,36 @@
 
     // 3. RENDER SEASON OVERALL TAB
     function renderOverallTab() {
-      const sorted = [...poolData.players].sort((a, b) => {
-        return computedStats[b].correct - computedStats[a].correct;
-      });
+      const sorted = [...poolData.players].sort((a, b) => computedStats[b].correct - computedStats[a].correct);
 
       const leaderWins = computedStats[sorted[0]]?.correct || 0;
       const leaderLosses = computedStats[sorted[0]]?.incorrect || 0;
 
-      // Render Leaderboard
+      // Standalone Bar Chart Render
+      const maxWins = Math.max(leaderWins, 1);
+      const barContainer = document.getElementById('standalone-bar-chart');
+      barContainer.innerHTML = sorted.map(p => {
+        const wins = computedStats[p].correct;
+        const widthPct = (wins / maxWins) * 100;
+        return `
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">${p}</div>
+            <div class="chart-bar-track">
+              <div class="chart-bar-fill" style="width: ${widthPct}%;"></div>
+            </div>
+            <div class="chart-bar-value">${wins} W</div>
+          </div>
+        `;
+      }).join('');
+
+      // Leaderboard Table Render (Cleaned - Progress Bar Column Removed)
       const lbBody = document.querySelector('#leaderboard-table tbody');
       lbBody.innerHTML = sorted.map((p, idx) => {
         const wins = computedStats[p].correct;
         const losses = computedStats[p].incorrect;
         const total = wins + losses;
         const pct = total > 0 ? ((wins / total) * 100).toFixed(1) : "0.0";
-        
-        // Calculate Games Back
         const gb = idx === 0 ? '-' : (((leaderWins - wins) + (losses - leaderLosses)) / 2).toFixed(1);
-        const maxWins = Math.max(leaderWins, 1);
-        const barWidth = Math.min((wins / maxWins) * 100, 100);
 
         return `
           <tr>
@@ -324,16 +382,11 @@
             <td class="text-danger">${losses}</td>
             <td>${pct}%</td>
             <td><strong>${gb}</strong></td>
-            <td>
-              <div class="bar-container">
-                <div class="bar-fill" style="width: ${barWidth}%;"></div>
-              </div>
-            </td>
           </tr>
         `;
       }).join('');
 
-      // Render Crown Standings
+      // Weekly Crown Standings
       const crownSorted = [...poolData.players].sort((a, b) => computedStats[b].crowns - computedStats[a].crowns);
       const crownBody = document.querySelector('#crowns-table tbody');
       crownBody.innerHTML = crownSorted.map(p => {
@@ -358,7 +411,7 @@
       const weekData = poolData.weeks[week];
       if (!weekData) return;
 
-      // Build Matrix Header
+      // Matrix Header
       const matrixHead = document.querySelector('#matrix-table thead');
       matrixHead.innerHTML = `
         <tr>
@@ -369,7 +422,7 @@
         </tr>
       `;
 
-      // Build Matrix Body
+      // Matrix Body
       const matrixBody = document.querySelector('#matrix-table tbody');
       matrixBody.innerHTML = (weekData.matchups || []).map(m => {
         const winner = m.winner;
@@ -390,10 +443,8 @@
         `;
       }).join('');
 
-      // Build Week Tracker Table
+      // Week Tracker Table
       const trackerBody = document.querySelector('#week-tracker-table tbody');
-      const actualTotal = weekData.tiebreaker?.actualTotalScore;
-
       trackerBody.innerHTML = poolData.players.map(p => {
         const wHist = computedStats[p]?.weeklyHistory[week] || { correct: 0, incorrect: 0, diff: null };
         const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal ?? 'N/A';
@@ -428,7 +479,7 @@
       const totalPicks = pStats.correct + pStats.incorrect;
       const accuracy = totalPicks > 0 ? ((pStats.correct / totalPicks) * 100).toFixed(1) + '%' : '0.0%';
 
-      // Render KPI Banner
+      // KPI Banner
       document.getElementById('player-kpi-banner').innerHTML = `
         <div class="kpi-card">
           <div class="kpi-val">#${rank}</div>
@@ -444,51 +495,77 @@
         </div>
       `;
 
-      // Render SVG Weekly Line Chart
-      renderSVGChart(player);
+      // Restored Performance Column Chart
+      renderPerformanceChart(player);
+
+      // Restored Team Accuracy Table
+      renderTeamAccuracyTable(player);
     }
 
-    function renderSVGChart(player) {
-      const container = document.getElementById('player-chart-container');
+    function renderPerformanceChart(player) {
+      const chartContainer = document.getElementById('player-trend-chart');
       const weeks = Object.keys(poolData.weeks || {});
+      
       if (weeks.length === 0) {
-        container.innerHTML = "<p>No weekly data available.</p>";
+        chartContainer.innerHTML = "<p>No data available.</p>";
         return;
       }
 
-      const winsPerWeek = weeks.map(w => computedStats[player]?.weeklyHistory[w]?.correct || 0);
-      const maxW = Math.max(...winsPerWeek, 16);
+      let maxWinsInAWeek = 1;
+      weeks.forEach(w => {
+        const wins = computedStats[player]?.weeklyHistory[w]?.correct || 0;
+        if (wins > maxWinsInAWeek) maxWinsInAWeek = wins;
+      });
 
-      const width = 600;
-      const height = 180;
-      const padding = 30;
+      chartContainer.innerHTML = weeks.map(w => {
+        const wins = computedStats[player]?.weeklyHistory[w]?.correct || 0;
+        const heightPct = (wins / maxWinsInAWeek) * 100;
+        return `
+          <div class="chart-col">
+            <div class="chart-col-val">${wins}</div>
+            <div class="chart-pillar" style="height: ${heightPct}%;"></div>
+            <div class="chart-col-label">${w}</div>
+          </div>
+        `;
+      }).join('');
+    }
 
-      const points = winsPerWeek.map((val, idx) => {
-        const x = padding + (idx / Math.max(weeks.length - 1, 1)) * (width - 2 * padding);
-        const y = height - padding - (val / maxW) * (height - 2 * padding);
-        return `${x},${y}`;
-      }).join(' ');
+    function renderTeamAccuracyTable(player) {
+      const teamStats = computedStats[player]?.teamStats || {};
+      const tbody = document.querySelector('#team-accuracy-table tbody');
+      
+      const teams = Object.keys(teamStats).sort((a, b) => teamStats[b].picked - teamStats[a].picked);
 
-      container.innerHTML = `
-        <svg viewBox="0 0 ${width} ${height}" style="width:100%; height:100%;">
-          <!-- Grid Lines -->
-          <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="#e2e8f0" stroke-width="2"/>
-          <!-- Trend Line -->
-          <polyline fill="none" stroke="#3b82f6" stroke-width="3" points="${points}" />
-        </svg>
-      `;
+      if (teams.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No completed games recorded for this player yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = teams.map(team => {
+        const stat = teamStats[team];
+        const pct = stat.picked > 0 ? ((stat.correct / stat.picked) * 100).toFixed(1) : '0.0';
+        return `
+          <tr>
+            <td><strong>${team}</strong></td>
+            <td>${stat.picked}</td>
+            <td class="text-success">${stat.correct}</td>
+            <td class="text-danger">${stat.incorrect}</td>
+            <td><strong>${pct}%</strong></td>
+          </tr>
+        `;
+      }).join('');
     }
 
     // 6. TAB SWITCHER
-    function switchTab(tabId) {
+    function switchTab(tabId, evt) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-      event.target.classList.add('active');
+      evt.target.classList.add('active');
       document.getElementById(`tab-${tabId}`).classList.add('active');
     }
 
-    // Start App
+    // Initialize App
     initDashboard();
   </script>
 </body>
