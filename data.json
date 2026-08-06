@@ -2,7 +2,8 @@
   "metadata": {
     "title": "🏈 Family NFL Pick 'Em Pool",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday, 4:15 PM EST"
+    "lastUpdated": "Sunday, 4:15 PM EST",
+    "currentWeek": "Week 2"
   },
   "players": ["Mom", "Uncle Bob", "You", "Cousin Sarah"],
   "weeks": {

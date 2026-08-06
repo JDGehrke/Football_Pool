@@ -97,8 +97,6 @@
 
   <!-- ================= OVERALL TAB ================= -->
   <div id="tab-overall" class="tab-content active">
-    
-    <!-- Restored Standalone Bar Chart -->
     <div class="card">
       <h3>Season Wins Overview</h3>
       <div id="standalone-bar-chart"></div>
@@ -178,16 +176,13 @@
       <select id="player-select" onchange="renderPlayerProfile()"></select>
     </div>
 
-    <!-- Top KPI Cards -->
     <div id="player-kpi-banner" class="kpi-grid"></div>
 
-    <!-- Restored Original Performance Chart -->
     <div class="card">
       <h3>Weekly Performance Trend</h3>
       <div id="player-trend-chart" class="line-chart-wrapper"></div>
     </div>
 
-    <!-- Restored Team Performance Table -->
     <div class="card">
       <h3>Team Pick Accuracy Breakdown</h3>
       <table id="team-accuracy-table">
@@ -238,9 +233,21 @@
     }
 
     function populateDropdowns() {
+      const weekKeys = Object.keys(poolData.weeks || {});
       const weekSelect = document.getElementById('week-select');
-      weekSelect.innerHTML = Object.keys(poolData.weeks || {}).map(w => `<option value="${w}">${w}</option>`).join('');
+      
+      // Populate weeks in chronological order as listed in data.json
+      weekSelect.innerHTML = weekKeys.map(w => `<option value="${w}">${w}</option>`).join('');
 
+      // Set default selected week to metadata currentWeek if provided, else fall back to the last week
+      const targetWeek = poolData.metadata?.currentWeek;
+      if (targetWeek && weekKeys.includes(targetWeek)) {
+        weekSelect.value = targetWeek;
+      } else if (weekKeys.length > 0) {
+        weekSelect.value = weekKeys[weekKeys.length - 1];
+      }
+
+      // Populate players
       const playerSelect = document.getElementById('player-select');
       playerSelect.innerHTML = (poolData.players || []).map(p => `<option value="${p}">${p}</option>`).join('');
     }
@@ -264,7 +271,6 @@
         const matchups = weekData.matchups || [];
         const tiebreakerActual = weekData.tiebreaker?.actualTotalScore;
 
-        // Check if week is completely finished (all matchups have non-null winner)
         const isWeekComplete = matchups.length > 0 && matchups.every(m => m.winner !== null && m.winner !== undefined);
 
         (poolData.players || []).forEach(p => {
@@ -276,7 +282,6 @@
           if (m.winner) {
             Object.entries(m.picks || {}).forEach(([p, pick]) => {
               if (computedStats[p]) {
-                // Initialize team stats tracker
                 if (!computedStats[p].teamStats[pick]) {
                   computedStats[p].teamStats[pick] = { picked: 0, correct: 0, incorrect: 0 };
                 }
@@ -305,7 +310,7 @@
           }
         });
 
-        // Determine Weekly Crown winner ONLY if the week is fully completed
+        // Determine Weekly Crown winner ONLY if week is fully completed
         if (isWeekComplete) {
           let maxWins = -1;
           poolData.players.forEach(p => {
@@ -318,7 +323,6 @@
             
             let crownWinner = topPlayers[0];
             if (topPlayers.length > 1) {
-              // Tiebreaker check: lowest differential wins
               let minDiff = Infinity;
               topPlayers.forEach(p => {
                 const d = computedStats[p].weeklyHistory[weekKey].diff;
@@ -365,7 +369,7 @@
         `;
       }).join('');
 
-      // Leaderboard Table Render (Cleaned - Progress Bar Column Removed)
+      // Leaderboard Table Render
       const lbBody = document.querySelector('#leaderboard-table tbody');
       lbBody.innerHTML = sorted.map((p, idx) => {
         const wins = computedStats[p].correct;
@@ -495,10 +499,7 @@
         </div>
       `;
 
-      // Restored Performance Column Chart
       renderPerformanceChart(player);
-
-      // Restored Team Accuracy Table
       renderTeamAccuracyTable(player);
     }
 
