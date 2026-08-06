@@ -194,6 +194,16 @@
         .graph-point { fill: white; stroke: var(--accent); stroke-width: 3; }
         .graph-label-text { font-size: 9pt; font-weight: 600; fill: var(--text-muted); text-anchor: middle; }
         .graph-value-text { font-size: 10pt; font-weight: bold; fill: var(--primary); text-anchor: middle; }
+
+        .error-message {
+            color: var(--fail);
+            background-color: var(--fail-bg);
+            border: 1px solid #feb2b2;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -323,18 +333,20 @@
             if (targetContent) targetContent.classList.add('active');
         }
 
-        // 1. Load Data
+        // Load External data.json
         async function initDashboard() {
             try {
                 const response = await fetch('./data.json');
-                if (!response.ok) throw new Error("HTTP Error loading data.json");
+                if (!response.ok) {
+                    throw new Error(`HTTP Error Status: ${response.status}`);
+                }
                 poolData = await response.json();
             } catch (err) {
-                console.warn("Could not fetch data.json via HTTP/HTTPS. Using local state if available.", err);
-            }
-
-            if (!poolData || !poolData.players) {
-                document.getElementById('header-subtitle').innerText = "Error: Could not load data.json. Ensure file exists in root directory.";
+                console.error("Error loading data.json:", err);
+                document.getElementById('header-subtitle').innerHTML = `
+                    <div class="error-message">
+                        Error: Could not load data.json. If running locally, please serve through a local web server (e.g. http://localhost) rather than opening the file directly.
+                    </div>`;
                 return;
             }
 
@@ -353,12 +365,12 @@
             populateWeekDropdown();
             renderWeeklyTab();
             populatePlayerDropdown();
-            if (poolData.players.length > 0) {
+            if (poolData.players && poolData.players.length > 0) {
                 renderPlayerProfile(poolData.players[0]);
             }
         }
 
-        // 2. Pure Calculation Engine (Calculates ALL scores & winners on the fly)
+        // Pure Dynamic Calculation Engine
         function calculateStatistics() {
             let stats = {};
             const players = poolData.players || [];
@@ -453,7 +465,7 @@
             return stats;
         }
 
-        // 3. Render Season Overall Tab
+        // Render Season Overall Tab
         function renderOverallTab() {
             const sortedPlayers = Object.values(computedStats).sort((a, b) => b.correct - a.correct);
             const maxWins = sortedPlayers[0] ? sortedPlayers[0].correct : 1;
@@ -511,7 +523,7 @@
             document.getElementById("overall-crowns-body").innerHTML = crownsHTML;
         }
 
-        // 4. Render Weekly Tab
+        // Render Weekly Tab
         function populateWeekDropdown() {
             const select = document.getElementById("week-select");
             const weeks = Object.keys(poolData.weeks || {});
@@ -526,7 +538,10 @@
         }
 
         function renderWeeklyTab() {
-            const selectedWeek = document.getElementById("week-select").value;
+            const selectElem = document.getElementById("week-select");
+            if (!selectElem || !selectElem.value) return;
+
+            const selectedWeek = selectElem.value;
             const week = poolData.weeks[selectedWeek];
             const table = document.getElementById("dynamic-picks-table");
             const players = poolData.players || [];
@@ -586,7 +601,7 @@
             }
         }
 
-        // 5. Render Player Profile Tab
+        // Render Player Profile Tab
         function populatePlayerDropdown() {
             const select = document.getElementById("player-select");
             select.innerHTML = "";
@@ -631,7 +646,7 @@
 
             // Dynamic SVG Graph Generation
             const historyKeys = Object.keys(pStats.weeklyHistory);
-            let graphPoints = "", graphLines = "", graphLabels = "";
+            let graphLines = "", graphLabels = "";
 
             if (historyKeys.length > 0) {
                 const stepX = historyKeys.length > 1 ? 200 / (historyKeys.length - 1) : 0;
