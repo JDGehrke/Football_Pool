@@ -291,7 +291,7 @@
         <!-- Header -->
         <header>
             <h1>🏈 Family NFL Pick 'Em Pool</h1>
-            <p>Live Dashboard — Active Season</p>
+            <p>Live Dashboard — Week 2 Active</p>
             <div class="timestamp">Last Updated: Sunday, 3:45 PM EST</div>
         </header>
 
@@ -444,7 +444,8 @@
                         <div class="selector-box">
                             <label for="week-select">Select Historical Pool Week:</label>
                             <select id="week-select" class="styled-select" onchange="renderWeeklyTable()">
-                                <!-- Populated dynamically from data.json -->
+                                <option value="Week 1">Week 1</option>
+                                <option value="Week 2" selected>Week 2 (Current)</option>
                             </select>
                         </div>
                     </div>
@@ -827,62 +828,51 @@
         </div>
     </div>
 
-    <!-- Dropdown switcher & Weekly data fetch engine logic -->
+    <!-- Dropdown switcher & Weekly data generation engine logic -->
     <script>
-        let poolWeeklyData = {};
-
-        // 1. Fetch JSON file on page load
-        async function initDashboard() {
-            try {
-                // Fetch data.json directly from the repository root
-                const response = await fetch('./data.json');
-                if (!response.ok) {
-                    throw new Error(`Failed to load data.json: ${response.statusText}`);
+        // Data block matching the exact dictionary structural setup planned for the Python automation module.
+        const poolWeeklyData = {
+            "Week 1": {
+                "matchups": [
+                    { "game": "BAL @ KC", "status": "Final: KC", "picks": { "Mom": "KC", "Uncle Bob": "KC", "You": "BAL", "Cousin Sarah": "KC" } },
+                    { "game": "GB @ PHI", "status": "Final: PHI", "picks": { "Mom": "PHI", "Uncle Bob": "GB", "You": "PHI", "Cousin Sarah": "GB" } },
+                    { "game": "DAL @ CLE", "status": "Final: DAL", "picks": { "Mom": "CLE", "Uncle Bob": "DAL", "You": "DAL", "Cousin Sarah": "CLE" } }
+                ],
+                "tiebreaker": {
+                    "game": "DAL @ CLE",
+                    "status": "Final",
+                    "totalScore": 50,
+                    "players": {
+                        "Mom": { "pick": "Incorrect", "predicted": 38 },
+                        "Uncle Bob": { "pick": "Correct", "predicted": 51 },
+                        "You": { "pick": "Correct", "predicted": 48 },
+                        "Cousin Sarah": { "pick": "Incorrect", "predicted": 45 }
+                    }
                 }
-                
-                const data = await response.json();
-                poolWeeklyData = data.weeks || {};
-
-                // 2. Dynamically build the week selection dropdown options
-                populateWeekDropdown();
-
-                // 3. Render the table for the active week
-                renderWeeklyTable();
-            } catch (error) {
-                console.error('Error loading pool data:', error);
-                const table = document.getElementById("dynamic-picks-table");
-                if (table) {
-                    table.innerHTML = `<tr><td style="padding:20px; text-align:center; color: var(--fail);">Error loading data file (data.json). Check browser console.</td></tr>`;
+            },
+            "Week 2": {
+                "matchups": [
+                    { "game": "BUF @ MIA", "status": "Final: BUF", "picks": { "Mom": "BUF", "Uncle Bob": "MIA", "You": "BUF", "Cousin Sarah": "MIA" } },
+                    { "game": "SF @ MIN", "status": "Final: MIN", "picks": { "Mom": "MIN", "Uncle Bob": "SF", "You": "SF", "Cousin Sarah": "SF" } },
+                    { "game": "CIN @ KC", "status": "Live: KC 17-14", "picks": { "Mom": "KC", "Uncle Bob": "KC", "You": "KC", "Cousin Sarah": "CIN" } },
+                    { "game": "ATL @ PHI", "status": "Pending", "picks": { "Mom": "PHI", "Uncle Bob": "ATL", "You": "PHI", "Cousin Sarah": "PHI" } }
+                ],
+                "tiebreaker": {
+                    "game": "ATL @ PHI",
+                    "status": "Pending",
+                    "totalScore": null,
+                    "players": {
+                        "Mom": { "pick": "Correct", "predicted": 52 },
+                        "You": { "pick": "Correct", "predicted": 44 },
+                        "Uncle Bob": { "pick": "Incorrect", "predicted": 41 },
+                        "Cousin Sarah": { "pick": "Correct", "predicted": 38 }
+                    }
                 }
             }
-        }
-
-        // Populates <option> tags based on keys in data.json
-        function populateWeekDropdown() {
-            const weekSelect = document.getElementById("week-select");
-            if (!weekSelect) return;
-
-            const weeks = Object.keys(poolWeeklyData);
-            if (weeks.length === 0) return;
-
-            weekSelect.innerHTML = "";
-            weeks.forEach((week, index) => {
-                const option = document.createElement("option");
-                option.value = week;
-                option.textContent = week;
-                // Default selection to the latest week available
-                if (index === weeks.length - 1) {
-                    option.selected = true;
-                }
-                weekSelect.appendChild(option);
-            });
-        }
+        };
 
         function renderWeeklyTable() {
-            const weekSelect = document.getElementById("week-select");
-            if (!weekSelect) return;
-
-            const selectedWeek = weekSelect.value;
+            const selectedWeek = document.getElementById("week-select").value;
             const weekData = poolWeeklyData[selectedWeek];
             const table = document.getElementById("dynamic-picks-table");
             
@@ -894,7 +884,7 @@
             const games = weekData.matchups;
             const players = Object.keys(games[0].picks);
             
-            // Matchup Grid Header Generation
+            // 1. Matchup Grid Header Generation
             let tableHTML = `
                 <thead>
                     <tr>
@@ -906,7 +896,7 @@
             });
             tableHTML += `</tr></thead><tbody>`;
 
-            // Matchup Grid Row Compilation Loop
+            // 2. Matchup Grid Row Compilation Loop
             games.forEach(g => {
                 tableHTML += `<tr>`;
                 tableHTML += `<td class="player-name">${g.game}</td>`;
@@ -928,7 +918,7 @@
             tableHTML += `</tbody>`;
             table.innerHTML = tableHTML;
 
-            // Trigger Tiebreaker Block Rendering
+            // 3. Trigger Tiebreaker Rendering Module
             renderTiebreakerBlock(selectedWeek);
         }
 
@@ -951,10 +941,12 @@
             Object.keys(data.players).forEach(player => {
                 const pData = data.players[player];
                 
+                // Style Pick straight-up accuracy badge
                 let outcomeBadge = `<span class="badge badge-neutral">${pData.pick}</span>`;
                 if (pData.pick === "Correct") outcomeBadge = `<span class="badge badge-win">✓ Correct Pick</span>`;
                 if (pData.pick === "Incorrect") outcomeBadge = `<span class="badge badge-cold">✗ Incorrect Pick</span>`;
 
+                // Run structural delta validation checks 
                 let marginDisplay = "";
                 if (data.status === "Final" && data.totalScore !== null) {
                     const delta = Math.abs(pData.predicted - data.totalScore);
@@ -986,8 +978,8 @@
             }
         }
 
-        // Initialize asynchronous data fetching on DOM content load
-        document.addEventListener("DOMContentLoaded", initDashboard);
+        // Initialize table generation logic on page load
+        document.addEventListener("DOMContentLoaded", renderWeeklyTable);
     </script>
 </body>
 </html>

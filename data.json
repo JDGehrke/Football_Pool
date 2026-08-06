@@ -1,11 +1,41 @@
 {
-  "last_updated": "Thursday, 10:35 PM",
-  "week": "Week 1",
-  "standings": [
-    { "rank": 1, "name": "Uncle Bob", "wins": 15, "losses": 1, "pct": 93.8, "status": "Leader" },
-    { "rank": 2, "name": "Mom", "wins": 12, "losses": 4, "pct": 75.0, "status": "--" },
-    { "rank": 3, "name": "You (Script Admin)", "wins": 11, "losses": 5, "pct": 68.8, "status": "--" },
-    { "rank": 4, "name": "Cousin Sarah", "wins": 9, "losses": 7, "pct": 56.3, "status": "--" },
-    { "rank": 5, "name": "Grandpa", "wins": 6, "losses": 10, "pct": 37.5, "status": "Cold Streak" }
-  ]
+  "weeks": {
+    "Week 1": {
+      "matchups": [
+        { "game": "BAL @ KC", "status": "Final: KC", "picks": { "Mom": "KC", "Uncle Bob": "KC", "You": "BAL", "Cousin Sarah": "KC" } },
+        { "game": "GB @ PHI", "status": "Final: PHI", "picks": { "Mom": "PHI", "Uncle Bob": "GB", "You": "PHI", "Cousin Sarah": "GB" } },
+        { "game": "DAL @ CLE", "status": "Final: DAL", "picks": { "Mom": "CLE", "Uncle Bob": "DAL", "You": "DAL", "Cousin Sarah": "CLE" } }
+      ],
+      "tiebreaker": {
+        "game": "DAL @ CLE",
+        "status": "Final",
+        "totalScore": 50,
+        "players": {
+          "Mom": { "pick": "Incorrect", "predicted": 38 },
+          "Uncle Bob": { "pick": "Correct", "predicted": 51 },
+          "You": { "pick": "Correct", "predicted": 48 },
+          "Cousin Sarah": { "pick": "Incorrect", "predicted": 45 }
+        }
+      }
+    },
+    "Week 2": {
+      "matchups": [
+        { "game": "BUF @ MIA", "status": "Final: BUF", "picks": { "Mom": "BUF", "Uncle Bob": "MIA", "You": "BUF", "Cousin Sarah": "MIA" } },
+        { "game": "SF @ MIN", "status": "Final: MIN", "picks": { "Mom": "MIN", "Uncle Bob": "SF", "You": "SF", "Cousin Sarah": "SF" } },
+        { "game": "CIN @ KC", "status": "Live: KC 17-14", "picks": { "Mom": "KC", "Uncle Bob": "KC", "You": "KC", "Cousin Sarah": "CIN" } },
+        { "game": "ATL @ PHI", "status": "Pending", "picks": { "Mom": "PHI", "Uncle Bob": "ATL", "You": "PHI", "Cousin Sarah": "PHI" } }
+      ],
+      "tiebreaker": {
+        "game": "ATL @ PHI",
+        "status": "Pending",
+        "totalScore": null,
+        "players": {
+          "Mom": { "pick": "Correct", "predicted": 52 },
+          "You": { "pick": "Correct", "predicted": 44 },
+          "Uncle Bob": { "pick": "Incorrect", "predicted": 41 },
+          "Cousin Sarah": { "pick": "Correct", "predicted": 38 }
+        }
+      }
+    }
+  }
 }
