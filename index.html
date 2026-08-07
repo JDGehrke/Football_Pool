@@ -44,6 +44,15 @@
     th { background-color: #f1f5f9; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
     tr:last-child td { border-bottom: none; }
 
+    /* --- TEAM LOGOS --- */
+    .team-logo-icon {
+      width: 20px;
+      height: 20px;
+      vertical-align: middle;
+      margin-right: 5px;
+      object-fit: contain;
+    }
+
     /* --- KPI CARDS --- */
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
     .kpi-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -216,6 +225,36 @@
   <script>
     let poolData = null;
     let computedStats = {};
+
+    // --- TEAM LOGO HELPERS ---
+    function getTeamLogoHtml(abbr) {
+      if (!abbr || abbr === '—' || abbr === 'N/A') return abbr || '—';
+
+      let cleanAbbr = abbr.trim().toUpperCase();
+
+      const ALIASES = {
+        "LAR": "LA",   // Rams alias if saved as LA.PNG
+        "WSH": "WAS"   // Washington alias
+      };
+
+      if (ALIASES[cleanAbbr]) {
+        cleanAbbr = ALIASES[cleanAbbr];
+      }
+
+      return `<img src="./logos/${cleanAbbr}.png" alt="${abbr}" class="team-logo-icon" onerror="this.style.display='none'"> ${abbr}`;
+    }
+
+    function formatGameWithLogos(gameStr) {
+      if (!gameStr) return '';
+      // Formats strings like "KC @ BAL" or "KC vs BAL" by replacing team abbreviations with icon + text
+      return gameStr.split(/(@|vs\.?|v\.?|\-)/i).map(part => {
+        const trimmed = part.trim();
+        if (/^[A-Za-z]{2,3}$/.test(trimmed)) {
+          return getTeamLogoHtml(trimmed);
+        }
+        return part;
+      }).join(' ');
+    }
 
     // 1. FETCH & INITIALIZE
     async function initDashboard() {
@@ -438,13 +477,13 @@
         </tr>
       `;
 
-      // Matrix Body
+      // Matrix Body (With Team Logos)
       const matrixBody = document.querySelector('#matrix-table tbody');
       matrixBody.innerHTML = (weekData.matchups || []).map(m => {
         const winner = m.winner;
         return `
           <tr>
-            <td><strong>${m.game}</strong></td>
+            <td><strong>${formatGameWithLogos(m.game)}</strong></td>
             <td><span class="badge-status">${m.status}</span></td>
             ${poolData.players.map(p => {
               const pick = m.picks?.[p] || '—';
@@ -452,7 +491,8 @@
               if (winner) {
                 cssClass = (pick === winner) ? 'pick-correct' : 'pick-incorrect';
               }
-              return `<td class="${cssClass}">${pick}</td>`;
+              const pickDisplay = (pick !== '—') ? getTeamLogoHtml(pick) : '—';
+              return `<td class="${cssClass}">${pickDisplay}</td>`;
             }).join('')}
           </tr>
         `;
@@ -583,7 +623,7 @@
         const pct = stat.picked > 0 ? ((stat.correct / stat.picked) * 100).toFixed(1) : '0.0';
         return `
           <tr>
-            <td><strong>${team}</strong></td>
+            <td><strong>${getTeamLogoHtml(team)}</strong></td>
             <td>${stat.picked}</td>
             <td class="text-success">${stat.correct}</td>
             <td class="text-danger">${stat.incorrect}</td>
