@@ -61,9 +61,19 @@
     /* STANDALONE BAR CHART STYLES */
     .chart-bar-row { display: flex; align-items: center; margin-bottom: 12px; gap: 15px; }
     .chart-bar-label { width: 120px; font-weight: 600; font-size: 0.9rem; text-align: right; }
-    .chart-bar-track { flex: 1; background: #f1f5f9; border-radius: 6px; height: 24px; overflow: hidden; position: relative; }
-    .chart-bar-fill { background: var(--secondary-color); height: 100%; border-radius: 6px; transition: width 0.4s ease; }
-    .chart-bar-value { width: 50px; font-weight: bold; font-size: 0.9rem; }
+    .chart-bar-track { flex: 1; background: #f1f5f9; border-radius: 6px; height: 26px; overflow: hidden; position: relative; }
+    .chart-bar-fill { 
+      background: var(--secondary-color); 
+      height: 100%; 
+      border-radius: 6px; 
+      transition: width 0.4s ease; 
+      display: flex; 
+      align-items: center; 
+      justify-content: flex-end; 
+      padding-right: 10px; 
+      min-width: 32px;
+    }
+    .chart-bar-value { color: #ffffff; font-weight: bold; font-size: 0.85rem; }
 
     /* PICK MATRIX */
     .matrix-wrapper { overflow-x: auto; }
@@ -71,12 +81,14 @@
     .pick-incorrect { background-color: #fee2e2 !important; color: #991b1b; }
     .pick-pending { background-color: #ffffff; color: var(--text-main); }
 
-    /* LINE CHART CONTAINER */
-    .line-chart-wrapper { display: flex; align-items: flex-end; gap: 15px; height: 200px; padding-top: 20px; padding-bottom: 20px; border-left: 2px solid var(--border-color); border-bottom: 2px solid var(--border-color); margin-top: 15px; }
-    .chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
-    .chart-pillar { width: 60%; background: var(--secondary-color); border-radius: 4px 4px 0 0; min-height: 4px; transition: height 0.3s ease; }
-    .chart-col-label { margin-top: 8px; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
-    .chart-col-val { font-size: 0.8rem; font-weight: bold; margin-bottom: 4px; }
+    /* LINE & SCATTER CHART STYLES */
+    .scatter-chart-wrapper { width: 100%; height: 220px; position: relative; padding: 10px 0; }
+    .scatter-svg { width: 100%; height: 100%; overflow: visible; }
+    .scatter-line { stroke: var(--secondary-color); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .scatter-point { fill: #ffffff; stroke: var(--secondary-color); stroke-width: 3; r: 6; transition: all 0.2s ease; cursor: pointer; }
+    .scatter-point:hover { r: 8; fill: var(--secondary-color); }
+    .scatter-text-val { font-size: 12px; font-weight: bold; fill: var(--primary-color); text-anchor: middle; }
+    .scatter-text-label { font-size: 11px; font-weight: 600; fill: var(--text-muted); text-anchor: middle; }
   </style>
 </head>
 <body>
@@ -180,7 +192,7 @@
 
     <div class="card">
       <h3>Weekly Performance Trend</h3>
-      <div id="player-trend-chart" class="line-chart-wrapper"></div>
+      <div id="player-trend-chart" class="scatter-chart-wrapper"></div>
     </div>
 
     <div class="card">
@@ -236,10 +248,10 @@
       const weekKeys = Object.keys(poolData.weeks || {});
       const weekSelect = document.getElementById('week-select');
       
-      // Populate weeks in chronological order as listed in data.json
+      // Populate weeks in chronological order
       weekSelect.innerHTML = weekKeys.map(w => `<option value="${w}">${w}</option>`).join('');
 
-      // Set default selected week to metadata currentWeek if provided, else fall back to the last week
+      // Set default week to currentWeek from metadata, fallback to latest week
       const targetWeek = poolData.metadata?.currentWeek;
       if (targetWeek && weekKeys.includes(targetWeek)) {
         weekSelect.value = targetWeek;
@@ -362,9 +374,10 @@
           <div class="chart-bar-row">
             <div class="chart-bar-label">${p}</div>
             <div class="chart-bar-track">
-              <div class="chart-bar-fill" style="width: ${widthPct}%;"></div>
+              <div class="chart-bar-fill" style="width: ${widthPct}%;">
+                <span class="chart-bar-value">${wins}</span>
+              </div>
             </div>
-            <div class="chart-bar-value">${wins} W</div>
           </div>
         `;
       }).join('');
@@ -421,7 +434,6 @@
         <tr>
           <th>Game</th>
           <th>Status</th>
-          <th>Winner</th>
           ${poolData.players.map(p => `<th>${p}</th>`).join('')}
         </tr>
       `;
@@ -434,7 +446,6 @@
           <tr>
             <td><strong>${m.game}</strong></td>
             <td><span class="badge-status">${m.status}</span></td>
-            <td><strong>${winner || 'TBD'}</strong></td>
             ${poolData.players.map(p => {
               const pick = m.picks?.[p] || '—';
               let cssClass = 'pick-pending';
@@ -503,32 +514,57 @@
       renderTeamAccuracyTable(player);
     }
 
+    // Render Line / Scatter Plot Chart
     function renderPerformanceChart(player) {
       const chartContainer = document.getElementById('player-trend-chart');
       const weeks = Object.keys(poolData.weeks || {});
       
       if (weeks.length === 0) {
-        chartContainer.innerHTML = "<p>No data available.</p>";
+        chartContainer.innerHTML = "<p style='text-align:center;'>No weekly data available.</p>";
         return;
       }
 
-      let maxWinsInAWeek = 1;
-      weeks.forEach(w => {
-        const wins = computedStats[player]?.weeklyHistory[w]?.correct || 0;
-        if (wins > maxWinsInAWeek) maxWinsInAWeek = wins;
+      // Collect scores and find bounds
+      const scores = weeks.map(w => computedStats[player]?.weeklyHistory[w]?.correct || 0);
+      let maxScore = Math.max(...scores, 1);
+      
+      // Padding for Chart dimensions
+      const paddingX = 40;
+      const paddingTop = 30;
+      const paddingBottom = 40;
+      const chartHeight = 150; 
+
+      // Build coordinates for each point
+      const points = weeks.map((w, index) => {
+        const x = weeks.length === 1 
+          ? 50 
+          : paddingX + (index / (weeks.length - 1)) * (100 - (2 * paddingX)); // %-based X
+        
+        const y = paddingTop + (1 - (scores[index] / maxScore)) * chartHeight; // px-based Y
+        return { xPct: x, yPx: y, week: w, val: scores[index] };
       });
 
-      chartContainer.innerHTML = weeks.map(w => {
-        const wins = computedStats[player]?.weeklyHistory[w]?.correct || 0;
-        const heightPct = (wins / maxWinsInAWeek) * 100;
-        return `
-          <div class="chart-col">
-            <div class="chart-col-val">${wins}</div>
-            <div class="chart-pillar" style="height: ${heightPct}%;"></div>
-            <div class="chart-col-label">${w}</div>
-          </div>
-        `;
-      }).join('');
+      // SVG Path string for connected line
+      const pathSvg = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.xPct}% ${p.yPx}`).join(' ');
+
+      // Render SVG & Overlays
+      chartContainer.innerHTML = `
+        <svg class="scatter-svg">
+          <path class="scatter-line" d="${pathSvg}" />
+          ${points.map(p => `
+            <g transform="translate(0, 0)">
+              <!-- Data Label Above Point -->
+              <text x="${p.xPct}%" y="${p.yPx - 12}" class="scatter-text-val">${p.val}</text>
+              
+              <!-- Scatter Point Node -->
+              <circle cx="${p.xPct}%" cy="${p.yPx}" class="scatter-point" />
+              
+              <!-- Week Label Below Axis -->
+              <text x="${p.xPct}%" y="${paddingTop + chartHeight + 25}" class="scatter-text-label">${p.week}</text>
+            </g>
+          `).join('')}
+        </svg>
+      `;
     }
 
     function renderTeamAccuracyTable(player) {
