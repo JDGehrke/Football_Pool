@@ -462,61 +462,77 @@
     }
 
     // 4. RENDER WEEK DETAILS TAB
-    function renderWeeklyTab() {
-      const week = document.getElementById('week-select').value;
-      const weekData = poolData.weeks[week];
-      if (!weekData) return;
+function renderWeeklyTab() {
+  const week = document.getElementById('week-select').value;
+  const weekData = poolData.weeks[week];
+  if (!weekData) return;
 
-      // Matrix Header
-      const matrixHead = document.querySelector('#matrix-table thead');
-      matrixHead.innerHTML = `
-        <tr>
-          <th>Game</th>
-          <th>Status</th>
-          ${poolData.players.map(p => `<th>${p}</th>`).join('')}
-        </tr>
-      `;
+  // Matrix Header
+  const matrixHead = document.querySelector('#matrix-table thead');
+  matrixHead.innerHTML = `
+    <tr>
+      <th>Game</th>
+      <th>Status</th>
+      ${poolData.players.map(p => `<th>${p}</th>`).join('')}
+    </tr>
+  `;
 
-      // Matrix Body (With Team Logos)
-      const matrixBody = document.querySelector('#matrix-table tbody');
-      matrixBody.innerHTML = (weekData.matchups || []).map(m => {
-        const winner = m.winner;
-        return `
-          <tr>
-            <td><strong>${formatGameWithLogos(m.game)}</strong></td>
-            <td><span class="badge-status">${m.status}</span></td>
-            ${poolData.players.map(p => {
-              const pick = m.picks?.[p] || '—';
-              let cssClass = 'pick-pending';
-              if (winner) {
-                cssClass = (pick === winner) ? 'pick-correct' : 'pick-incorrect';
-              }
-              const pickDisplay = (pick !== '—') ? getTeamLogoHtml(pick) : '—';
-              return `<td class="${cssClass}">${pickDisplay}</td>`;
-            }).join('')}
-          </tr>
-        `;
-      }).join('');
+  // Matrix Body (With Team Logos)
+  const matrixBody = document.querySelector('#matrix-table tbody');
+  matrixBody.innerHTML = (weekData.matchups || []).map(m => {
+    const winner = m.winner;
+    return `
+      <tr>
+        <td><strong>${formatGameWithLogos(m.game)}</strong></td>
+        <td><span class="badge-status">${m.status}</span></td>
+        ${poolData.players.map(p => {
+          const pick = m.picks?.[p] || '—';
+          let cssClass = 'pick-pending';
+          if (winner) {
+            cssClass = (pick === winner) ? 'pick-correct' : 'pick-incorrect';
+          }
+          const pickDisplay = (pick !== '—') ? getTeamLogoHtml(pick) : '—';
+          return `<td class="${cssClass}">${pickDisplay}</td>`;
+        }).join('')}
+      </tr>
+    `;
+  }).join('');
 
-      // Week Tracker Table
-      const trackerBody = document.querySelector('#week-tracker-table tbody');
-      trackerBody.innerHTML = poolData.players.map(p => {
-        const wHist = computedStats[p]?.weeklyHistory[week] || { correct: 0, incorrect: 0, diff: null };
-        const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal ?? 'N/A';
-        const diffStr = wHist.diff !== null ? `${wHist.diff} pts` : 'N/A';
+  // Sort players: 1) Most Correct (Desc) -> 2) Closest Differential (Asc)
+  const sortedPlayers = [...poolData.players].sort((a, b) => {
+    const aHist = computedStats[a]?.weeklyHistory[week] || { correct: 0, diff: null };
+    const bHist = computedStats[b]?.weeklyHistory[week] || { correct: 0, diff: null };
 
-        return `
-          <tr>
-            <td><strong>${p}</strong></td>
-            <td class="text-success">${wHist.correct}</td>
-            <td class="text-danger">${wHist.incorrect}</td>
-            <td><strong>${wHist.correct} - ${wHist.incorrect}</strong></td>
-            <td>${pred}</td>
-            <td>${diffStr}</td>
-          </tr>
-        `;
-      }).join('');
+    // Primary sort: Correct picks descending
+    if (bHist.correct !== aHist.correct) {
+      return bHist.correct - aHist.correct;
     }
+
+    // Secondary sort: Tiebreaker differential ascending (closer to 0 is better)
+    const aDiff = aHist.diff ?? Infinity;
+    const bDiff = bHist.diff ?? Infinity;
+    return aDiff - bDiff;
+  });
+
+  // Week Tracker Table (Sorted)
+  const trackerBody = document.querySelector('#week-tracker-table tbody');
+  trackerBody.innerHTML = sortedPlayers.map(p => {
+    const wHist = computedStats[p]?.weeklyHistory[week] || { correct: 0, incorrect: 0, diff: null };
+    const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal ?? 'N/A';
+    const diffStr = wHist.diff !== null ? `${wHist.diff} pts` : 'N/A';
+
+    return `
+      <tr>
+        <td><strong>${p}</strong></td>
+        <td class="text-success">${wHist.correct}</td>
+        <td class="text-danger">${wHist.incorrect}</td>
+        <td><strong>${wHist.correct} - ${wHist.incorrect}</strong></td>
+        <td>${pred}</td>
+        <td>${diffStr}</td>
+      </tr>
+    `;
+  }).join('');
+}
 
     // 5. RENDER PLAYER PROFILE TAB
     function renderPlayerProfile() {
