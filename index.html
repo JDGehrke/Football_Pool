@@ -213,7 +213,8 @@
             <th>Times Picked</th>
             <th>Correct</th>
             <th>Incorrect</th>
-            <th>Accuracy %</th>
+            <th>Player Accuracy %</th>
+            <th>Pool Accuracy %</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -225,6 +226,7 @@
   <script>
     let poolData = null;
     let computedStats = {};
+    let poolTeamStats = {}; // Global team accuracy stats across all players
 
     // --- TEAM LOGO HELPERS ---
     function getTeamLogoHtml(abbr) {
@@ -246,7 +248,6 @@
 
     function formatGameWithLogos(gameStr) {
       if (!gameStr) return '';
-      // Formats strings like "KC @ BAL" or "KC vs BAL" by replacing team abbreviations with icon + text
       return gameStr.split(/(@|vs\.?|v\.?|\-)/i).map(part => {
         const trimmed = part.trim();
         if (/^[A-Za-z]{2,3}$/.test(trimmed)) {
@@ -287,10 +288,8 @@
       const weekKeys = Object.keys(poolData.weeks || {});
       const weekSelect = document.getElementById('week-select');
       
-      // Populate weeks in chronological order
       weekSelect.innerHTML = weekKeys.map(w => `<option value="${w}">${w}</option>`).join('');
 
-      // Set default week to currentWeek from metadata, fallback to latest week
       const targetWeek = poolData.metadata?.currentWeek;
       if (targetWeek && weekKeys.includes(targetWeek)) {
         weekSelect.value = targetWeek;
@@ -298,7 +297,6 @@
         weekSelect.value = weekKeys[weekKeys.length - 1];
       }
 
-      // Populate players
       const playerSelect = document.getElementById('player-select');
       playerSelect.innerHTML = (poolData.players || []).map(p => `<option value="${p}">${p}</option>`).join('');
     }
@@ -306,6 +304,8 @@
     // 2. DYNAMIC CALCULATION ENGINE
     function calculateStatistics() {
       computedStats = {};
+      poolTeamStats = {};
+
       (poolData.players || []).forEach(p => {
         computedStats[p] = {
           correct: 0,
@@ -317,7 +317,6 @@
         };
       });
 
-      // Process each week
       Object.entries(poolData.weeks || {}).forEach(([weekKey, weekData]) => {
         const matchups = weekData.matchups || [];
         const tiebreakerActual = weekData.tiebreaker?.actualTotalScore;
@@ -328,31 +327,38 @@
           computedStats[p].weeklyHistory[weekKey] = { correct: 0, incorrect: 0, diff: null };
         });
 
-        // Tally matchups
         matchups.forEach(m => {
           if (m.winner) {
             Object.entries(m.picks || {}).forEach(([p, pick]) => {
               if (computedStats[p]) {
+                // Individual player stats
                 if (!computedStats[p].teamStats[pick]) {
                   computedStats[p].teamStats[pick] = { picked: 0, correct: 0, incorrect: 0 };
                 }
                 computedStats[p].teamStats[pick].picked++;
 
+                // Pool-wide team stats
+                if (!poolTeamStats[pick]) {
+                  poolTeamStats[pick] = { picked: 0, correct: 0, incorrect: 0 };
+                }
+                poolTeamStats[pick].picked++;
+
                 if (pick === m.winner) {
                   computedStats[p].correct++;
                   computedStats[p].weeklyHistory[weekKey].correct++;
                   computedStats[p].teamStats[pick].correct++;
+                  poolTeamStats[pick].correct++;
                 } else {
                   computedStats[p].incorrect++;
                   computedStats[p].weeklyHistory[weekKey].incorrect++;
                   computedStats[p].teamStats[pick].incorrect++;
+                  poolTeamStats[pick].incorrect++;
                 }
               }
             });
           }
         });
 
-        // Compute tiebreaker differentials
         (poolData.players || []).forEach(p => {
           const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal;
           if (typeof tiebreakerActual === 'number' && typeof pred === 'number') {
@@ -361,7 +367,6 @@
           }
         });
 
-        // Determine Weekly Crown winner ONLY if week is fully completed
         if (isWeekComplete) {
           let maxWins = -1;
           poolData.players.forEach(p => {
@@ -403,7 +408,6 @@
       const leaderWins = computedStats[sorted[0]]?.correct || 0;
       const leaderLosses = computedStats[sorted[0]]?.incorrect || 0;
 
-      // Standalone Bar Chart Render
       const maxWins = Math.max(leaderWins, 1);
       const barContainer = document.getElementById('standalone-bar-chart');
       barContainer.innerHTML = sorted.map(p => {
@@ -421,14 +425,13 @@
         `;
       }).join('');
 
-      // Leaderboard Table Render
       const lbBody = document.querySelector('#leaderboard-table tbody');
       lbBody.innerHTML = sorted.map((p, idx) => {
         const wins = computedStats[p].correct;
         const losses = computedStats[p].incorrect;
         const total = wins + losses;
         const pct = total > 0 ? ((wins / total) * 100).toFixed(1) : "0.0";
-        const gb = idx === 0 ? '-' : (((leaderWins - wins) + (losses - leaderLosses)) / 2).toFixed(1);
+        const gb = idx === 0 ? '-' : Math.round(((leaderWins - wins) + (losses - leaderLosses)) / 2);
 
         return `
           <tr>
@@ -442,7 +445,6 @@
         `;
       }).join('');
 
-      // Weekly Crown Standings
       const crownSorted = [...poolData.players].sort((a, b) => computedStats[b].crowns - computedStats[a].crowns);
       const crownBody = document.querySelector('#crowns-table tbody');
       crownBody.innerHTML = crownSorted.map(p => {
@@ -477,7 +479,7 @@
         </tr>
       `;
 
-      // Matrix Body (With Team Logos)
+      // Matrix Body
       const matrixBody = document.querySelector('#matrix-table tbody');
       matrixBody.innerHTML = (weekData.matchups || []).map(m => {
         const winner = m.winner;
@@ -498,9 +500,23 @@
         `;
       }).join('');
 
-      // Week Tracker Table
+      // Sort players: 1) Most Correct (Desc) -> 2) Closest Differential (Asc)
+      const sortedPlayers = [...poolData.players].sort((a, b) => {
+        const aHist = computedStats[a]?.weeklyHistory[week] || { correct: 0, diff: null };
+        const bHist = computedStats[b]?.weeklyHistory[week] || { correct: 0, diff: null };
+
+        if (bHist.correct !== aHist.correct) {
+          return bHist.correct - aHist.correct;
+        }
+
+        const aDiff = aHist.diff ?? Infinity;
+        const bDiff = bHist.diff ?? Infinity;
+        return aDiff - bDiff;
+      });
+
+      // Week Tracker Table (Sorted)
       const trackerBody = document.querySelector('#week-tracker-table tbody');
-      trackerBody.innerHTML = poolData.players.map(p => {
+      trackerBody.innerHTML = sortedPlayers.map(p => {
         const wHist = computedStats[p]?.weeklyHistory[week] || { correct: 0, incorrect: 0, diff: null };
         const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal ?? 'N/A';
         const diffStr = wHist.diff !== null ? `${wHist.diff} pts` : 'N/A';
@@ -529,12 +545,14 @@
       const rank = sorted.indexOf(player) + 1;
       const leaderWins = computedStats[sorted[0]]?.correct || 0;
       const leaderLosses = computedStats[sorted[0]]?.incorrect || 0;
-      const gamesBack = rank === 1 ? '-' : (((leaderWins - pStats.correct) + (pStats.incorrect - leaderLosses)) / 2).toFixed(1);
+      
+      // Update 1: Integer Games Back using Math.round
+      const rawGb = (((leaderWins - pStats.correct) + (pStats.incorrect - leaderLosses)) / 2);
+      const gamesBack = rank === 1 ? '-' : Math.round(rawGb);
       
       const totalPicks = pStats.correct + pStats.incorrect;
       const accuracy = totalPicks > 0 ? ((pStats.correct / totalPicks) * 100).toFixed(1) + '%' : '0.0%';
 
-      // KPI Banner
       document.getElementById('player-kpi-banner').innerHTML = `
         <div class="kpi-card">
           <div class="kpi-val">#${rank}</div>
@@ -554,7 +572,7 @@
       renderTeamAccuracyTable(player);
     }
 
-    // Render Line / Scatter Plot Chart
+    // Update 2: Connected trend lines week-over-week
     function renderPerformanceChart(player) {
       const chartContainer = document.getElementById('player-trend-chart');
       const weeks = Object.keys(poolData.weeks || {});
@@ -564,42 +582,32 @@
         return;
       }
 
-      // Collect scores and find bounds
       const scores = weeks.map(w => computedStats[player]?.weeklyHistory[w]?.correct || 0);
       let maxScore = Math.max(...scores, 1);
       
-      // Padding for Chart dimensions
       const paddingX = 40;
       const paddingTop = 30;
-      const paddingBottom = 40;
       const chartHeight = 150; 
 
-      // Build coordinates for each point
       const points = weeks.map((w, index) => {
         const x = weeks.length === 1 
           ? 50 
-          : paddingX + (index / (weeks.length - 1)) * (100 - (2 * paddingX)); // %-based X
+          : paddingX + (index / (weeks.length - 1)) * (100 - (2 * paddingX));
         
-        const y = paddingTop + (1 - (scores[index] / maxScore)) * chartHeight; // px-based Y
+        const y = paddingTop + (1 - (scores[index] / maxScore)) * chartHeight;
         return { xPct: x, yPx: y, week: w, val: scores[index] };
       });
 
-      // SVG Path string for connected line
-      const pathSvg = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.xPct}% ${p.yPx}`).join(' ');
+      // Construct SVG path string connecting all nodes
+      const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.xPct}% ${p.yPx}`).join(' ');
 
-      // Render SVG & Overlays
       chartContainer.innerHTML = `
         <svg class="scatter-svg">
-          <path class="scatter-line" d="${pathSvg}" />
+          <path class="scatter-line" d="${pathD}" />
           ${points.map(p => `
-            <g transform="translate(0, 0)">
-              <!-- Data Label Above Point -->
+            <g>
               <text x="${p.xPct}%" y="${p.yPx - 12}" class="scatter-text-val">${p.val}</text>
-              
-              <!-- Scatter Point Node -->
               <circle cx="${p.xPct}%" cy="${p.yPx}" class="scatter-point" />
-              
-              <!-- Week Label Below Axis -->
               <text x="${p.xPct}%" y="${paddingTop + chartHeight + 25}" class="scatter-text-label">${p.week}</text>
             </g>
           `).join('')}
@@ -607,6 +615,7 @@
       `;
     }
 
+    // Update 3: Team Accuracy with Pool Average Comparison Column
     function renderTeamAccuracyTable(player) {
       const teamStats = computedStats[player]?.teamStats || {};
       const tbody = document.querySelector('#team-accuracy-table tbody');
@@ -614,26 +623,31 @@
       const teams = Object.keys(teamStats).sort((a, b) => teamStats[b].picked - teamStats[a].picked);
 
       if (teams.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No completed games recorded for this player yet.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No completed games recorded for this player yet.</td></tr>`;
         return;
       }
 
       tbody.innerHTML = teams.map(team => {
         const stat = teamStats[team];
-        const pct = stat.picked > 0 ? ((stat.correct / stat.picked) * 100).toFixed(1) : '0.0';
+        const playerPct = stat.picked > 0 ? ((stat.correct / stat.picked) * 100).toFixed(1) : '0.0';
+        
+        // Calculate total pool stats for this team
+        const poolStat = poolTeamStats[team] || { picked: 0, correct: 0 };
+        const poolPct = poolStat.picked > 0 ? ((poolStat.correct / poolStat.picked) * 100).toFixed(1) : '0.0';
+
         return `
           <tr>
             <td><strong>${getTeamLogoHtml(team)}</strong></td>
             <td>${stat.picked}</td>
             <td class="text-success">${stat.correct}</td>
             <td class="text-danger">${stat.incorrect}</td>
-            <td><strong>${pct}%</strong></td>
+            <td><strong>${playerPct}%</strong></td>
+            <td>${poolPct}%</td>
           </tr>
         `;
       }).join('');
     }
 
-    // 6. TAB SWITCHER
     function switchTab(tabId, evt) {
       document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
@@ -642,7 +656,6 @@
       document.getElementById(`tab-${tabId}`).classList.add('active');
     }
 
-    // Initialize App
     initDashboard();
   </script>
 </body>
