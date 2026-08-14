@@ -1,10 +1,56 @@
+# =============================================================================
+# FOOTBALL POOL
+# =============================================================================
 
 import pandas as pd
-import os
 import json
+import datetime as dt
+import requests
 from dotenv import load_dotenv,dotenv_values
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
+
+# =============================================================================
+# PROGRAM VARIABLES
+# =============================================================================
+season = 2026
+current_week = 2
+
+TEAM_MAP = {
+    # Mascot / Short Name Mappings
+    "Cardinals": "ARI",
+    "Falcons": "ATL",
+    "Ravens": "BAL",
+    "Bills": "BUF",
+    "Panthers": "CAR",
+    "Bears": "CHI",
+    "Bengals": "CIN",
+    "Browns": "CLE",
+    "Cowboys": "DAL",
+    "Broncos": "DEN",
+    "Lions": "DET",
+    "Packers": "GB",
+    "Texans": "HOU",
+    "Colts": "IND",
+    "Jaguars": "JAX",
+    "Chiefs": "KC",
+    "Raiders": "LV",
+    "Chargers": "LAC",
+    "Rams": "LAR",
+    "Dolphins": "MIA",
+    "Vikings": "MIN",
+    "Patriots": "NE",
+    "Saints": "NO",
+    "Giants": "NYG",
+    "Jets": "NYJ",
+    "Eagles": "PHI",
+    "Steelers": "PIT",
+    "49ers": "SF",
+    "Seahawks": "SEA",
+    "Buccaneers": "TB",
+    "Titans": "TEN",
+    "Commanders": "WAS"
+}
 
 # =============================================================================
 # ENV VARIABLES
@@ -18,15 +64,26 @@ env_vars = dotenv_values(".env")
 # 3. Inject them into your Python global namespace
 globals().update(env_vars)
 
+# =============================================================================
+# READ IN CURRENT JSON FILE
+# =============================================================================
+with open("data.json", "r", encoding="utf-8") as file:
+    current_json = json.load(file)
+    
+if f'Week {current_week}' not in current_json['weeks'].keys():
+    new_week = True
+    current_json['metadata']['currentWeek'] = f'Week {current_week}'
+else:
+    new_week = False
 
 # =============================================================================
-# 
+# DOWNLOAD PICKS FROM GOOGLE SHEETS
 # =============================================================================
 print("Authenticating hands-free from local dictionary...")
 
 # 1. We call Credentials directly to build the authentication token manually
 creds = Credentials.from_service_account_info(
-    GOOGLE_CREDENTIALS,
+    json.loads(GOOGLE_CREDENTIALS),
     scopes=[
             "https://www.googleapis.com/auth/forms.responses.readonly",
             "https://www.googleapis.com/auth/forms.body.readonly"
@@ -80,9 +137,13 @@ picks = pd.DataFrame(rows)
 # (Using errors='ignore' in case a question exists but has zero submissions yet)
 picks = picks.reindex(columns=ordered_columns, fill_value="")
 
+if new_week == True:
+    picks.to_csv(f'{season}\Week {current_week}.csv')
+
 # =============================================================================
 # CLEAN AND REFORMAT
 # =============================================================================
+#Reset Index
 picks = picks.iloc[:,2:]
 picks = picks.set_index('Select Your Name')
 
@@ -90,16 +151,17 @@ picks = picks.set_index('Select Your Name')
 tiebreaker_scores = dict(picks.iloc[:,-1])
 picks = picks.iloc[:,:-1]
 
-#CLEAN
-picks.columns = picks.columns.map(lambda x : x.split(':')[0])
-picks = picks.applymap(lambda x:x.split(' (')[0]).reset_index()
-
+#Clean Data
+picks.columns = picks.columns.map(lambda x : x.split(':')[0]) #rename columns with just game id
+picks = picks.applymap(lambda x:x.split(' (')[0]) #remove records
+picks = picks.replace(TEAM_MAP)
 
 # Identify player column and game ID columns
+picks = picks.reset_index()
 name_col = picks.columns[0]  # "Select Your Name"
 game_cols = picks.columns[1:]  # ["401873272", "401873275", ...]
 
-result = []
+picks_by_game = []
 
 for game_id in game_cols:
     x = {}
@@ -108,22 +170,19 @@ for game_id in game_cols:
         pick = str(row[game_id]).strip()
         x[player_name] = pick
 
-    result.append({"id": str(game_id).strip(), "picks": x})
+    picks_by_game.append({"id": str(game_id).strip(), "picks": x})
 
 
 # =============================================================================
 # FETCHING LIVE SCORES
 # =============================================================================
-import pandas as pd
-import requests
-
 print("Fetching live NFL scores from ESPN...")
 
 # Public ESPN live scoreboard endpoint for the NFL
 url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
 
 # Pass the parameters as a dictionary to requests
-params = {"dates": 2026, "week": 2, "seasontype": 1}
+params = {"dates": season, "week": current_week, "seasontype": 1}
 
 response = requests.get(url, params=params)
 assert response.status_code == 200
@@ -185,7 +244,7 @@ for event in data.get("events", []):
 # =============================================================================
 # FINALIZING MATCHUPS FOR JSON 
 # =============================================================================
-for game in result:
+for game in picks_by_game:
     gid = game['id']
     
     game.update(
@@ -212,12 +271,55 @@ tiebreaker = {
     }
     
 
-week_json = {'matchups':result
+week_json = {'matchups':picks_by_game
              ,'tiebreaker':tiebreaker}
 
+# =============================================================================
+# UPDATE JSON
+# =============================================================================
+if new_week == True:
+    current_json['weeks'].update(week_json)
+else:
+    current_json['weeks'][f'Week {current_week}'] = week_json
+    
+#Set final update time
+# 1. Get current local time with timezone information
+now = dt.datetime.now().astimezone()
+
+# 2. Format individual parts
+day = now.strftime("%A")  # Full weekday ("Sunday")
+hour = str(int(now.strftime("%I")))  # 12-hour format without leading zero ("4")
+minute = now.strftime("%M")  # Minute with leading zero ("16")
+ampm = now.strftime("%p").lower()  # am/pm in lowercase ("pm")
+# tz = now.strftime("%Z")  # Timezone name ("CST" / "CDT")
+
+# 3. Build formatted timestamp
+timestamp = f"{day} @ {hour}:{minute}{ampm}"
+current_json['metadata']['lastUpdated'] = timestamp
+    
+
+# Overwrite local data.json
+with open("data.json", "w", encoding="utf-8") as f:
+    json.dump(current_json, f, indent=2)
+
+print("Saved updates to data.json!")
+
+# =============================================================================
+# PUSH TO GITHUB
+# =============================================================================
+import subprocess
 
 
+def push_to_github(file_path="data.json", commit_message="Auto Update data.json"):
+    try:
+        # Pass shell=True so Windows can locate 'git'
+        subprocess.run(["git", "add", file_path], check=True, shell=True)
+        subprocess.run(["git", "commit", "-m", commit_message], check=True, shell=True)
+        subprocess.run(["git", "push"], check=True, shell=True)
 
+        print("🚀 Successfully pushed to GitHub!")
+    except subprocess.CalledProcessError as e:
+        print(f"Git push failed: {e}")
 
-
-
+# Run after saving data.json
+push_to_github()
