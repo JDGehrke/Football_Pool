@@ -454,14 +454,62 @@
       });
     }
 
-    // 3. RENDER SEASON OVERALL TAB
-    function renderOverallTab() {
-      const sorted = [...poolData.players].sort((a, b) => computedStats[b].correct - computedStats[a].correct);
+    // HELPER: CALCULATE RANKINGS & TIES
+    function getPlayerRanks() {
+      const sorted = [...poolData.players].sort((a, b) => {
+        if (computedStats[b].correct !== computedStats[a].correct) {
+          return computedStats[b].correct - computedStats[a].correct;
+        }
+        return computedStats[a].incorrect - computedStats[b].incorrect;
+      });
+
+      const winCounts = {};
+      sorted.forEach(p => {
+        const w = computedStats[p].correct;
+        winCounts[w] = (winCounts[w] || 0) + 1;
+      });
 
       const leaderWins = computedStats[sorted[0]]?.correct || 0;
       const leaderLosses = computedStats[sorted[0]]?.incorrect || 0;
 
+      const playerRanks = {};
+      let currentRank = 1;
+
+      for (let i = 0; i < sorted.length; i++) {
+        const p = sorted[i];
+        const wins = computedStats[p].correct;
+        const losses = computedStats[p].incorrect;
+
+        if (i > 0 && wins < computedStats[sorted[i - 1]].correct) {
+          currentRank = i + 1;
+        }
+
+        const isTied = winCounts[wins] > 1;
+        const rankStr = isTied ? `T-${currentRank}` : `#${currentRank}`;
+
+        const gbVal = Math.round(((leaderWins - wins) + (losses - leaderLosses)) / 2);
+        const gb = (wins === leaderWins) ? '-' : gbVal;
+
+        playerRanks[p] = {
+          rank: currentRank,
+          isTied: isTied,
+          rankStr: rankStr,
+          gb: gb,
+          wins: wins,
+          losses: losses
+        };
+      }
+
+      return { sorted, playerRanks };
+    }
+
+    // 3. RENDER SEASON OVERALL TAB
+    function renderOverallTab() {
+      const { sorted, playerRanks } = getPlayerRanks();
+
+      const leaderWins = computedStats[sorted[0]]?.correct || 0;
       const maxWins = Math.max(leaderWins, 1);
+
       const barContainer = document.getElementById('standalone-bar-chart');
       barContainer.innerHTML = sorted.map(p => {
         const wins = computedStats[p].correct;
@@ -479,21 +527,21 @@
       }).join('');
 
       const lbBody = document.querySelector('#leaderboard-table tbody');
-      lbBody.innerHTML = sorted.map((p, idx) => {
-        const wins = computedStats[p].correct;
-        const losses = computedStats[p].incorrect;
+      lbBody.innerHTML = sorted.map(p => {
+        const info = playerRanks[p];
+        const wins = info.wins;
+        const losses = info.losses;
         const total = wins + losses;
         const pct = total > 0 ? ((wins / total) * 100).toFixed(1) : "0.0";
-        const gb = idx === 0 ? '-' : Math.round(((leaderWins - wins) + (losses - leaderLosses)) / 2);
 
         return `
           <tr>
-            <td><strong>#${idx + 1}</strong></td>
+            <td><strong>${info.rankStr}</strong></td>
             <td><strong>${p}</strong></td>
             <td class="text-success">${wins}</td>
             <td class="text-danger">${losses}</td>
             <td>${pct}%</td>
-            <td><strong>${gb}</strong></td>
+            <td><strong>${info.gb}</strong></td>
           </tr>
         `;
       }).join('');
@@ -589,21 +637,18 @@
       if (!player || !computedStats[player]) return;
 
       const pStats = computedStats[player];
-      const sorted = [...poolData.players].sort((a, b) => computedStats[b].correct - computedStats[a].correct);
-      
-      const rank = sorted.indexOf(player) + 1;
-      const leaderWins = computedStats[sorted[0]]?.correct || 0;
-      const leaderLosses = computedStats[sorted[0]]?.incorrect || 0;
-      
-      const rawGb = (((leaderWins - pStats.correct) + (pStats.incorrect - leaderLosses)) / 2);
-      const gamesBack = rank === 1 ? '-' : Math.round(rawGb);
-      
+      const { playerRanks } = getPlayerRanks();
+      const pInfo = playerRanks[player];
+
+      const rankStr = pInfo ? pInfo.rankStr : '-';
+      const gamesBack = pInfo ? pInfo.gb : '-';
+
       const totalPicks = pStats.correct + pStats.incorrect;
       const accuracy = totalPicks > 0 ? ((pStats.correct / totalPicks) * 100).toFixed(1) + '%' : '0.0%';
 
       document.getElementById('player-kpi-banner').innerHTML = `
         <div class="kpi-card">
-          <div class="kpi-val">#${rank}</div>
+          <div class="kpi-val">${rankStr}</div>
           <div class="kpi-label">Current Rank</div>
         </div>
         <div class="kpi-card">
@@ -661,7 +706,7 @@
       `;
     }
 
-    // Updated Team Accuracy Table (Removed Correct/Incorrect, Added Matchups & Pick %)
+    // Updated Team Accuracy Table
     function renderTeamAccuracyTable(player) {
       const teamStats = computedStats[player]?.teamStats || {};
       const tbody = document.querySelector('#team-accuracy-table tbody');
@@ -678,10 +723,7 @@
         const totalMatchups = stat.totalMatchups || 0;
         const timesPicked = stat.picked || 0;
         
-        // Pick frequency percentage
         const pickFrequencyPct = totalMatchups > 0 ? ((timesPicked / totalMatchups) * 100).toFixed(1) : '0.0';
-
-        // Accuracy percentages
         const playerAccuracyPct = timesPicked > 0 ? ((stat.correct / timesPicked) * 100).toFixed(1) : '0.0';
         
         const poolStat = poolTeamStats[team] || { picked: 0, correct: 0 };
@@ -709,7 +751,6 @@
       nfcGrid.innerHTML = '';
 
       Object.entries(NFL_DIVISIONS).forEach(([divisionName, teams]) => {
-        // Sort division teams by W/L record
         const sortedTeams = [...teams].sort((a, b) => {
           const aRec = nflTeamRecords[a] || { wins: 0, losses: 0 };
           const bRec = nflTeamRecords[b] || { wins: 0, losses: 0 };
