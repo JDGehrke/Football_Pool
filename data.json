@@ -12,41 +12,43 @@
     "MOM"
   ],
   "weeks": {
-    "matchups": [
-      {
-        "id": "401873271",
-        "picks": {
-          "JORDAN": "CAR",
-          "BRANDON": "CAR",
-          "MOM": "ARI",
-          "AUSTIN": "ARI"
-        },
+    "Week 1": {
+      "matchups": [
+        {
+          "id": "401873271",
+          "picks": {
+            "JORDAN": "CAR",
+            "BRANDON": "CAR",
+            "MOM": "ARI",
+            "AUSTIN": "ARI"
+          },
+          "game": "CAR VS ARI",
+          "winner": "CAR",
+          "status": "Final"
+        }
+      ],
+      "tiebreaker": {
         "game": "CAR VS ARI",
+        "status": "Final",
         "winner": "CAR",
-        "status": "Final"
-      }
-    ],
-    "tiebreaker": {
-      "game": "CAR VS ARI",
-      "status": "Final",
-      "winner": "CAR",
-      "actualTotalScore": 63,
-      "picks": {
-        "AUSTIN": {
-          "winner": "ARI",
-          "predictedTotal": 22
-        },
-        "BRANDON": {
-          "winner": "CAR",
-          "predictedTotal": 12
-        },
-        "JORDAN": {
-          "winner": "CAR",
-          "predictedTotal": 45
-        },
-        "MOM": {
-          "winner": "ARI",
-          "predictedTotal": 16
+        "actualTotalScore": 63,
+        "picks": {
+          "AUSTIN": {
+            "winner": "ARI",
+            "predictedTotal": 22
+          },
+          "BRANDON": {
+            "winner": "CAR",
+            "predictedTotal": 12
+          },
+          "JORDAN": {
+            "winner": "CAR",
+            "predictedTotal": 45
+          },
+          "MOM": {
+            "winner": "ARI",
+            "predictedTotal": 16
+          }
         }
       }
     }

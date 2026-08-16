@@ -283,10 +283,8 @@ week_json = {'matchups':picks_by_game
 # =============================================================================
 # UPDATE JSON
 # =============================================================================
-if new_week == True:
-    current_json['weeks'].update(week_json)
-else:
-    current_json['weeks'][f'Week {current_week}'] = week_json
+#Set Week's Json into final
+current_json['weeks'][f'Week {current_week}'] = week_json
     
 #Set final update time
 # 1. Get current local time with timezone information
