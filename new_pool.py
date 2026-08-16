@@ -311,19 +311,88 @@ print("Saved updates to data.json!")
 # # =============================================================================
 # # PUSH TO GITHUB
 # # =============================================================================
-# import subprocess
+import glob
+import os
+
+# 1. Locate GitHub Desktop's git.exe path FIRST
+app_data = os.getenv("LOCALAPPDATA")
+git_paths = glob.glob(
+    os.path.join(
+        app_data,
+        "GitHubDesktop",
+        "app-*",
+        "resources",
+        "app",
+        "git",
+        "cmd",
+        "git.exe",
+    )
+)
+
+if git_paths:
+    latest_git = max(git_paths, key=os.path.getmtime)
+
+    # 2. Set environment variable BEFORE importing git/GitPython
+    os.environ["GIT_PYTHON_GIT_EXECUTABLE"] = latest_git
+    print(f"Git path set to: {latest_git}")
+else:
+    print("Could not locate GitHub Desktop git.exe")
+
+# 3. NOW import Repo (it will read the environment variable during initialization)
+from git import Repo
 
 
-# def push_to_github(file_path="data.json", commit_message="Auto Update data.json"):
-#     try:
-#         # Pass shell=True so Windows can locate 'git'
-#         subprocess.run(["git", "add", file_path], check=True, shell=True)
-#         subprocess.run(["git", "commit", "-m", commit_message], check=True, shell=True)
-#         subprocess.run(["git", "push"], check=True, shell=True)
+def commit_and_push_data_json(repo_path=".", file_relative_path="data.json", commit_message="Update pool data"):
+    """
+    Stages, commits, and pushes data.json to GitHub using GitPython.
+    """
+    try:
+        # Load local git repository
+        repo = Repo(repo_path)
+        
+        # Verify repository is valid and not detached
+        if repo.bare:
+            print("Error: Target directory is a bare repository.")
+            return False
 
-#         print("🚀 Successfully pushed to GitHub!")
-#     except subprocess.CalledProcessError as e:
-#         print(f"Git push failed: {e}")
+        # Stage specific file
+        abs_file_path = os.path.join(repo.working_dir, file_relative_path)
+        if not os.path.exists(abs_file_path):
+            print(f"Error: {file_relative_path} does not exist.")
+            return False
 
-# # Run after saving data.json
-# push_to_github()
+        repo.index.add([file_relative_path])
+
+        # Check if there are changes staged for commit
+        if not repo.index.diff("HEAD"):
+            print("No changes detected in data.json. Skipping commit and push.")
+            return True
+
+        # Commit changes
+        repo.index.commit(commit_message)
+        print(f"Committed changes with message: '{commit_message}'")
+
+        # Push to remote 'origin' on current active branch
+        origin = repo.remote(name="origin")
+        push_info = origin.push()
+
+        # Check for errors in push response
+        for info in push_info:
+            if info.flags & info.ERROR:
+                print(f"Push error: {info.summary}")
+                return False
+
+        print("Successfully pushed data.json to GitHub!")
+        return True
+
+    except Exception as e:
+        print(f"An error occurred during Git operation: {e}")
+        return False
+
+# Example invocation at the end of your data generation logic:
+if __name__ == "__main__":
+    # Add after saving your data.json file
+    commit_and_push_data_json(
+        file_relative_path="data.json",
+        commit_message="Auto-update NFL pool data.json"
+    )
