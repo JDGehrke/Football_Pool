@@ -234,6 +234,7 @@
     .matrix-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .pick-correct { background-color: #dcfce7 !important; color: #166534; font-weight: bold; }
     .pick-incorrect { background-color: #fee2e2 !important; color: #991b1b; }
+    .pick-tie { background-color: #fef08a !important; color: #854d0e; font-weight: bold; }
     .pick-pending { background-color: #ffffff; color: var(--text-main); }
 
     /* LINE & SCATTER CHART STYLES */
@@ -504,7 +505,7 @@
       nflTeamRecords = {};
 
       Object.values(NFL_DIVISIONS).flat().forEach(t => {
-        nflTeamRecords[t] = { wins: 0, losses: 0 };
+        nflTeamRecords[t] = { wins: 0, losses: 0, ties: 0 };
       });
 
       (poolData.players || []).forEach(p => {
@@ -553,8 +554,16 @@
             const winnerClean = m.winner.trim().toUpperCase();
             const loserClean = teamsInGame.find(t => t !== winnerClean);
 
-            if (nflTeamRecords[winnerClean]) nflTeamRecords[winnerClean].wins++;
-            if (loserClean && nflTeamRecords[loserClean]) nflTeamRecords[loserClean].losses++;
+            if (winnerClean !== 'TIE') {
+              if (nflTeamRecords[winnerClean]) nflTeamRecords[winnerClean].wins++;
+              if (loserClean && nflTeamRecords[loserClean]) nflTeamRecords[loserClean].losses++;
+            } else {
+              teamsInGame.forEach(t => {
+                if (nflTeamRecords[t]) {
+                  nflTeamRecords[t].ties = (nflTeamRecords[t].ties || 0) + 1;
+                }
+              });
+            }
 
             Object.entries(m.picks || {}).forEach(([p, rawPick]) => {
               if (computedStats[p] && rawPick && rawPick !== '—') {
@@ -570,7 +579,9 @@
                 }
                 poolTeamStats[pick].picked++;
 
-                if (pick === winnerClean) {
+                if (winnerClean === 'TIE') {
+                  // Do not increment correct or incorrect stats for ties
+                } else if (pick === winnerClean) {
                   computedStats[p].correct++;
                   computedStats[p].weeklyHistory[weekKey].correct++;
                   computedStats[p].teamStats[pick].correct++;
@@ -836,7 +847,7 @@
       }
 
       matrixBody.innerHTML = (weekData.matchups || []).map(m => {
-        const winner = m.winner;
+        const winner = m.winner ? m.winner.trim().toUpperCase() : null;
         return `
           <tr>
             <td><strong>${m.game || ''}</strong></td>
@@ -844,9 +855,15 @@
             ${selectedMatrixPlayers.map(p => {
               const pick = m.picks?.[p] || '—';
               let cssClass = 'pick-pending';
+              
               if (winner) {
-                cssClass = (pick === winner) ? 'pick-correct' : 'pick-incorrect';
+                if (winner === 'TIE') {
+                  cssClass = 'pick-tie';
+                } else {
+                  cssClass = (pick === winner) ? 'pick-correct' : 'pick-incorrect';
+                }
               }
+              
               const pickDisplay = (pick !== '—') ? getTeamLogoHtml(pick) : '—';
               return `<td class="${cssClass}">${pickDisplay}</td>`;
             }).join('')}
@@ -1008,8 +1025,8 @@
 
       Object.entries(NFL_DIVISIONS).forEach(([divisionName, teams]) => {
         const sortedTeams = [...teams].sort((a, b) => {
-          const aRec = nflTeamRecords[a] || { wins: 0, losses: 0 };
-          const bRec = nflTeamRecords[b] || { wins: 0, losses: 0 };
+          const aRec = nflTeamRecords[a] || { wins: 0, losses: 0, ties: 0 };
+          const bRec = nflTeamRecords[b] || { wins: 0, losses: 0, ties: 0 };
           
           if (bRec.wins !== aRec.wins) return bRec.wins - aRec.wins;
           return aRec.losses - bRec.losses;
@@ -1025,19 +1042,21 @@
                     <th>Team</th>
                     <th>W</th>
                     <th>L</th>
+                    <th>T</th>
                     <th>PCT</th>
                   </tr>
                 </thead>
                 <tbody>
                   ${sortedTeams.map(t => {
-                    const rec = nflTeamRecords[t] || { wins: 0, losses: 0 };
-                    const total = rec.wins + rec.losses;
-                    const pct = total > 0 ? (rec.wins / total).toFixed(3).replace(/^0/, '') : '.000';
+                    const rec = nflTeamRecords[t] || { wins: 0, losses: 0, ties: 0 };
+                    const total = rec.wins + rec.losses + rec.ties;
+                    const pct = total > 0 ? ((rec.wins + 0.5 * rec.ties) / total).toFixed(3).replace(/^0/, '') : '.000';
                     return `
                       <tr>
                         <td><strong>${getTeamLogoHtml(t)}</strong></td>
                         <td class="text-success">${rec.wins}</td>
                         <td class="text-danger">${rec.losses}</td>
+                        <td>${rec.ties}</td>
                         <td><strong>${pct}</strong></td>
                       </tr>
                     `;
