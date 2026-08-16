@@ -77,10 +77,70 @@
     .badge-status { background: #f1f5f9; color: var(--text-muted); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
     
     /* --- CROWN STYLING --- */
-    .crown-tentative { opacity: 0.35; filter: grayscale(100%); margin-left: 6px; cursor: help; }
-    .crown-solid { margin-left: 6px; }
+    .crown-tentative { opacity: 0.35; filter: grayscale(100%); margin-right: 6px; cursor: help; }
+    .crown-solid { margin-right: 6px; }
 
     select { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.95rem; outline: none; }
+
+    /* --- MULTI-SELECT DROPDOWN STYLES --- */
+    .dropdown-check-list {
+      display: inline-block;
+      position: relative;
+    }
+    .dropdown-check-list .anchor {
+      position: relative;
+      cursor: pointer;
+      display: inline-block;
+      padding: 8px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background-color: #ffffff;
+      font-weight: 600;
+      font-size: 0.9rem;
+      user-select: none;
+    }
+    .dropdown-check-list .anchor:after {
+      content: "";
+      border: solid black;
+      border-width: 0 2px 2px 0;
+      display: inline-block;
+      padding: 3px;
+      margin-left: 10px;
+      transform: rotate(45deg);
+      -webkit-transform: rotate(45deg);
+      vertical-align: middle;
+    }
+    .dropdown-check-list ul.items {
+      padding: 10px;
+      display: none;
+      margin: 0;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: #ffffff;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 100;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      min-width: 200px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+    .dropdown-check-list.visible ul.items {
+      display: block;
+    }
+    .dropdown-check-list ul.items li {
+      list-style: none;
+      padding: 4px 0;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dropdown-check-list ul.items li label {
+      cursor: pointer;
+      width: 100%;
+    }
 
     /* STANDALONE BAR CHART STYLES */
     .chart-bar-row { display: flex; align-items: center; margin-bottom: 12px; gap: 15px; }
@@ -148,7 +208,7 @@
             <th>Player</th>
             <th class="text-center">Wins</th>
             <th class="text-center">Losses</th>
-            <th class="text-center">%</th>
+            <th class="text-center">Accuracy</th>
             <th class="text-center">Games Back</th>
           </tr>
         </thead>
@@ -185,9 +245,9 @@
         <thead>
           <tr>
             <th>Player</th>
-            <th>Pick Score</th>
-            <th>Tiebreaker Pred</th>
-            <th>Differential</th>
+            <th class="text-center">Pick Score</th>
+            <th class="text-center">Tiebreaker Pred</th>
+            <th class="text-center">Differential</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -196,7 +256,16 @@
 
     <!-- MATCHUP & PICK MATRIX -->
     <div class="card">
-      <h3>Matchup & Pick Matrix</h3>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+        <h3 style="margin-bottom: 0;">Matchup & Pick Matrix</h3>
+        
+        <!-- MULTI-SELECT DROPDOWN FOR PICK MATRIX -->
+        <div id="matrix-player-dropdown" class="dropdown-check-list" tabindex="100">
+          <span class="anchor" onclick="toggleMatrixDropdown()">Filter Players</span>
+          <ul class="items" id="matrix-player-options"></ul>
+        </div>
+      </div>
+
       <div class="matrix-wrapper">
         <table id="matrix-table">
           <thead></thead>
@@ -253,6 +322,7 @@
     let computedStats = {};
     let poolTeamStats = {};
     let nflTeamRecords = {};
+    let selectedMatrixPlayers = [];
 
     const NFL_DIVISIONS = {
       "AFC East": ["BUF", "MIA", "NE", "NYJ"],
@@ -287,6 +357,8 @@
         document.getElementById('dash-subtitle').innerText = poolData.metadata?.subtitle || "";
         document.getElementById('dash-updated').innerText = `Last Updated: ${poolData.metadata?.lastUpdated || 'N/A'}`;
 
+        selectedMatrixPlayers = [...(poolData.players || [])];
+
         populateDropdowns();
         calculateStatistics();
 
@@ -316,6 +388,33 @@
       const playerSelect = document.getElementById('player-select');
       playerSelect.innerHTML = `<option value="">Select Player</option>` + 
         (poolData.players || []).map(p => `<option value="${p}">${p}</option>`).join('');
+
+      const matrixOptionsContainer = document.getElementById('matrix-player-options');
+      matrixOptionsContainer.innerHTML = (poolData.players || []).map(p => `
+        <li>
+          <input type="checkbox" id="chk-mat-${p}" value="${p}" checked onchange="updateMatrixPlayerFilter()">
+          <label for="chk-mat-${p}">${p}</label>
+        </li>
+      `).join('');
+    }
+
+    function toggleMatrixDropdown() {
+      const dropdown = document.getElementById('matrix-player-dropdown');
+      dropdown.classList.toggle('visible');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      const dropdown = document.getElementById('matrix-player-dropdown');
+      if (dropdown && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('visible');
+      }
+    });
+
+    function updateMatrixPlayerFilter() {
+      const checkboxes = document.querySelectorAll('#matrix-player-options input[type="checkbox"]');
+      selectedMatrixPlayers = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+      renderMatrixOnly();
     }
 
     function calculateStatistics() {
@@ -560,7 +659,6 @@
           ? (deltas.reduce((a, b) => a + b, 0) / deltas.length).toFixed(1) + ' pts' 
           : 'N/A';
 
-        // Only show green badge if crowns > 0
         const crownDisplay = crowns > 0 
           ? `<span class="badge-win">👑 ${crowns} Wins</span>` 
           : `0 Wins`;
@@ -615,31 +713,45 @@
 
         return `
           <tr>
-            <td><strong>${p}</strong>${crownBadge}</td>
-            <td><strong><span class="text-success">${wHist.correct}</span> - <span class="text-danger">${wHist.incorrect}</span></strong></td>
-            <td>${pred}</td>
-            <td>${diffStr}</td>
+            <td>${crownBadge}<strong>${p}</strong></td>
+            <td class="text-center"><strong><span class="text-success">${wHist.correct}</span> - <span class="text-danger">${wHist.incorrect}</span></strong></td>
+            <td class="text-center">${pred}</td>
+            <td class="text-center">${diffStr}</td>
           </tr>
         `;
       }).join('');
+
+      renderMatrixOnly();
+    }
+
+    function renderMatrixOnly() {
+      const week = document.getElementById('week-select').value;
+      const weekData = poolData.weeks[week];
+      if (!weekData) return;
 
       const matrixHead = document.querySelector('#matrix-table thead');
       matrixHead.innerHTML = `
         <tr>
           <th>Game</th>
           <th>Status</th>
-          ${poolData.players.map(p => `<th>${p}</th>`).join('')}
+          ${selectedMatrixPlayers.map(p => `<th>${p}</th>`).join('')}
         </tr>
       `;
 
       const matrixBody = document.querySelector('#matrix-table tbody');
+      
+      if (selectedMatrixPlayers.length === 0) {
+        matrixBody.innerHTML = `<tr><td colspan="2" style="text-align:center;">No players selected. Use the filter dropdown to select players.</td></tr>`;
+        return;
+      }
+
       matrixBody.innerHTML = (weekData.matchups || []).map(m => {
         const winner = m.winner;
         return `
           <tr>
             <td><strong>${m.game || ''}</strong></td>
             <td><span class="badge-status">${m.status}</span></td>
-            ${poolData.players.map(p => {
+            ${selectedMatrixPlayers.map(p => {
               const pick = m.picks?.[p] || '—';
               let cssClass = 'pick-pending';
               if (winner) {
