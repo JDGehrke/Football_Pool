@@ -64,8 +64,20 @@
       .divisions-grid { grid-template-columns: 1fr; }
     }
 
-    /* --- KPI CARDS --- */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+    /* --- KPI CARDS (2-WIDE or 4-WIDE LAYOUT) --- */
+    .kpi-grid { 
+      display: grid; 
+      grid-template-columns: repeat(4, 1fr); 
+      gap: 15px; 
+      margin-bottom: 25px; 
+    }
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+    }
+
     .kpi-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
     .kpi-card .kpi-val { font-size: 1.8rem; font-weight: bold; color: var(--primary-color); }
     .kpi-card .kpi-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
@@ -295,11 +307,10 @@
         <thead>
           <tr>
             <th>Team</th>
-            <th>Total Matchups</th>
-            <th>Times Picked</th>
-            <th>Pick %</th>
-            <th>Player Accuracy %</th>
-            <th>Pool Accuracy %</th>
+            <th class="text-center">Times Picked</th>
+            <th class="text-center">Pick %</th>
+            <th class="text-center">Player Accuracy %</th>
+            <th class="text-center">Pool Accuracy %</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -403,7 +414,6 @@
       dropdown.classList.toggle('visible');
     }
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', function(e) {
       const dropdown = document.getElementById('matrix-player-dropdown');
       if (dropdown && !dropdown.contains(e.target)) {
@@ -449,7 +459,11 @@
         });
 
         matchups.forEach(m => {
-          const teamsInGame = (m.game || '').split(/@|vs\.?|v\.?|\-/i).map(t => t.trim().toUpperCase()).filter(t => t);
+          // Strict regex to parse team abbreviations without creating "L" artifacts
+          const teamsInGame = (m.game || '')
+            .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s+-\s+/i)
+            .map(t => t.trim().toUpperCase())
+            .filter(t => t.length >= 2);
 
           teamsInGame.forEach(team => {
             (poolData.players || []).forEach(p => {
@@ -467,8 +481,10 @@
             if (nflTeamRecords[winnerClean]) nflTeamRecords[winnerClean].wins++;
             if (loserClean && nflTeamRecords[loserClean]) nflTeamRecords[loserClean].losses++;
 
-            Object.entries(m.picks || {}).forEach(([p, pick]) => {
-              if (computedStats[p]) {
+            Object.entries(m.picks || {}).forEach(([p, rawPick]) => {
+              if (computedStats[p] && rawPick && rawPick !== '—') {
+                const pick = rawPick.trim().toUpperCase();
+                
                 if (!computedStats[p].teamStats[pick]) {
                   computedStats[p].teamStats[pick] = { totalMatchups: 0, picked: 0, correct: 0, incorrect: 0 };
                 }
@@ -479,7 +495,7 @@
                 }
                 poolTeamStats[pick].picked++;
 
-                if (pick === m.winner) {
+                if (pick === winnerClean) {
                   computedStats[p].correct++;
                   computedStats[p].weeklyHistory[weekKey].correct++;
                   computedStats[p].teamStats[pick].correct++;
@@ -636,7 +652,6 @@
         `;
       }).join('');
 
-      // Sort Crown Standings: Crowns Descending, then Avg Crown Delta Ascending (Lower is better)
       const crownSorted = [...poolData.players].sort((a, b) => {
         if (computedStats[b].crowns !== computedStats[a].crowns) {
           return computedStats[b].crowns - computedStats[a].crowns;
@@ -771,7 +786,7 @@
       if (!player || !computedStats[player]) {
         document.getElementById('player-kpi-banner').innerHTML = '';
         document.getElementById('player-trend-chart').innerHTML = "<p style='text-align:center; padding-top: 80px; color: var(--text-muted);'>Please select a player above to view details.</p>";
-        document.querySelector('#team-accuracy-table tbody').innerHTML = `<tr><td colspan="6" style="text-align:center;">Select a player to display team accuracy.</td></tr>`;
+        document.querySelector('#team-accuracy-table tbody').innerHTML = `<tr><td colspan="5" style="text-align:center;">Select a player to display team accuracy.</td></tr>`;
         return;
       }
 
@@ -855,14 +870,17 @@
       const teamStats = computedStats[player]?.teamStats || {};
       const tbody = document.querySelector('#team-accuracy-table tbody');
       
-      const teams = Object.keys(teamStats).sort((a, b) => teamStats[b].picked - teamStats[a].picked);
+      // Sort teams alphabetically by abbreviation
+      const sortedTeams = Object.keys(teamStats)
+        .filter(team => team.length >= 2)
+        .sort((a, b) => a.localeCompare(b));
 
-      if (teams.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No completed games recorded for this player yet.</td></tr>`;
+      if (sortedTeams.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No completed games recorded for this player yet.</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = teams.map(team => {
+      tbody.innerHTML = sortedTeams.map(team => {
         const stat = teamStats[team];
         const totalMatchups = stat.totalMatchups || 0;
         const timesPicked = stat.picked || 0;
@@ -876,11 +894,10 @@
         return `
           <tr>
             <td><strong>${getTeamLogoHtml(team)}</strong></td>
-            <td>${totalMatchups}</td>
-            <td>${timesPicked}</td>
-            <td><strong>${pickFrequencyPct}%</strong></td>
-            <td>${playerAccuracyPct}%</td>
-            <td>${poolAccuracyPct}%</td>
+            <td class="text-center">${timesPicked}</td>
+            <td class="text-center"><strong>${pickFrequencyPct}%</strong></td>
+            <td class="text-center">${playerAccuracyPct}%</td>
+            <td class="text-center">${poolAccuracyPct}%</td>
           </tr>
         `;
       }).join('');
