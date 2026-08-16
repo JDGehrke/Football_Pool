@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Orser Family Football Pool",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Saturday @ 8:32pm",
+    "lastUpdated": "Saturday @ 9:24pm",
     "currentWeek": "Week 2"
   },
   "players": [
@@ -231,8 +231,8 @@
             "MOM": "PHI"
           },
           "game": "PHI @ BAL",
-          "winner": null,
-          "status": "In Progress"
+          "winner": "BAL",
+          "status": "Final"
         },
         {
           "id": "401873279",
@@ -244,14 +244,14 @@
           },
           "game": "DAL @ SEA",
           "winner": null,
-          "status": "Halftime"
+          "status": "In Progress"
         }
       ],
       "tiebreaker": {
         "game": "DAL @ SEA",
-        "status": "Halftime",
+        "status": "In Progress",
         "winner": null,
-        "actualTotalScore": 17,
+        "actualTotalScore": 24,
         "picks": {
           "AUSTIN": {
             "winner": "DAL",
