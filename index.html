@@ -53,7 +53,7 @@
       object-fit: contain;
     }
 
-    /* --- STANDINGS GRID (UPDATED TO 2 WIDE) --- */
+    /* --- STANDINGS GRID (2 WIDE) --- */
     .conference-title { margin: 20px 0 15px 0; color: var(--primary-color); font-size: 1.4rem; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; }
     .divisions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 25px; }
 
@@ -175,7 +175,7 @@
       <select id="week-select" onchange="renderWeeklyTab()"></select>
     </div>
 
-    <!-- WEEK TRACKER FIRST -->
+    <!-- WEEK TRACKER -->
     <div class="card">
       <h3>Week Tracker</h3>
       <table id="week-tracker-table">
@@ -193,7 +193,7 @@
       </table>
     </div>
 
-    <!-- MATCHUP & PICK MATRIX SECOND -->
+    <!-- MATCHUP & PICK MATRIX -->
     <div class="card">
       <h3>Matchup & Pick Matrix</h3>
       <div class="matrix-wrapper">
@@ -351,7 +351,9 @@
         const matchups = weekData.matchups || [];
         const tiebreakerActual = weekData.tiebreaker?.actualTotalScore;
 
-        const isWeekComplete = matchups.length > 0 && matchups.every(m => m.winner !== null && m.winner !== undefined);
+        // Check if week or tiebreaker status is Final
+        const isWeekComplete = matchups.length > 0 && matchups.every(m => m.status === 'Final');
+        const isTiebreakerFinal = weekData.tiebreaker?.status === 'Final' || isWeekComplete;
 
         (poolData.players || []).forEach(p => {
           computedStats[p].weeklyHistory[weekKey] = { correct: 0, incorrect: 0, diff: null, winPct: 0 };
@@ -412,9 +414,13 @@
           computedStats[p].weeklyHistory[weekKey].winPct = wTotal > 0 ? (wCorrect / wTotal) * 100 : 0;
 
           const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal;
-          if (typeof tiebreakerActual === 'number' && typeof pred === 'number') {
+          
+          // Require explicitly Final status before populating tiebreaker differential
+          if (isTiebreakerFinal && typeof tiebreakerActual === 'number' && typeof pred === 'number') {
             const diff = Math.abs(pred - tiebreakerActual);
             computedStats[p].weeklyHistory[weekKey].diff = diff;
+          } else {
+            computedStats[p].weeklyHistory[weekKey].diff = null;
           }
         });
 
@@ -566,7 +572,7 @@
       if (!weekData) return;
 
       const matchups = weekData.matchups || [];
-      const isWeekComplete = matchups.length > 0 && matchups.every(m => m.winner !== null && m.winner !== undefined);
+      const isWeekComplete = matchups.length > 0 && matchups.every(m => m.status === 'Final');
 
       const sortedPlayers = [...poolData.players].sort((a, b) => {
         const aHist = computedStats[a]?.weeklyHistory[week] || { correct: 0, diff: null };
@@ -687,31 +693,33 @@
         return;
       }
 
+      const containerWidth = chartContainer.clientWidth || 800;
       const winPcts = weeks.map(w => computedStats[player]?.weeklyHistory[w]?.winPct || 0);
       
-      const paddingX = 40;
+      const paddingX = 50;
       const paddingTop = 30;
-      const chartHeight = 150; 
+      const chartHeight = 140; 
+      const availableWidth = containerWidth - (paddingX * 2);
 
       const points = weeks.map((w, index) => {
         const x = weeks.length === 1 
-          ? 50 
-          : paddingX + (index / (weeks.length - 1)) * (100 - (2 * paddingX));
+          ? containerWidth / 2 
+          : paddingX + (index / (weeks.length - 1)) * availableWidth;
         
         const y = paddingTop + (1 - (winPcts[index] / 100)) * chartHeight;
-        return { xPct: x, yPx: y, week: w, val: winPcts[index].toFixed(1) + '%' };
+        return { x: x, y: y, week: w, val: winPcts[index].toFixed(1) + '%' };
       });
 
-      const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.xPct}% ${p.yPx}`).join(' ');
+      const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 
       chartContainer.innerHTML = `
-        <svg class="scatter-svg">
+        <svg class="scatter-svg" viewBox="0 0 ${containerWidth} 220" preserveAspectRatio="none">
           <path class="scatter-line" d="${pathD}" />
           ${points.map(p => `
             <g>
-              <text x="${p.xPct}%" y="${p.yPx - 12}" class="scatter-text-val">${p.val}</text>
-              <circle cx="${p.xPct}%" cy="${p.yPx}" class="scatter-point" />
-              <text x="${p.xPct}%" y="${paddingTop + chartHeight + 25}" class="scatter-text-label">${p.week}</text>
+              <text x="${p.x}" y="${p.y - 12}" class="scatter-text-val">${p.val}</text>
+              <circle cx="${p.x}" cy="${p.y}" class="scatter-point" />
+              <text x="${p.x}" y="${paddingTop + chartHeight + 25}" class="scatter-text-label">${p.week}</text>
             </g>
           `).join('')}
         </svg>
