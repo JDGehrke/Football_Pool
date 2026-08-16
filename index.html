@@ -88,6 +88,9 @@
     .badge-win { background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; }
     .badge-status { background: #f1f5f9; color: var(--text-muted); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
     
+    /* CONDITIONAL HIGHLIGHTING */
+    .stat-outperform { background-color: #dcfce7 !important; color: #166534; font-weight: bold; }
+
     /* --- CROWN STYLING --- */
     .crown-tentative { opacity: 0.35; filter: grayscale(100%); margin-right: 6px; cursor: help; }
     .crown-solid { margin-right: 6px; }
@@ -307,8 +310,8 @@
         <thead>
           <tr>
             <th>Team</th>
-            <th class="text-center">Times Picked</th>
-            <th class="text-center">Pick %</th>
+            <th class="text-center">Player Pick %</th>
+            <th class="text-center">Pool Pick %</th>
             <th class="text-center">Player Accuracy %</th>
             <th class="text-center">Pool Accuracy %</th>
           </tr>
@@ -459,13 +462,18 @@
         });
 
         matchups.forEach(m => {
-          // Strict regex to parse team abbreviations without creating "L" artifacts
           const teamsInGame = (m.game || '')
             .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s+-\s+/i)
             .map(t => t.trim().toUpperCase())
             .filter(t => t.length >= 2);
 
+          // Track total possible matchups for pool and players
           teamsInGame.forEach(team => {
+            if (!poolTeamStats[team]) {
+              poolTeamStats[team] = { totalMatchups: 0, picked: 0, correct: 0, incorrect: 0 };
+            }
+            poolTeamStats[team].totalMatchups++;
+
             (poolData.players || []).forEach(p => {
               if (!computedStats[p].teamStats[team]) {
                 computedStats[p].teamStats[team] = { totalMatchups: 0, picked: 0, correct: 0, incorrect: 0 };
@@ -491,7 +499,7 @@
                 computedStats[p].teamStats[pick].picked++;
 
                 if (!poolTeamStats[pick]) {
-                  poolTeamStats[pick] = { picked: 0, correct: 0, incorrect: 0 };
+                  poolTeamStats[pick] = { totalMatchups: 0, picked: 0, correct: 0, incorrect: 0 };
                 }
                 poolTeamStats[pick].picked++;
 
@@ -870,7 +878,6 @@
       const teamStats = computedStats[player]?.teamStats || {};
       const tbody = document.querySelector('#team-accuracy-table tbody');
       
-      // Sort teams alphabetically by abbreviation
       const sortedTeams = Object.keys(teamStats)
         .filter(team => team.length >= 2)
         .sort((a, b) => a.localeCompare(b));
@@ -880,24 +887,42 @@
         return;
       }
 
+      const totalPoolPlayers = (poolData.players || []).length || 1;
+
       tbody.innerHTML = sortedTeams.map(team => {
         const stat = teamStats[team];
         const totalMatchups = stat.totalMatchups || 0;
         const timesPicked = stat.picked || 0;
         
-        const pickFrequencyPct = totalMatchups > 0 ? ((timesPicked / totalMatchups) * 100).toFixed(1) : '0.0';
-        const playerAccuracyPct = timesPicked > 0 ? ((stat.correct / timesPicked) * 100).toFixed(1) : '0.0';
+        // Player Pick %
+        const playerPickPctNum = totalMatchups > 0 ? (timesPicked / totalMatchups) * 100 : 0;
+        const playerPickPctStr = playerPickPctNum.toFixed(1);
         
-        const poolStat = poolTeamStats[team] || { picked: 0, correct: 0 };
-        const poolAccuracyPct = poolStat.picked > 0 ? ((poolStat.correct / poolStat.picked) * 100).toFixed(1) : '0.0';
+        // Pool Pick %
+        const poolStat = poolTeamStats[team] || { totalMatchups: 0, picked: 0, correct: 0 };
+        const totalPoolPossiblePicks = poolStat.totalMatchups * totalPoolPlayers;
+        const poolPickPctNum = totalPoolPossiblePicks > 0 ? (poolStat.picked / totalPoolPossiblePicks) * 100 : 0;
+        const poolPickPctStr = poolPickPctNum.toFixed(1);
+
+        // Player Accuracy %
+        const playerAccNum = timesPicked > 0 ? (stat.correct / timesPicked) * 100 : 0;
+        const playerAccStr = playerAccNum.toFixed(1);
+
+        // Pool Accuracy %
+        const poolAccNum = poolStat.picked > 0 ? (poolStat.correct / poolStat.picked) * 100 : 0;
+        const poolAccStr = poolAccNum.toFixed(1);
+
+        // Conditional formatting evaluation
+        const pickPctClass = playerPickPctNum > poolPickPctNum ? 'stat-outperform' : '';
+        const accClass = (timesPicked > 0 && playerAccNum > poolAccNum) ? 'stat-outperform' : '';
 
         return `
           <tr>
             <td><strong>${getTeamLogoHtml(team)}</strong></td>
-            <td class="text-center">${timesPicked}</td>
-            <td class="text-center"><strong>${pickFrequencyPct}%</strong></td>
-            <td class="text-center">${playerAccuracyPct}%</td>
-            <td class="text-center">${poolAccuracyPct}%</td>
+            <td class="text-center ${pickPctClass}"><strong>${playerPickPctStr}%</strong></td>
+            <td class="text-center">${poolPickPctStr}%</td>
+            <td class="text-center ${accClass}"><strong>${playerAccStr}%</strong></td>
+            <td class="text-center">${poolAccStr}%</td>
           </tr>
         `;
       }).join('');
