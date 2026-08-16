@@ -324,7 +324,8 @@
       }
 
       const playerSelect = document.getElementById('player-select');
-      playerSelect.innerHTML = (poolData.players || []).map(p => `<option value="${p}">${p}</option>`).join('');
+      playerSelect.innerHTML = `<option value="">Select Player</option>` + 
+        (poolData.players || []).map(p => `<option value="${p}">${p}</option>`).join('');
     }
 
     function calculateStatistics() {
@@ -351,7 +352,6 @@
         const matchups = weekData.matchups || [];
         const tiebreakerActual = weekData.tiebreaker?.actualTotalScore;
 
-        // Check if week or tiebreaker status is Final
         const isWeekComplete = matchups.length > 0 && matchups.every(m => m.status === 'Final');
         const isTiebreakerFinal = weekData.tiebreaker?.status === 'Final' || isWeekComplete;
 
@@ -415,7 +415,6 @@
 
           const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal;
           
-          // Require explicitly Final status before populating tiebreaker differential
           if (isTiebreakerFinal && typeof tiebreakerActual === 'number' && typeof pred === 'number') {
             const diff = Math.abs(pred - tiebreakerActual);
             computedStats[p].weeklyHistory[weekKey].diff = diff;
@@ -548,7 +547,21 @@
         `;
       }).join('');
 
-      const crownSorted = [...poolData.players].sort((a, b) => computedStats[b].crowns - computedStats[a].crowns);
+      // Sort Crown Standings: Crowns Descending, then Avg Crown Delta Ascending (Lower is better)
+      const crownSorted = [...poolData.players].sort((a, b) => {
+        if (computedStats[b].crowns !== computedStats[a].crowns) {
+          return computedStats[b].crowns - computedStats[a].crowns;
+        }
+
+        const deltasA = computedStats[a].winningDeltas;
+        const deltasB = computedStats[b].winningDeltas;
+        
+        const avgA = deltasA.length > 0 ? (deltasA.reduce((sum, v) => sum + v, 0) / deltasA.length) : Infinity;
+        const avgB = deltasB.length > 0 ? (deltasB.reduce((sum, v) => sum + v, 0) / deltasB.length) : Infinity;
+
+        return avgA - avgB;
+      });
+
       const crownBody = document.querySelector('#crowns-table tbody');
       crownBody.innerHTML = crownSorted.map(p => {
         const deltas = computedStats[p].winningDeltas;
@@ -609,7 +622,7 @@
             <td><strong>${p}</strong>${crownBadge}</td>
             <td class="text-success">${wHist.correct}</td>
             <td class="text-danger">${wHist.incorrect}</td>
-            <td><strong>${wHist.correct} - ${wHist.incorrect}</strong></td>
+            <td><strong><span class="text-success">${wHist.correct}</span> - <span class="text-danger">${wHist.incorrect}</span></strong></td>
             <td>${pred}</td>
             <td>${diffStr}</td>
           </tr>
@@ -648,7 +661,13 @@
 
     function renderPlayerProfile() {
       const player = document.getElementById('player-select').value;
-      if (!player || !computedStats[player]) return;
+      
+      if (!player || !computedStats[player]) {
+        document.getElementById('player-kpi-banner').innerHTML = '';
+        document.getElementById('player-trend-chart').innerHTML = "<p style='text-align:center; padding-top: 80px; color: var(--text-muted);'>Please select a player above to view details.</p>";
+        document.querySelector('#team-accuracy-table tbody').innerHTML = `<tr><td colspan="6" style="text-align:center;">Select a player to display team accuracy.</td></tr>`;
+        return;
+      }
 
       const pStats = computedStats[player];
       const { playerRanks } = getPlayerRanks();
