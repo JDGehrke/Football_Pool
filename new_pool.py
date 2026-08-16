@@ -1,11 +1,14 @@
 # =============================================================================
-# FOOTBALL POOL
+# FOOTBALL POOL - UPDATE JSON.DATA
 # =============================================================================
+
+import ast
 import pandas as pd
 import json
 import datetime as dt
 import requests
 import os
+import glob
 from dotenv import load_dotenv,dotenv_values
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
@@ -13,12 +16,20 @@ from googleapiclient.discovery import build
 os.chdir(r'C:\\Users\\jdgeh\Documents\Github\Football_Pool')
 
 # =============================================================================
-# PROGRAM VARIABLES
+# ENV VARIABLES
 # =============================================================================
-season = 2026
-current_week = 2
+# 1. First, load the .env file into os.environ normally
+load_dotenv()
 
-players = ['AUSTIN','BRANDON','JORDAN','MOM']
+# 2. Get a dictionary of JUST the keys defined in your .env file
+env_vars = dotenv_values(".env")
+
+# 3. Inject them into your Python global namespace
+globals().update(env_vars)
+
+# 4. Adjust variable types
+players = ast.literal_eval(players)
+GOOGLE_CREDENTIALS = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 
 TEAM_MAP = {
     # Mascot / Short Name Mappings
@@ -57,93 +68,82 @@ TEAM_MAP = {
 }
 
 # =============================================================================
-# ENV VARIABLES
-# =============================================================================
-# 1. First, load the .env file into os.environ normally
-load_dotenv()
-
-# 2. Get a dictionary of JUST the keys defined in your .env file
-env_vars = dotenv_values(".env")
-
-# 3. Inject them into your Python global namespace
-globals().update(env_vars)
-
-# =============================================================================
 # READ IN CURRENT JSON FILE
 # =============================================================================
 with open("data.json", "r", encoding="utf-8") as file:
     current_json = json.load(file)
-    
+del file   
+ 
+# =============================================================================
+# GET PLAYER PICKS
+# =============================================================================
 if f'Week {current_week}' not in current_json['weeks'].keys():
     new_week = True
     current_json['metadata']['currentWeek'] = f'Week {current_week}'
-else:
-    new_week = False
 
-# =============================================================================
-# DOWNLOAD PICKS FROM GOOGLE SHEETS
-# =============================================================================
-print("Authenticating hands-free from local dictionary...")
+    # =============================================================================
+    # DOWNLOAD PICKS FROM GOOGLE SHEETS
+    # =============================================================================
+    # 1. We call Credentials directly to build the authentication token manually
+    creds = Credentials.from_service_account_info(
+        GOOGLE_CREDENTIALS,
+        scopes=[
+                "https://www.googleapis.com/auth/forms.responses.readonly",
+                "https://www.googleapis.com/auth/forms.body.readonly"
+            ]
+    )
+    
+    # 2. Connect to the Google Forms API engine
+    service = build("forms", "v1", credentials=creds)
+    
+    # 1. FETCH THE FORM STRUCTURE (To get real question names and their order)
+    form_structure = service.forms().get(formId=FORM_ID).execute()
+    
+    # Build a mapping dictionary and keep track of the precise question order
+    question_map = {}
+    ordered_columns = ["Response_ID", "Timestamp"]
+    
+    for item in form_structure.get("items", []):
+        # Only process items that are actual questions (ignoring text descriptions or images)
+        if "questionItem" in item:
+            q_id = item["questionItem"]["question"]["questionId"]
+            title = item["title"]
+            question_map[q_id] = title
+            ordered_columns.append(title)
+    
+    # 2. FETCH THE FORM RESPONSES
+    print("Fetching form responses...")
+    result = service.forms().responses().list(formId=FORM_ID).execute()
+    
+    # 3. PARSE RESPONSES USING THE NEW MAP
+    rows = []
+    for response in result.get("responses", []):
+        row_data = {
+            "Response_ID": response["responseId"],
+            "Timestamp": response["lastSubmittedTime"],
+        }
+        for q_id, answer_obj in response.get("answers", {}).items():
+            answers = [
+                a.get("value", "")
+                for a in answer_obj.get("textAnswers", {}).get("answers", [])
+            ]
+            # Convert the cryptic Question ID into the human-readable Question Title
+            clean_column_name = question_map.get(q_id, q_id)
+            row_data[clean_column_name] = ", ".join(answers)
+        rows.append(row_data)
+    
+    # 4. CREATE DATAFRAME & FORCE THE CORRECT ORDER
+    picks = pd.DataFrame(rows)
+    
+    # Reindex columns to guarantee they match the exact visual layout of your form
+    picks = picks.reindex(columns=ordered_columns, fill_value="")
 
-# 1. We call Credentials directly to build the authentication token manually
-creds = Credentials.from_service_account_info(
-    json.loads(os.getenv("GOOGLE_CREDENTIALS")),
-    scopes=[
-            "https://www.googleapis.com/auth/forms.responses.readonly",
-            "https://www.googleapis.com/auth/forms.body.readonly"
-        ]
-)
 
-# 2. Connect to the Google Forms API engine
-service = build("forms", "v1", credentials=creds)
-
-# 1. FETCH THE FORM STRUCTURE (To get real question names and their order)
-print("Fetching form structure for column names...")
-form_structure = service.forms().get(formId=FORM_ID).execute()
-
-# Build a mapping dictionary and keep track of the precise question order
-question_map = {}
-ordered_columns = ["Response_ID", "Timestamp"]
-
-for item in form_structure.get("items", []):
-    # Only process items that are actual questions (ignoring text descriptions or images)
-    if "questionItem" in item:
-        q_id = item["questionItem"]["question"]["questionId"]
-        title = item["title"]
-        question_map[q_id] = title
-        ordered_columns.append(title)
-
-# 2. FETCH THE FORM RESPONSES
-print("Fetching form responses...")
-result = service.forms().responses().list(formId=FORM_ID).execute()
-
-# 3. PARSE RESPONSES USING THE NEW MAP
-rows = []
-for response in result.get("responses", []):
-    row_data = {
-        "Response_ID": response["responseId"],
-        "Timestamp": response["lastSubmittedTime"],
-    }
-    for q_id, answer_obj in response.get("answers", {}).items():
-        answers = [
-            a.get("value", "")
-            for a in answer_obj.get("textAnswers", {}).get("answers", [])
-        ]
-        # Convert the cryptic Question ID into the human-readable Question Title
-        clean_column_name = question_map.get(q_id, q_id)
-        row_data[clean_column_name] = ", ".join(answers)
-    rows.append(row_data)
-
-# 4. CREATE DATAFRAME & FORCE THE CORRECT ORDER
-picks = pd.DataFrame(rows)
-
-# Reindex columns to guarantee they match the exact visual layout of your form
-# (Using errors='ignore' in case a question exists but has zero submissions yet)
-picks = picks.reindex(columns=ordered_columns, fill_value="")
-
-if new_week == True:
+    #Push Picks to CSV
     picks.to_csv(f'{season}\Week {current_week}.csv',index=False)
-else:
+    
+
+else: #Not a new week (already downloaded picks)    
     picks = pd.read_csv(f'{season}\Week {current_week}.csv')
 
 # =============================================================================
@@ -159,7 +159,7 @@ picks = picks.iloc[:,:-1]
 
 #Clean Data
 picks.columns = picks.columns.map(lambda x : x.split(':')[0]) #rename columns with just game id
-picks = picks.applymap(lambda x:x.split(' (')[0]) #remove records
+picks = picks.map(lambda x:x.split(' (')[0]) #remove records
 picks = picks.replace(TEAM_MAP)
 
 # Identify player column and game ID columns
@@ -178,21 +178,13 @@ for game_id in game_cols:
 
     picks_by_game.append({"id": str(game_id).strip(), "picks": x})
 
-
 # =============================================================================
 # FETCHING LIVE SCORES
 # =============================================================================
 print("Fetching live NFL scores from ESPN...")
-
-# Public ESPN live scoreboard endpoint for the NFL
-url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
-
-# Pass the parameters as a dictionary to requests
-params = {"dates": season, "week": current_week, "seasontype": 1}
-
-response = requests.get(url, params=params)
-assert response.status_code == 200
-
+response = requests.get(ESPN_URL, params= {'seasontype':1
+                                           ,'week':current_week
+                                           ,'dates':season})
 data = response.json()
 
 # Extract the current week info
@@ -250,6 +242,7 @@ for event in data.get("events", []):
 # =============================================================================
 # FINALIZING MATCHUPS FOR JSON 
 # =============================================================================
+#BUILD INDIVIDUAL GAME DICTS
 for game in picks_by_game:
     gid = game['id']
     
@@ -257,7 +250,6 @@ for game in picks_by_game:
         {'game': games_list[gid].get('label')
          ,'winner': games_list[gid].get('winner')
          ,'status': games_list[gid].get('status')
-         
          })
     
 #BUILD TIEBREAKER WITH FINAL GAME
@@ -276,7 +268,7 @@ tiebreaker = {
                 ,'picks': tiebreaker_picks
     }
     
-
+#FINAL WEEK DICTIONARY
 week_json = {'matchups':picks_by_game
              ,'tiebreaker':tiebreaker}
 
@@ -286,7 +278,7 @@ week_json = {'matchups':picks_by_game
 #Set Week's Json into final
 current_json['weeks'][f'Week {current_week}'] = week_json
     
-#Set final update time
+#Set Header Update Time
 # 1. Get current local time with timezone information
 now = dt.datetime.now().astimezone()
 
@@ -308,12 +300,9 @@ with open("data.json", "w", encoding="utf-8") as f:
 
 print("Saved updates to data.json!")
 
-# # =============================================================================
-# # PUSH TO GITHUB
-# # =============================================================================
-import glob
-import os
-
+# =============================================================================
+# PUSH TO GITHUB
+# =============================================================================
 # 1. Locate GitHub Desktop's git.exe path FIRST
 app_data = os.getenv("LOCALAPPDATA")
 git_paths = glob.glob(
@@ -329,19 +318,13 @@ git_paths = glob.glob(
     )
 )
 
-if git_paths:
-    latest_git = max(git_paths, key=os.path.getmtime)
-
-    # 2. Set environment variable BEFORE importing git/GitPython
-    os.environ["GIT_PYTHON_GIT_EXECUTABLE"] = latest_git
-    print(f"Git path set to: {latest_git}")
-else:
-    print("Could not locate GitHub Desktop git.exe")
+# 2. Set environment variable BEFORE importing git/GitPython
+os.environ["GIT_PYTHON_GIT_EXECUTABLE"] = max(git_paths, key=os.path.getmtime)
 
 # 3. NOW import Repo (it will read the environment variable during initialization)
 from git import Repo
 
-
+#FUNCTION TO PUSH TO GITHUB
 def commit_and_push_data_json(repo_path=".", file_relative_path="data.json", commit_message="Update pool data"):
     """
     Stages, commits, and pushes data.json to GitHub using GitPython.
@@ -389,10 +372,9 @@ def commit_and_push_data_json(repo_path=".", file_relative_path="data.json", com
         print(f"An error occurred during Git operation: {e}")
         return False
 
-# Example invocation at the end of your data generation logic:
-if __name__ == "__main__":
-    # Add after saving your data.json file
-    commit_and_push_data_json(
-        file_relative_path="data.json",
-        commit_message="Auto-update NFL pool data.json"
-    )
+
+# PUSH TO GITHUB!
+commit_and_push_data_json(
+    file_relative_path="data.json",
+    commit_message="Auto-update NFL pool data.json"
+)

@@ -1,15 +1,14 @@
+# =============================================================================
+# FOOTBALL POOL - BUILD GOOGLE FORM
+# =============================================================================
+
 import json
+import ast
 import os
 import requests
 from dotenv import load_dotenv,dotenv_values
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
-
-# =============================================================================
-# PROGRAM VARIABLES
-# =============================================================================
-season = 2026
-current_week = 2
 
 # =============================================================================
 # ENV VARIABLES
@@ -23,32 +22,14 @@ env_vars = dotenv_values(".env")
 # 3. Inject them into your Python global namespace
 globals().update(env_vars)
 
-# ==============================================================================
-# 1. AUTHENTICATION & CONFIGURATION
-# ==============================================================================
-# Read credentials from environment
+# 4. Adjust variable types
+players = ast.literal_eval(players)
 GOOGLE_CREDENTIALS = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
 
-#App Scripts url to delete forms
-WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxz8B8CwE5-iTZ7Zxz0NedkeFOggyIlatyaiBf5AK0M1lmzlSkI9ipMeDnzP0_aKaVC/exec'
-
-# Read Form ID
-FORM_ID = os.getenv("FORM_ID")
-
-# BOTH scopes must be explicitly requested
-SCOPES = [
-    "https://www.googleapis.com/auth/forms.body",
-    "https://www.googleapis.com/auth/forms.responses.readonly",
-]
-
-ESPN_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
-
-players = ['AUSTIN','BRANDON','JORDAN','MOM']
-
 # ==============================================================================
-# 2. FUNCTIONS
+# FUNCTIONS
 # ==============================================================================
-def fetch_espn_games(week_num=None, season_type=1, season_year=None):
+def fetch_espn_games(week_num, season_type, season_year):
     """
     Fetches NFL games from ESPN API.
     
@@ -57,16 +38,10 @@ def fetch_espn_games(week_num=None, season_type=1, season_year=None):
       - season_type (int): 1 = Preseason, 2 = Regular Season, 3 = Postseason/Playoffs
       - season_year (int/str): e.g. 2026
     """
-    params = {
-        "seasontype": season_type
-    }
-    
-    if week_num:
-        params["week"] = week_num
-    if season_year:
-        params["dates"] = season_year
 
-    response = requests.get(ESPN_URL, params=params)
+    response = requests.get(ESPN_URL, params= {'seasontype':season_type
+                                               ,'week':week_num
+                                               ,'dates':season_year})
     data = response.json()
 
     # Get ESPN's week title (e.g., "Regular Season Week 1", "Wild Card Weekend")
@@ -122,27 +97,20 @@ def fetch_espn_games(week_num=None, season_type=1, season_year=None):
 # #Testing
 # fetch_espn_games(5,3,2025)
 
-
+#Function to clear the responses from the Google Form
 def clear_form_responses(form_id):
+    #App Scripts url to delete forms
+    WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxz8B8CwE5-iTZ7Zxz0NedkeFOggyIlatyaiBf5AK0M1lmzlSkI9ipMeDnzP0_aKaVC/exec'
+
     try:
         response = requests.get(WEB_APP_URL, params={"formId": form_id})
-
-        # Safeguard: Verify HTTP status before parsing JSON
-        if response.status_code != 200:
-            print(
-                f"⚠️ Server returned HTTP {response.status_code}: {response.text[:200]}"
-            )
-            return
-
         data = response.json()
-        print(f"Status: {data.get('status')} | {data.get('message')}")
+        print(f"{data.get('message')}")
 
     except Exception as e:
         print(f"⚠️ Failed to parse response: {e}")
 
-# # Usage
-# clear_form_responses(FORM_ID)
-        
+#Function to bold specific text in the form
 def to_unicode_bold(text):
     """Converts plain ASCII letters and numbers into bold Unicode characters."""
     bold_mapping = {}
@@ -161,27 +129,33 @@ def to_unicode_bold(text):
 
     return "".join(bold_mapping.get(c, c) for c in text)
 
-
+#Function to update the form (probably doesnt need to be a function)
 def update_existing_form(week_num, season_type, season_year):
     """Clears existing questions and updates the fixed Google Form with new games."""
-    # 1. Fetch upcoming matchups from ESPN
-    week_title, games = fetch_espn_games(week_num, season_type, season_year)
-    print(f"Loaded {len(games)} games for {week_title}.")
 
-    # 2. Authenticate
+    # 1. Authenticate
+    SCOPES = [
+        "https://www.googleapis.com/auth/forms.body",
+        "https://www.googleapis.com/auth/forms.responses.readonly",
+    ]
+
     creds = Credentials.from_service_account_info(GOOGLE_CREDENTIALS, scopes=SCOPES)
     forms_service = build("forms", "v1", credentials=creds)
     
-    # 3. Clear out last week's player responses
+    # 2. Clear out last week's player responses
     clear_form_responses(FORM_ID)
 
-    # 4. Get existing form structure to find current items to delete
+    # 3. Get existing form structure to find current items to delete
     current_form = forms_service.forms().get(formId=FORM_ID).execute()
     current_items = current_form.get("items", [])
+    
+    # 4. Fetch upcoming matchups from ESPN
+    week_title, games = fetch_espn_games(week_num, season_type, season_year)
+    print(f"Loaded {len(games)} games for {week_title}.")
 
-    requests_list = []
-
+    
     # Step A: Update Form Title
+    requests_list = []
     requests_list.append(
         {
             "updateFormInfo": {
@@ -225,7 +199,7 @@ def update_existing_form(week_num, season_type, season_year):
                 "createItem": {
                     "item": {
                         "title": game['id'] + ': ' + to_unicode_bold(game["name"]) + ' (' + str(game["spread"]) + ')',
-                        "description": game['broadcast'],
+                        "description": game['human_date'] + ' on ' + game['broadcast'],
                         "questionItem": {
                             "question": {
                                 "required": True,
@@ -269,12 +243,16 @@ def update_existing_form(week_num, season_type, season_year):
         formId=FORM_ID, body={"requests": requests_list}
     ).execute()
 
-    public_url = f"https://docs.google.com/forms/d/{FORM_ID}/viewform"
-    print(f"\n Form successfully updated for {week_title}!")
-    print(f"Permanent Player Link: {public_url}")
+    print(f"\nForm successfully updated for {week_title}!")
     
     
 # =============================================================================
 # RUN UPDATE TO FORM 
 # =============================================================================
 update_existing_form(current_week, 1, season)
+
+
+# =============================================================================
+# SEND NOTIFICATION?
+# =============================================================================
+# public_url = f"https://docs.google.com/forms/d/{FORM_ID}/viewform"
