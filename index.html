@@ -44,6 +44,9 @@
     th { background-color: #f1f5f9; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
     tr:last-child td { border-bottom: none; }
 
+    /* TABLE ALIGNMENT UTILITIES */
+    .text-center { text-align: center !important; }
+
     /* --- TEAM LOGOS --- */
     .team-logo-icon {
       width: 20px;
@@ -143,10 +146,10 @@
           <tr>
             <th>Rank</th>
             <th>Player</th>
-            <th>Wins</th>
-            <th>Losses</th>
-            <th>Win %</th>
-            <th>Games Back</th>
+            <th class="text-center">Wins</th>
+            <th class="text-center">Losses</th>
+            <th class="text-center">%</th>
+            <th class="text-center">Games Back</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -159,8 +162,8 @@
         <thead>
           <tr>
             <th>Player</th>
-            <th>Crowns Won</th>
-            <th>Avg Crown Delta</th>
+            <th class="text-center">Crowns Won</th>
+            <th class="text-center">Avg Crown Delta</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -182,8 +185,6 @@
         <thead>
           <tr>
             <th>Player</th>
-            <th>Correct</th>
-            <th>Incorrect</th>
             <th>Pick Score</th>
             <th>Tiebreaker Pred</th>
             <th>Differential</th>
@@ -275,17 +276,6 @@
       }
 
       return `<img src="./logos/${cleanAbbr}.png" alt="${abbr}" class="team-logo-icon" onerror="this.style.display='none'"> ${abbr}`;
-    }
-
-    function formatGameWithLogos(gameStr) {
-      if (!gameStr) return '';
-      return gameStr.split(/(@|vs\.?|v\.?|\-)/i).map(part => {
-        const trimmed = part.trim();
-        if (/^[A-Za-z]{2,3}$/.test(trimmed)) {
-          return getTeamLogoHtml(trimmed);
-        }
-        return part;
-      }).join(' ');
     }
 
     async function initDashboard() {
@@ -539,10 +529,10 @@
           <tr>
             <td><strong>${info.rankStr}</strong></td>
             <td><strong>${p}</strong></td>
-            <td class="text-success">${wins}</td>
-            <td class="text-danger">${losses}</td>
-            <td>${pct}%</td>
-            <td><strong>${info.gb}</strong></td>
+            <td class="text-center text-success">${wins}</td>
+            <td class="text-center text-danger">${losses}</td>
+            <td class="text-center">${pct}%</td>
+            <td class="text-center"><strong>${info.gb}</strong></td>
           </tr>
         `;
       }).join('');
@@ -564,16 +554,22 @@
 
       const crownBody = document.querySelector('#crowns-table tbody');
       crownBody.innerHTML = crownSorted.map(p => {
+        const crowns = computedStats[p].crowns;
         const deltas = computedStats[p].winningDeltas;
         const avgDelta = deltas.length > 0 
           ? (deltas.reduce((a, b) => a + b, 0) / deltas.length).toFixed(1) + ' pts' 
           : 'N/A';
 
+        // Only show green badge if crowns > 0
+        const crownDisplay = crowns > 0 
+          ? `<span class="badge-win">👑 ${crowns} Wins</span>` 
+          : `0 Wins`;
+
         return `
           <tr>
             <td><strong>${p}</strong></td>
-            <td><span class="badge-win">👑 ${computedStats[p].crowns} Wins</span></td>
-            <td>${avgDelta}</td>
+            <td class="text-center">${crownDisplay}</td>
+            <td class="text-center">${avgDelta}</td>
           </tr>
         `;
       }).join('');
@@ -620,8 +616,6 @@
         return `
           <tr>
             <td><strong>${p}</strong>${crownBadge}</td>
-            <td class="text-success">${wHist.correct}</td>
-            <td class="text-danger">${wHist.incorrect}</td>
             <td><strong><span class="text-success">${wHist.correct}</span> - <span class="text-danger">${wHist.incorrect}</span></strong></td>
             <td>${pred}</td>
             <td>${diffStr}</td>
@@ -643,7 +637,7 @@
         const winner = m.winner;
         return `
           <tr>
-            <td><strong>${formatGameWithLogos(m.game)}</strong></td>
+            <td><strong>${m.game || ''}</strong></td>
             <td><span class="badge-status">${m.status}</span></td>
             ${poolData.players.map(p => {
               const pick = m.picks?.[p] || '—';
