@@ -2,8 +2,8 @@
   "metadata": {
     "title": "\ud83c\udfc8 Orser Family Football Pool",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Saturday @ 7:36pm",
-    "currentWeek": "Week 1"
+    "lastUpdated": "Saturday @ 8:32pm",
+    "currentWeek": "Week 2"
   },
   "players": [
     "AUSTIN",
@@ -48,6 +48,226 @@
           "MOM": {
             "winner": "ARI",
             "predictedTotal": 16
+          }
+        }
+      }
+    },
+    "Week 2": {
+      "matchups": [
+        {
+          "id": "401873272",
+          "picks": {
+            "BRANDON": "CIN",
+            "AUSTIN": "DET",
+            "JORDAN": "CIN",
+            "MOM": "CIN"
+          },
+          "game": "DET @ CIN",
+          "winner": "CIN",
+          "status": "Final"
+        },
+        {
+          "id": "401873275",
+          "picks": {
+            "BRANDON": "GB",
+            "AUSTIN": "PIT",
+            "JORDAN": "GB",
+            "MOM": "GB"
+          },
+          "game": "GB @ PIT",
+          "winner": "PIT",
+          "status": "Final"
+        },
+        {
+          "id": "401873273",
+          "picks": {
+            "BRANDON": "NE",
+            "AUSTIN": "IND",
+            "JORDAN": "IND",
+            "MOM": "NE"
+          },
+          "game": "IND @ NE",
+          "winner": "TIE",
+          "status": "Final"
+        },
+        {
+          "id": "401873640",
+          "picks": {
+            "BRANDON": "ARI",
+            "AUSTIN": "LV",
+            "JORDAN": "ARI",
+            "MOM": "ARI"
+          },
+          "game": "ARI @ LV",
+          "winner": "ARI",
+          "status": "Final"
+        },
+        {
+          "id": "401873274",
+          "picks": {
+            "BRANDON": "LAC",
+            "AUSTIN": "LAC",
+            "JORDAN": "LAC",
+            "MOM": "LAC"
+          },
+          "game": "LAC @ HOU",
+          "winner": "LAC",
+          "status": "Final"
+        },
+        {
+          "id": "401874392",
+          "picks": {
+            "BRANDON": "TEN",
+            "AUSTIN": "TEN",
+            "JORDAN": "SF",
+            "MOM": "TEN"
+          },
+          "game": "TEN @ SF",
+          "winner": "TEN",
+          "status": "Final"
+        },
+        {
+          "id": "401873278",
+          "picks": {
+            "BRANDON": "DEN",
+            "AUSTIN": "DEN",
+            "JORDAN": "DEN",
+            "MOM": "DEN"
+          },
+          "game": "DEN @ ATL",
+          "winner": "DEN",
+          "status": "Final"
+        },
+        {
+          "id": "401873276",
+          "picks": {
+            "BRANDON": "NYJ",
+            "AUSTIN": "NYJ",
+            "JORDAN": "NYJ",
+            "MOM": "TB"
+          },
+          "game": "TB @ NYJ",
+          "winner": "TB",
+          "status": "Final"
+        },
+        {
+          "id": "401873277",
+          "picks": {
+            "BRANDON": "MIA",
+            "AUSTIN": "WAS",
+            "JORDAN": "MIA",
+            "MOM": "MIA"
+          },
+          "game": "MIA @ WSH",
+          "winner": "WSH",
+          "status": "Final"
+        },
+        {
+          "id": "401873282",
+          "picks": {
+            "BRANDON": "CAR",
+            "AUSTIN": "CAR",
+            "JORDAN": "BUF",
+            "MOM": "CAR"
+          },
+          "game": "CAR @ BUF",
+          "winner": "BUF",
+          "status": "Final"
+        },
+        {
+          "id": "401874393",
+          "picks": {
+            "BRANDON": "CLE",
+            "AUSTIN": "CLE",
+            "JORDAN": "CLE",
+            "MOM": "CLE"
+          },
+          "game": "CLE @ CHI",
+          "winner": "CHI",
+          "status": "Final"
+        },
+        {
+          "id": "401873280",
+          "picks": {
+            "BRANDON": "MIN",
+            "AUSTIN": "MIN",
+            "JORDAN": "MIN",
+            "MOM": "MIN"
+          },
+          "game": "MIN @ NYG",
+          "winner": "MIN",
+          "status": "Final"
+        },
+        {
+          "id": "401873283",
+          "picks": {
+            "BRANDON": "LAR",
+            "AUSTIN": "LAR",
+            "JORDAN": "LAR",
+            "MOM": "LAR"
+          },
+          "game": "LAR @ KC",
+          "winner": "LAR",
+          "status": "Final"
+        },
+        {
+          "id": "401873281",
+          "picks": {
+            "BRANDON": "JAX",
+            "AUSTIN": "NO",
+            "JORDAN": "NO",
+            "MOM": "JAX"
+          },
+          "game": "JAX @ NO",
+          "winner": "JAX",
+          "status": "Final"
+        },
+        {
+          "id": "401873284",
+          "picks": {
+            "BRANDON": "PHI",
+            "AUSTIN": "BAL",
+            "JORDAN": "BAL",
+            "MOM": "PHI"
+          },
+          "game": "PHI @ BAL",
+          "winner": null,
+          "status": "In Progress"
+        },
+        {
+          "id": "401873279",
+          "picks": {
+            "BRANDON": "DAL",
+            "AUSTIN": "DAL",
+            "JORDAN": "SEA",
+            "MOM": "DAL"
+          },
+          "game": "DAL @ SEA",
+          "winner": null,
+          "status": "Halftime"
+        }
+      ],
+      "tiebreaker": {
+        "game": "DAL @ SEA",
+        "status": "Halftime",
+        "winner": null,
+        "actualTotalScore": 17,
+        "picks": {
+          "AUSTIN": {
+            "winner": "DAL",
+            "predictedTotal": 40
+          },
+          "BRANDON": {
+            "winner": "DAL",
+            "predictedTotal": 12
+          },
+          "JORDAN": {
+            "winner": "SEA",
+            "predictedTotal": 45
+          },
+          "MOM": {
+            "winner": "DAL",
+            "predictedTotal": 27
           }
         }
       }

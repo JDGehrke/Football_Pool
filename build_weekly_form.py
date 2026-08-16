@@ -9,7 +9,7 @@ from googleapiclient.discovery import build
 # PROGRAM VARIABLES
 # =============================================================================
 season = 2026
-current_week = 1
+current_week = 2
 
 # =============================================================================
 # ENV VARIABLES
@@ -77,9 +77,13 @@ def fetch_espn_games(week_num=None, season_type=1, season_year=None):
     phase_label = season_labels.get(season_type, "NFL")
     
     week_title = f"{phase_label} - {raw_week_text}"
+    
+    # Sort events directly using the ISO timestamp field
+    events = data.get("events", [])
+    sorted_events = sorted(events, key=lambda x: x["date"])
 
     games = []
-    for event in data.get("events", []):
+    for event in sorted_events:
         comp = event["competitions"][0]
         try:
             odds = comp["odds"][0]
@@ -107,6 +111,7 @@ def fetch_espn_games(week_num=None, season_type=1, season_year=None):
             "homeRecord": home["records"][0].get("summary"),
             
             "date": event.get("date"),
+            "human_date": event['status']['type'].get('detail'),
             "broadcast": comp.get("broadcast"),
             "spread": odds.get("spread"),
             "overUnder": odds.get("overUnder")
@@ -272,4 +277,4 @@ def update_existing_form(week_num, season_type, season_year):
 # =============================================================================
 # RUN UPDATE TO FORM 
 # =============================================================================
-update_existing_form(1, 1, 2026)
+update_existing_form(current_week, 1, season)

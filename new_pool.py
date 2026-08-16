@@ -16,7 +16,7 @@ os.chdir(r'C:\\Users\\jdgeh\Documents\Github\Football_Pool')
 # PROGRAM VARIABLES
 # =============================================================================
 season = 2026
-current_week = 1
+current_week = 2
 
 players = ['AUSTIN','BRANDON','JORDAN','MOM']
 
