@@ -41,7 +41,7 @@
     
     table { width: 100%; border-collapse: collapse; text-align: left; }
     th, td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); }
-    th { background-color: #f1f5f9; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    th { background-color: #f1f5f9; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
     tr:last-child td { border-bottom: none; }
 
     /* TABLE ALIGNMENT UTILITIES */
@@ -68,6 +68,17 @@
       color: var(--text-muted);
       display: block;
       margin-top: 2px;
+    }
+
+    /* COLUMN HEADER SUBTITLE STYLES */
+    .th-subtitle {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: normal;
+      text-transform: none;
+      color: var(--text-muted);
+      margin-top: 2px;
+      letter-spacing: normal;
     }
 
     /* CONDITIONAL HIGHLIGHTING */
@@ -103,7 +114,37 @@
     /* --- UTILITIES & BADGES --- */
     .text-success { color: var(--success); font-weight: bold; }
     .text-danger { color: var(--danger); font-weight: bold; }
-    .badge-win { background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; }
+    
+    .badge-win { 
+      background: #dcfce7; 
+      color: #15803d; 
+      padding: 4px 10px; 
+      border-radius: 6px; 
+      font-weight: bold; 
+      font-size: 0.85rem; 
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    /* WRAPPING BEHAVIOR FOR CROWN BADGES ON MOBILE */
+    @media (max-width: 480px) {
+      .badge-win {
+        flex-direction: column;
+        gap: 2px;
+        padding: 4px 6px;
+      }
+      .crown-icon {
+        font-size: 1.1rem;
+        line-height: 1;
+      }
+      .crown-text {
+        white-space: nowrap;
+      }
+    }
+
     .badge-status { background: #f1f5f9; color: var(--text-muted); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
 
     /* --- CROWN STYLING --- */
@@ -189,8 +230,8 @@
     }
     .chart-bar-value { color: #ffffff; font-weight: bold; font-size: 0.85rem; }
 
-    /* PICK MATRIX */
-    .matrix-wrapper { overflow-x: auto; }
+    /* RESPONSIVE SCROLLABLE TABLE WRAPPER */
+    .matrix-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .pick-correct { background-color: #dcfce7 !important; color: #166534; font-weight: bold; }
     .pick-incorrect { background-color: #fee2e2 !important; color: #991b1b; }
     .pick-pending { background-color: #ffffff; color: var(--text-main); }
@@ -231,33 +272,37 @@
 
     <div class="card">
       <h3>Full Season Leaderboard</h3>
-      <table id="leaderboard-table">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Player</th>
-            <th class="text-center">Wins</th>
-            <th class="text-center">Losses</th>
-            <th class="text-center">Accuracy</th>
-            <th class="text-center">Games Back</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <div class="matrix-wrapper">
+        <table id="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th class="text-center">Wins</th>
+              <th class="text-center">Losses</th>
+              <th class="text-center">Accuracy</th>
+              <th class="text-center">Games Back</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
     <div class="card">
       <h3>Weekly Crown Standings</h3>
-      <table id="crowns-table">
-        <thead>
-          <tr>
-            <th>Player</th>
-            <th class="text-center">Crowns Won</th>
-            <th class="text-center">Avg Crown Delta</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <div class="matrix-wrapper">
+        <table id="crowns-table">
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th class="text-center">Crowns Won</th>
+              <th class="text-center">Avg Crown Delta</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -271,25 +316,27 @@
     <!-- WEEK TRACKER -->
     <div class="card">
       <h3>Week Tracker</h3>
-      <table id="week-tracker-table">
-        <thead>
-          <tr>
-            <th>Player</th>
-            <th class="text-center">Pick Score</th>
-            <th class="text-center">Tiebreaker Pred</th>
-            <th class="text-center">Differential</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <div class="matrix-wrapper">
+        <table id="week-tracker-table">
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th class="text-center">Pick Score</th>
+              <th class="text-center">Tiebreaker Pred</th>
+              <th class="text-center">Differential</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
-    <!-- MATCHUP & PICK MATRIX -->
+    <!-- MATCHUP MATRIX -->
     <div class="card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-        <h3 style="margin-bottom: 0;">Matchup & Pick Matrix</h3>
+        <h3 style="margin-bottom: 0;">Matchup Matrix</h3>
         
-        <!-- MULTI-SELECT DROPDOWN FOR PICK MATRIX -->
+        <!-- MULTI-SELECT DROPDOWN FOR MATCHUP MATRIX -->
         <div id="matrix-player-dropdown" class="dropdown-check-list" tabindex="100">
           <span class="anchor" onclick="toggleMatrixDropdown()">Filter Players</span>
           <ul class="items" id="matrix-player-options"></ul>
@@ -321,16 +368,24 @@
 
     <div class="card">
       <h3>Team Pick Accuracy Breakdown</h3>
-      <table id="team-accuracy-table">
-        <thead>
-          <tr>
-            <th>Team</th>
-            <th class="text-center">Pick % <span style="font-size:0.75rem; font-weight:normal; text-transform:none;">(Pool %)</span></th>
-            <th class="text-center">Accuracy % <span style="font-size:0.75rem; font-weight:normal; text-transform:none;">(Pool %)</span></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <div class="matrix-wrapper">
+        <table id="team-accuracy-table">
+          <thead>
+            <tr>
+              <th>Team</th>
+              <th class="text-center">
+                Pick %
+                <span class="th-subtitle">(Pool %)</span>
+              </th>
+              <th class="text-center">
+                Accuracy %
+                <span class="th-subtitle">(Pool %)</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -695,7 +750,7 @@
           : 'N/A';
 
         const crownDisplay = crowns > 0 
-          ? `<span class="badge-win">👑 ${crowns} Wins</span>` 
+          ? `<span class="badge-win"><span class="crown-icon">👑</span><span class="crown-text">${crowns} ${crowns === 1 ? 'Win' : 'Wins'}</span></span>` 
           : `0 Wins`;
 
         return `
@@ -963,31 +1018,33 @@
         const cardHtml = `
           <div class="card">
             <h3>${divisionName}</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Team</th>
-                  <th>W</th>
-                  <th>L</th>
-                  <th>PCT</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${sortedTeams.map(t => {
-                  const rec = nflTeamRecords[t] || { wins: 0, losses: 0 };
-                  const total = rec.wins + rec.losses;
-                  const pct = total > 0 ? (rec.wins / total).toFixed(3).replace(/^0/, '') : '.000';
-                  return `
-                    <tr>
-                      <td><strong>${getTeamLogoHtml(t)}</strong></td>
-                      <td class="text-success">${rec.wins}</td>
-                      <td class="text-danger">${rec.losses}</td>
-                      <td><strong>${pct}</strong></td>
-                    </tr>
-                  `;
-                }).join('')}
-              </tbody>
-            </table>
+            <div class="matrix-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Team</th>
+                    <th>W</th>
+                    <th>L</th>
+                    <th>PCT</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${sortedTeams.map(t => {
+                    const rec = nflTeamRecords[t] || { wins: 0, losses: 0 };
+                    const total = rec.wins + rec.losses;
+                    const pct = total > 0 ? (rec.wins / total).toFixed(3).replace(/^0/, '') : '.000';
+                    return `
+                      <tr>
+                        <td><strong>${getTeamLogoHtml(t)}</strong></td>
+                        <td class="text-success">${rec.wins}</td>
+                        <td class="text-danger">${rec.losses}</td>
+                        <td><strong>${pct}</strong></td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
           </div>
         `;
 
