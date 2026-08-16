@@ -6,6 +6,12 @@ from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
 # =============================================================================
+# PROGRAM VARIABLES
+# =============================================================================
+season = 2026
+current_week = 1
+
+# =============================================================================
 # ENV VARIABLES
 # =============================================================================
 # 1. First, load the .env file into os.environ normally
@@ -17,33 +23,32 @@ env_vars = dotenv_values(".env")
 # 3. Inject them into your Python global namespace
 globals().update(env_vars)
 
-
 # ==============================================================================
 # 1. AUTHENTICATION & CONFIGURATION
 # ==============================================================================
-
 # Read credentials from environment
 GOOGLE_CREDENTIALS = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
+
+#App Scripts url to delete forms
+WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxz8B8CwE5-iTZ7Zxz0NedkeFOggyIlatyaiBf5AK0M1lmzlSkI9ipMeDnzP0_aKaVC/exec'
 
 # Read Form ID
 FORM_ID = os.getenv("FORM_ID")
 
-# Scopes covering Sheets, Form Structure (Create/Edit), and Form Responses
+# BOTH scopes must be explicitly requested
 SCOPES = [
-    "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/forms.body",
     "https://www.googleapis.com/auth/forms.responses.readonly",
-    "https://www.googleapis.com/auth/forms.responses.write"
 ]
 
 ESPN_URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
 
-players = ['MOM','AUSTIN','JORDAN','BRANDON']
+players = ['AUSTIN','BRANDON','JORDAN','MOM']
 
 # ==============================================================================
 # 2. FUNCTIONS
 # ==============================================================================
-def fetch_espn_games(week_num=None, season_type=2, season_year=None):
+def fetch_espn_games(week_num=None, season_type=1, season_year=None):
     """
     Fetches NFL games from ESPN API.
     
@@ -76,7 +81,10 @@ def fetch_espn_games(week_num=None, season_type=2, season_year=None):
     games = []
     for event in data.get("events", []):
         comp = event["competitions"][0]
-        odds = comp["odds"][0]
+        try:
+            odds = comp["odds"][0]
+        except: 
+            odds = {'spread':'N/A','overUnder':'N/A'}
 
         away = next(t for t in comp["competitors"] if t["homeAway"] == "away")
         home = next(t for t in comp["competitors"] if t["homeAway"] == "home")
@@ -110,35 +118,25 @@ def fetch_espn_games(week_num=None, season_type=2, season_year=None):
 # fetch_espn_games(5,3,2025)
 
 
-def clear_form_responses(forms_service, form_id):
-    """Fetches all response IDs and deletes them in a batch request."""
+def clear_form_responses(form_id):
     try:
-        # 1. Fetch all existing response IDs for this form
-        response_data = (
-            forms_service.forms().responses().list(formId=form_id).execute()
-        )
-        responses = response_data.get("responses", [])
+        response = requests.get(WEB_APP_URL, params={"formId": form_id})
 
-        if not responses:
-            print("No previous responses found to clear.")
+        # Safeguard: Verify HTTP status before parsing JSON
+        if response.status_code != 200:
+            print(
+                f"⚠️ Server returned HTTP {response.status_code}: {response.text[:200]}"
+            )
             return
 
-        # 2. Extract response IDs
-        response_ids = [r["responseId"] for r in responses]
-
-        # 3. Batch delete all responses
-        body = {"responseIds": response_ids}
-        forms_service.forms().responses().batchDelete(
-            formId=form_id, body=body
-        ).execute()
-
-        print(
-            f" Successfully cleared {len(response_ids)} previous response(s)."
-        )
+        data = response.json()
+        print(f"Status: {data.get('status')} | {data.get('message')}")
 
     except Exception as e:
-        print(f"⚠️ Error while clearing responses: {e}")
-       
+        print(f"⚠️ Failed to parse response: {e}")
+
+# # Usage
+# clear_form_responses(FORM_ID)
         
 def to_unicode_bold(text):
     """Converts plain ASCII letters and numbers into bold Unicode characters."""
@@ -159,19 +157,18 @@ def to_unicode_bold(text):
     return "".join(bold_mapping.get(c, c) for c in text)
 
 
-def update_existing_form(week_num=None, season_type=2, season_year = 2026):
+def update_existing_form(week_num, season_type, season_year):
     """Clears existing questions and updates the fixed Google Form with new games."""
     # 1. Fetch upcoming matchups from ESPN
-    # week_title, games = fetch_espn_games(week_num, season_type, season_year)
-    week_title, games = fetch_espn_games(2, 1, 2026)
+    week_title, games = fetch_espn_games(week_num, season_type, season_year)
     print(f"Loaded {len(games)} games for {week_title}.")
 
     # 2. Authenticate
-    creds = Credentials.from_service_account_info(MY_CREDENTIALS, scopes=SCOPES)
+    creds = Credentials.from_service_account_info(GOOGLE_CREDENTIALS, scopes=SCOPES)
     forms_service = build("forms", "v1", credentials=creds)
     
     # 3. Clear out last week's player responses
-    clear_form_responses(forms_service, FORM_ID)
+    clear_form_responses(FORM_ID)
 
     # 4. Get existing form structure to find current items to delete
     current_form = forms_service.forms().get(formId=FORM_ID).execute()
@@ -270,3 +267,9 @@ def update_existing_form(week_num=None, season_type=2, season_year = 2026):
     public_url = f"https://docs.google.com/forms/d/{FORM_ID}/viewform"
     print(f"\n Form successfully updated for {week_title}!")
     print(f"Permanent Player Link: {public_url}")
+    
+    
+# =============================================================================
+# RUN UPDATE TO FORM 
+# =============================================================================
+update_existing_form(1, 1, 2026)

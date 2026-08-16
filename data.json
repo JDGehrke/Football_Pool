@@ -2,254 +2,51 @@
   "metadata": {
     "title": "\ud83c\udfc8 Orser Family Football Pool",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Wednesday @ 9:35pm",
-    "currentWeek": "Week 2"
+    "lastUpdated": "Saturday @ 7:36pm",
+    "currentWeek": "Week 1"
   },
   "players": [
-    "Mom",
-    "Uncle Bob",
-    "You",
-    "Cousin Sarah"
+    "AUSTIN",
+    "BRANDON",
+    "JORDAN",
+    "MOM"
   ],
   "weeks": {
-    "Week 1": {
-      "matchups": [
-        {
-          "game": "BAL @ KC",
-          "winner": "KC",
-          "status": "Final",
-          "picks": {
-            "Mom": "KC",
-            "Uncle Bob": "KC",
-            "You": "BAL",
-            "Cousin Sarah": "KC"
-          }
-        },
-        {
-          "game": "GB @ PHI",
-          "winner": "PHI",
-          "status": "Final",
-          "picks": {
-            "Mom": "PHI",
-            "Uncle Bob": "GB",
-            "You": "PHI",
-            "Cousin Sarah": "GB"
-          }
-        },
-        {
-          "game": "DAL @ CLE",
-          "winner": "DAL",
-          "status": "Final",
-          "picks": {
-            "Mom": "CLE",
-            "Uncle Bob": "DAL",
-            "You": "DAL",
-            "Cousin Sarah": "CLE"
-          }
-        }
-      ],
-      "tiebreaker": {
-        "game": "DAL @ CLE",
-        "status": "Final",
-        "winner": "DAL",
-        "actualTotalScore": 49,
+    "matchups": [
+      {
+        "id": "401873271",
         "picks": {
-          "Mom": {
-            "winner": "CLE",
-            "predictedTotal": 69
-          },
-          "Uncle Bob": {
-            "winner": "DAL",
-            "predictedTotal": 51
-          },
-          "You": {
-            "winner": "DAL",
-            "predictedTotal": 48
-          },
-          "Cousin Sarah": {
-            "winner": "CLE",
-            "predictedTotal": 45
-          }
-        }
+          "JORDAN": "CAR",
+          "BRANDON": "CAR",
+          "MOM": "ARI",
+          "AUSTIN": "ARI"
+        },
+        "game": "CAR VS ARI",
+        "winner": "CAR",
+        "status": "Final"
       }
-    },
-    "Week 2": {
-      "matchups": [
-        {
-          "id": "401873272",
-          "picks": {
-            "JORDAN": "CIN",
-            "MOM": "DET"
-          },
-          "game": "DET @ CIN",
-          "winner": null,
-          "status": "Scheduled"
+    ],
+    "tiebreaker": {
+      "game": "CAR VS ARI",
+      "status": "Final",
+      "winner": "CAR",
+      "actualTotalScore": 63,
+      "picks": {
+        "AUSTIN": {
+          "winner": "ARI",
+          "predictedTotal": 22
         },
-        {
-          "id": "401873275",
-          "picks": {
-            "JORDAN": "GB",
-            "MOM": "PIT"
-          },
-          "game": "GB @ PIT",
-          "winner": null,
-          "status": "Scheduled"
+        "BRANDON": {
+          "winner": "CAR",
+          "predictedTotal": 12
         },
-        {
-          "id": "401873273",
-          "picks": {
-            "JORDAN": "NE",
-            "MOM": "NE"
-          },
-          "game": "IND @ NE",
-          "winner": null,
-          "status": "Scheduled"
+        "JORDAN": {
+          "winner": "CAR",
+          "predictedTotal": 45
         },
-        {
-          "id": "401873640",
-          "picks": {
-            "JORDAN": "ARI",
-            "MOM": "ARI"
-          },
-          "game": "ARI @ LV",
-          "winner": null,
-          "status": "Scheduled"
-        },
-        {
-          "id": "401873274",
-          "picks": {
-            "JORDAN": "LAC",
-            "MOM": "LAC"
-          },
-          "game": "LAC @ HOU",
-          "winner": null,
-          "status": "Scheduled"
-        },
-        {
-          "id": "401874392",
-          "picks": {
-            "JORDAN": "TEN",
-            "MOM": "TEN"
-          },
-          "game": "TEN @ SF",
-          "winner": null,
-          "status": "Scheduled"
-        },
-        {
-          "id": "401873278",
-          "picks": {
-            "JORDAN": "ATL",
-            "MOM": "DEN"
-          },
-          "game": "DEN @ ATL",
-          "winner": null,
-          "status": "Scheduled"
-        },
-        {
-          "id": "401873276",
-          "picks": {
-            "JORDAN": "TB",
-            "MOM": "TB"
-          },
-          "game": "TB @ NYJ",
-          "winner": null,
-          "status": "Scheduled"
-        },
-        {
-          "id": "401873277",
-          "picks": {
-            "JORDAN": "WAS",
-            "MOM": "MIA"
-          },
-          "game": "MIA @ WSH",
-          "winner": null,
-          "status": "Scheduled"
-        },
-        {
-          "id": "401873282",
-          "picks": {
-            "JORDAN": "CAR",
-            "MOM": "CAR"
-          },
-          "game": "CAR @ BUF",
-          "winner": null,
-          "status": "Scheduled"
-        },
-        {
-          "id": "401874393",
-          "picks": {
-            "JORDAN": "CHI",
-            "MOM": "CLE"
-          },
-          "game": "CLE @ CHI",
-          "winner": null,
-          "status": "Scheduled"
-        },
-        {
-          "id": "401873280",
-          "picks": {
-            "JORDAN": "MIN",
-            "MOM": "MIN"
-          },
-          "game": "MIN @ NYG",
-          "winner": null,
-          "status": "Scheduled"
-        },
-        {
-          "id": "401873283",
-          "picks": {
-            "JORDAN": "KC",
-            "MOM": "KC"
-          },
-          "game": "LAR @ KC",
-          "winner": null,
-          "status": "Scheduled"
-        },
-        {
-          "id": "401873281",
-          "picks": {
-            "JORDAN": "JAX",
-            "MOM": "JAX"
-          },
-          "game": "JAX @ NO",
-          "winner": null,
-          "status": "Scheduled"
-        },
-        {
-          "id": "401873284",
-          "picks": {
-            "JORDAN": "BAL",
-            "MOM": "PHI"
-          },
-          "game": "PHI @ BAL",
-          "winner": null,
-          "status": "Scheduled"
-        },
-        {
-          "id": "401873279",
-          "picks": {
-            "JORDAN": "DAL",
-            "MOM": "DAL"
-          },
-          "game": "DAL @ SEA",
-          "winner": null,
-          "status": "Scheduled"
-        }
-      ],
-      "tiebreaker": {
-        "game": "DAL @ SEA",
-        "status": "Scheduled",
-        "winner": null,
-        "actualTotalScore": 0,
-        "picks": {
-          "JORDAN": {
-            "winner": "DAL",
-            "predictedTotal": "12"
-          },
-          "MOM": {
-            "winner": "DAL",
-            "predictedTotal": "40"
-          }
+        "MOM": {
+          "winner": "ARI",
+          "predictedTotal": 16
         }
       }
     }

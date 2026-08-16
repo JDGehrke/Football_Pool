@@ -1,20 +1,24 @@
 # =============================================================================
 # FOOTBALL POOL
 # =============================================================================
-
 import pandas as pd
 import json
 import datetime as dt
 import requests
+import os
 from dotenv import load_dotenv,dotenv_values
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
+
+os.chdir(r'C:\\Users\\jdgeh\Documents\Github\Football_Pool')
 
 # =============================================================================
 # PROGRAM VARIABLES
 # =============================================================================
 season = 2026
-current_week = 2
+current_week = 1
+
+players = ['AUSTIN','BRANDON','JORDAN','MOM']
 
 TEAM_MAP = {
     # Mascot / Short Name Mappings
@@ -83,7 +87,7 @@ print("Authenticating hands-free from local dictionary...")
 
 # 1. We call Credentials directly to build the authentication token manually
 creds = Credentials.from_service_account_info(
-    json.loads(GOOGLE_CREDENTIALS),
+    json.loads(os.getenv("GOOGLE_CREDENTIALS")),
     scopes=[
             "https://www.googleapis.com/auth/forms.responses.readonly",
             "https://www.googleapis.com/auth/forms.body.readonly"
@@ -138,7 +142,9 @@ picks = pd.DataFrame(rows)
 picks = picks.reindex(columns=ordered_columns, fill_value="")
 
 if new_week == True:
-    picks.to_csv(f'{season}\Week {current_week}.csv')
+    picks.to_csv(f'{season}\Week {current_week}.csv',index=False)
+else:
+    picks = pd.read_csv(f'{season}\Week {current_week}.csv')
 
 # =============================================================================
 # CLEAN AND REFORMAT
@@ -256,10 +262,10 @@ for game in picks_by_game:
     
 #BUILD TIEBREAKER WITH FINAL GAME
 tiebreaker_picks = {}
-for p in ['JORDAN','MOM']: #players
+for p in players: 
     tiebreaker_picks.update({p: {
                                  'winner': game['picks'][p]
-                                 ,'predictedTotal': tiebreaker_scores[p]
+                                 ,'predictedTotal': int(tiebreaker_scores[p])
                                  }
                              })
 tiebreaker = {
@@ -304,22 +310,22 @@ with open("data.json", "w", encoding="utf-8") as f:
 
 print("Saved updates to data.json!")
 
-# =============================================================================
-# PUSH TO GITHUB
-# =============================================================================
-import subprocess
+# # =============================================================================
+# # PUSH TO GITHUB
+# # =============================================================================
+# import subprocess
 
 
-def push_to_github(file_path="data.json", commit_message="Auto Update data.json"):
-    try:
-        # Pass shell=True so Windows can locate 'git'
-        subprocess.run(["git", "add", file_path], check=True, shell=True)
-        subprocess.run(["git", "commit", "-m", commit_message], check=True, shell=True)
-        subprocess.run(["git", "push"], check=True, shell=True)
+# def push_to_github(file_path="data.json", commit_message="Auto Update data.json"):
+#     try:
+#         # Pass shell=True so Windows can locate 'git'
+#         subprocess.run(["git", "add", file_path], check=True, shell=True)
+#         subprocess.run(["git", "commit", "-m", commit_message], check=True, shell=True)
+#         subprocess.run(["git", "push"], check=True, shell=True)
 
-        print("🚀 Successfully pushed to GitHub!")
-    except subprocess.CalledProcessError as e:
-        print(f"Git push failed: {e}")
+#         print("🚀 Successfully pushed to GitHub!")
+#     except subprocess.CalledProcessError as e:
+#         print(f"Git push failed: {e}")
 
-# Run after saving data.json
-push_to_github()
+# # Run after saving data.json
+# push_to_github()
