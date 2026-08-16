@@ -56,6 +56,24 @@
       object-fit: contain;
     }
 
+    /* --- CONSOLIDATED METRIC STYLES --- */
+    .metric-primary {
+      font-weight: bold;
+      font-size: 0.95rem;
+      display: block;
+    }
+    .metric-secondary {
+      font-weight: normal;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: block;
+      margin-top: 2px;
+    }
+
+    /* CONDITIONAL HIGHLIGHTING */
+    .stat-outperform { background-color: #dcfce7 !important; color: #166534; }
+    .stat-outperform .metric-secondary { color: #15803d; }
+
     /* --- STANDINGS GRID (2 WIDE) --- */
     .conference-title { margin: 20px 0 15px 0; color: var(--primary-color); font-size: 1.4rem; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; }
     .divisions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 25px; }
@@ -87,9 +105,6 @@
     .text-danger { color: var(--danger); font-weight: bold; }
     .badge-win { background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; }
     .badge-status { background: #f1f5f9; color: var(--text-muted); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
-    
-    /* CONDITIONAL HIGHLIGHTING */
-    .stat-outperform { background-color: #dcfce7 !important; color: #166534; font-weight: bold; }
 
     /* --- CROWN STYLING --- */
     .crown-tentative { opacity: 0.35; filter: grayscale(100%); margin-right: 6px; cursor: help; }
@@ -310,10 +325,8 @@
         <thead>
           <tr>
             <th>Team</th>
-            <th class="text-center">Player Pick %</th>
-            <th class="text-center">Pool Pick %</th>
-            <th class="text-center">Player Accuracy %</th>
-            <th class="text-center">Pool Accuracy %</th>
+            <th class="text-center">Pick % <span style="font-size:0.75rem; font-weight:normal; text-transform:none;">(Pool %)</span></th>
+            <th class="text-center">Accuracy % <span style="font-size:0.75rem; font-weight:normal; text-transform:none;">(Pool %)</span></th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -467,7 +480,6 @@
             .map(t => t.trim().toUpperCase())
             .filter(t => t.length >= 2);
 
-          // Track total possible matchups for pool and players
           teamsInGame.forEach(team => {
             if (!poolTeamStats[team]) {
               poolTeamStats[team] = { totalMatchups: 0, picked: 0, correct: 0, incorrect: 0 };
@@ -794,7 +806,7 @@
       if (!player || !computedStats[player]) {
         document.getElementById('player-kpi-banner').innerHTML = '';
         document.getElementById('player-trend-chart').innerHTML = "<p style='text-align:center; padding-top: 80px; color: var(--text-muted);'>Please select a player above to view details.</p>";
-        document.querySelector('#team-accuracy-table tbody').innerHTML = `<tr><td colspan="5" style="text-align:center;">Select a player to display team accuracy.</td></tr>`;
+        document.querySelector('#team-accuracy-table tbody').innerHTML = `<tr><td colspan="3" style="text-align:center;">Select a player to display team accuracy.</td></tr>`;
         return;
       }
 
@@ -883,7 +895,7 @@
         .sort((a, b) => a.localeCompare(b));
 
       if (sortedTeams.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No completed games recorded for this player yet.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">No completed games recorded for this player yet.</td></tr>`;
         return;
       }
 
@@ -919,10 +931,14 @@
         return `
           <tr>
             <td><strong>${getTeamLogoHtml(team)}</strong></td>
-            <td class="text-center ${pickPctClass}"><strong>${playerPickPctStr}%</strong></td>
-            <td class="text-center">${poolPickPctStr}%</td>
-            <td class="text-center ${accClass}"><strong>${playerAccStr}%</strong></td>
-            <td class="text-center">${poolAccStr}%</td>
+            <td class="text-center ${pickPctClass}">
+              <span class="metric-primary">${playerPickPctStr}%</span>
+              <span class="metric-secondary">(${poolPickPctStr}%)</span>
+            </td>
+            <td class="text-center ${accClass}">
+              <span class="metric-primary">${playerAccStr}%</span>
+              <span class="metric-secondary">(${poolAccStr}%)</span>
+            </td>
           </tr>
         `;
       }).join('');
