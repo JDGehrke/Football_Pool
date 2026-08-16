@@ -323,8 +323,8 @@
             <tr>
               <th>Player</th>
               <th class="text-center">Pick Score</th>
-              <th class="text-center">Tiebreaker Pred</th>
-              <th class="text-center">Differential</th>
+              <th class="text-center">Score</th>
+              <th class="text-center">Diff</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -757,7 +757,7 @@
         const crowns = computedStats[p].crowns;
         const deltas = computedStats[p].winningDeltas;
         const avgDelta = deltas.length > 0 
-          ? (deltas.reduce((a, b) => a + b, 0) / deltas.length).toFixed(1) + ' pts' 
+          ? (deltas.reduce((a, b) => a + b, 0) / deltas.length).toFixed(1) 
           : 'N/A';
 
         const crownDisplay = crowns > 0 
