@@ -2,8 +2,8 @@
   "metadata": {
     "title": "\ud83c\udfc8 Orser Family Football Pool",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 4:26pm",
-    "currentWeek": "Week 2"
+    "lastUpdated": "Thursday @ 1:02pm",
+    "currentWeek": "Week 3"
   },
   "players": [
     "AUSTIN",
@@ -268,6 +268,226 @@
           "MOM": {
             "winner": "DAL",
             "predictedTotal": 27
+          }
+        }
+      }
+    },
+    "Week 3": {
+      "matchups": [
+        {
+          "id": "401873286",
+          "picks": {
+            "JORDAN": "LV",
+            "BRANDON": "HOU",
+            "AUSTIN": "LV",
+            "MOM": "\u2014"
+          },
+          "game": "LV @ HOU",
+          "winner": null,
+          "status": "Scheduled"
+        },
+        {
+          "id": "401873285",
+          "picks": {
+            "JORDAN": "SF",
+            "BRANDON": "LAC",
+            "AUSTIN": "SF",
+            "MOM": "\u2014"
+          },
+          "game": "SF @ LAC",
+          "winner": null,
+          "status": "Scheduled"
+        },
+        {
+          "id": "401873288",
+          "picks": {
+            "JORDAN": "PIT",
+            "BRANDON": "NYJ",
+            "AUSTIN": "PIT",
+            "MOM": "\u2014"
+          },
+          "game": "NYJ @ PIT",
+          "winner": null,
+          "status": "Scheduled"
+        },
+        {
+          "id": "401873287",
+          "picks": {
+            "JORDAN": "CAR",
+            "BRANDON": "CAR",
+            "AUSTIN": "JAX",
+            "MOM": "\u2014"
+          },
+          "game": "CAR @ JAX",
+          "winner": null,
+          "status": "Scheduled"
+        },
+        {
+          "id": "401873613",
+          "picks": {
+            "JORDAN": "GB",
+            "BRANDON": "GB",
+            "AUSTIN": "GB",
+            "MOM": "\u2014"
+          },
+          "game": "GB @ DEN",
+          "winner": null,
+          "status": "Scheduled"
+        },
+        {
+          "id": "401873601",
+          "picks": {
+            "JORDAN": "WAS",
+            "BRANDON": "DET",
+            "AUSTIN": "WAS",
+            "MOM": "\u2014"
+          },
+          "game": "WSH @ DET",
+          "winner": null,
+          "status": "Scheduled"
+        },
+        {
+          "id": "401873294",
+          "picks": {
+            "JORDAN": "BUF",
+            "BRANDON": "BUF",
+            "AUSTIN": "BUF",
+            "MOM": "\u2014"
+          },
+          "game": "BUF @ CLE",
+          "winner": null,
+          "status": "Scheduled"
+        },
+        {
+          "id": "401873295",
+          "picks": {
+            "JORDAN": "ATL",
+            "BRANDON": "IND",
+            "AUSTIN": "IND",
+            "MOM": "\u2014"
+          },
+          "game": "ATL @ IND",
+          "winner": null,
+          "status": "Scheduled"
+        },
+        {
+          "id": "401873291",
+          "picks": {
+            "JORDAN": "BAL",
+            "BRANDON": "BAL",
+            "AUSTIN": "BAL",
+            "MOM": "\u2014"
+          },
+          "game": "BAL @ MIN",
+          "winner": null,
+          "status": "Scheduled"
+        },
+        {
+          "id": "401873290",
+          "picks": {
+            "JORDAN": "NO",
+            "BRANDON": "LAR",
+            "AUSTIN": "NO",
+            "MOM": "\u2014"
+          },
+          "game": "NO @ LAR",
+          "winner": null,
+          "status": "Scheduled"
+        },
+        {
+          "id": "401873292",
+          "picks": {
+            "JORDAN": "NYG",
+            "BRANDON": "NYG",
+            "AUSTIN": "NYG",
+            "MOM": "\u2014"
+          },
+          "game": "NYG @ MIA",
+          "winner": null,
+          "status": "Scheduled"
+        },
+        {
+          "id": "401873289",
+          "picks": {
+            "JORDAN": "CHI",
+            "BRANDON": "CIN",
+            "AUSTIN": "CHI",
+            "MOM": "\u2014"
+          },
+          "game": "CHI @ CIN",
+          "winner": null,
+          "status": "Scheduled"
+        },
+        {
+          "id": "401873293",
+          "picks": {
+            "JORDAN": "PHI",
+            "BRANDON": "NE",
+            "AUSTIN": "NE",
+            "MOM": "\u2014"
+          },
+          "game": "PHI @ NE",
+          "winner": null,
+          "status": "Scheduled"
+        },
+        {
+          "id": "401873296",
+          "picks": {
+            "JORDAN": "TB",
+            "BRANDON": "TB",
+            "AUSTIN": "KC",
+            "MOM": "\u2014"
+          },
+          "game": "KC @ TB",
+          "winner": null,
+          "status": "Scheduled"
+        },
+        {
+          "id": "401874101",
+          "picks": {
+            "JORDAN": "DAL",
+            "BRANDON": "ARI",
+            "AUSTIN": "ARI",
+            "MOM": "\u2014"
+          },
+          "game": "DAL @ ARI",
+          "winner": null,
+          "status": "Scheduled"
+        },
+        {
+          "id": "401873297",
+          "picks": {
+            "JORDAN": "SEA",
+            "BRANDON": "SEA",
+            "AUSTIN": "SEA",
+            "MOM": "\u2014"
+          },
+          "game": "SEA @ TEN",
+          "winner": null,
+          "status": "Scheduled"
+        }
+      ],
+      "tiebreaker": {
+        "game": "SEA @ TEN",
+        "status": "Scheduled",
+        "winner": null,
+        "actualTotalScore": 0,
+        "picks": {
+          "AUSTIN": {
+            "winner": "SEA",
+            "predictedTotal": 45
+          },
+          "BRANDON": {
+            "winner": "SEA",
+            "predictedTotal": 40
+          },
+          "JORDAN": {
+            "winner": "SEA",
+            "predictedTotal": 25
+          },
+          "MOM": {
+            "winner": "\u2014",
+            "predictedTotal": 0
           }
         }
       }
