@@ -138,6 +138,23 @@ if f'Week {current_week}' not in current_json['weeks'].keys():
     # Reindex columns to guarantee they match the exact visual layout of your form
     picks = picks.reindex(columns=ordered_columns, fill_value="")
 
+    #Limit Players Picks to most recent in case they submit more than 1 set
+    picks = picks.drop_duplicates(subset=['Select Your Name'], keep='last')
+
+    #Confirm every player has picks
+    no_picks = []
+    for p in players:
+        if p not in picks.iloc[:,2].unique():
+            no_picks.append(p)
+    
+    #If missing picks, create null picks ('-')
+    if len(no_picks) > 0:
+        no_picks = pd.DataFrame("—",index=no_picks,columns=picks.columns)
+        no_picks.iloc[:, 2] = no_picks.index
+        no_picks.iloc[:,-1] = 0
+
+        #Combine No picks
+        picks = pd.concat([picks,no_picks])
 
     #Push Picks to CSV
     picks.to_csv(f'{season}\Week {current_week}.csv',index=False)
