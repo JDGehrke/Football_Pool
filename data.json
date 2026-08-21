@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Orser Family Football Pool",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Thursday @ 10:34pm",
+    "lastUpdated": "Friday @ 7:45am",
     "currentWeek": "Week 3"
   },
   "players": [
@@ -295,8 +295,8 @@
             "MOM": "\u2014"
           },
           "game": "SF @ LAC",
-          "winner": null,
-          "status": "In Progress"
+          "winner": "SF",
+          "status": "Final"
         },
         {
           "id": "401873288",
