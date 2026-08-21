@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Orser Family Football Pool",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Thursday @ 9:35pm",
+    "lastUpdated": "Thursday @ 10:34pm",
     "currentWeek": "Week 3"
   },
   "players": [
@@ -283,8 +283,8 @@
             "MOM": "\u2014"
           },
           "game": "LV @ HOU",
-          "winner": null,
-          "status": "In Progress"
+          "winner": "LV",
+          "status": "Final"
         },
         {
           "id": "401873285",
