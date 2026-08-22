@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Orser Family Football Pool",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Friday @ 8:31pm",
+    "lastUpdated": "Friday @ 9:12pm",
     "currentWeek": "Week 3"
   },
   "players": [
@@ -307,8 +307,8 @@
             "MOM": "\u2014"
           },
           "game": "NYJ @ PIT",
-          "winner": null,
-          "status": "In Progress"
+          "winner": "NYJ",
+          "status": "Final"
         },
         {
           "id": "401873287",
