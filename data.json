@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Orser Family Football Pool",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Friday @ 7:45am",
+    "lastUpdated": "Friday @ 8:31pm",
     "currentWeek": "Week 3"
   },
   "players": [
@@ -308,7 +308,7 @@
           },
           "game": "NYJ @ PIT",
           "winner": null,
-          "status": "Scheduled"
+          "status": "In Progress"
         },
         {
           "id": "401873287",
@@ -320,7 +320,7 @@
           },
           "game": "CAR @ JAX",
           "winner": null,
-          "status": "Scheduled"
+          "status": "In Progress"
         },
         {
           "id": "401873613",
@@ -332,7 +332,7 @@
           },
           "game": "GB @ DEN",
           "winner": null,
-          "status": "Scheduled"
+          "status": "In Progress"
         },
         {
           "id": "401873601",
