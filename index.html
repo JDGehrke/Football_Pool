@@ -149,32 +149,40 @@
 
 
     /* WRAPPING BEHAVIOR FOR MATRIX GAMES ON MOBILE */
-    /* Desktop / Default: keeps game text on 1 line */
-    .at-symbol, .team-name {
-      display: inline;
-    }
+    /* Desktop / Default: inline display with natural spacing */
+.team-name {
+  display: inline;
+}
+.at-symbol {
+  display: inline;
+  margin: 0 4px;
+}
 
-    /* Mobile: forces 3-line wrap */
-    @media (max-width: 600px) {
-      #matrix-table td:first-child {
-        white-space: normal !important;
-        text-align: center;
-        min-width: 55px;
-        font-size: 0.8rem;
-        line-height: 1.1;
-      }
+/* Mobile: Force 3 distinct stacked blocks */
+@media (max-width: 600px) {
+  #matrix-table td:first-child {
+    white-space: normal !important;
+    text-align: center !important;
+    min-width: 55px;
+    font-size: 0.8rem;
+    line-height: 1.1;
+  }
 
-      .team-name {
-        display: block; /* Moves teams to their own lines */
-      }
+  .team-name {
+    display: block !important;
+    width: 100%;
+    text-align: center;
+  }
 
-      .at-symbol {
-        display: block; /* Moves '@' to its own line */
-        color: #94a3b8;
-        font-size: 0.7rem;
-        margin: 1px 0;
-      }
-    }
+  .at-symbol {
+    display: block !important;
+    width: 100%;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.7rem;
+    margin: 2px 0 !important;
+  }
+}
 
 
     /* --- CROWN STYLING --- */
@@ -890,9 +898,13 @@ function renderMatrixOnly() {
     const winner = m.winner ? m.winner.trim().toUpperCase() : null;
  
     let formattedGame = m.game || '';
-    if (formattedGame.includes(' @ ')) {
-      const [away, home] = formattedGame.split(' @ ');
-      formattedGame = `<span class="team-name">${away}</span> <span class="at-symbol">@</span> <span class="team-name">${home}</span>`;
+    const parts = formattedGame.split(/\s*(@|vs|\bAT\b)\s*/i); 
+
+    if (parts.length >= 3) {
+  	const away = parts[0];
+  	const sep = parts[1];
+  	const home = parts[2];
+  	formattedGame = `<span class="team-name">${away}</span><span class="at-symbol">${sep}</span><span class="team-name">${home}</span>`;
     }
 
     return `
