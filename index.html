@@ -149,38 +149,49 @@
 
 
     /* WRAPPING BEHAVIOR FOR MATRIX GAMES ON MOBILE */
-    /* Desktop / Default: inline display with natural spacing */
-.team-name {
-  display: inline;
-}
-.at-symbol {
-  display: inline;
-  margin: 0 4px;
+    /* Default Desktop View: Inline layout */
+.game-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
 }
 
-/* Mobile: Force 3 distinct stacked blocks */
+.game-cell .team-name,
+.game-cell .at-symbol {
+  display: inline;
+}
+
+/* Mobile View: Force 3 distinct lines */
 @media (max-width: 600px) {
-  #matrix-table td:first-child {
+  #matrix-table td:first-child,
+  #matrix-table th:first-child {
     white-space: normal !important;
+    padding: 4px 2px !important;
+    min-width: 48px !important;
+    width: 48px !important;
+  }
+
+  .game-cell {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1.1 !important;
+    font-size: 0.75rem !important;
+  }
+
+  .game-cell .team-name {
+    display: block !important;
     text-align: center !important;
-    min-width: 55px;
-    font-size: 0.8rem;
-    line-height: 1.1;
   }
 
-  .team-name {
+  .game-cell .at-symbol {
     display: block !important;
-    width: 100%;
-    text-align: center;
-  }
-
-  .at-symbol {
-    display: block !important;
-    width: 100%;
-    text-align: center;
     color: #94a3b8;
-    font-size: 0.7rem;
-    margin: 2px 0 !important;
+    font-size: 0.65rem !important;
+    margin: 1px 0 !important;
   }
 }
 
@@ -898,14 +909,22 @@ function renderMatrixOnly() {
     const winner = m.winner ? m.winner.trim().toUpperCase() : null;
  
     let formattedGame = m.game || '';
-    const parts = formattedGame.split(/\s*(@|vs|\bAT\b)\s*/i); 
+
+    // Regex handles any variation of spaces around @, vs, or AT
+    const parts = formattedGame.split(/\s*(@|vs|\bAT\b)\s*/i);
 
     if (parts.length >= 3) {
-  	const away = parts[0];
-  	const sep = parts[1];
-  	const home = parts[2];
-  	formattedGame = `<span class="team-name">${away}</span><span class="at-symbol">${sep}</span><span class="team-name">${home}</span>`;
+      const away = parts[0].trim();
+      const sep = parts[1].trim();
+      const home = parts[2].trim();
+      formattedGame = `<div class="game-cell"><span class="team-name">${away}</span><span class="at-symbol">${sep}</span><span class="team-name">${home}</span></div>`;
+    } else {
+      // Fallback wrapper if string doesn't match
+      formattedGame = `<div class="game-cell">${formattedGame}</div>`;
     }
+
+// In your row template, render formattedGame inside <td>:
+// <td><strong>${formattedGame}</strong></td>
 
     return `
       <tr>
