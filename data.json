@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Orser Family Football Pool",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Saturday @ 6:04am",
+    "lastUpdated": "Sunday @ 6:56am",
     "currentWeek": "Week 3"
   },
   "players": [
@@ -343,8 +343,8 @@
             "MOM": "\u2014"
           },
           "game": "WSH @ DET",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "DET",
+          "status": "Final"
         },
         {
           "id": "401873294",
@@ -355,8 +355,8 @@
             "MOM": "\u2014"
           },
           "game": "BUF @ CLE",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "BUF",
+          "status": "Final"
         },
         {
           "id": "401873295",
@@ -367,8 +367,8 @@
             "MOM": "\u2014"
           },
           "game": "ATL @ IND",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "ATL",
+          "status": "Final"
         },
         {
           "id": "401873291",
@@ -379,8 +379,8 @@
             "MOM": "\u2014"
           },
           "game": "BAL @ MIN",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "BAL",
+          "status": "Final"
         },
         {
           "id": "401873290",
@@ -391,8 +391,8 @@
             "MOM": "\u2014"
           },
           "game": "NO @ LAR",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "LAR",
+          "status": "Final"
         },
         {
           "id": "401873292",
@@ -403,8 +403,8 @@
             "MOM": "\u2014"
           },
           "game": "NYG @ MIA",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "NYG",
+          "status": "Final"
         },
         {
           "id": "401873289",
@@ -415,8 +415,8 @@
             "MOM": "\u2014"
           },
           "game": "CHI @ CIN",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "CIN",
+          "status": "Final"
         },
         {
           "id": "401873293",
@@ -427,8 +427,8 @@
             "MOM": "\u2014"
           },
           "game": "PHI @ NE",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "NE",
+          "status": "Final"
         },
         {
           "id": "401873296",
@@ -439,8 +439,8 @@
             "MOM": "\u2014"
           },
           "game": "KC @ TB",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "TB",
+          "status": "Final"
         },
         {
           "id": "401874101",
@@ -451,8 +451,8 @@
             "MOM": "\u2014"
           },
           "game": "DAL @ ARI",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "DAL",
+          "status": "Final"
         },
         {
           "id": "401873297",
