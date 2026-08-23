@@ -147,6 +147,36 @@
 
     .badge-status { background: #f1f5f9; color: var(--text-muted); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
 
+
+    /* WRAPPING BEHAVIOR FOR MATRIX GAMES ON MOBILE */
+    /* Desktop / Default: keeps game text on 1 line */
+    .at-symbol, .team-name {
+      display: inline;
+    }
+
+    /* Mobile: forces 3-line wrap */
+    @media (max-width: 600px) {
+      #matrix-table td:first-child {
+        white-space: normal !important;
+        text-align: center;
+        min-width: 55px;
+        font-size: 0.8rem;
+        line-height: 1.1;
+      }
+
+      .team-name {
+        display: block; /* Moves teams to their own lines */
+      }
+
+      .at-symbol {
+        display: block; /* Moves '@' to its own line */
+        color: #94a3b8;
+        font-size: 0.7rem;
+        margin: 1px 0;
+      }
+    }
+
+
     /* --- CROWN STYLING --- */
     .crown-tentative { opacity: 0.35; filter: grayscale(100%); margin-right: 6px; cursor: help; }
     .crown-solid { margin-right: 6px; }
@@ -777,55 +807,63 @@
     }
 
     function renderWeeklyTab() {
-      const week = document.getElementById('week-select').value;
-      const weekData = poolData.weeks[week];
-      if (!weekData) return;
+  const week = document.getElementById('week-select').value;
+  const weekData = poolData.weeks[week];
+  if (!weekData) return;
 
-      const matchups = weekData.matchups || [];
-      const isWeekComplete = matchups.length > 0 && matchups.every(m => m.status === 'Final');
+  const matchups = weekData.matchups || [];
+  const isWeekComplete = matchups.length > 0 && matchups.every(m => m.status === 'Final');
 
-      const sortedPlayers = [...poolData.players].sort((a, b) => {
-        const aHist = computedStats[a]?.weeklyHistory[week] || { correct: 0, diff: null };
-        const bHist = computedStats[b]?.weeklyHistory[week] || { correct: 0, diff: null };
+  const sortedPlayers = [...poolData.players].sort((a, b) => {
+    const aHist = computedStats[a]?.weeklyHistory[week] || { correct: 0, diff: null };
+    const bHist = computedStats[b]?.weeklyHistory[week] || { correct: 0, diff: null };
 
-        if (bHist.correct !== aHist.correct) {
-          return bHist.correct - aHist.correct;
-        }
-
-        const aDiff = aHist.diff ?? Infinity;
-        const bDiff = bHist.diff ?? Infinity;
-        return aDiff - bDiff;
-      });
-
-      const maxWins = sortedPlayers.length > 0 ? (computedStats[sortedPlayers[0]]?.weeklyHistory[week]?.correct || 0) : 0;
-      
-      const trackerBody = document.querySelector('#week-tracker-table tbody');
-      trackerBody.innerHTML = sortedPlayers.map((p, idx) => {
-        const wHist = computedStats[p]?.weeklyHistory[week] || { correct: 0, incorrect: 0, diff: null };
-        const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal ?? 'N/A';
-        const diffStr = wHist.diff !== null ? `${wHist.diff} pts` : '-';
-
-        let crownBadge = '';
-        if (wHist.correct > 0 && wHist.correct === maxWins && idx === 0) {
-          if (isWeekComplete) {
-            crownBadge = `<span class="crown-solid" title="Official Weekly Winner">👑</span>`;
-          } else {
-            crownBadge = `<span class="crown-tentative" title="Tentative Weekly Leader">👑</span>`;
-          }
-        }
-
-        return `
-          <tr>
-            <td>${crownBadge}<strong>${p}</strong></td>
-            <td class="text-center"><strong><span class="text-success">${wHist.correct}</span> - <span class="text-danger">${wHist.incorrect}</span></strong></td>
-            <td class="text-center">${pred}</td>
-            <td class="text-center">${diffStr}</td>
-          </tr>
-        `;
-      }).join('');
-
-      renderMatrixOnly();
+    if (bHist.correct !== aHist.correct) {
+      return bHist.correct - aHist.correct;
     }
+
+    const aDiff = aHist.diff ?? Infinity;
+    const bDiff = bHist.diff ?? Infinity;
+    return aDiff - bDiff;
+  });
+
+  const maxWins = sortedPlayers.length > 0 ? (computedStats[sortedPlayers[0]]?.weeklyHistory[week]?.correct || 0) : 0;
+  
+  // Count how many players share the top win score
+  const topScorersCount = sortedPlayers.filter(
+    p => (computedStats[p]?.weeklyHistory[week]?.correct || 0) === maxWins
+  ).length;
+
+  const trackerBody = document.querySelector('#week-tracker-table tbody');
+  trackerBody.innerHTML = sortedPlayers.map((p, idx) => {
+    const wHist = computedStats[p]?.weeklyHistory[week] || { correct: 0, incorrect: 0, diff: null };
+    const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal ?? 'N/A';
+    const diffStr = wHist.diff !== null ? `${wHist.diff} pts` : '-';
+
+    let crownBadge = '';
+    if (wHist.correct > 0 && wHist.correct === maxWins && idx === 0) {
+      if (isWeekComplete) {
+        // Official winner once all games are Final
+        crownBadge = `<span class="crown-solid" title="Official Weekly Winner">👑</span>`;
+      } else if (topScorersCount === 1) {
+        // Only show tentative crown mid-week if the player leads outright
+        crownBadge = `<span class="crown-tentative" title="Tentative Weekly Leader">👑</span>`;
+      }
+    }
+
+    return `
+      <tr>
+        <td>${crownBadge}<strong>${p}</strong></td>
+        <td class="text-center"><strong><span class="text-success">${wHist.correct}</span> - <span class="text-danger">${wHist.incorrect}</span></strong></td>
+        <td class="text-center">${pred}</td>
+        <td class="text-center">${diffStr}</td>
+      </tr>
+    `;
+  }).join('');
+
+  renderMatrixOnly();
+}
+
 
 function renderMatrixOnly() {
   const week = document.getElementById('week-select').value;
@@ -850,6 +888,13 @@ function renderMatrixOnly() {
 
   matrixBody.innerHTML = (weekData.matchups || []).map(m => {
     const winner = m.winner ? m.winner.trim().toUpperCase() : null;
+ 
+    let formattedGame = m.game || '';
+    if (formattedGame.includes(' @ ')) {
+      const [away, home] = formattedGame.split(' @ ');
+      formattedGame = `<span class="team-name">${away}</span> <span class="at-symbol">@</span> <span class="team-name">${home}</span>`;
+    }
+
     return `
       <tr>
         <td><strong>${m.game || ''}</strong></td>
@@ -858,9 +903,7 @@ function renderMatrixOnly() {
           const pick = m.picks?.[p] || '—';
           let cssClass = 'pick-pending';
           
-          if (pick === '—') {
-            cssClass = 'pick-missing';
-          } else if (winner) {
+          if (winner) {
             if (winner === 'TIE') {
               cssClass = 'pick-tie';
             } else {
@@ -868,7 +911,7 @@ function renderMatrixOnly() {
             }
           }
           
-          // Passing false forces getTeamLogoHtml to output only the logo image
+          // Passing false outputs only the logo image
           const pickDisplay = (pick !== '—') ? getTeamLogoHtml(pick, false) : '—';
           return `<td class="${cssClass} text-center">${pickDisplay}</td>`;
         }).join('')}
