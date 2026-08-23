@@ -418,18 +418,20 @@
       "NFC West": ["ARI", "LA", "SF", "SEA"]
     };
 
-    function getTeamLogoHtml(abbr) {
-      if (!abbr || abbr === '—' || abbr === 'N/A') return abbr || '—';
+    function getTeamLogoHtml(abbr, showText = true) {
+  if (!abbr || abbr === '—' || abbr === 'N/A') return abbr || '—';
 
-      let cleanAbbr = abbr.trim().toUpperCase();
-      const ALIASES = { "LAR": "LA", "WSH": "WAS" };
+  let cleanAbbr = abbr.trim().toUpperCase();
+  const ALIASES = { "LAR": "LA", "WSH": "WAS" };
 
-      if (ALIASES[cleanAbbr]) {
-        cleanAbbr = ALIASES[cleanAbbr];
-      }
+  if (ALIASES[cleanAbbr]) {
+    cleanAbbr = ALIASES[cleanAbbr];
+  }
 
-      return `<img src="./logos/${cleanAbbr}.png" alt="${abbr}" class="team-logo-icon" onerror="this.style.display='none'"> ${abbr}`;
-    }
+  const logoImg = `<img src="./logos/${cleanAbbr}.png" alt="${abbr}" class="team-logo-icon" onerror="this.style.display='none'">`;
+  
+  return showText ? `${logoImg} ${abbr}` : logoImg;
+}
 
     async function initDashboard() {
       try {
@@ -864,7 +866,7 @@
                 }
               }
               
-              const pickDisplay = (pick !== '—') ? getTeamLogoHtml(pick) : '—';
+              const pickDisplay = (pick !== '—') ? getTeamLogoHtml(pick, false) : '—';
               return `<td class="${cssClass}">${pickDisplay}</td>`;
             }).join('')}
           </tr>
