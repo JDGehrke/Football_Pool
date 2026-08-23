@@ -149,52 +149,40 @@
 
 
     /* WRAPPING BEHAVIOR FOR MATRIX GAMES ON MOBILE */
-    /* Desktop View: Show single-line text, hide stacked text */
-.game-desktop {
-  display: inline;
-  white-space: nowrap;
-}
-.game-mobile {
-  display: none;
-}
+    /* Desktop View */
+.g-desk { display: inline-block; white-space: nowrap; }
+.g-mob  { display: none; }
 
-/* Mobile View: Hide single-line text, show 3-line stacked text */
+/* Mobile View: Forces absolute 3-line stack */
 @media (max-width: 600px) {
-  .game-desktop {
-    display: none !important;
+  .g-desk { 
+    display: none !important; 
   }
   
-  .game-mobile {
-    display: block !important;
-    width: 100% !important;
-    text-align: center !important;
-    line-height: 1.15;
-    font-size: 0.75rem;
-    font-weight: bold;
+  .g-mob { 
+    display: flex !important; 
+    flex-direction: column !important; 
+    align-items: center !important; 
+    line-height: 1.1 !important;
+    font-size: 0.75rem !important;
   }
-
-  /* Force every piece inside game-mobile onto its own line */
-  .game-mobile .team-part {
-    display: block !important;
-    width: 100% !important;
-    text-align: center !important;
-    white-space: nowrap;
+  
+  .g-mob span { 
+    display: block !important; 
+    width: 100% !important; 
+    text-align: center !important; 
   }
-
-  .game-mobile .sep-part {
-    display: block !important;
-    width: 100% !important;
-    text-align: center !important;
-    color: #94a3b8;
-    font-size: 0.65rem;
-    margin: 1px 0;
+  
+  .g-mob .g-sep { 
+    color: #94a3b8; 
+    font-size: 0.65rem !important; 
+    margin: 1px 0 !important; 
   }
-
+  
   #matrix-table td:first-child,
   #matrix-table th:first-child {
-    text-align: center;
-    padding: 4px 2px;
-    white-space: normal;
+    white-space: normal !important;
+    padding: 4px 2px !important;
   }
 }
 
@@ -914,33 +902,24 @@ let formattedGame = m.game || '';
 const parts = formattedGame.split(/\s*(@|vs|\bAT\b|-|–)\s*/i);
 
 if (parts.length >= 3) {
-  // Center-pad 2-letter codes to 3 characters using non-breaking spaces
-  const padTeam = (str) => {
-    const clean = str.trim();
-    return clean.length === 2 ? `&nbsp;${clean}&nbsp;` : clean;
-  };
-
-  const away = padTeam(parts[0]);
+  const away = parts[0].trim();
   const sep = parts[1].trim();
-  const home = padTeam(parts[2]);
+  const home = parts[2].trim();
 
+  // Simple, forced HTML structure
   formattedGame = `
-    <span class="game-desktop">${away} ${sep} ${home}</span>
-    <div class="game-mobile">
-      <div>${away}</div>
-      <div class="sep">${sep}</div>
-      <div>${home}</div>
-    </div>
+    <span class="g-desk">${away} ${sep} ${home}</span>
+    <span class="g-mob">
+      <span>${away}</span>
+      <span class="g-sep">${sep}</span>
+      <span>${home}</span>
+    </span>
   `;
 }
 
-
-// In your row template, render formattedGame inside <td>:
-// <td><strong>${formattedGame}</strong></td>
-
     return `
       <tr>
-        <td><strong>${m.game || ''}</strong></td>
+        <td><strong>${formattedGame}</strong></td>
         <td class="text-center"><span class="badge-status">${m.status}</span></td>
         ${selectedMatrixPlayers.map(p => {
           const pick = m.picks?.[p] || '—';
