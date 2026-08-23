@@ -149,61 +149,34 @@
 
 
     /* WRAPPING BEHAVIOR FOR MATRIX GAMES ON MOBILE */
-    /* Default Desktop View: Inline layout */
-.game-cell {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
+    /* Desktop View: Show single-line text, hide stacked text */
+.game-desktop {
+  display: inline;
   white-space: nowrap;
 }
-
-.game-cell .team-name,
-.game-cell .at-symbol {
-  display: inline;
+.game-mobile {
+  display: none;
 }
 
-/* Mobile View: Force 3 distinct lines */
-@media (max-width: 768px) {
+/* Mobile View: Hide single-line text, show 3-line stacked text */
+@media (max-width: 600px) {
+  .game-desktop {
+    display: none !important;
+  }
+  .game-mobile {
+    display: inline-block !important;
+    text-align: center;
+    line-height: 1.1;
+    font-size: 0.8rem;
+  }
+  
+  /* Ensure the first column fits tightly */
   #matrix-table td:first-child,
   #matrix-table th:first-child {
-    white-space: normal !important;
-    padding: 4px 2px !important;
-    min-width: 48px !important;
-    width: 48px !important;
+    text-align: center;
+    padding: 4px 2px;
+    white-space: normal;
   }
-
-  .game-cell {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    line-height: 1.1 !important;
-    font-size: 0.75rem !important;
-  }
-
-  .game-cell .team-name {
-    display: block !important;
-    text-align: center !important;
-  }
-
-  .game-cell .at-symbol {
-    display: block !important;
-    color: #94a3b8;
-    font-size: 0.65rem !important;
-    margin: 1px 0 !important;
-  }
-
-    /* Keep column widths rigid so flex wrapping doesn't collapse or flicker */
-    #matrix-table {
-      table-layout: fixed;
-      width: 100%;
-    }
-
-    #matrix-table-container {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
 }
 
 
@@ -920,19 +893,19 @@ function renderMatrixOnly() {
     const winner = m.winner ? m.winner.trim().toUpperCase() : null;
  
     let formattedGame = m.game || '';
+const parts = formattedGame.split(/\s*(@|vs|\bAT\b)\s*/i);
 
-    // Regex handles any variation of spaces around @, vs, or AT
-    const parts = formattedGame.split(/\s*(@|vs|\bAT\b)\s*/i);
-
-    if (parts.length >= 3) {
-      const away = parts[0].trim();
-      const sep = parts[1].trim();
-      const home = parts[2].trim();
-      formattedGame = `<div class="game-cell"><span class="team-name">${away}</span><span class="at-symbol">${sep}</span><span class="team-name">${home}</span></div>`;
-    } else {
-      // Fallback wrapper if string doesn't match
-      formattedGame = `<div class="game-cell">${formattedGame}</div>`;
-    }
+if (parts.length >= 3) {
+  const away = parts[0].trim();
+  const sep = parts[1].trim();
+  const home = parts[2].trim();
+  
+  // Renders single line on desktop, breaks into 3 lines on mobile
+  formattedGame = `
+    <span class="game-desktop">${away} ${sep} ${home}</span>
+    <span class="game-mobile">${away}<br><small class="text-muted">${sep}</small><br>${home}</span>
+  `;
+}
 
 // In your row template, render formattedGame inside <td>:
 // <td><strong>${formattedGame}</strong></td>
