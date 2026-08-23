@@ -911,22 +911,29 @@ function renderMatrixOnly() {
     const winner = m.winner ? m.winner.trim().toUpperCase() : null;
  
 let formattedGame = m.game || '';
-const parts = formattedGame.split(/\s*(@|vs|\bAT\b)\s*/i);
+const parts = formattedGame.split(/\s*(@|vs|\bAT\b|-|–)\s*/i);
 
 if (parts.length >= 3) {
-  const away = parts[0].trim();
+  // Center-pad 2-letter codes to 3 characters using non-breaking spaces
+  const padTeam = (str) => {
+    const clean = str.trim();
+    return clean.length === 2 ? `&nbsp;${clean}&nbsp;` : clean;
+  };
+
+  const away = padTeam(parts[0]);
   const sep = parts[1].trim();
-  const home = parts[2].trim();
-  
+  const home = padTeam(parts[2]);
+
   formattedGame = `
     <span class="game-desktop">${away} ${sep} ${home}</span>
-    <span class="game-mobile">
-      <span class="team-part">${away}</span>
-      <span class="sep-part">${sep}</span>
-      <span class="team-part">${home}</span>
-    </span>
+    <div class="game-mobile">
+      <div>${away}</div>
+      <div class="sep">${sep}</div>
+      <div>${home}</div>
+    </div>
   `;
 }
+
 
 // In your row template, render formattedGame inside <td>:
 // <td><strong>${formattedGame}</strong></td>
