@@ -828,51 +828,36 @@
     }
 
 function renderMatrixOnly() {
-  const container = document.getElementById('matrix-table-container');
-  if (!container) return;
+  const week = document.getElementById('week-select').value;
+  const weekData = poolData.weeks[week];
+  if (!weekData) return;
 
-  const currentWeekData = data.weeks[selectedWeek];
-  if (!currentWeekData || !currentWeekData.matchups) {
-    container.innerHTML = '<p class="text-muted">No matchups available for this week.</p>';
+  const matrixHead = document.querySelector('#matrix-table thead');
+  matrixHead.innerHTML = `
+    <tr>
+      <th>Game</th>
+      <th class="text-center">Status</th>
+      ${selectedMatrixPlayers.map(p => `<th class="text-center">${p}</th>`).join('')}
+    </tr>
+  `;
+
+  const matrixBody = document.querySelector('#matrix-table tbody');
+  
+  if (selectedMatrixPlayers.length === 0) {
+    matrixBody.innerHTML = `<tr><td colspan="2" style="text-align:center;">No players selected. Use the filter dropdown to select players.</td></tr>`;
     return;
   }
 
-  // Filter matrix players if user applied filter, otherwise show all
-  const selectedMatrixPlayers = (activePlayerFilters && activePlayerFilters.length > 0)
-    ? ALL_PLAYERS.filter(p => activePlayerFilters.includes(p))
-    : ALL_PLAYERS;
-
-  // Build Table Header
-  let tableHtml = `
-    <table class="matrix-table">
-      <thead>
-        <tr>
-          <th>GAME</th>
-          <th style="text-align: center;">STATUS</th>
-          ${selectedMatrixPlayers.map(p => `<th style="text-align: center;">${p}</th>`).join('')}
-        </tr>
-      </thead>
-      <tbody>
-  `;
-
-  // Build Table Rows
-  currentWeekData.matchups.forEach(m => {
-    const winner = m.winner || null;
-    const statusText = m.status || 'Scheduled';
-    const isFinal = statusText.toLowerCase().includes('final');
-    
-    // Status badge styling
-    const statusBadgeClass = isFinal ? 'badge-final' : 'badge-progress';
-    const gameStatusHtml = `<span class="badge ${statusBadgeClass}">${statusText}</span>`;
-
-    tableHtml += `
+  matrixBody.innerHTML = (weekData.matchups || []).map(m => {
+    const winner = m.winner ? m.winner.trim().toUpperCase() : null;
+    return `
       <tr>
-        <td><strong>${m.away} @ ${m.home}</strong></td>
-        <td style="text-align: center;">${gameStatusHtml}</td>
+        <td><strong>${m.game || ''}</strong></td>
+        <td class="text-center"><span class="badge-status">${m.status}</span></td>
         ${selectedMatrixPlayers.map(p => {
           const pick = m.picks?.[p] || '—';
           let cssClass = 'pick-pending';
-
+          
           if (pick === '—') {
             cssClass = 'pick-missing';
           } else if (winner) {
@@ -882,23 +867,26 @@ function renderMatrixOnly() {
               cssClass = (pick === winner) ? 'pick-correct' : 'pick-incorrect';
             }
           }
-
-          // Pass false to getTeamLogoHtml so only logo images render
-          const pickDisplay = (pick !== '—') ? getTeamLogoHtml(pick, false) : '—';
           
-          return `<td class="${cssClass}" style="text-align: center;">${pickDisplay}</td>`;
+          // Passing false forces getTeamLogoHtml to output only the logo image
+          const pickDisplay = (pick !== '—') ? getTeamLogoHtml(pick, false) : '—';
+          return `<td class="${cssClass} text-center">${pickDisplay}</td>`;
         }).join('')}
       </tr>
     `;
-  });
-
-  tableHtml += `
-      </tbody>
-    </table>
-  `;
-
-  container.innerHTML = tableHtml;
+  }).join('');
 }
+
+
+    function renderPlayerProfile() {
+      const player = document.getElementById('player-select').value;
+      
+      if (!player || !computedStats[player]) {
+        document.getElementById('player-kpi-banner').innerHTML = '';
+        document.getElementById('player-trend-chart').innerHTML = "<p style='text-align:center; padding-top: 80px; color: var(--text-muted);'>Please select a player above to view details.</p>";
+        document.querySelector('#team-accuracy-table tbody').innerHTML = `<tr><td colspan="3" style="text-align:center;">Select a player to display team accuracy.</td></tr>`;
+        return;
+      }
 
       const pStats = computedStats[player];
       const { playerRanks } = getPlayerRanks();
