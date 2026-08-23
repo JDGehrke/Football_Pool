@@ -164,7 +164,7 @@
 }
 
 /* Mobile View: Force 3 distinct lines */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   #matrix-table td:first-child,
   #matrix-table th:first-child {
     white-space: normal !important;
@@ -193,6 +193,17 @@
     font-size: 0.65rem !important;
     margin: 1px 0 !important;
   }
+
+    /* Keep column widths rigid so flex wrapping doesn't collapse or flicker */
+    #matrix-table {
+      table-layout: fixed;
+      width: 100%;
+    }
+
+    #matrix-table-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
 }
 
 
