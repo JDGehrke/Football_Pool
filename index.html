@@ -163,14 +163,33 @@
   .game-desktop {
     display: none !important;
   }
-  .game-mobile {
-    display: inline-block !important;
-    text-align: center;
-    line-height: 1.1;
-    font-size: 0.8rem;
-  }
   
-  /* Ensure the first column fits tightly */
+  .game-mobile {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    line-height: 1.15;
+    font-size: 0.75rem;
+    font-weight: bold;
+  }
+
+  /* Force every piece inside game-mobile onto its own line */
+  .game-mobile .team-part {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    white-space: nowrap;
+  }
+
+  .game-mobile .sep-part {
+    display: block !important;
+    width: 100% !important;
+    text-align: center !important;
+    color: #94a3b8;
+    font-size: 0.65rem;
+    margin: 1px 0;
+  }
+
   #matrix-table td:first-child,
   #matrix-table th:first-child {
     text-align: center;
@@ -178,7 +197,6 @@
     white-space: normal;
   }
 }
-
 
     /* --- CROWN STYLING --- */
     .crown-tentative { opacity: 0.35; filter: grayscale(100%); margin-right: 6px; cursor: help; }
@@ -892,7 +910,7 @@ function renderMatrixOnly() {
   matrixBody.innerHTML = (weekData.matchups || []).map(m => {
     const winner = m.winner ? m.winner.trim().toUpperCase() : null;
  
-    let formattedGame = m.game || '';
+let formattedGame = m.game || '';
 const parts = formattedGame.split(/\s*(@|vs|\bAT\b)\s*/i);
 
 if (parts.length >= 3) {
@@ -900,10 +918,13 @@ if (parts.length >= 3) {
   const sep = parts[1].trim();
   const home = parts[2].trim();
   
-  // Renders single line on desktop, breaks into 3 lines on mobile
   formattedGame = `
     <span class="game-desktop">${away} ${sep} ${home}</span>
-    <span class="game-mobile">${away}<br><small class="text-muted">${sep}</small><br>${home}</span>
+    <span class="game-mobile">
+      <span class="team-part">${away}</span>
+      <span class="sep-part">${sep}</span>
+      <span class="team-part">${home}</span>
+    </span>
   `;
 }
 
