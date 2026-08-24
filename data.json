@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 6:56am",
+    "lastUpdated": "Monday @ 8:11am",
     "currentWeek": "Week 3"
   },
   "players": [
@@ -337,7 +337,7 @@
         {
           "id": "401873601",
           "picks": {
-            "JORDAN": "DET",
+            "JORDAN": "WAS",
             "BRANDON": "DET",
             "AUSTIN": "WAS",
             "MOM": "\u2014"
@@ -463,27 +463,27 @@
             "MOM": "\u2014"
           },
           "game": "SEA @ TEN",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "TEN",
+          "status": "Final"
         }
       ],
       "tiebreaker": {
         "game": "SEA @ TEN",
-        "status": "Scheduled",
-        "winner": null,
-        "actualTotalScore": 0,
+        "status": "Final",
+        "winner": "TEN",
+        "actualTotalScore": 35,
         "picks": {
           "AUSTIN": {
             "winner": "SEA",
-            "predictedTotal": 45
+            "predictedTotal": "45"
           },
           "BRANDON": {
             "winner": "SEA",
-            "predictedTotal": 40
+            "predictedTotal": "40"
           },
           "JORDAN": {
             "winner": "SEA",
-            "predictedTotal": 25
+            "predictedTotal": "25"
           },
           "MOM": {
             "winner": "\u2014",
