@@ -182,6 +182,7 @@
   #matrix-table td:first-child,
   #matrix-table th:first-child {
     white-space: normal !important;
+    text-align: center !important;
     padding: 4px 2px !important;
   }
 }
@@ -882,7 +883,7 @@ function renderMatrixOnly() {
   const matrixHead = document.querySelector('#matrix-table thead');
   matrixHead.innerHTML = `
     <tr>
-      <th>Game</th>
+      <th class="text-center">Game</th>
       <th class="text-center">Status</th>
       ${selectedMatrixPlayers.map(p => `<th class="text-center">${p}</th>`).join('')}
     </tr>

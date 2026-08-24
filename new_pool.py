@@ -151,7 +151,7 @@ if f'Week {current_week}' not in current_json['weeks'].keys():
     if len(no_picks) > 0:
         no_picks = pd.DataFrame("—",index=no_picks,columns=picks.columns)
         no_picks.iloc[:, 2] = no_picks.index
-        no_picks.iloc[:,-1] = 0
+        #no_picks.iloc[:,-1] = 0
 
         #Combine No picks
         picks = pd.concat([picks,no_picks])
