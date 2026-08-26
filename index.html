@@ -1486,7 +1486,7 @@
           </div>
           <div class="kpi-card" style="padding: 10px;">
             <div class="kpi-val" style="font-size: 1.2rem;">${calcRecordStr(unpickedWins, unpickedLosses, unpickedTies)}</div>
-            <div class="kpi-label">When Fade / Not Picked</div>
+            <div class="kpi-label">When Not Picked</div>
           </div>
         </div>
 
@@ -1503,8 +1503,8 @@
             <tbody>
               ${logRows.length > 0 ? logRows.map(r => `
                 <tr>
-                  <td><strong>Week ${r.week}</strong></td>
-                  <td>vs ${getTeamLogoHtml(r.opponent)}</td>
+                  <td><strong>${r.week}</strong></td>
+                  <td>vs ${getTeamLogoHtml(r.opponent,false)}</td>
                   <td class="text-center">${r.pickText}</td>
                   <td class="text-center ${r.outcomeClass}">${r.outcomeTag}</td>
                 </tr>
