@@ -1,451 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NFL Pick 'Em Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NFL Pick'em Dashboard</title>
+  <!-- Chart.js for Player Profile trends -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* --- CSS VARIABLES & THEME --- */
-    :root {
-      --primary-color: #1e293b;
-      --secondary-color: #3b82f6;
-      --bg-color: #f8fafc;
-      --card-bg: #ffffff;
-      --border-color: #e2e8f0;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --success: #22c55e;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); padding: 20px; max-width: 1200px; margin: 0 auto; }
-
-    /* --- HEADER --- */
-    header { text-align: center; margin-bottom: 25px; padding: 20px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); }
-    header h1 { font-size: 2rem; margin-bottom: 5px; color: var(--primary-color); }
-    header p { color: var(--text-muted); font-size: 0.95rem; }
-    .badge-updated { display: inline-block; margin-top: 10px; background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
-
-    /* --- NAV TABS --- */
-    .tab-headers { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); flex-wrap: wrap; }
-    .tab-btn { padding: 10px 20px; border: none; background: none; font-size: 1rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
-    .tab-btn.active { color: var(--secondary-color); border-bottom-color: var(--secondary-color); }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 20px; background: #f4f6f8; }
+    .container { max-width: 1000px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+    .tab-btn { padding: 8px 16px; border: none; background: #e0e0e0; cursor: pointer; border-radius: 4px; font-weight: bold; }
+    .tab-btn.active { background: #007bff; color: #fff; }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
-
-    /* --- CARDS & TABLES --- */
-    .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .card h3 { margin-bottom: 15px; color: var(--primary-color); font-size: 1.2rem; }
-    
-    table { width: 100%; border-collapse: collapse; text-align: left; }
-    th, td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); }
-    th { background-color: #f1f5f9; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
-    tr:last-child td { border-bottom: none; }
-
-    /* TABLE ALIGNMENT UTILITIES */
-    .text-center { text-align: center !important; }
-
-    /* --- TEAM LOGOS --- */
-    .team-logo-icon {
-      width: 20px;
-      height: 20px;
-      vertical-align: middle;
-      margin-right: 5px;
-      object-fit: contain;
-    }
-
-    /* --- CONSOLIDATED METRIC STYLES --- */
-    .metric-primary {
-      font-weight: bold;
-      font-size: 0.95rem;
-      display: block;
-    }
-    .metric-secondary {
-      font-weight: normal;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      display: block;
-      margin-top: 2px;
-    }
-
-    /* COLUMN HEADER SUBTITLE STYLES */
-    .th-subtitle {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: normal;
-      text-transform: none;
-      color: var(--text-muted);
-      margin-top: 2px;
-      letter-spacing: normal;
-    }
-
-    /* CONDITIONAL HIGHLIGHTING */
-    .stat-outperform { background-color: #dcfce7 !important; color: #166534; }
-    .stat-outperform .metric-secondary { color: #15803d; }
-
-    /* --- STANDINGS GRID (2 WIDE) --- */
-    .conference-title { margin: 20px 0 15px 0; color: var(--primary-color); font-size: 1.4rem; border-bottom: 2px solid var(--border-color); padding-bottom: 6px; }
-    .divisions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 25px; }
-
-    @media (max-width: 768px) {
-      .divisions-grid { grid-template-columns: 1fr; }
-    }
-
-    /* --- KPI CARDS (2-WIDE or 4-WIDE LAYOUT) --- */
-    .kpi-grid { 
-      display: grid; 
-      grid-template-columns: repeat(4, 1fr); 
-      gap: 15px; 
-      margin-bottom: 25px; 
-    }
-    @media (max-width: 900px) {
-      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 480px) {
-      .kpi-grid { grid-template-columns: 1fr; }
-    }
-
-    .kpi-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-    .kpi-card .kpi-val { font-size: 1.8rem; font-weight: bold; color: var(--primary-color); }
-    .kpi-card .kpi-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-
-    /* --- UTILITIES & BADGES --- */
-    .text-success { color: var(--success); font-weight: bold; }
-    .text-danger { color: var(--danger); font-weight: bold; }
-    
-    .badge-win { 
-      background: #dcfce7; 
-      color: #15803d; 
-      padding: 4px 10px; 
-      border-radius: 6px; 
-      font-weight: bold; 
-      font-size: 0.85rem; 
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      white-space: nowrap;
-    }
-
-    @media (max-width: 480px) {
-      .badge-win {
-        flex-direction: column;
-        gap: 2px;
-        padding: 4px 6px;
-      }
-      .crown-icon {
-        font-size: 1.1rem;
-        line-height: 1;
-      }
-      .crown-text {
-        white-space: nowrap;
-      }
-    }
-
-    .badge-status { background: #f1f5f9; color: var(--text-muted); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
-
-    /* GAME CELL & TIME SUBTITLE */
-    .game-title { font-weight: bold; display: block; }
-    .game-time { font-size: 0.75rem; color: var(--text-muted); font-weight: normal; display: block; margin-top: 2px; }
-
-    /* WRAPPING BEHAVIOR FOR MATRIX GAMES ON MOBILE */
-    .g-desk { display: inline-block; white-space: nowrap; }
-    .g-mob  { display: none; }
-
-    @media (max-width: 600px) {
-      .g-desk { 
-        display: none !important; 
-      }
-      
-      .g-mob { 
-        display: flex !important; 
-        flex-direction: column !important; 
-        align-items: center !important; 
-        line-height: 1.1 !important;
-        font-size: 0.75rem !important;
-      }
-      
-      .g-mob span { 
-        display: block !important; 
-        width: 100% !important; 
-        text-align: center !important; 
-      }
-      
-      .g-mob .g-sep { 
-        color: #94a3b8; 
-        font-size: 0.65rem !important; 
-        margin: 1px 0 !important; 
-      }
-      
-      #matrix-table td:first-child,
-      #matrix-table th:first-child {
-        white-space: normal !important;
-        text-align: center !important;
-        padding: 4px 2px !important;
-      }
-    }
-
-    /* --- CROWN STYLING --- */
-    .crown-tentative { opacity: 0.35; filter: grayscale(100%); margin-right: 6px; cursor: help; }
-    .crown-solid { margin-right: 6px; }
-
-    select { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.95rem; outline: none; }
-
-    /* --- MULTI-SELECT DROPDOWN STYLES --- */
-    .dropdown-check-list {
-      display: inline-block;
-      position: relative;
-    }
-    .dropdown-check-list .anchor {
-      position: relative;
-      cursor: pointer;
-      display: inline-block;
-      padding: 8px 16px;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      background-color: #ffffff;
-      font-weight: 600;
-      font-size: 0.9rem;
-      user-select: none;
-    }
-    .dropdown-check-list .anchor:after {
-      content: "";
-      border: solid black;
-      border-width: 0 2px 2px 0;
-      display: inline-block;
-      padding: 3px;
-      margin-left: 10px;
-      transform: rotate(45deg);
-      -webkit-transform: rotate(45deg);
-      vertical-align: middle;
-    }
-    .dropdown-check-list ul.items {
-      padding: 10px;
-      display: none;
-      margin: 0;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      background-color: #ffffff;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      z-index: 100;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      min-width: 200px;
-      max-height: 250px;
-      overflow-y: auto;
-    }
-    .dropdown-check-list.visible ul.items {
-      display: block;
-    }
-    .dropdown-check-list ul.items li {
-      list-style: none;
-      padding: 4px 0;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .dropdown-check-list ul.items li label {
-      cursor: pointer;
-      width: 100%;
-    }
-
-    /* STANDALONE BAR CHART STYLES */
-    .chart-bar-row { display: flex; align-items: center; margin-bottom: 12px; gap: 15px; }
-    .chart-bar-label { width: 120px; font-weight: 600; font-size: 0.9rem; text-align: right; }
-    .chart-bar-track { flex: 1; background: #f1f5f9; border-radius: 6px; height: 26px; overflow: hidden; position: relative; }
-    .chart-bar-fill { 
-      background: var(--secondary-color); 
-      height: 100%; 
-      border-radius: 6px; 
-      transition: width 0.4s ease; 
-      display: flex; 
-      align-items: center; 
-      justify-content: flex-end; 
-      padding-right: 10px; 
-      min-width: 32px;
-    }
-    .chart-bar-value { color: #ffffff; font-weight: bold; font-size: 0.85rem; }
-
-    /* RESPONSIVE SCROLLABLE TABLE WRAPPER */
-    .matrix-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .pick-correct { background-color: #dcfce7 !important; color: #166534; font-weight: bold; }
-    .pick-incorrect { background-color: #fee2e2 !important; color: #991b1b; }
-    .pick-tie { background-color: #fef08a !important; color: #854d0e; font-weight: bold; }
-    .pick-pending { background-color: #ffffff; color: var(--text-main); }
-
-    /* LINE & SCATTER CHART STYLES */
-    .scatter-chart-wrapper { width: 100%; height: 220px; position: relative; padding: 10px 0; }
-    .scatter-svg { width: 100%; height: 100%; overflow: visible; }
-    .scatter-line { stroke: var(--secondary-color); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-    .scatter-point { fill: #ffffff; stroke: var(--secondary-color); stroke-width: 3; r: 6; transition: all 0.2s ease; cursor: pointer; }
-    .scatter-point:hover { r: 8; fill: var(--secondary-color); }
-    .scatter-text-val { font-size: 11px; font-weight: bold; fill: var(--primary-color); text-anchor: middle; }
-    .scatter-text-label { font-size: 11px; font-weight: 600; fill: var(--text-muted); text-anchor: middle; }
+    .controls { margin-bottom: 15px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f8f9fa; }
+    .chart-container { position: relative; height: 300px; width: 100%; margin-bottom: 20px; }
   </style>
 </head>
 <body>
 
-  <!-- HEADER BLOCK -->
-  <header>
-    <h1 id="dash-title">NFL Pick 'Em Dashboard</h1>
-    <p id="dash-subtitle">Loading pool data...</p>
-    <span class="badge-updated" id="dash-updated">Last Updated: --</span>
-  </header>
-
-  <!-- TAB NAVIGATION -->
-  <div class="tab-headers">
-    <button class="tab-btn active" onclick="switchTab('overall', event)">Season Overall</button>
-    <button class="tab-btn" onclick="switchTab('weekly', event)">Week Details</button>
-    <button class="tab-btn" onclick="switchTab('player', event)">Player Profiles</button>
-    <button class="tab-btn" onclick="switchTab('standings', event)">NFL Standings</button>
+<div class="container">
+  <!-- Navigation Tabs -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('weekly')">Weekly View</button>
+    <button class="tab-btn" onclick="switchTab('profile')">Player Profiles</button>
   </div>
 
-  <!-- ================= OVERALL TAB ================= -->
-  <div id="tab-overall" class="tab-content active">
-    <div class="card">
-      <h3>Season Wins Overview</h3>
-      <div id="standalone-bar-chart"></div>
+  <!-- WEEKLY TAB -->
+  <div id="weekly-tab" class="tab-content active">
+    <div class="controls">
+      <label for="week-select">Select Week: </label>
+      <select id="week-select" onchange="renderWeeklyTab()">
+        <option value="1">Week 1</option>
+        <option value="2">Week 2</option>
+        <option value="3">Week 3</option>
+        <option value="4">Week 4</option>
+      </select>
     </div>
 
-    <div class="card">
-      <h3>Full Season Leaderboard</h3>
-      <div class="matrix-wrapper">
-        <table id="leaderboard-table">
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Player</th>
-              <th class="text-center">Wins</th>
-              <th class="text-center">Losses</th>
-              <th class="text-center">Accuracy</th>
-              <th class="text-center">Games Back</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+    <!-- Container shown before lock time -->
+    <div id="pre-week-container" style="display:none;">
+      <h3>Picks Locked Until Kickoff</h3>
+      <p>Player picks are currently hidden. Submission progress:</p>
+      <div id="submission-tracker"></div>
     </div>
 
-    <div class="card">
-      <h3>Weekly Crown Standings</h3>
-      <div class="matrix-wrapper">
-        <table id="crowns-table">
-          <thead>
-            <tr>
-              <th>Player</th>
-              <th class="text-center">Crowns</th>
-              <th class="text-center">Delta</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+    <!-- Container shown after lock time -->
+    <div id="active-week-container" style="display:none;">
+      <h3>Weekly Matchups & Picks</h3>
+      <div id="matchup-matrix"></div>
     </div>
   </div>
 
-  <!-- ================= WEEKLY TAB ================= -->
-  <div id="tab-weekly" class="tab-content">
-    <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-      <label for="week-select"><strong>Select Pool Week:</strong></label>
-      <select id="week-select" onchange="renderWeeklyTab()"></select>
+  <!-- PLAYER PROFILE TAB -->
+  <div id="profile-tab" class="tab-content">
+    <div class="controls">
+      <label for="player-select">Select Player: </label>
+      <select id="player-select" onchange="renderPlayerProfile()">
+        <!-- Populated dynamically via JS -->
+      </select>
     </div>
 
-    <!-- PRE-WEEK SUBMISSION TRACKER -->
-    <div id="pre-week-container" class="card" style="display: none;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-        <h3 style="margin-bottom: 0;">Pre-Week Pick Submissions</h3>
-        <div id="lock-time-badge" style="background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;">
-          🔒 Picks Lock: <span id="lock-time-value">--</span>
+    <div class="grid">
+      <div>
+        <h3>Weekly Win % Trend</h3>
+        <div class="chart-container">
+          <canvas id="playerTrendChart"></canvas>
         </div>
       </div>
-
-      <div class="matrix-wrapper">
-        <table id="submission-tracker-table">
-          <thead>
-            <tr>
-              <th>Player</th>
-              <th class="text-center">Status</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ACTIVE / POST-WEEK VISUALS -->
-    <div id="active-week-container">
-      <!-- WEEK TRACKER -->
-      <div class="card">
-        <h3>Week Tracker</h3>
-        <div class="matrix-wrapper">
-          <table id="week-tracker-table">
-            <thead>
-              <tr>
-                <th>Player</th>
-                <th class="text-center">Picks</th>
-                <th class="text-center">Score</th>
-                <th class="text-center">Diff</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- MATCHUP MATRIX -->
-      <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-          <h3 style="margin-bottom: 0;">Matchup Matrix</h3>
-          
-          <div id="matrix-player-dropdown" class="dropdown-check-list" tabindex="100">
-            <span class="anchor" onclick="toggleMatrixDropdown()">Filter Players</span>
-            <ul class="items" id="matrix-player-options"></ul>
-          </div>
-        </div>
-
-        <div class="matrix-wrapper">
-          <table id="matrix-table">
-            <thead></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= PLAYER PROFILE TAB ================= -->
-  <div id="tab-player" class="tab-content">
-    <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-      <label for="player-select"><strong>Select Player:</strong></label>
-      <select id="player-select" onchange="renderPlayerProfile()"></select>
-    </div>
-
-    <div id="player-kpi-banner" class="kpi-grid"></div>
-
-    <div class="card">
-      <h3>Weekly Performance Trend (Win %)</h3>
-      <div id="player-trend-chart" class="scatter-chart-wrapper"></div>
-    </div>
-
-    <div class="card">
-      <h3>Team Pick Accuracy Breakdown</h3>
-      <div class="matrix-wrapper">
+      <div>
+        <h3>Team Pick Accuracy</h3>
+        <p><small>*Only includes picks from past/locked weeks.</small></p>
         <table id="team-accuracy-table">
           <thead>
             <tr>
               <th>Team</th>
-              <th class="text-center">
-                Pick %
-                <span class="th-subtitle">(Pool %)</span>
-              </th>
-              <th class="text-center">
-                Accuracy %
-                <span class="th-subtitle">(Pool %)</span>
-              </th>
+              <th>Picks Made</th>
+              <th>Correct</th>
+              <th>Accuracy</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -453,810 +90,259 @@
       </div>
     </div>
   </div>
+</div>
 
-  <!-- ================= NFL STANDINGS TAB ================= -->
-  <div id="tab-standings" class="tab-content">
-    <h2 class="conference-title">🏈 American Football Conference (AFC)</h2>
-    <div class="divisions-grid" id="afc-divisions-grid"></div>
-
-    <h2 class="conference-title">🏈 National Football Conference (NFC)</h2>
-    <div class="divisions-grid" id="nfc-divisions-grid"></div>
-  </div>
-
-  <!-- ================= DASHBOARD ENGINE (JS) ================= -->
-  <script>
-    let poolData = null;
-    let computedStats = {};
-    let poolTeamStats = {};
-    let nflTeamRecords = {};
-    let selectedMatrixPlayers = [];
-
-    const NFL_DIVISIONS = {
-      "AFC East": ["BUF", "MIA", "NE", "NYJ"],
-      "AFC North": ["BAL", "CIN", "CLE", "PIT"],
-      "AFC South": ["HOU", "IND", "JAX", "TEN"],
-      "AFC West": ["DEN", "KC", "LV", "LAC"],
-      "NFC East": ["DAL", "NYG", "PHI", "WAS"],
-      "NFC North": ["CHI", "DET", "GB", "MIN"],
-      "NFC South": ["ATL", "CAR", "NO", "TB"],
-      "NFC West": ["ARI", "LA", "SF", "SEA"]
-    };
-
-    // Helper: Formats ISO timestamp ("2026-08-27T23:00Z") to readable localized text
-    function formatGameTime(isoString) {
-      if (!isoString) return '';
-      const date = new Date(isoString);
-      if (isNaN(date.getTime())) return isoString; // fallback if already formatted string
-
-      return date.toLocaleString('en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      });
-    }
-
-    function getTeamLogoHtml(abbr, showText = true) {
-      if (!abbr || abbr === '—' || abbr === '-' || abbr === 'N/A') return abbr || '—';
-
-      let cleanAbbr = abbr.trim().toUpperCase();
-      const ALIASES = { "LAR": "LA", "WSH": "WAS" };
-
-      if (ALIASES[cleanAbbr]) {
-        cleanAbbr = ALIASES[cleanAbbr];
-      }
-
-      const logoImg = `<img src="./logos/${cleanAbbr}.png" alt="${abbr}" class="team-logo-icon" onerror="this.style.display='none'">`;
-      
-      return showText ? `${logoImg} ${abbr}` : logoImg;
-    }
-
-    async function initDashboard() {
-      try {
-        const res = await fetch(`./data.json?t=${Date.now()}`);
-        poolData = await res.json();
-        
-        document.getElementById('dash-title').innerText = poolData.metadata?.title || "NFL Pick 'Em Dashboard";
-        document.getElementById('dash-subtitle').innerText = poolData.metadata?.subtitle || "";
-        document.getElementById('dash-updated').innerText = `Last Updated: ${poolData.metadata?.lastUpdated || 'N/A'}`;
-
-        selectedMatrixPlayers = [...(poolData.players || [])];
-
-        populateDropdowns();
-        calculateStatistics();
-
-        renderOverallTab();
-        renderWeeklyTab();
-        renderPlayerProfile();
-        renderStandingsTab();
-      } catch (err) {
-        console.error("Error loading JSON:", err);
-        document.getElementById('dash-subtitle').innerText = "Failed to load data.json. Ensure file exists in root.";
+<script>
+  // Sample Data Structure
+  let poolData = {
+    players: {
+      "p1": { name: "Alice" },
+      "p2": { name: "Bob" }
+    },
+    weeks: {
+      "1": {
+        lockTime: "2026-09-07T20:00:00Z",
+        matchups: [
+          { id: "m1", home: "KC", away: "BAL", winner: "KC", status: "Final" }
+        ],
+        picks: {
+          "p1": { "m1": "KC" },
+          "p2": { "m1": "BAL" }
+        }
+      },
+      "2": {
+        lockTime: "2026-09-14T20:00:00Z",
+        matchups: [
+          { id: "m2", home: "PHI", away: "DAL", winner: "PHI", status: "Final" }
+        ],
+        picks: {
+          "p1": { "m2": "PHI" },
+          "p2": { "m2": "-" } // Bob didn't pick
+        }
+      },
+      "4": {
+        // Future week
+        lockTime: "2026-10-01T20:00:00Z",
+        matchups: [
+          { id: "m3", home: "SF", away: "LAR", winner: null, status: "Scheduled" }
+        ],
+        picks: {
+          "p1": { "m3": "SF" },
+          "p2": { "m3": "LAR" }
+        }
       }
     }
+  };
 
-    function populateDropdowns() {
-      const weekKeys = Object.keys(poolData.weeks || {});
-      const weekSelect = document.getElementById('week-select');
-      
-      weekSelect.innerHTML = weekKeys.map(w => `<option value="${w}">${w}</option>`).join('');
+  let playerChart = null;
 
-      const targetWeek = poolData.metadata?.currentWeek;
-      if (targetWeek && weekKeys.includes(targetWeek)) {
-        weekSelect.value = targetWeek;
-      } else if (weekKeys.length > 0) {
-        weekSelect.value = weekKeys[weekKeys.length - 1];
-      }
+  // Initialize page
+  document.addEventListener("DOMContentLoaded", () => {
+    populatePlayerDropdown();
+    renderWeeklyTab();
+  });
 
-      const playerSelect = document.getElementById('player-select');
-      playerSelect.innerHTML = `<option value="">Select Player</option>` + 
-        (poolData.players || []).map(p => `<option value="${p}">${p}</option>`).join('');
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    if (tabName === 'weekly') {
+      document.querySelectorAll('.tab-btn')[0].classList.add('active');
+      document.getElementById('weekly-tab').classList.add('active');
+      renderWeeklyTab();
+    } else {
+      document.querySelectorAll('.tab-btn')[1].classList.add('active');
+      document.getElementById('profile-tab').classList.add('active');
+      renderPlayerProfile();
+    }
+  }
 
-      const matrixOptionsContainer = document.getElementById('matrix-player-options');
-      matrixOptionsContainer.innerHTML = (poolData.players || []).map(p => `
-        <li>
-          <input type="checkbox" id="chk-mat-${p}" value="${p}" checked onchange="updateMatrixPlayerFilter()">
-          <label for="chk-mat-${p}">${p}</label>
-        </li>
-      `).join('');
+  function populatePlayerDropdown() {
+    const select = document.getElementById('player-select');
+    select.innerHTML = '';
+    Object.keys(poolData.players).forEach(id => {
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = poolData.players[id].name;
+      select.appendChild(opt);
+    });
+  }
+
+  // --- WEEKLY TAB LOGIC ---
+  function renderWeeklyTab() {
+    const week = document.getElementById('week-select').value;
+    const weekData = poolData.weeks[week];
+
+    const preContainer = document.getElementById('pre-week-container');
+    const activeContainer = document.getElementById('active-week-container');
+
+    if (!weekData) {
+      preContainer.style.display = 'none';
+      activeContainer.style.display = 'none';
+      return;
     }
 
-    function toggleMatrixDropdown() {
-      const dropdown = document.getElementById('matrix-player-dropdown');
-      dropdown.classList.toggle('visible');
-    }
+    const matchups = weekData.matchups || [];
+    let lockDate = weekData.lockTime ? new Date(weekData.lockTime) : null;
+    
+    // Check if week is locked via clock OR active game status
+    const isPastLockTime = lockDate && (new Date() >= lockDate);
+    const hasGameStarted = matchups.some(m => 
+      m.winner || (m.status && !['Scheduled', 'Pre-Game'].includes(m.status))
+    );
+    const isWeekStarted = isPastLockTime || hasGameStarted;
 
-    document.addEventListener('click', function(e) {
-      const dropdown = document.getElementById('matrix-player-dropdown');
-      if (dropdown && !dropdown.contains(e.target)) {
-        dropdown.classList.remove('visible');
+    if (!isWeekStarted) {
+      preContainer.style.display = 'block';
+      activeContainer.style.display = 'none';
+      document.getElementById('submission-tracker').innerHTML = `<p>Tracker for Week ${week}</p>`;
+    } else {
+      preContainer.style.display = 'none';
+      activeContainer.style.display = 'block';
+      document.getElementById('matchup-matrix').innerHTML = `<p>Active Matrix for Week ${week}</p>`;
+    }
+  }
+
+  // --- PLAYER PROFILE LOGIC ---
+  function renderPlayerProfile() {
+    const playerId = document.getElementById('player-select').value;
+    if (!playerId) return;
+
+    // 1. Render Chart
+    const graphData = getPlayerGraphData(playerId);
+    const ctx = document.getElementById('playerTrendChart').getContext('2d');
+    
+    if (playerChart) playerChart.destroy();
+    
+    playerChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: graphData.labels,
+        datasets: [{
+          label: 'Win %',
+          data: graphData.winPercentages,
+          borderColor: '#007bff',
+          fill: false,
+          spanGaps: false // Prevents connecting lines across null values
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { min: 0, max: 100 }
+        }
       }
     });
 
-    function updateMatrixPlayerFilter() {
-      const checkboxes = document.querySelectorAll('#matrix-player-options input[type="checkbox"]');
-      selectedMatrixPlayers = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
-      renderMatrixOnly();
-    }
+    // 2. Render Team Accuracy Table
+    const teamStats = getTeamPickAccuracy(playerId);
+    const tbody = document.querySelector('#team-accuracy-table tbody');
+    tbody.innerHTML = '';
 
-    function calculateStatistics() {
-      computedStats = {};
-      poolTeamStats = {};
-      nflTeamRecords = {};
+    Object.keys(teamStats).forEach(team => {
+      const stat = teamStats[team];
+      const pct = stat.total > 0 ? Math.round((stat.correct / stat.total) * 100) : 0;
+      const row = `<tr>
+        <td>${team}</td>
+        <td>${stat.total}</td>
+        <td>${stat.correct}</td>
+        <td>${pct}%</td>
+      </tr>`;
+      tbody.insertAdjacentHTML('beforeend', row);
+    });
+  }
 
-      Object.values(NFL_DIVISIONS).flat().forEach(t => {
-        nflTeamRecords[t] = { wins: 0, losses: 0, ties: 0 };
-      });
+  // --- HELPER FUNCTIONS ---
 
-      (poolData.players || []).forEach(p => {
-        computedStats[p] = {
-          correct: 0,
-          incorrect: 0,
-          crowns: 0,
-          winningDeltas: [],
-          weeklyHistory: {},
-          teamStats: {}
-        };
-      });
+  // Generates graph labels & win percentages for locked/completed weeks
+  function getPlayerGraphData(playerId) {
+    const labels = [];
+    const winPercentages = [];
+    const now = new Date();
 
-      Object.entries(poolData.weeks || {}).forEach(([weekKey, weekData]) => {
-        const matchups = weekData.matchups || [];
-        const tiebreakerActual = weekData.tiebreaker?.actualTotalScore;
-
-        const isWeekComplete = matchups.length > 0 && matchups.every(m => m.status === 'Final');
-        const isTiebreakerFinal = weekData.tiebreaker?.status === 'Final' || isWeekComplete;
-
-        (poolData.players || []).forEach(p => {
-          computedStats[p].weeklyHistory[weekKey] = { correct: 0, incorrect: 0, diff: null, winPct: 0 };
-        });
-
-        matchups.forEach(m => {
-          const teamsInGame = (m.game || '')
-            .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s+-\s+/i)
-            .map(t => t.trim().toUpperCase())
-            .filter(t => t.length >= 2);
-
-          teamsInGame.forEach(team => {
-            if (!poolTeamStats[team]) {
-              poolTeamStats[team] = { totalMatchups: 0, picked: 0, correct: 0, incorrect: 0 };
-            }
-            poolTeamStats[team].totalMatchups++;
-
-            (poolData.players || []).forEach(p => {
-              if (!computedStats[p].teamStats[team]) {
-                computedStats[p].teamStats[team] = { totalMatchups: 0, picked: 0, correct: 0, incorrect: 0 };
-              }
-              computedStats[p].teamStats[team].totalMatchups++;
-            });
-          });
-
-          if (m.winner) {
-            const winnerClean = m.winner.trim().toUpperCase();
-            const loserClean = teamsInGame.find(t => t !== winnerClean);
-
-            if (winnerClean !== 'TIE') {
-              if (nflTeamRecords[winnerClean]) nflTeamRecords[winnerClean].wins++;
-              if (loserClean && nflTeamRecords[loserClean]) nflTeamRecords[loserClean].losses++;
-            } else {
-              teamsInGame.forEach(t => {
-                if (nflTeamRecords[t]) {
-                  nflTeamRecords[t].ties = (nflTeamRecords[t].ties || 0) + 1;
-                }
-              });
-            }
-
-            Object.entries(m.picks || {}).forEach(([p, rawPick]) => {
-              if (computedStats[p] && rawPick && rawPick !== '—' && rawPick !== '-') {
-                const pick = rawPick.trim().toUpperCase();
-                
-                if (!computedStats[p].teamStats[pick]) {
-                  computedStats[p].teamStats[pick] = { totalMatchups: 0, picked: 0, correct: 0, incorrect: 0 };
-                }
-                computedStats[p].teamStats[pick].picked++;
-
-                if (!poolTeamStats[pick]) {
-                  poolTeamStats[pick] = { totalMatchups: 0, picked: 0, correct: 0, incorrect: 0 };
-                }
-                poolTeamStats[pick].picked++;
-
-                if (winnerClean === 'TIE') {
-                  // Do not increment stats for ties
-                } else if (pick === winnerClean) {
-                  computedStats[p].correct++;
-                  computedStats[p].weeklyHistory[weekKey].correct++;
-                  computedStats[p].teamStats[pick].correct++;
-                  poolTeamStats[pick].correct++;
-                } else {
-                  computedStats[p].incorrect++;
-                  computedStats[p].weeklyHistory[weekKey].incorrect++;
-                  computedStats[p].teamStats[pick].incorrect++;
-                  poolTeamStats[pick].incorrect++;
-                }
-              }
-            });
-          }
-        });
-
-        (poolData.players || []).forEach(p => {
-          const wCorrect = computedStats[p].weeklyHistory[weekKey].correct;
-          const wIncorrect = computedStats[p].weeklyHistory[weekKey].incorrect;
-          const wTotal = wCorrect + wIncorrect;
-          
-          computedStats[p].weeklyHistory[weekKey].winPct = wTotal > 0 ? (wCorrect / wTotal) * 100 : 0;
-
-          const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal;
-          
-          if (isTiebreakerFinal && typeof tiebreakerActual === 'number' && typeof pred === 'number') {
-            const diff = Math.abs(pred - tiebreakerActual);
-            computedStats[p].weeklyHistory[weekKey].diff = diff;
-          } else {
-            computedStats[p].weeklyHistory[weekKey].diff = null;
-          }
-        });
-
-        if (isWeekComplete) {
-          let maxWins = -1;
-          poolData.players.forEach(p => {
-            const pWins = computedStats[p].weeklyHistory[weekKey].correct;
-            if (pWins > maxWins) maxWins = pWins;
-          });
-
-          if (maxWins > 0) {
-            const topPlayers = poolData.players.filter(p => computedStats[p].weeklyHistory[weekKey].correct === maxWins);
-            
-            let crownWinner = topPlayers[0];
-            if (topPlayers.length > 1) {
-              let minDiff = Infinity;
-              topPlayers.forEach(p => {
-                const d = computedStats[p].weeklyHistory[weekKey].diff;
-                if (d !== null && d < minDiff) {
-                  minDiff = d;
-                  crownWinner = p;
-                }
-              });
-            }
-
-            if (computedStats[crownWinner]) {
-              computedStats[crownWinner].crowns++;
-              const crownDiff = computedStats[crownWinner].weeklyHistory[weekKey].diff;
-              if (crownDiff !== null) {
-                computedStats[crownWinner].winningDeltas.push(crownDiff);
-              }
-            }
-          }
-        }
-      });
-    }
-
-    function getPlayerRanks() {
-      const sorted = [...poolData.players].sort((a, b) => {
-        if (computedStats[b].correct !== computedStats[a].correct) {
-          return computedStats[b].correct - computedStats[a].correct;
-        }
-        return computedStats[a].incorrect - computedStats[b].incorrect;
-      });
-
-      const winCounts = {};
-      sorted.forEach(p => {
-        const w = computedStats[p].correct;
-        winCounts[w] = (winCounts[w] || 0) + 1;
-      });
-
-      const leaderWins = computedStats[sorted[0]]?.correct || 0;
-
-      const playerRanks = {};
-      let currentRank = 1;
-
-      for (let i = 0; i < sorted.length; i++) {
-        const p = sorted[i];
-        const wins = computedStats[p].correct;
-        const losses = computedStats[p].incorrect;
-
-        if (i > 0 && wins < computedStats[sorted[i - 1]].correct) {
-          currentRank = i + 1;
-        }
-
-        const isTied = winCounts[wins] > 1;
-        const rankStr = isTied ? `T-${currentRank}` : `#${currentRank}`;
-
-        const gbVal = leaderWins - wins;
-        const gb = (wins === leaderWins) ? '-' : gbVal;
-
-        playerRanks[p] = {
-          rank: currentRank,
-          isTied: isTied,
-          rankStr: rankStr,
-          gb: gb,
-          wins: wins,
-          losses: losses
-        };
-      }
-
-      return { sorted, playerRanks };
-    }
-
-    function renderOverallTab() {
-      const { sorted, playerRanks } = getPlayerRanks();
-
-      const leaderWins = computedStats[sorted[0]]?.correct || 0;
-      const maxWins = Math.max(leaderWins, 1);
-
-      const barContainer = document.getElementById('standalone-bar-chart');
-      barContainer.innerHTML = sorted.map(p => {
-        const wins = computedStats[p].correct;
-        const widthPct = (wins / maxWins) * 100;
-        return `
-          <div class="chart-bar-row">
-            <div class="chart-bar-label">${p}</div>
-            <div class="chart-bar-track">
-              <div class="chart-bar-fill" style="width: ${widthPct}%;">
-                <span class="chart-bar-value">${wins}</span>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      const lbBody = document.querySelector('#leaderboard-table tbody');
-      lbBody.innerHTML = sorted.map(p => {
-        const info = playerRanks[p];
-        const wins = info.wins;
-        const losses = info.losses;
-        const total = wins + losses;
-        const pct = total > 0 ? ((wins / total) * 100).toFixed(1) : "0.0";
-
-        return `
-          <tr>
-            <td><strong>${info.rankStr}</strong></td>
-            <td><strong>${p}</strong></td>
-            <td class="text-center text-success">${wins}</td>
-            <td class="text-center text-danger">${losses}</td>
-            <td class="text-center">${pct}%</td>
-            <td class="text-center"><strong>${info.gb}</strong></td>
-          </tr>
-        `;
-      }).join('');
-
-      const crownSorted = [...poolData.players].sort((a, b) => {
-        if (computedStats[b].crowns !== computedStats[a].crowns) {
-          return computedStats[b].crowns - computedStats[a].crowns;
-        }
-
-        const deltasA = computedStats[a].winningDeltas;
-        const deltasB = computedStats[b].winningDeltas;
-        
-        const avgA = deltasA.length > 0 ? (deltasA.reduce((sum, v) => sum + v, 0) / deltasA.length) : Infinity;
-        const avgB = deltasB.length > 0 ? (deltasB.reduce((sum, v) => sum + v, 0) / deltasB.length) : Infinity;
-
-        return avgA - avgB;
-      });
-
-      const crownBody = document.querySelector('#crowns-table tbody');
-      crownBody.innerHTML = crownSorted.map(p => {
-        const crowns = computedStats[p].crowns;
-        const deltas = computedStats[p].winningDeltas;
-        const avgDelta = deltas.length > 0 
-          ? (deltas.reduce((a, b) => a + b, 0) / deltas.length).toFixed(1) 
-          : 'N/A';
-
-        const crownDisplay = crowns > 0 
-          ? `<span class="badge-win"><span class="crown-icon">👑</span><span class="crown-text">${crowns} ${crowns === 1 ? 'Win' : 'Wins'}</span></span>` 
-          : `0 Wins`;
-
-        return `
-          <tr>
-            <td><strong>${p}</strong></td>
-            <td class="text-center">${crownDisplay}</td>
-            <td class="text-center">${avgDelta}</td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    function renderWeeklyTab() {
-      const week = document.getElementById('week-select').value;
-      const weekData = poolData.weeks[week];
-      if (!weekData) return;
-
+    Object.keys(poolData.weeks).forEach(weekNum => {
+      const weekData = poolData.weeks[weekNum];
       const matchups = weekData.matchups || [];
       
-      const isWeekStarted = matchups.some(m => 
-        m.winner || (m.status && !['Scheduled', 'Pre-Game'].includes(m.status))
-      );
+      const lockDate = weekData.lockTime ? new Date(weekData.lockTime) : null;
+      const isLocked = lockDate && (now >= lockDate);
 
-      const preWeekContainer = document.getElementById('pre-week-container');
-      const activeWeekContainer = document.getElementById('active-week-container');
+      if (isLocked) {
+        labels.push(`Week ${weekNum}`);
 
-      if (!isWeekStarted) {
-        preWeekContainer.style.display = 'block';
-        activeWeekContainer.style.display = 'none';
-        renderSubmissionTracker(weekData);
-      } else {
-        preWeekContainer.style.display = 'none';
-        activeWeekContainer.style.display = 'block';
-        renderActiveWeekVisuals(week, weekData, matchups);
-      }
-    }
+        const finishedMatchups = matchups.filter(m => 
+          m.winner || m.status === 'STATUS_FINAL' || m.status === 'Final'
+        );
 
-    function renderSubmissionTracker(weekData) {
-      const lockTimeElem = document.getElementById('lock-time-value');
-      
-      // Compute lock time: Use weekData.lockTime or find earliest matchup date
-      let earliestDate = weekData.lockTime || null;
-      if (!earliestDate && weekData.matchups?.length > 0) {
-        const dates = weekData.matchups.map(m => m.date).filter(Boolean);
-        if (dates.length > 0) {
-          dates.sort();
-          earliestDate = dates[0];
+        if (finishedMatchups.length === 0) {
+          winPercentages.push(null);
+          return;
         }
-      }
 
-      lockTimeElem.innerText = earliestDate ? formatGameTime(earliestDate) : "At Kickoff of First Game";
+        const playerPicks = weekData.picks ? (weekData.picks[playerId] || {}) : {};
+        let totalValidGames = 0;
+        let correctPicks = 0;
 
-      const tbody = document.querySelector('#submission-tracker-table tbody');
-      const totalMatchups = weekData.matchups?.length || 0;
-
-      tbody.innerHTML = (poolData.players || []).map(player => {
-        let submittedCount = 0;
-
-        (weekData.matchups || []).forEach(m => {
-          const pick = m.picks?.[player];
-          if (pick && pick !== '—' && pick !== '-' && pick.trim() !== '') {
-            submittedCount++;
+        finishedMatchups.forEach(m => {
+          const pick = playerPicks[m.id];
+          if (pick && pick !== '-') {
+            totalValidGames++;
+            if (pick === m.winner) {
+              correctPicks++;
+            }
           }
         });
 
-        const isComplete = totalMatchups > 0 && submittedCount === totalMatchups;
-        const isPartial = submittedCount > 0 && submittedCount < totalMatchups;
-
-        let statusBadge = '';
-        if (isComplete) {
-          statusBadge = `<span style="color: var(--success); font-weight: bold;">✔ Complete (${submittedCount}/${totalMatchups})</span>`;
-        } else if (isPartial) {
-          statusBadge = `<span style="color: var(--warning); font-weight: bold;">⚠️ Incomplete (${submittedCount}/${totalMatchups})</span>`;
+        if (totalValidGames > 0) {
+          const pct = Math.round((correctPicks / totalValidGames) * 100);
+          winPercentages.push(pct);
         } else {
-          statusBadge = `<span style="color: var(--danger); font-weight: bold;">❌ Pending</span>`;
+          winPercentages.push(null); // Skip missing pick weeks
         }
+      }
+    });
 
-        return `
-          <tr>
-            <td><strong>${player}</strong></td>
-            <td class="text-center">${statusBadge}</td>
-          </tr>
-        `;
-      }).join('');
-    }
+    return { labels, winPercentages };
+  }
 
-    function renderActiveWeekVisuals(week, weekData, matchups) {
-      const isWeekComplete = matchups.length > 0 && matchups.every(m => m.status === 'Final');
+  // Calculates Team Pick Accuracy for locked weeks only
+  function getTeamPickAccuracy(playerId) {
+    const teamStats = {};
+    const now = new Date();
 
-      const sortedPlayers = [...poolData.players].sort((a, b) => {
-        const aHist = computedStats[a]?.weeklyHistory[week] || { correct: 0, diff: null };
-        const bHist = computedStats[b]?.weeklyHistory[week] || { correct: 0, diff: null };
-
-        if (bHist.correct !== aHist.correct) {
-          return bHist.correct - aHist.correct;
-        }
-
-        const aDiff = aHist.diff ?? Infinity;
-        const bDiff = bHist.diff ?? Infinity;
-        return aDiff - bDiff;
-      });
-
-      const maxWins = sortedPlayers.length > 0 ? (computedStats[sortedPlayers[0]]?.weeklyHistory[week]?.correct || 0) : 0;
+    Object.keys(poolData.weeks).forEach(weekNum => {
+      const weekData = poolData.weeks[weekNum];
+      const matchups = weekData.matchups || [];
       
-      const topScorersCount = sortedPlayers.filter(
-        p => (computedStats[p]?.weeklyHistory[week]?.correct || 0) === maxWins
-      ).length;
+      const lockDate = weekData.lockTime ? new Date(weekData.lockTime) : null;
+      const isLocked = lockDate && (now >= lockDate);
 
-      const trackerBody = document.querySelector('#week-tracker-table tbody');
-      trackerBody.innerHTML = sortedPlayers.map((p, idx) => {
-        const wHist = computedStats[p]?.weeklyHistory[week] || { correct: 0, incorrect: 0, diff: null };
-        const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal ?? 'N/A';
-        const diffStr = wHist.diff !== null ? `${wHist.diff} pts` : '-';
+      // Skip un-locked weeks completely
+      if (!isLocked) return;
 
-        let crownBadge = '';
-        if (wHist.correct > 0 && wHist.correct === maxWins && idx === 0) {
-          if (isWeekComplete) {
-            crownBadge = `<span class="crown-solid" title="Official Weekly Winner">👑</span>`;
-          } else if (topScorersCount === 1) {
-            crownBadge = `<span class="crown-tentative" title="Tentative Weekly Leader">👑</span>`;
+      const playerPicks = weekData.picks ? (weekData.picks[playerId] || {}) : {};
+
+      matchups.forEach(m => {
+        const pick = playerPicks[m.id];
+        
+        if (pick && pick !== '-') {
+          if (!teamStats[pick]) {
+            teamStats[pick] = { correct: 0, total: 0 };
+          }
+
+          teamStats[pick].total += 1;
+
+          const isFinal = m.winner || m.status === 'STATUS_FINAL' || m.status === 'Final';
+          if (isFinal && pick === m.winner) {
+            teamStats[pick].correct += 1;
           }
         }
-
-        return `
-          <tr>
-            <td>${crownBadge}<strong>${p}</strong></td>
-            <td class="text-center"><strong><span class="text-success">${wHist.correct}</span> - <span class="text-danger">${wHist.incorrect}</span></strong></td>
-            <td class="text-center">${pred}</td>
-            <td class="text-center">${diffStr}</td>
-          </tr>
-        `;
-      }).join('');
-
-      renderMatrixOnly();
-    }
-
-    function renderMatrixOnly() {
-      const week = document.getElementById('week-select').value;
-      const weekData = poolData.weeks[week];
-      if (!weekData) return;
-
-      const matrixHead = document.querySelector('#matrix-table thead');
-      matrixHead.innerHTML = `
-        <tr>
-          <th class="text-center">Game</th>
-          <th class="text-center">Status</th>
-          ${selectedMatrixPlayers.map(p => `<th class="text-center">${p}</th>`).join('')}
-        </tr>
-      `;
-
-      const matrixBody = document.querySelector('#matrix-table tbody');
-      
-      if (selectedMatrixPlayers.length === 0) {
-        matrixBody.innerHTML = `<tr><td colspan="2" style="text-align:center;">No players selected. Use the filter dropdown to select players.</td></tr>`;
-        return;
-      }
-
-      matrixBody.innerHTML = (weekData.matchups || []).map(m => {
-        const winner = m.winner ? m.winner.trim().toUpperCase() : null;
-     
-        let formattedGame = m.game || '';
-        const parts = formattedGame.split(/\s*(@|vs|\bAT\b|-|–)\s*/i);
-
-        if (parts.length >= 3) {
-          const away = parts[0].trim();
-          const sep = parts[1].trim();
-          const home = parts[2].trim();
-
-          formattedGame = `
-            <span class="g-desk">${away} ${sep} ${home}</span>
-            <span class="g-mob">
-              <span>${away}</span>
-              <span class="g-sep">${sep}</span>
-              <span>${home}</span>
-            </span>
-          `;
-        }
-
-        const timeSubtitle = m.date ? `<span class="game-time">${formatGameTime(m.date)}</span>` : '';
-
-        return `
-          <tr>
-            <td>
-              <span class="game-title">${formattedGame}</span>
-              ${timeSubtitle}
-            </td>
-            <td class="text-center"><span class="badge-status">${m.status}</span></td>
-            ${selectedMatrixPlayers.map(p => {
-              const pick = m.picks?.[p] || '—';
-              let cssClass = 'pick-pending';
-              
-              if (winner) {
-                if (winner === 'TIE') {
-                  cssClass = 'pick-tie';
-                } else {
-                  cssClass = (pick === winner) ? 'pick-correct' : 'pick-incorrect';
-                }
-              }
-              
-              const pickDisplay = (pick !== '—' && pick !== '-') ? getTeamLogoHtml(pick, false) : '—';
-              return `<td class="${cssClass} text-center">${pickDisplay}</td>`;
-            }).join('')}
-          </tr>
-        `;
-      }).join('');
-    }
-
-    function renderPlayerProfile() {
-      const player = document.getElementById('player-select').value;
-      
-      if (!player || !computedStats[player]) {
-        document.getElementById('player-kpi-banner').innerHTML = '';
-        document.getElementById('player-trend-chart').innerHTML = "<p style='text-align:center; padding-top: 80px; color: var(--text-muted);'>Please select a player above to view details.</p>";
-        document.querySelector('#team-accuracy-table tbody').innerHTML = `<tr><td colspan="3" style="text-align:center;">Select a player to display team accuracy.</td></tr>`;
-        return;
-      }
-
-      const pStats = computedStats[player];
-      const { playerRanks } = getPlayerRanks();
-      const pInfo = playerRanks[player];
-
-      const rankStr = pInfo ? pInfo.rankStr : '-';
-      const gamesBack = pInfo ? pInfo.gb : '-';
-
-      const totalPicks = pStats.correct + pStats.incorrect;
-      const accuracy = totalPicks > 0 ? ((pStats.correct / totalPicks) * 100).toFixed(1) + '%' : '0.0%';
-      const weeklyWins = pStats.crowns || 0;
-
-      document.getElementById('player-kpi-banner').innerHTML = `
-        <div class="kpi-card">
-          <div class="kpi-val">${rankStr}</div>
-          <div class="kpi-label">Current Rank</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-val">${gamesBack}</div>
-          <div class="kpi-label">Games Back</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-val">${accuracy}</div>
-          <div class="kpi-label">Pick Accuracy</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-val">👑 ${weeklyWins}</div>
-          <div class="kpi-label">Weekly Wins</div>
-        </div>
-      `;
-
-      renderPerformanceChart(player);
-      renderTeamAccuracyTable(player);
-    }
-
-    function renderPerformanceChart(player) {
-      const chartContainer = document.getElementById('player-trend-chart');
-      const weeks = Object.keys(poolData.weeks || {});
-      
-      if (weeks.length === 0) {
-        chartContainer.innerHTML = "<p style='text-align:center;'>No weekly data available.</p>";
-        return;
-      }
-
-      const containerWidth = chartContainer.clientWidth || 800;
-      const winPcts = weeks.map(w => computedStats[player]?.weeklyHistory[w]?.winPct || 0);
-      
-      const paddingX = 50;
-      const paddingTop = 30;
-      const chartHeight = 140; 
-      const availableWidth = containerWidth - (paddingX * 2);
-
-      const points = weeks.map((w, index) => {
-        const x = weeks.length === 1 
-          ? containerWidth / 2 
-          : paddingX + (index / (weeks.length - 1)) * availableWidth;
-        
-        const y = paddingTop + (1 - (winPcts[index] / 100)) * chartHeight;
-        return { x: x, y: y, week: w, val: winPcts[index].toFixed(1) + '%' };
       });
+    });
 
-      const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
-
-      chartContainer.innerHTML = `
-        <svg class="scatter-svg" viewBox="0 0 ${containerWidth} 220" preserveAspectRatio="none">
-          <path class="scatter-line" d="${pathD}" />
-          ${points.map(p => `
-            <g>
-              <text x="${p.x}" y="${p.y - 12}" class="scatter-text-val">${p.val}</text>
-              <circle cx="${p.x}" cy="${p.y}" class="scatter-point" />
-              <text x="${p.x}" y="${paddingTop + chartHeight + 25}" class="scatter-text-label">${p.week}</text>
-            </g>
-          `).join('')}
-        </svg>
-      `;
-    }
-
-    function renderTeamAccuracyTable(player) {
-      const teamStats = computedStats[player]?.teamStats || {};
-      const tbody = document.querySelector('#team-accuracy-table tbody');
-      
-      const sortedTeams = Object.keys(teamStats)
-        .filter(team => team.length >= 2)
-        .sort((a, b) => a.localeCompare(b));
-
-      if (sortedTeams.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">No completed games recorded for this player yet.</td></tr>`;
-        return;
-      }
-
-      const totalPoolPlayers = (poolData.players || []).length || 1;
-
-      tbody.innerHTML = sortedTeams.map(team => {
-        const stat = teamStats[team];
-        const totalMatchups = stat.totalMatchups || 0;
-        const timesPicked = stat.picked || 0;
-        
-        const playerPickPctNum = totalMatchups > 0 ? (timesPicked / totalMatchups) * 100 : 0;
-        const playerPickPctStr = playerPickPctNum.toFixed(1);
-        
-        const poolStat = poolTeamStats[team] || { totalMatchups: 0, picked: 0, correct: 0 };
-        const totalPoolPossiblePicks = poolStat.totalMatchups * totalPoolPlayers;
-        const poolPickPctNum = totalPoolPossiblePicks > 0 ? (poolStat.picked / totalPoolPossiblePicks) * 100 : 0;
-        const poolPickPctStr = poolPickPctNum.toFixed(1);
-
-        const playerAccNum = timesPicked > 0 ? (stat.correct / timesPicked) * 100 : 0;
-        const playerAccStr = playerAccNum.toFixed(1);
-
-        const poolAccNum = poolStat.picked > 0 ? (poolStat.correct / poolStat.picked) * 100 : 0;
-        const poolAccStr = poolAccNum.toFixed(1);
-
-        const pickPctClass = playerPickPctNum > poolPickPctNum ? 'stat-outperform' : '';
-        const accClass = (timesPicked > 0 && playerAccNum > poolAccNum) ? 'stat-outperform' : '';
-
-        return `
-          <tr>
-            <td><strong>${getTeamLogoHtml(team)}</strong></td>
-            <td class="text-center ${pickPctClass}">
-              <span class="metric-primary">${playerPickPctStr}%</span>
-              <span class="metric-secondary">(${poolPickPctStr}%)</span>
-            </td>
-            <td class="text-center ${accClass}">
-              <span class="metric-primary">${playerAccStr}%</span>
-              <span class="metric-secondary">(${poolAccStr}%)</span>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    function renderStandingsTab() {
-      const afcGrid = document.getElementById('afc-divisions-grid');
-      const nfcGrid = document.getElementById('nfc-divisions-grid');
-
-      afcGrid.innerHTML = '';
-      nfcGrid.innerHTML = '';
-
-      Object.entries(NFL_DIVISIONS).forEach(([divisionName, teams]) => {
-        const sortedTeams = [...teams].sort((a, b) => {
-          const aRec = nflTeamRecords[a] || { wins: 0, losses: 0, ties: 0 };
-          const bRec = nflTeamRecords[b] || { wins: 0, losses: 0, ties: 0 };
-          
-          if (bRec.wins !== aRec.wins) return bRec.wins - aRec.wins;
-          return aRec.losses - bRec.losses;
-        });
-
-        const cardHtml = `
-          <div class="card">
-            <h3>${divisionName}</h3>
-            <div class="matrix-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Team</th>
-                    <th>W</th>
-                    <th>L</th>
-                    <th>T</th>
-                    <th>PCT</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${sortedTeams.map(t => {
-                    const rec = nflTeamRecords[t] || { wins: 0, losses: 0, ties: 0 };
-                    const total = rec.wins + rec.losses + rec.ties;
-                    const pct = total > 0 ? ((rec.wins + 0.5 * rec.ties) / total).toFixed(3).replace(/^0/, '') : '.000';
-                    return `
-                      <tr>
-                        <td><strong>${getTeamLogoHtml(t)}</strong></td>
-                        <td class="text-success">${rec.wins}</td>
-                        <td class="text-danger">${rec.losses}</td>
-                        <td>${rec.ties}</td>
-                        <td><strong>${pct}</strong></td>
-                      </tr>
-                    `;
-                  }).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-
-        if (divisionName.startsWith('AFC')) {
-          afcGrid.innerHTML += cardHtml;
-        } else {
-          nfcGrid.innerHTML += cardHtml;
-        }
-      });
-    }
-
-    function switchTab(tabId, evt) {
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-      evt.target.classList.add('active');
-      document.getElementById(`tab-${tabId}`).classList.add('active');
-    }
-
-    initDashboard();
-  </script>
+    return teamStats;
+  }
+</script>
 </body>
 </html>
