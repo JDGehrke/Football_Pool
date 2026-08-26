@@ -56,6 +56,20 @@
       object-fit: contain;
     }
 
+    /* CLICKABLE TEAM ROW STYLING */
+    .clickable-team-cell {
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+      user-select: none;
+    }
+    .clickable-team-cell:hover {
+      background-color: #f1f5f9;
+      color: var(--secondary-color);
+    }
+    .clickable-team-cell:hover strong {
+      text-decoration: underline;
+    }
+
     /* --- CONSOLIDATED METRIC STYLES --- */
     .metric-primary {
       font-weight: bold;
@@ -285,6 +299,48 @@
     .scatter-point:hover { r: 8; fill: var(--secondary-color); }
     .scatter-text-val { font-size: 11px; font-weight: bold; fill: var(--primary-color); text-anchor: middle; }
     .scatter-text-label { font-size: 11px; font-weight: 600; fill: var(--text-muted); text-anchor: middle; }
+
+    /* --- MODAL DIALOG STYLES --- */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-color: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(2px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 650px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      animation: modalFadeIn 0.2s ease-out;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h3 { margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 8px; }
+    .modal-close-btn {
+      background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; padding: 0 4px;
+    }
+    .modal-close-btn:hover { color: var(--text-main); }
+    .modal-body { padding: 20px; overflow-y: auto; }
   </style>
 </head>
 <body>
@@ -437,7 +493,7 @@
         <table id="team-accuracy-table">
           <thead>
             <tr>
-              <th>Team</th>
+              <th>Team <span class="th-subtitle">(Click for details)</span></th>
               <th class="text-center">
                 Pick %
                 <span class="th-subtitle">(Pool %)</span>
@@ -463,6 +519,19 @@
     <div class="divisions-grid" id="nfc-divisions-grid"></div>
   </div>
 
+  <!-- ================= TEAM BREAKDOWN MODAL ================= -->
+  <div id="team-breakdown-modal" class="modal-backdrop" onclick="closeTeamModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modal-team-title">Team Log</h3>
+        <button class="modal-close-btn" onclick="closeTeamModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-team-body">
+        <!-- Content inserted dynamically -->
+      </div>
+    </div>
+  </div>
+
   <!-- ================= DASHBOARD ENGINE (JS) ================= -->
   <script>
     let poolData = null;
@@ -486,7 +555,7 @@
     function formatGameTime(isoString) {
       if (!isoString) return '';
       const date = new Date(isoString);
-      if (isNaN(date.getTime())) return isoString; // fallback if already formatted string
+      if (isNaN(date.getTime())) return isoString;
 
       return date.toLocaleString('en-US', {
         weekday: 'short',
@@ -862,22 +931,17 @@
 
       const matchups = weekData.matchups || [];
       
-      // 1. Determine earliest game/lock date
       let lockDate = weekData.lockTime ? new Date(weekData.lockTime) : null;
       if (!lockDate && matchups.length > 0) {
         const dates = matchups.map(m => m.date).filter(Boolean).sort();
         if (dates.length > 0) lockDate = new Date(dates[0]);
       }
 
-      // 2. Check if current time has passed lock time
       const isPastLockTime = lockDate && (new Date() >= lockDate);
-
-      // 3. Determine if any game has actually started via status/winner
       const hasGameStarted = matchups.some(m => 
         m.winner || (m.status && !['Scheduled', 'Pre-Game'].includes(m.status))
       );
 
-      // Switch views if locktime has passed OR games have active statuses
       const isWeekStarted = isPastLockTime || hasGameStarted;
 
       const preWeekContainer = document.getElementById('pre-week-container');
@@ -897,7 +961,6 @@
     function renderSubmissionTracker(weekData) {
       const lockTimeElem = document.getElementById('lock-time-value');
       
-      // Compute lock time: Use weekData.lockTime or find earliest matchup date
       let earliestDate = weekData.lockTime || null;
       if (!earliestDate && weekData.matchups?.length > 0) {
         const dates = weekData.matchups.map(m => m.date).filter(Boolean);
@@ -1066,7 +1129,6 @@
 
     // --- HELPER FUNCTIONS FOR PLAYER PROFILES ---
 
-    // Generates graph labels & win percentages for locked/completed weeks
     function getPlayerGraphData(playerId) {
       const labels = [];
       const winPercentages = [];
@@ -1121,7 +1183,6 @@
       return { labels, winPercentages };
     }
 
-    // Calculates Team Pick Accuracy for locked weeks only
     function getTeamPickAccuracy(playerId) {
       const playerTeamStats = {};
       const poolTeamStatsLocked = {};
@@ -1262,7 +1323,6 @@
         return { x: x, y: y, week: w, val: val !== null ? `${val}%` : '-' };
       });
 
-      // Connect only valid data points with lines
       const validPoints = points.filter(p => p.y !== null);
       const pathD = validPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
 
@@ -1319,7 +1379,9 @@
 
         return `
           <tr>
-            <td><strong>${getTeamLogoHtml(team)}</strong></td>
+            <td class="clickable-team-cell" onclick="openTeamBreakdownModal('${team}')">
+              <strong>${getTeamLogoHtml(team)}</strong>
+            </td>
             <td class="text-center ${pickPctClass}">
               <span class="metric-primary">${playerPickPctStr}%</span>
               <span class="metric-secondary">(${poolPickPctStr}%)</span>
@@ -1331,6 +1393,134 @@
           </tr>
         `;
       }).join('');
+    }
+
+    // --- TEAM BREAKDOWN MODAL LOGIC ---
+
+    function openTeamBreakdownModal(team) {
+      const player = document.getElementById('player-select').value;
+      if (!player) return;
+
+      const modalTitle = document.getElementById('modal-team-title');
+      const modalBody = document.getElementById('modal-team-body');
+      
+      modalTitle.innerHTML = `${getTeamLogoHtml(team)} Breakdown &mdash; ${player}`;
+
+      let pickedWins = 0, pickedLosses = 0, pickedTies = 0;
+      let unpickedWins = 0, unpickedLosses = 0, unpickedTies = 0;
+
+      const logRows = [];
+      const now = new Date();
+
+      Object.entries(poolData.weeks || {}).forEach(([weekKey, weekData]) => {
+        const matchups = weekData.matchups || [];
+        
+        let lockDate = weekData.lockTime ? new Date(weekData.lockTime) : null;
+        if (!lockDate && matchups.length > 0) {
+          const dates = matchups.map(m => m.date).filter(Boolean).sort();
+          if (dates.length > 0) lockDate = new Date(dates[0]);
+        }
+
+        const isLocked = lockDate && (now >= lockDate);
+        if (!isLocked) return;
+
+        matchups.forEach(m => {
+          const teamsInGame = (m.game || '')
+            .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s+-\s+/i)
+            .map(t => t.trim().toUpperCase())
+            .filter(t => t.length >= 2);
+
+          if (!teamsInGame.includes(team)) return;
+
+          const opponent = teamsInGame.find(t => t !== team) || 'Opponent';
+          const pick = m.picks?.[player]?.trim().toUpperCase();
+          const pickedTarget = (pick === team);
+          
+          const winner = m.winner ? m.winner.trim().toUpperCase() : null;
+          const isFinal = winner || m.status === 'STATUS_FINAL' || m.status === 'Final';
+
+          let outcomeTag = 'Pending';
+          let outcomeClass = 'pick-pending';
+          
+          if (isFinal && winner) {
+            if (winner === 'TIE') {
+              outcomeTag = 'Tie';
+              outcomeClass = 'pick-tie';
+              if (pickedTarget) pickedTies++;
+              else unpickedTies++;
+            } else if (winner === team) {
+              outcomeTag = `W vs ${opponent}`;
+              outcomeClass = 'pick-correct';
+              if (pickedTarget) pickedWins++;
+              else unpickedWins++;
+            } else {
+              outcomeTag = `L vs ${opponent}`;
+              outcomeClass = 'pick-incorrect';
+              if (pickedTarget) pickedLosses++;
+              else unpickedLosses++;
+            }
+          }
+
+          logRows.push({
+            week: weekKey,
+            opponent: opponent,
+            pickedTarget: pickedTarget,
+            pickText: pick ? getTeamLogoHtml(pick, false) : '—',
+            outcomeTag: outcomeTag,
+            outcomeClass: outcomeClass
+          });
+        });
+      });
+
+      const calcRecordStr = (w, l, t) => {
+        const total = w + l + t;
+        const pct = total > 0 ? ((w + 0.5 * t) / total * 100).toFixed(1) + '%' : '0.0%';
+        return `<strong>${w}-${l}${t > 0 ? `-${t}` : ''}</strong> (${pct})`;
+      };
+
+      modalBody.innerHTML = `
+        <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 20px;">
+          <div class="kpi-card" style="padding: 10px;">
+            <div class="kpi-val" style="font-size: 1.2rem;">${calcRecordStr(pickedWins, pickedLosses, pickedTies)}</div>
+            <div class="kpi-label">When Picked</div>
+          </div>
+          <div class="kpi-card" style="padding: 10px;">
+            <div class="kpi-val" style="font-size: 1.2rem;">${calcRecordStr(unpickedWins, unpickedLosses, unpickedTies)}</div>
+            <div class="kpi-label">When Fade / Not Picked</div>
+          </div>
+        </div>
+
+        <div class="matrix-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Week</th>
+                <th>Matchup</th>
+                <th class="text-center">Your Pick</th>
+                <th class="text-center">Outcome</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${logRows.length > 0 ? logRows.map(r => `
+                <tr>
+                  <td><strong>Week ${r.week}</strong></td>
+                  <td>vs ${getTeamLogoHtml(r.opponent)}</td>
+                  <td class="text-center">${r.pickText}</td>
+                  <td class="text-center ${r.outcomeClass}">${r.outcomeTag}</td>
+                </tr>
+              `).join('') : `<tr><td colspan="4" style="text-align:center;">No completed games for this team yet.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      document.getElementById('team-breakdown-modal').classList.add('active');
+    }
+
+    function closeTeamModal(e) {
+      if (!e || e.target.id === 'team-breakdown-modal' || e.target.classList.contains('modal-close-btn')) {
+        document.getElementById('team-breakdown-modal').classList.remove('active');
+      }
     }
 
     function renderStandingsTab() {
