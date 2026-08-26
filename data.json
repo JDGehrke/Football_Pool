@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Wednesday @ 9:07am",
+    "lastUpdated": "Wednesday @ 9:49am",
     "currentWeek": "Week 4"
   },
   "players": [
@@ -493,196 +493,213 @@
       }
     },
     "Week 4": {
+      "lockTime": "2026-08-27T23:00Z",
       "matchups": [
         {
           "id": "401873298",
           "picks": {
+            "JORDAN": "BUF",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "PIT @ BUF",
+          "date": "2026-08-27T23:00Z",
           "winner": null,
           "status": "Scheduled"
         },
         {
           "id": "401873299",
           "picks": {
+            "JORDAN": "NE",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "NE @ CLE",
+          "date": "2026-08-28T00:00Z",
           "winner": null,
           "status": "Scheduled"
         },
         {
           "id": "401873641",
           "picks": {
+            "JORDAN": "SF",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "SF @ LV",
+          "date": "2026-08-28T00:00Z",
           "winner": null,
           "status": "Scheduled"
         },
         {
           "id": "401873300",
           "picks": {
+            "JORDAN": "LAC",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "LAR @ LAC",
+          "date": "2026-08-28T02:00Z",
           "winner": null,
           "status": "Scheduled"
         },
         {
           "id": "401873302",
           "picks": {
+            "JORDAN": "BAL",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "WSH @ BAL",
+          "date": "2026-08-28T22:00Z",
           "winner": null,
           "status": "Scheduled"
         },
         {
           "id": "401873304",
           "picks": {
+            "JORDAN": "ATL",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "ATL @ MIA",
+          "date": "2026-08-28T23:00Z",
           "winner": null,
           "status": "Scheduled"
         },
         {
           "id": "401873307",
           "picks": {
+            "JORDAN": "CAR",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "HOU @ CAR",
+          "date": "2026-08-28T23:00Z",
           "winner": null,
           "status": "Scheduled"
         },
         {
           "id": "401873303",
           "picks": {
+            "JORDAN": "NYJ",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "NYG @ NYJ",
+          "date": "2026-08-28T23:30Z",
           "winner": null,
           "status": "Scheduled"
         },
         {
           "id": "401873306",
           "picks": {
+            "JORDAN": "TB",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "TB @ JAX",
+          "date": "2026-08-28T23:30Z",
           "winner": null,
           "status": "Scheduled"
         },
         {
           "id": "401874048",
           "picks": {
+            "JORDAN": "NO",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "NO @ DAL",
+          "date": "2026-08-29T00:00Z",
           "winner": null,
           "status": "Scheduled"
         },
         {
           "id": "401874102",
           "picks": {
+            "JORDAN": "ARI",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "ARI @ GB",
+          "date": "2026-08-29T00:00Z",
           "winner": null,
           "status": "Scheduled"
         },
         {
           "id": "401873305",
           "picks": {
+            "JORDAN": "SEA",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "SEA @ KC",
+          "date": "2026-08-29T00:00Z",
           "winner": null,
           "status": "Scheduled"
         },
         {
           "id": "401873301",
           "picks": {
+            "JORDAN": "CIN",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "CIN @ PHI",
+          "date": "2026-08-29T00:00Z",
           "winner": null,
           "status": "Scheduled"
         },
         {
           "id": "401873614",
           "picks": {
+            "JORDAN": "MIN",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "MIN @ DEN",
+          "date": "2026-08-29T01:00Z",
           "winner": null,
           "status": "Scheduled"
         },
         {
           "id": "401873308",
           "picks": {
+            "JORDAN": "DET",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "DET @ IND",
+          "date": "2026-08-29T17:00Z",
           "winner": null,
           "status": "Scheduled"
         },
         {
           "id": "401874394",
           "picks": {
+            "JORDAN": "CHI",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
-            "JORDAN": "\u2014",
             "MOM": "\u2014"
           },
           "game": "CHI @ TEN",
+          "date": "2026-08-29T22:00Z",
           "winner": null,
           "status": "Scheduled"
         }
@@ -702,8 +719,8 @@
             "predictedTotal": "\u2014"
           },
           "JORDAN": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "CHI",
+            "predictedTotal": 20
           },
           "MOM": {
             "winner": "\u2014",

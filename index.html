@@ -129,7 +129,6 @@
       white-space: nowrap;
     }
 
-    /* WRAPPING BEHAVIOR FOR CROWN BADGES ON MOBILE */
     @media (max-width: 480px) {
       .badge-win {
         flex-direction: column;
@@ -146,6 +145,10 @@
     }
 
     .badge-status { background: #f1f5f9; color: var(--text-muted); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
+
+    /* GAME CELL & TIME SUBTITLE */
+    .game-title { font-weight: bold; display: block; }
+    .game-time { font-size: 0.75rem; color: var(--text-muted); font-weight: normal; display: block; margin-top: 2px; }
 
     /* WRAPPING BEHAVIOR FOR MATRIX GAMES ON MOBILE */
     .g-desk { display: inline-block; white-space: nowrap; }
@@ -353,17 +356,19 @@
 
     <!-- PRE-WEEK SUBMISSION TRACKER -->
     <div id="pre-week-container" class="card" style="display: none;">
-      <h3>Pre-Week Pick Submissions</h3>
-      <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;">
-        Status of submitted picks for the upcoming week.
-      </p>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+        <h3 style="margin-bottom: 0;">Pre-Week Pick Submissions</h3>
+        <div id="lock-time-badge" style="background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;">
+          🔒 Picks Lock: <span id="lock-time-value">--</span>
+        </div>
+      </div>
+
       <div class="matrix-wrapper">
         <table id="submission-tracker-table">
           <thead>
             <tr>
               <th>Player</th>
-              <th class="text-center">Picks Status</th>
-              <th class="text-center">Tiebreaker Prediction</th>
+              <th class="text-center">Status</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -477,8 +482,24 @@
       "NFC West": ["ARI", "LA", "SF", "SEA"]
     };
 
+    // Helper: Formats ISO timestamp ("2026-08-27T23:00Z") to readable localized text
+    function formatGameTime(isoString) {
+      if (!isoString) return '';
+      const date = new Date(isoString);
+      if (isNaN(date.getTime())) return isoString; // fallback if already formatted string
+
+      return date.toLocaleString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    }
+
     function getTeamLogoHtml(abbr, showText = true) {
-      if (!abbr || abbr === '—' || abbr === 'N/A') return abbr || '—';
+      if (!abbr || abbr === '—' || abbr === '-' || abbr === 'N/A') return abbr || '—';
 
       let cleanAbbr = abbr.trim().toUpperCase();
       const ALIASES = { "LAR": "LA", "WSH": "WAS" };
@@ -627,7 +648,7 @@
             }
 
             Object.entries(m.picks || {}).forEach(([p, rawPick]) => {
-              if (computedStats[p] && rawPick && rawPick !== '—') {
+              if (computedStats[p] && rawPick && rawPick !== '—' && rawPick !== '-') {
                 const pick = rawPick.trim().toUpperCase();
                 
                 if (!computedStats[p].teamStats[pick]) {
@@ -641,7 +662,7 @@
                 poolTeamStats[pick].picked++;
 
                 if (winnerClean === 'TIE') {
-                  // Do not increment correct or incorrect stats for ties
+                  // Do not increment stats for ties
                 } else if (pick === winnerClean) {
                   computedStats[p].correct++;
                   computedStats[p].weeklyHistory[weekKey].correct++;
@@ -841,7 +862,6 @@
 
       const matchups = weekData.matchups || [];
       
-      // Determine if the week has started (any game winner exists or status is in-progress/final)
       const isWeekStarted = matchups.some(m => 
         m.winner || (m.status && !['Scheduled', 'Pre-Game'].includes(m.status))
       );
@@ -861,41 +881,49 @@
     }
 
     function renderSubmissionTracker(weekData) {
+      const lockTimeElem = document.getElementById('lock-time-value');
+      
+      // Compute lock time: Use weekData.lockTime or find earliest matchup date
+      let earliestDate = weekData.lockTime || null;
+      if (!earliestDate && weekData.matchups?.length > 0) {
+        const dates = weekData.matchups.map(m => m.date).filter(Boolean);
+        if (dates.length > 0) {
+          dates.sort();
+          earliestDate = dates[0];
+        }
+      }
+
+      lockTimeElem.innerText = earliestDate ? formatGameTime(earliestDate) : "At Kickoff of First Game";
+
       const tbody = document.querySelector('#submission-tracker-table tbody');
       const totalMatchups = weekData.matchups?.length || 0;
 
       tbody.innerHTML = (poolData.players || []).map(player => {
         let submittedCount = 0;
+
         (weekData.matchups || []).forEach(m => {
-          if (m.picks?.[player] && m.picks[player] !== '—') {
+          const pick = m.picks?.[player];
+          if (pick && pick !== '—' && pick !== '-' && pick.trim() !== '') {
             submittedCount++;
           }
         });
 
         const isComplete = totalMatchups > 0 && submittedCount === totalMatchups;
         const isPartial = submittedCount > 0 && submittedCount < totalMatchups;
-        
-        const tbVal = weekData.tiebreaker?.picks?.[player]?.predictedTotal;
-        const hasTb = typeof tbVal === 'number' || (tbVal && tbVal !== '—');
 
         let statusBadge = '';
         if (isComplete) {
-          statusBadge = `<span style="color: var(--success); font-weight: bold;">✔ Submitted (${submittedCount}/${totalMatchups})</span>`;
+          statusBadge = `<span style="color: var(--success); font-weight: bold;">✔ Complete (${submittedCount}/${totalMatchups})</span>`;
         } else if (isPartial) {
           statusBadge = `<span style="color: var(--warning); font-weight: bold;">⚠️ Incomplete (${submittedCount}/${totalMatchups})</span>`;
         } else {
           statusBadge = `<span style="color: var(--danger); font-weight: bold;">❌ Pending</span>`;
         }
 
-        let tbDisplay = hasTb 
-          ? `<span style="color: var(--success); font-weight: bold;">✔ (${tbVal} pts)</span>` 
-          : `<span style="color: var(--danger);">❌ Pending</span>`;
-
         return `
           <tr>
             <td><strong>${player}</strong></td>
             <td class="text-center">${statusBadge}</td>
-            <td class="text-center">${tbDisplay}</td>
           </tr>
         `;
       }).join('');
@@ -993,9 +1021,14 @@
           `;
         }
 
+        const timeSubtitle = m.date ? `<span class="game-time">${formatGameTime(m.date)}</span>` : '';
+
         return `
           <tr>
-            <td><strong>${formattedGame}</strong></td>
+            <td>
+              <span class="game-title">${formattedGame}</span>
+              ${timeSubtitle}
+            </td>
             <td class="text-center"><span class="badge-status">${m.status}</span></td>
             ${selectedMatrixPlayers.map(p => {
               const pick = m.picks?.[p] || '—';
@@ -1009,7 +1042,7 @@
                 }
               }
               
-              const pickDisplay = (pick !== '—') ? getTeamLogoHtml(pick, false) : '—';
+              const pickDisplay = (pick !== '—' && pick !== '-') ? getTeamLogoHtml(pick, false) : '—';
               return `<td class="${cssClass} text-center">${pickDisplay}</td>`;
             }).join('')}
           </tr>

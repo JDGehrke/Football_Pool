@@ -265,6 +265,7 @@ for game in picks_by_game:
     
     game.update(
         {'game': games_list[gid].get('label')
+         ,'date' : games_list[gid].get('date')
          ,'winner': games_list[gid].get('winner')
          ,'status': games_list[gid].get('status')
          })
@@ -293,8 +294,9 @@ tiebreaker = {
     }
     
 #FINAL WEEK DICTIONARY
-week_json = {'matchups':picks_by_game
-             ,'tiebreaker':tiebreaker}
+week_json = {'lockTime': games_list[picks_by_game[0]['id']]['date']
+             ,'matchups': picks_by_game
+             ,'tiebreaker': tiebreaker}
 
 # =============================================================================
 # UPDATE JSON
