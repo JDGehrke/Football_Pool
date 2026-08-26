@@ -551,7 +551,6 @@
       "NFC West": ["ARI", "LA", "SF", "SEA"]
     };
 
-    // Helper: Formats ISO timestamp ("2026-08-27T23:00Z") to readable localized text
     function formatGameTime(isoString) {
       if (!isoString) return '';
       const date = new Date(isoString);
@@ -1127,8 +1126,6 @@
       }).join('');
     }
 
-    // --- HELPER FUNCTIONS FOR PLAYER PROFILES ---
-
     function getPlayerGraphData(playerId) {
       const labels = [];
       const winPercentages = [];
@@ -1443,6 +1440,8 @@
           let outcomeClass = 'pick-pending';
           
           if (isFinal && winner) {
+            const playerPickedWinner = (pick === winner);
+
             if (winner === 'TIE') {
               outcomeTag = 'Tie';
               outcomeClass = 'pick-tie';
@@ -1450,20 +1449,19 @@
               else unpickedTies++;
             } else if (winner === team) {
               outcomeTag = `W vs ${opponent}`;
-              outcomeClass = 'pick-correct';
+              outcomeClass = playerPickedWinner ? 'pick-correct' : 'pick-incorrect';
               if (pickedTarget) pickedWins++;
               else unpickedWins++;
             } else {
               outcomeTag = `L vs ${opponent}`;
-              outcomeClass = 'pick-incorrect';
+              outcomeClass = playerPickedWinner ? 'pick-correct' : 'pick-incorrect';
               if (pickedTarget) pickedLosses++;
               else unpickedLosses++;
             }
           }
 
           logRows.push({
-            week: weekKey,
-            opponent: opponent,
+            matchupText: `Week ${weekKey} vs ${getTeamLogoHtml(opponent)}`,
             pickedTarget: pickedTarget,
             pickText: pick ? getTeamLogoHtml(pick, false) : '—',
             outcomeTag: outcomeTag,
@@ -1472,21 +1470,19 @@
         });
       });
 
-      const calcRecordStr = (w, l, t) => {
-        const total = w + l + t;
-        const pct = total > 0 ? ((w + 0.5 * t) / total * 100).toFixed(1) + '%' : '0.0%';
-        return `<strong>${w}-${l}${t > 0 ? `-${t}` : ''}</strong> (${pct})`;
+      const formatRecordStr = (w, l, t) => {
+        return `<strong>${w}-${l}${t > 0 ? `-${t}` : ''}</strong>`;
       };
 
       modalBody.innerHTML = `
         <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 20px;">
           <div class="kpi-card" style="padding: 10px;">
-            <div class="kpi-val" style="font-size: 1.2rem;">${calcRecordStr(pickedWins, pickedLosses, pickedTies)}</div>
+            <div class="kpi-val" style="font-size: 1.3rem;">${formatRecordStr(pickedWins, pickedLosses, pickedTies)}</div>
             <div class="kpi-label">When Picked</div>
           </div>
           <div class="kpi-card" style="padding: 10px;">
-            <div class="kpi-val" style="font-size: 1.2rem;">${calcRecordStr(unpickedWins, unpickedLosses, unpickedTies)}</div>
-            <div class="kpi-label">When Not Picked</div>
+            <div class="kpi-val" style="font-size: 1.3rem;">${formatRecordStr(unpickedWins, unpickedLosses, unpickedTies)}</div>
+            <div class="kpi-label">When Fade / Not Picked</div>
           </div>
         </div>
 
@@ -1494,7 +1490,6 @@
           <table>
             <thead>
               <tr>
-                <th>Week</th>
                 <th>Matchup</th>
                 <th class="text-center">Your Pick</th>
                 <th class="text-center">Outcome</th>
@@ -1503,12 +1498,11 @@
             <tbody>
               ${logRows.length > 0 ? logRows.map(r => `
                 <tr>
-                  <td><strong>${r.week}</strong></td>
-                  <td>vs ${getTeamLogoHtml(r.opponent,false)}</td>
+                  <td><strong>${r.matchupText}</strong></td>
                   <td class="text-center">${r.pickText}</td>
                   <td class="text-center ${r.outcomeClass}">${r.outcomeTag}</td>
                 </tr>
-              `).join('') : `<tr><td colspan="4" style="text-align:center;">No completed games for this team yet.</td></tr>`}
+              `).join('') : `<tr><td colspan="3" style="text-align:center;">No completed games for this team yet.</td></tr>`}
             </tbody>
           </table>
         </div>
