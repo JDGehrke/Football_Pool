@@ -1461,7 +1461,7 @@
           }
 
           logRows.push({
-            matchupText: `Week ${weekKey} vs ${getTeamLogoHtml(opponent)}`,
+            matchupText: `${weekKey} vs ${getTeamLogoHtml(opponent,false)}`,
             pickedTarget: pickedTarget,
             pickText: pick ? getTeamLogoHtml(pick, false) : '—',
             outcomeTag: outcomeTag,
@@ -1482,7 +1482,7 @@
           </div>
           <div class="kpi-card" style="padding: 10px;">
             <div class="kpi-val" style="font-size: 1.3rem;">${formatRecordStr(unpickedWins, unpickedLosses, unpickedTies)}</div>
-            <div class="kpi-label">When Fade / Not Picked</div>
+            <div class="kpi-label">When Not Picked</div>
           </div>
         </div>
 
@@ -1490,7 +1490,7 @@
           <table>
             <thead>
               <tr>
-                <th>Matchup</th>
+                <th class="text-center">Matchup</th>
                 <th class="text-center">Your Pick</th>
                 <th class="text-center">Outcome</th>
               </tr>
