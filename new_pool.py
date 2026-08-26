@@ -272,11 +272,18 @@ for game in picks_by_game:
 #BUILD TIEBREAKER WITH FINAL GAME
 tiebreaker_picks = {}
 for p in players: 
-    tiebreaker_picks.update({p: {
-                                 'winner': game['picks'][p]
-                                 ,'predictedTotal': int(tiebreaker_scores[p])
-                                 }
-                             })
+    if tiebreaker_scores[p] == '—':
+        tiebreaker_picks.update({p: {
+                                     'winner': game['picks'][p]
+                                     ,'predictedTotal': tiebreaker_scores[p]
+                                     }
+                                 })
+    else:
+        tiebreaker_picks.update({p: {
+                                     'winner': game['picks'][p]
+                                     ,'predictedTotal': int(tiebreaker_scores[p])
+                                     }
+                                 })
 tiebreaker = {
                 'game': game.get('game')
                 ,'status': game.get('status')

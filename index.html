@@ -147,45 +147,42 @@
 
     .badge-status { background: #f1f5f9; color: var(--text-muted); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
 
-
     /* WRAPPING BEHAVIOR FOR MATRIX GAMES ON MOBILE */
-    /* Desktop View */
-.g-desk { display: inline-block; white-space: nowrap; }
-.g-mob  { display: none; }
+    .g-desk { display: inline-block; white-space: nowrap; }
+    .g-mob  { display: none; }
 
-/* Mobile View: Forces absolute 3-line stack */
-@media (max-width: 600px) {
-  .g-desk { 
-    display: none !important; 
-  }
-  
-  .g-mob { 
-    display: flex !important; 
-    flex-direction: column !important; 
-    align-items: center !important; 
-    line-height: 1.1 !important;
-    font-size: 0.75rem !important;
-  }
-  
-  .g-mob span { 
-    display: block !important; 
-    width: 100% !important; 
-    text-align: center !important; 
-  }
-  
-  .g-mob .g-sep { 
-    color: #94a3b8; 
-    font-size: 0.65rem !important; 
-    margin: 1px 0 !important; 
-  }
-  
-  #matrix-table td:first-child,
-  #matrix-table th:first-child {
-    white-space: normal !important;
-    text-align: center !important;
-    padding: 4px 2px !important;
-  }
-}
+    @media (max-width: 600px) {
+      .g-desk { 
+        display: none !important; 
+      }
+      
+      .g-mob { 
+        display: flex !important; 
+        flex-direction: column !important; 
+        align-items: center !important; 
+        line-height: 1.1 !important;
+        font-size: 0.75rem !important;
+      }
+      
+      .g-mob span { 
+        display: block !important; 
+        width: 100% !important; 
+        text-align: center !important; 
+      }
+      
+      .g-mob .g-sep { 
+        color: #94a3b8; 
+        font-size: 0.65rem !important; 
+        margin: 1px 0 !important; 
+      }
+      
+      #matrix-table td:first-child,
+      #matrix-table th:first-child {
+        white-space: normal !important;
+        text-align: center !important;
+        padding: 4px 2px !important;
+      }
+    }
 
     /* --- CROWN STYLING --- */
     .crown-tentative { opacity: 0.35; filter: grayscale(100%); margin-right: 6px; cursor: help; }
@@ -354,17 +351,19 @@
       <select id="week-select" onchange="renderWeeklyTab()"></select>
     </div>
 
-    <!-- WEEK TRACKER -->
-    <div class="card">
-      <h3>Week Tracker</h3>
+    <!-- PRE-WEEK SUBMISSION TRACKER -->
+    <div id="pre-week-container" class="card" style="display: none;">
+      <h3>Pre-Week Pick Submissions</h3>
+      <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 0.9rem;">
+        Status of submitted picks for the upcoming week.
+      </p>
       <div class="matrix-wrapper">
-        <table id="week-tracker-table">
+        <table id="submission-tracker-table">
           <thead>
             <tr>
               <th>Player</th>
-              <th class="text-center">Picks</th>
-              <th class="text-center">Score</th>
-              <th class="text-center">Diff</th>
+              <th class="text-center">Picks Status</th>
+              <th class="text-center">Tiebreaker Prediction</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -372,23 +371,43 @@
       </div>
     </div>
 
-    <!-- MATCHUP MATRIX -->
-    <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-        <h3 style="margin-bottom: 0;">Matchup Matrix</h3>
-        
-        <!-- MULTI-SELECT DROPDOWN FOR MATCHUP MATRIX -->
-        <div id="matrix-player-dropdown" class="dropdown-check-list" tabindex="100">
-          <span class="anchor" onclick="toggleMatrixDropdown()">Filter Players</span>
-          <ul class="items" id="matrix-player-options"></ul>
+    <!-- ACTIVE / POST-WEEK VISUALS -->
+    <div id="active-week-container">
+      <!-- WEEK TRACKER -->
+      <div class="card">
+        <h3>Week Tracker</h3>
+        <div class="matrix-wrapper">
+          <table id="week-tracker-table">
+            <thead>
+              <tr>
+                <th>Player</th>
+                <th class="text-center">Picks</th>
+                <th class="text-center">Score</th>
+                <th class="text-center">Diff</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
 
-      <div class="matrix-wrapper">
-        <table id="matrix-table">
-          <thead></thead>
-          <tbody></tbody>
-        </table>
+      <!-- MATCHUP MATRIX -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+          <h3 style="margin-bottom: 0;">Matchup Matrix</h3>
+          
+          <div id="matrix-player-dropdown" class="dropdown-check-list" tabindex="100">
+            <span class="anchor" onclick="toggleMatrixDropdown()">Filter Players</span>
+            <ul class="items" id="matrix-player-options"></ul>
+          </div>
+        </div>
+
+        <div class="matrix-wrapper">
+          <table id="matrix-table">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -459,19 +478,19 @@
     };
 
     function getTeamLogoHtml(abbr, showText = true) {
-  if (!abbr || abbr === '—' || abbr === 'N/A') return abbr || '—';
+      if (!abbr || abbr === '—' || abbr === 'N/A') return abbr || '—';
 
-  let cleanAbbr = abbr.trim().toUpperCase();
-  const ALIASES = { "LAR": "LA", "WSH": "WAS" };
+      let cleanAbbr = abbr.trim().toUpperCase();
+      const ALIASES = { "LAR": "LA", "WSH": "WAS" };
 
-  if (ALIASES[cleanAbbr]) {
-    cleanAbbr = ALIASES[cleanAbbr];
-  }
+      if (ALIASES[cleanAbbr]) {
+        cleanAbbr = ALIASES[cleanAbbr];
+      }
 
-  const logoImg = `<img src="./logos/${cleanAbbr}.png" alt="${abbr}" class="team-logo-icon" onerror="this.style.display='none'">`;
-  
-  return showText ? `${logoImg} ${abbr}` : logoImg;
-}
+      const logoImg = `<img src="./logos/${cleanAbbr}.png" alt="${abbr}" class="team-logo-icon" onerror="this.style.display='none'">`;
+      
+      return showText ? `${logoImg} ${abbr}` : logoImg;
+    }
 
     async function initDashboard() {
       try {
@@ -705,7 +724,6 @@
       });
 
       const leaderWins = computedStats[sorted[0]]?.correct || 0;
-      const leaderLosses = computedStats[sorted[0]]?.incorrect || 0;
 
       const playerRanks = {};
       let currentRank = 1;
@@ -722,7 +740,7 @@
         const isTied = winCounts[wins] > 1;
         const rankStr = isTied ? `T-${currentRank}` : `#${currentRank}`;
 
-        const gbVal = Math.round(((leaderWins - wins) + (losses - leaderLosses)) / 2);
+        const gbVal = leaderWins - wins;
         const gb = (wins === leaderWins) ? '-' : gbVal;
 
         playerRanks[p] = {
@@ -817,132 +835,187 @@
     }
 
     function renderWeeklyTab() {
-  const week = document.getElementById('week-select').value;
-  const weekData = poolData.weeks[week];
-  if (!weekData) return;
+      const week = document.getElementById('week-select').value;
+      const weekData = poolData.weeks[week];
+      if (!weekData) return;
 
-  const matchups = weekData.matchups || [];
-  const isWeekComplete = matchups.length > 0 && matchups.every(m => m.status === 'Final');
+      const matchups = weekData.matchups || [];
+      
+      // Determine if the week has started (any game winner exists or status is in-progress/final)
+      const isWeekStarted = matchups.some(m => 
+        m.winner || (m.status && !['Scheduled', 'Pre-Game'].includes(m.status))
+      );
 
-  const sortedPlayers = [...poolData.players].sort((a, b) => {
-    const aHist = computedStats[a]?.weeklyHistory[week] || { correct: 0, diff: null };
-    const bHist = computedStats[b]?.weeklyHistory[week] || { correct: 0, diff: null };
+      const preWeekContainer = document.getElementById('pre-week-container');
+      const activeWeekContainer = document.getElementById('active-week-container');
 
-    if (bHist.correct !== aHist.correct) {
-      return bHist.correct - aHist.correct;
-    }
-
-    const aDiff = aHist.diff ?? Infinity;
-    const bDiff = bHist.diff ?? Infinity;
-    return aDiff - bDiff;
-  });
-
-  const maxWins = sortedPlayers.length > 0 ? (computedStats[sortedPlayers[0]]?.weeklyHistory[week]?.correct || 0) : 0;
-  
-  // Count how many players share the top win score
-  const topScorersCount = sortedPlayers.filter(
-    p => (computedStats[p]?.weeklyHistory[week]?.correct || 0) === maxWins
-  ).length;
-
-  const trackerBody = document.querySelector('#week-tracker-table tbody');
-  trackerBody.innerHTML = sortedPlayers.map((p, idx) => {
-    const wHist = computedStats[p]?.weeklyHistory[week] || { correct: 0, incorrect: 0, diff: null };
-    const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal ?? 'N/A';
-    const diffStr = wHist.diff !== null ? `${wHist.diff} pts` : '-';
-
-    let crownBadge = '';
-    if (wHist.correct > 0 && wHist.correct === maxWins && idx === 0) {
-      if (isWeekComplete) {
-        // Official winner once all games are Final
-        crownBadge = `<span class="crown-solid" title="Official Weekly Winner">👑</span>`;
-      } else if (topScorersCount === 1) {
-        // Only show tentative crown mid-week if the player leads outright
-        crownBadge = `<span class="crown-tentative" title="Tentative Weekly Leader">👑</span>`;
+      if (!isWeekStarted) {
+        preWeekContainer.style.display = 'block';
+        activeWeekContainer.style.display = 'none';
+        renderSubmissionTracker(weekData);
+      } else {
+        preWeekContainer.style.display = 'none';
+        activeWeekContainer.style.display = 'block';
+        renderActiveWeekVisuals(week, weekData, matchups);
       }
     }
 
-    return `
-      <tr>
-        <td>${crownBadge}<strong>${p}</strong></td>
-        <td class="text-center"><strong><span class="text-success">${wHist.correct}</span> - <span class="text-danger">${wHist.incorrect}</span></strong></td>
-        <td class="text-center">${pred}</td>
-        <td class="text-center">${diffStr}</td>
-      </tr>
-    `;
-  }).join('');
+    function renderSubmissionTracker(weekData) {
+      const tbody = document.querySelector('#submission-tracker-table tbody');
+      const totalMatchups = weekData.matchups?.length || 0;
 
-  renderMatrixOnly();
-}
-
-
-function renderMatrixOnly() {
-  const week = document.getElementById('week-select').value;
-  const weekData = poolData.weeks[week];
-  if (!weekData) return;
-
-  const matrixHead = document.querySelector('#matrix-table thead');
-  matrixHead.innerHTML = `
-    <tr>
-      <th class="text-center">Game</th>
-      <th class="text-center">Status</th>
-      ${selectedMatrixPlayers.map(p => `<th class="text-center">${p}</th>`).join('')}
-    </tr>
-  `;
-
-  const matrixBody = document.querySelector('#matrix-table tbody');
-  
-  if (selectedMatrixPlayers.length === 0) {
-    matrixBody.innerHTML = `<tr><td colspan="2" style="text-align:center;">No players selected. Use the filter dropdown to select players.</td></tr>`;
-    return;
-  }
-
-  matrixBody.innerHTML = (weekData.matchups || []).map(m => {
-    const winner = m.winner ? m.winner.trim().toUpperCase() : null;
- 
-let formattedGame = m.game || '';
-const parts = formattedGame.split(/\s*(@|vs|\bAT\b|-|–)\s*/i);
-
-if (parts.length >= 3) {
-  const away = parts[0].trim();
-  const sep = parts[1].trim();
-  const home = parts[2].trim();
-
-  // Simple, forced HTML structure
-  formattedGame = `
-    <span class="g-desk">${away} ${sep} ${home}</span>
-    <span class="g-mob">
-      <span>${away}</span>
-      <span class="g-sep">${sep}</span>
-      <span>${home}</span>
-    </span>
-  `;
-}
-
-    return `
-      <tr>
-        <td><strong>${formattedGame}</strong></td>
-        <td class="text-center"><span class="badge-status">${m.status}</span></td>
-        ${selectedMatrixPlayers.map(p => {
-          const pick = m.picks?.[p] || '—';
-          let cssClass = 'pick-pending';
-          
-          if (winner) {
-            if (winner === 'TIE') {
-              cssClass = 'pick-tie';
-            } else {
-              cssClass = (pick === winner) ? 'pick-correct' : 'pick-incorrect';
-            }
+      tbody.innerHTML = (poolData.players || []).map(player => {
+        let submittedCount = 0;
+        (weekData.matchups || []).forEach(m => {
+          if (m.picks?.[player] && m.picks[player] !== '—') {
+            submittedCount++;
           }
-          
-          // Passing false outputs only the logo image
-          const pickDisplay = (pick !== '—') ? getTeamLogoHtml(pick, false) : '—';
-          return `<td class="${cssClass} text-center">${pickDisplay}</td>`;
-        }).join('')}
-      </tr>
-    `;
-  }).join('');
-}
+        });
 
+        const isComplete = totalMatchups > 0 && submittedCount === totalMatchups;
+        const isPartial = submittedCount > 0 && submittedCount < totalMatchups;
+        
+        const tbVal = weekData.tiebreaker?.picks?.[player]?.predictedTotal;
+        const hasTb = typeof tbVal === 'number' || (tbVal && tbVal !== '—');
+
+        let statusBadge = '';
+        if (isComplete) {
+          statusBadge = `<span style="color: var(--success); font-weight: bold;">✔ Submitted (${submittedCount}/${totalMatchups})</span>`;
+        } else if (isPartial) {
+          statusBadge = `<span style="color: var(--warning); font-weight: bold;">⚠️ Incomplete (${submittedCount}/${totalMatchups})</span>`;
+        } else {
+          statusBadge = `<span style="color: var(--danger); font-weight: bold;">❌ Pending</span>`;
+        }
+
+        let tbDisplay = hasTb 
+          ? `<span style="color: var(--success); font-weight: bold;">✔ (${tbVal} pts)</span>` 
+          : `<span style="color: var(--danger);">❌ Pending</span>`;
+
+        return `
+          <tr>
+            <td><strong>${player}</strong></td>
+            <td class="text-center">${statusBadge}</td>
+            <td class="text-center">${tbDisplay}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderActiveWeekVisuals(week, weekData, matchups) {
+      const isWeekComplete = matchups.length > 0 && matchups.every(m => m.status === 'Final');
+
+      const sortedPlayers = [...poolData.players].sort((a, b) => {
+        const aHist = computedStats[a]?.weeklyHistory[week] || { correct: 0, diff: null };
+        const bHist = computedStats[b]?.weeklyHistory[week] || { correct: 0, diff: null };
+
+        if (bHist.correct !== aHist.correct) {
+          return bHist.correct - aHist.correct;
+        }
+
+        const aDiff = aHist.diff ?? Infinity;
+        const bDiff = bHist.diff ?? Infinity;
+        return aDiff - bDiff;
+      });
+
+      const maxWins = sortedPlayers.length > 0 ? (computedStats[sortedPlayers[0]]?.weeklyHistory[week]?.correct || 0) : 0;
+      
+      const topScorersCount = sortedPlayers.filter(
+        p => (computedStats[p]?.weeklyHistory[week]?.correct || 0) === maxWins
+      ).length;
+
+      const trackerBody = document.querySelector('#week-tracker-table tbody');
+      trackerBody.innerHTML = sortedPlayers.map((p, idx) => {
+        const wHist = computedStats[p]?.weeklyHistory[week] || { correct: 0, incorrect: 0, diff: null };
+        const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal ?? 'N/A';
+        const diffStr = wHist.diff !== null ? `${wHist.diff} pts` : '-';
+
+        let crownBadge = '';
+        if (wHist.correct > 0 && wHist.correct === maxWins && idx === 0) {
+          if (isWeekComplete) {
+            crownBadge = `<span class="crown-solid" title="Official Weekly Winner">👑</span>`;
+          } else if (topScorersCount === 1) {
+            crownBadge = `<span class="crown-tentative" title="Tentative Weekly Leader">👑</span>`;
+          }
+        }
+
+        return `
+          <tr>
+            <td>${crownBadge}<strong>${p}</strong></td>
+            <td class="text-center"><strong><span class="text-success">${wHist.correct}</span> - <span class="text-danger">${wHist.incorrect}</span></strong></td>
+            <td class="text-center">${pred}</td>
+            <td class="text-center">${diffStr}</td>
+          </tr>
+        `;
+      }).join('');
+
+      renderMatrixOnly();
+    }
+
+    function renderMatrixOnly() {
+      const week = document.getElementById('week-select').value;
+      const weekData = poolData.weeks[week];
+      if (!weekData) return;
+
+      const matrixHead = document.querySelector('#matrix-table thead');
+      matrixHead.innerHTML = `
+        <tr>
+          <th class="text-center">Game</th>
+          <th class="text-center">Status</th>
+          ${selectedMatrixPlayers.map(p => `<th class="text-center">${p}</th>`).join('')}
+        </tr>
+      `;
+
+      const matrixBody = document.querySelector('#matrix-table tbody');
+      
+      if (selectedMatrixPlayers.length === 0) {
+        matrixBody.innerHTML = `<tr><td colspan="2" style="text-align:center;">No players selected. Use the filter dropdown to select players.</td></tr>`;
+        return;
+      }
+
+      matrixBody.innerHTML = (weekData.matchups || []).map(m => {
+        const winner = m.winner ? m.winner.trim().toUpperCase() : null;
+     
+        let formattedGame = m.game || '';
+        const parts = formattedGame.split(/\s*(@|vs|\bAT\b|-|–)\s*/i);
+
+        if (parts.length >= 3) {
+          const away = parts[0].trim();
+          const sep = parts[1].trim();
+          const home = parts[2].trim();
+
+          formattedGame = `
+            <span class="g-desk">${away} ${sep} ${home}</span>
+            <span class="g-mob">
+              <span>${away}</span>
+              <span class="g-sep">${sep}</span>
+              <span>${home}</span>
+            </span>
+          `;
+        }
+
+        return `
+          <tr>
+            <td><strong>${formattedGame}</strong></td>
+            <td class="text-center"><span class="badge-status">${m.status}</span></td>
+            ${selectedMatrixPlayers.map(p => {
+              const pick = m.picks?.[p] || '—';
+              let cssClass = 'pick-pending';
+              
+              if (winner) {
+                if (winner === 'TIE') {
+                  cssClass = 'pick-tie';
+                } else {
+                  cssClass = (pick === winner) ? 'pick-correct' : 'pick-incorrect';
+                }
+              }
+              
+              const pickDisplay = (pick !== '—') ? getTeamLogoHtml(pick, false) : '—';
+              return `<td class="${cssClass} text-center">${pickDisplay}</td>`;
+            }).join('')}
+          </tr>
+        `;
+      }).join('');
+    }
 
     function renderPlayerProfile() {
       const player = document.getElementById('player-select').value;
@@ -1050,25 +1123,20 @@ if (parts.length >= 3) {
         const totalMatchups = stat.totalMatchups || 0;
         const timesPicked = stat.picked || 0;
         
-        // Player Pick %
         const playerPickPctNum = totalMatchups > 0 ? (timesPicked / totalMatchups) * 100 : 0;
         const playerPickPctStr = playerPickPctNum.toFixed(1);
         
-        // Pool Pick %
         const poolStat = poolTeamStats[team] || { totalMatchups: 0, picked: 0, correct: 0 };
         const totalPoolPossiblePicks = poolStat.totalMatchups * totalPoolPlayers;
         const poolPickPctNum = totalPoolPossiblePicks > 0 ? (poolStat.picked / totalPoolPossiblePicks) * 100 : 0;
         const poolPickPctStr = poolPickPctNum.toFixed(1);
 
-        // Player Accuracy %
         const playerAccNum = timesPicked > 0 ? (stat.correct / timesPicked) * 100 : 0;
         const playerAccStr = playerAccNum.toFixed(1);
 
-        // Pool Accuracy %
         const poolAccNum = poolStat.picked > 0 ? (poolStat.correct / poolStat.picked) * 100 : 0;
         const poolAccStr = poolAccNum.toFixed(1);
 
-        // Conditional formatting evaluation
         const pickPctClass = playerPickPctNum > poolPickPctNum ? 'stat-outperform' : '';
         const accClass = (timesPicked > 0 && playerAccNum > poolAccNum) ? 'stat-outperform' : '';
 
