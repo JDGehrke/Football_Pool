@@ -156,7 +156,7 @@
           "id": "401873277",
           "picks": {
             "BRANDON": "MIA",
-            "AUSTIN": "WAS",
+            "AUSTIN": "WSH",
             "JORDAN": "MIA",
             "MOM": "MIA"
           },
@@ -340,9 +340,9 @@
         {
           "id": "401873601",
           "picks": {
-            "JORDAN": "WAS",
+            "JORDAN": "WSH",
             "BRANDON": "DET",
-            "AUSTIN": "WAS",
+            "AUSTIN": "WSH",
             "MOM": "\u2014"
           },
           "game": "WSH @ DET",
@@ -553,8 +553,8 @@
         {
           "id": "401873302",
           "picks": {
-            "BRANDON": "WAS",
-            "MOM": "WAS",
+            "BRANDON": "WSH",
+            "MOM": "WSH",
             "JORDAN": "BAL",
             "AUSTIN": "\u2014"
           },
