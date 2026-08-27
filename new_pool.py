@@ -64,7 +64,7 @@ TEAM_MAP = {
     "Seahawks": "SEA",
     "Buccaneers": "TB",
     "Titans": "TEN",
-    "Commanders": "WAS"
+    "Commanders": "WSH"
 }
 
 # =============================================================================
