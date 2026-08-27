@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Wednesday @ 8:30pm",
+    "lastUpdated": "Thursday @ 10:05am",
     "currentWeek": "Week 4"
   },
   "players": [
@@ -501,10 +501,10 @@
         {
           "id": "401873298",
           "picks": {
+            "BRANDON": "BUF",
+            "MOM": "BUF",
             "JORDAN": "BUF",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "PIT @ BUF",
           "date": "2026-08-27T23:00Z",
@@ -514,10 +514,10 @@
         {
           "id": "401873299",
           "picks": {
+            "BRANDON": "NE",
+            "MOM": "NE",
             "JORDAN": "NE",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "NE @ CLE",
           "date": "2026-08-28T00:00Z",
@@ -527,10 +527,10 @@
         {
           "id": "401873641",
           "picks": {
+            "BRANDON": "SF",
+            "MOM": "SF",
             "JORDAN": "SF",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "SF @ LV",
           "date": "2026-08-28T00:00Z",
@@ -540,10 +540,10 @@
         {
           "id": "401873300",
           "picks": {
+            "BRANDON": "LAR",
+            "MOM": "LAR",
             "JORDAN": "LAC",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "LAR @ LAC",
           "date": "2026-08-28T02:00Z",
@@ -553,10 +553,10 @@
         {
           "id": "401873302",
           "picks": {
+            "BRANDON": "WAS",
+            "MOM": "WAS",
             "JORDAN": "BAL",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "WSH @ BAL",
           "date": "2026-08-28T22:00Z",
@@ -566,10 +566,10 @@
         {
           "id": "401873304",
           "picks": {
+            "BRANDON": "MIA",
+            "MOM": "ATL",
             "JORDAN": "ATL",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "ATL @ MIA",
           "date": "2026-08-28T23:00Z",
@@ -579,10 +579,10 @@
         {
           "id": "401873307",
           "picks": {
+            "BRANDON": "HOU",
+            "MOM": "HOU",
             "JORDAN": "CAR",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "HOU @ CAR",
           "date": "2026-08-28T23:00Z",
@@ -592,10 +592,10 @@
         {
           "id": "401873303",
           "picks": {
+            "BRANDON": "NYG",
+            "MOM": "NYG",
             "JORDAN": "NYJ",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "NYG @ NYJ",
           "date": "2026-08-28T23:30Z",
@@ -605,10 +605,10 @@
         {
           "id": "401873306",
           "picks": {
+            "BRANDON": "TB",
+            "MOM": "TB",
             "JORDAN": "TB",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "TB @ JAX",
           "date": "2026-08-28T23:30Z",
@@ -618,10 +618,10 @@
         {
           "id": "401874048",
           "picks": {
+            "BRANDON": "NO",
+            "MOM": "DAL",
             "JORDAN": "NO",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "NO @ DAL",
           "date": "2026-08-29T00:00Z",
@@ -631,10 +631,10 @@
         {
           "id": "401874102",
           "picks": {
+            "BRANDON": "ARI",
+            "MOM": "ARI",
             "JORDAN": "ARI",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "ARI @ GB",
           "date": "2026-08-29T00:00Z",
@@ -644,10 +644,10 @@
         {
           "id": "401873305",
           "picks": {
+            "BRANDON": "KC",
+            "MOM": "SEA",
             "JORDAN": "SEA",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "SEA @ KC",
           "date": "2026-08-29T00:00Z",
@@ -657,10 +657,10 @@
         {
           "id": "401873301",
           "picks": {
+            "BRANDON": "CIN",
+            "MOM": "CIN",
             "JORDAN": "CIN",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "CIN @ PHI",
           "date": "2026-08-29T00:00Z",
@@ -670,10 +670,10 @@
         {
           "id": "401873614",
           "picks": {
+            "BRANDON": "MIN",
+            "MOM": "DEN",
             "JORDAN": "MIN",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "MIN @ DEN",
           "date": "2026-08-29T01:00Z",
@@ -683,10 +683,10 @@
         {
           "id": "401873308",
           "picks": {
+            "BRANDON": "DET",
+            "MOM": "DET",
             "JORDAN": "DET",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "DET @ IND",
           "date": "2026-08-29T17:00Z",
@@ -696,10 +696,10 @@
         {
           "id": "401874394",
           "picks": {
+            "BRANDON": "TEN",
+            "MOM": "CHI",
             "JORDAN": "CHI",
-            "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
-            "MOM": "\u2014"
+            "AUSTIN": "\u2014"
           },
           "game": "CHI @ TEN",
           "date": "2026-08-29T22:00Z",
@@ -718,16 +718,16 @@
             "predictedTotal": "\u2014"
           },
           "BRANDON": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "TEN",
+            "predictedTotal": 25
           },
           "JORDAN": {
             "winner": "CHI",
             "predictedTotal": 20
           },
           "MOM": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "CHI",
+            "predictedTotal": 36
           }
         }
       }
