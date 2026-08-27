@@ -78,9 +78,17 @@ del file
 # GET PLAYER PICKS
 # =============================================================================
 if f'Week {current_week}' not in current_json['weeks'].keys():
-    new_week = True
     current_json['metadata']['currentWeek'] = f'Week {current_week}'
+    get_picks = True    
 
+elif dt.datetime.strptime(current_json['weeks'][f'Week {current_week}']['lockTime'], "%Y-%m-%dT%H:%MZ") > dt.datetime.now():
+    get_picks = True 
+    
+else: #After Locktime
+    get_picks = False
+    
+
+if get_picks == True:
     # =============================================================================
     # DOWNLOAD PICKS FROM GOOGLE SHEETS
     # =============================================================================
@@ -160,7 +168,7 @@ if f'Week {current_week}' not in current_json['weeks'].keys():
     picks.to_csv(f'{season}\Week {current_week}.csv',index=False)
     
 
-else: #Not a new week (already downloaded picks)    
+else: #Read locked picks from csv 
     picks = pd.read_csv(f'{season}\Week {current_week}.csv')
 
 # =============================================================================
