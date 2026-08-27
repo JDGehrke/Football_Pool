@@ -483,7 +483,7 @@
     <div id="player-kpi-banner" class="kpi-grid"></div>
 
     <div class="card">
-      <h3>Weekly Performance Trend (Win %)</h3>
+      <h3>Weekly Performance Trend</h3>
       <div id="player-trend-chart" class="scatter-chart-wrapper"></div>
     </div>
 
@@ -493,7 +493,7 @@
         <table id="team-accuracy-table">
           <thead>
             <tr>
-              <th>Team <span class="th-subtitle">(Click for details)</span></th>
+              <th>Team <span class="th-subtitle">(Click)</span></th>
               <th class="text-center">
                 Pick %
                 <span class="th-subtitle">(Pool %)</span>
@@ -1144,7 +1144,7 @@
         const isLocked = lockDate && (now >= lockDate);
 
         if (isLocked) {
-          labels.push(`Week ${weekNum}`);
+          labels.push(`${weekNum}`);
 
           const finishedMatchups = matchups.filter(m => 
             m.winner || m.status === 'STATUS_FINAL' || m.status === 'Final'
