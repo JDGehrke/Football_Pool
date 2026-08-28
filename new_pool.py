@@ -81,7 +81,7 @@ if f'Week {current_week}' not in current_json['weeks'].keys():
     current_json['metadata']['currentWeek'] = f'Week {current_week}'
     get_picks = True    
 
-elif dt.datetime.strptime(current_json['weeks'][f'Week {current_week}']['lockTime'], "%Y-%m-%dT%H:%MZ") > dt.datetime.now():
+elif dt.datetime.strptime(current_json['weeks'][f'Week {current_week}']['lockTime'], "%Y-%m-%dT%H:%MZ") < dt.datetime.now():
     get_picks = True 
     
 else: #After Locktime

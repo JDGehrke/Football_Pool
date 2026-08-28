@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Thursday @ 7:48pm",
+    "lastUpdated": "Thursday @ 9:52pm",
     "currentWeek": "Week 4"
   },
   "players": [
@@ -508,8 +508,8 @@
           },
           "game": "PIT @ BUF",
           "date": "2026-08-27T23:00Z",
-          "winner": null,
-          "status": "In Progress"
+          "winner": "BUF",
+          "status": "Final"
         },
         {
           "id": "401873299",
@@ -521,8 +521,8 @@
           },
           "game": "NE @ CLE",
           "date": "2026-08-28T00:00Z",
-          "winner": null,
-          "status": "In Progress"
+          "winner": "CLE",
+          "status": "Final"
         },
         {
           "id": "401873641",
@@ -548,7 +548,7 @@
           "game": "LAR @ LAC",
           "date": "2026-08-28T02:00Z",
           "winner": null,
-          "status": "Scheduled"
+          "status": "In Progress"
         },
         {
           "id": "401873302",
