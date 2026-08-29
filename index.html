@@ -457,17 +457,17 @@
 
     <!-- ACTIVE / POST-WEEK VISUALS -->
     <div id="active-week-container">
-      <!-- WEEK TRACKER -->
+      <!-- WEEK RESULTS -->
       <div class="card">
-        <h3>Week Tracker</h3>
+        <h3>Week Results</h3>
         <div class="matrix-wrapper">
           <table id="week-tracker-table">
             <thead>
               <tr>
                 <th>Player</th>
-                <th class="text-center">Picks</th>
+                <th class="text-center">W-L</th>
                 <th class="text-center">Score</th>
-                <th class="text-center">Diff</th>
+                <th class="text-center">+/-</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -506,17 +506,20 @@
     <div id="player-kpi-banner" class="kpi-grid"></div>
 
     <div class="card">
-      <h3>Weekly Performance Trend</h3>
+      <h3>Weekly Performance</h3>
       <div id="player-trend-chart" class="scatter-chart-wrapper"></div>
     </div>
 
     <div class="card">
-      <h3>Team Pick Accuracy Breakdown</h3>
+      <h3>Team Pick Accuracy</h3>
       <div class="matrix-wrapper">
         <table id="team-accuracy-table">
           <thead>
             <tr>
-              <th>Team <span class="th-subtitle">(Click)</span></th>
+              <th class="text-center">
+		Team 
+		<span class="th-subtitle">(Click)</span>
+	      </th>
               <th class="text-center">
                 Pick %
                 <span class="th-subtitle">(Pool %)</span>
@@ -571,7 +574,7 @@
       "NFC East": ["DAL", "NYG", "PHI", "WAS"],
       "NFC North": ["CHI", "DET", "GB", "MIN"],
       "NFC South": ["ATL", "CAR", "NO", "TB"],
-      "NFC West": ["ARI", "LA", "SF", "SEA"]
+      "NFC West": ["ARI", "LAR", "SF", "SEA"]
     };
 
     function formatGameTime(isoString) {
@@ -1065,7 +1068,7 @@
       trackerBody.innerHTML = sortedPlayers.map((p, idx) => {
         const wHist = computedStats[p]?.weeklyHistory[week] || { correct: 0, incorrect: 0, diff: null };
         const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal ?? 'N/A';
-        const diffStr = wHist.diff !== null ? `${wHist.diff} pts` : '-';
+        const diffStr = wHist.diff !== null ? `${wHist.diff}` : '-';
 
         let crownBadge = '';
         if (wHist.correct > 0 && wHist.correct === maxWins && idx === 0) {
