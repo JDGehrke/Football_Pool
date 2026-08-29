@@ -181,11 +181,11 @@
       }
     }
 
-    .badge-status { background: #f1f5f9; color: var(--text-muted); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; }
+    .badge-status { background: #f1f5f9; color: var(--text-muted); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; display: inline-block; }
 
     /* GAME CELL & TIME SUBTITLE */
     .game-title { font-weight: bold; display: block; }
-    .game-time { font-size: 0.75rem; color: var(--text-muted); font-weight: normal; display: block; margin-top: 2px; }
+    .game-time { font-size: 0.75rem; color: var(--text-muted); font-weight: normal; display: block; margin-top: 3px; white-space: nowrap; }
 
     /* WRAPPING BEHAVIOR FOR MATRIX GAMES ON MOBILE */
     .g-desk { display: inline-block; white-space: nowrap; }
@@ -587,6 +587,17 @@
         minute: '2-digit',
         hour12: true
       });
+    }
+
+    function formatShortGameTime(isoString) {
+      if (!isoString) return '';
+      const date = new Date(isoString);
+      if (isNaN(date.getTime())) return isoString;
+
+      const day = date.toLocaleDateString('en-US', { weekday: 'short' });
+      const time = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).toLowerCase().replace(':00', '').replace(' ', '');
+      
+      return `${day} ${time}`;
     }
 
     function getTeamLogoHtml(abbr, showText = true) {
@@ -1120,17 +1131,19 @@
           `;
         }
 
-        // Only show date/time subtitle for scheduled / pre-game matchups
+        // Only display short time under status when game is scheduled/pre-game
         const isScheduled = !m.winner && (!m.status || m.status === 'Scheduled' || m.status === 'Pre-Game');
-        const timeSubtitle = (m.date && isScheduled) ? `<span class="game-time">${formatGameTime(m.date)}</span>` : '';
+        const timeSubtitle = (m.date && isScheduled) ? `<span class="game-time">${formatShortGameTime(m.date)}</span>` : '';
 
         return `
           <tr>
             <td>
               <span class="game-title">${formattedGame}</span>
+            </td>
+            <td class="text-center">
+              <span class="badge-status">${m.status}</span>
               ${timeSubtitle}
             </td>
-            <td class="text-center"><span class="badge-status">${m.status}</span></td>
             ${selectedMatrixPlayers.map(p => {
               const pick = m.picks?.[p] || '—';
               let cssClass = 'pick-pending';

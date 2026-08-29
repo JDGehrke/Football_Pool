@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Friday @ 9:09pm",
+    "lastUpdated": "Friday @ 9:28pm",
     "currentWeek": "Week 4"
   },
   "players": [
@@ -600,7 +600,7 @@
           "game": "NYG @ NYJ",
           "date": "2026-08-28T23:30Z",
           "winner": null,
-          "status": "In Progress"
+          "status": "Live"
         },
         {
           "id": "401873306",
@@ -612,8 +612,8 @@
           },
           "game": "TB @ JAX",
           "date": "2026-08-28T23:30Z",
-          "winner": null,
-          "status": "In Progress"
+          "winner": "JAX",
+          "status": "Final"
         },
         {
           "id": "401874048",
@@ -626,7 +626,7 @@
           "game": "NO @ DAL",
           "date": "2026-08-29T00:00Z",
           "winner": null,
-          "status": "In Progress"
+          "status": "Live"
         },
         {
           "id": "401874102",
@@ -639,7 +639,7 @@
           "game": "ARI @ GB",
           "date": "2026-08-29T00:00Z",
           "winner": null,
-          "status": "In Progress"
+          "status": "Live"
         },
         {
           "id": "401873305",
@@ -652,7 +652,7 @@
           "game": "SEA @ KC",
           "date": "2026-08-29T00:00Z",
           "winner": null,
-          "status": "In Progress"
+          "status": "Live"
         },
         {
           "id": "401873301",
@@ -665,7 +665,7 @@
           "game": "CIN @ PHI",
           "date": "2026-08-29T00:00Z",
           "winner": null,
-          "status": "In Progress"
+          "status": "Live"
         },
         {
           "id": "401873614",
@@ -678,7 +678,7 @@
           "game": "MIN @ DEN",
           "date": "2026-08-29T01:00Z",
           "winner": null,
-          "status": "In Progress"
+          "status": "Live"
         },
         {
           "id": "401873308",

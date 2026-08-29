@@ -81,7 +81,7 @@ if f'Week {current_week}' not in current_json['weeks'].keys():
     current_json['metadata']['currentWeek'] = f'Week {current_week}'
     get_picks = True    
 
-elif dt.datetime.strptime(current_json['weeks'][f'Week {current_week}']['lockTime'], "%Y-%m-%dT%H:%MZ") < dt.datetime.now():
+elif dt.datetime.strptime(current_json['weeks'][f'Week {current_week}']['lockTime'], "%Y-%m-%dT%H:%MZ") > dt.datetime.now():
     get_picks = True 
     
 else: #After Locktime
@@ -225,6 +225,11 @@ for event in data.get("events", []):
 
     away = next(t for t in comp["competitors"] if t["homeAway"] == "away")
     home = next(t for t in comp["competitors"] if t["homeAway"] == "home")
+    
+    if comp['status']['type'].get("description") == 'In Progress':
+        status = 'Live'
+    else:
+        status = comp['status']['type'].get("description")
 
     if comp['status']['type'].get("description") != 'Final':
         winner = None
@@ -256,7 +261,8 @@ for event in data.get("events", []):
             "homeScore": home.get("score"),
             "homeWinner": home.get("winner"),
             
-            "status": comp['status']['type'].get("description"),
+            #"status": comp['status']['type'].get("description"),
+            "status": status,
             "period": comp['status'].get("period"),
             "clock": comp['status'].get("displayClock"),
             "totalScore": int(away.get("score")) + int(home.get("score")),
