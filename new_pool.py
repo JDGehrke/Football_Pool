@@ -227,7 +227,7 @@ for event in data.get("events", []):
     home = next(t for t in comp["competitors"] if t["homeAway"] == "home")
     
     if comp['status']['type'].get("description") == 'In Progress':
-        status = 'Live'
+        status = "🔴 Live 🔴"
     else:
         status = comp['status']['type'].get("description")
 
