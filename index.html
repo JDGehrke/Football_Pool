@@ -44,24 +44,28 @@
     th { background-color: #f1f5f9; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
     tr:last-child td { border-bottom: none; }
 
-/* --- TEAM ACCURACY TABLE LAYOUT & SPACING FIXES --- */
-#team-accuracy-table {
-  table-layout: fixed; /* Forces table to fit card width without horizontal scrolling */
-  width: 100%;
-}
+    /* --- WEEK TRACKER NO-WRAP FOR PICKS COLUMN --- */
+    #week-tracker-table th:nth-child(2),
+    #week-tracker-table td:nth-child(2) {
+      white-space: nowrap;
+    }
 
-#team-accuracy-table th, 
-#team-accuracy-table td {
-  padding: 8px 4px; /* Tighter padding to pull columns closer together */
-  text-align: center;
-}
-
-#team-accuracy-table th:first-child,
-#team-accuracy-table td:first-child {
-  white-space: nowrap;
-  width: 30%; /* Give the team column a fixed proportion */
-  text-align: left; /* Keep team name aligned left while centering metrics */
-}
+    /* --- TEAM ACCURACY TABLE COMPACT LAYOUT & NO-WRAP --- */
+    #team-accuracy-table {
+      table-layout: fixed;
+      width: 100%;
+    }
+    #team-accuracy-table th, 
+    #team-accuracy-table td {
+      padding: 8px 4px;
+      text-align: center;
+    }
+    #team-accuracy-table th:first-child,
+    #team-accuracy-table td:first-child {
+      white-space: nowrap;
+      width: 30%;
+      text-align: left;
+    }
 
     /* TABLE ALIGNMENT UTILITIES */
     .text-center { text-align: center !important; }
@@ -1116,7 +1120,9 @@
           `;
         }
 
-        const timeSubtitle = m.date ? `<span class="game-time">${formatGameTime(m.date)}</span>` : '';
+        // Only show date/time subtitle for scheduled / pre-game matchups
+        const isScheduled = !m.winner && (!m.status || m.status === 'Scheduled' || m.status === 'Pre-Game');
+        const timeSubtitle = (m.date && isScheduled) ? `<span class="game-time">${formatGameTime(m.date)}</span>` : '';
 
         return `
           <tr>
@@ -1199,81 +1205,79 @@
       return { labels, winPercentages };
     }
 
-    
-function getTeamPickAccuracy(playerId) {
-  const playerTeamStats = {};
-  const poolTeamStatsLocked = {};
-  const now = new Date();
-  const totalPoolPlayers = (poolData.players || []).length || 1;
+    function getTeamPickAccuracy(playerId) {
+      const playerTeamStats = {};
+      const poolTeamStatsLocked = {};
+      const now = new Date();
+      const totalPoolPlayers = (poolData.players || []).length || 1;
 
-  Object.keys(poolData.weeks || {}).forEach(weekNum => {
-    const weekData = poolData.weeks[weekNum];
-    const matchups = weekData.matchups || [];
-    
-    let lockDate = weekData.lockTime ? new Date(weekData.lockTime) : null;
-    if (!lockDate && matchups.length > 0) {
-      const dates = matchups.map(m => m.date).filter(Boolean).sort();
-      if (dates.length > 0) lockDate = new Date(dates[0]);
+      Object.keys(poolData.weeks || {}).forEach(weekNum => {
+        const weekData = poolData.weeks[weekNum];
+        const matchups = weekData.matchups || [];
+        
+        let lockDate = weekData.lockTime ? new Date(weekData.lockTime) : null;
+        if (!lockDate && matchups.length > 0) {
+          const dates = matchups.map(m => m.date).filter(Boolean).sort();
+          if (dates.length > 0) lockDate = new Date(dates[0]);
+        }
+
+        const isLocked = lockDate && (now >= lockDate);
+
+        if (!isLocked) return;
+
+        matchups.forEach(m => {
+          const winner = m.winner ? m.winner.trim().toUpperCase() : null;
+          const isFinal = Boolean(winner) && (m.status === 'STATUS_FINAL' || m.status === 'Final' || winner !== null);
+
+          // Only evaluate completed/final games for accuracy and pick rates
+          if (!isFinal || !winner) return;
+
+          const teamsInGame = (m.game || '')
+            .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s+-\s+/i)
+            .map(t => t.trim().toUpperCase())
+            .filter(t => t.length >= 2);
+
+          teamsInGame.forEach(team => {
+            if (!poolTeamStatsLocked[team]) {
+              poolTeamStatsLocked[team] = { totalMatchups: 0, picked: 0, correct: 0 };
+            }
+            poolTeamStatsLocked[team].totalMatchups++;
+
+            if (!playerTeamStats[team]) {
+              playerTeamStats[team] = { totalMatchups: 0, picked: 0, correct: 0 };
+            }
+            playerTeamStats[team].totalMatchups++;
+          });
+
+          Object.entries(m.picks || {}).forEach(([p, rawPick]) => {
+            if (rawPick && rawPick !== '—' && rawPick !== '-') {
+              const pick = rawPick.trim().toUpperCase();
+
+              if (!poolTeamStatsLocked[pick]) {
+                poolTeamStatsLocked[pick] = { totalMatchups: 0, picked: 0, correct: 0 };
+              }
+              poolTeamStatsLocked[pick].picked++;
+
+              if (p === playerId) {
+                if (!playerTeamStats[pick]) {
+                  playerTeamStats[pick] = { totalMatchups: 0, picked: 0, correct: 0 };
+                }
+                playerTeamStats[pick].picked++;
+              }
+
+              if (winner !== 'TIE' && pick === winner) {
+                poolTeamStatsLocked[pick].correct++;
+                if (p === playerId) {
+                  playerTeamStats[pick].correct++;
+                }
+              }
+            }
+          });
+        });
+      });
+
+      return { playerTeamStats, poolTeamStatsLocked, totalPoolPlayers };
     }
-
-    const isLocked = lockDate && (now >= lockDate);
-
-    if (!isLocked) return;
-
-    matchups.forEach(m => {
-      const winner = m.winner ? m.winner.trim().toUpperCase() : null;
-      const isFinal = Boolean(winner) && (m.status === 'STATUS_FINAL' || m.status === 'Final' || winner !== null);
-
-      // Only count completed/final games toward accuracy stats
-      if (!isFinal || !winner) return;
-
-      const teamsInGame = (m.game || '')
-        .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s+-\s+/i)
-        .map(t => t.trim().toUpperCase())
-        .filter(t => t.length >= 2);
-
-      teamsInGame.forEach(team => {
-        if (!poolTeamStatsLocked[team]) {
-          poolTeamStatsLocked[team] = { totalMatchups: 0, picked: 0, correct: 0 };
-        }
-        poolTeamStatsLocked[team].totalMatchups++;
-
-        if (!playerTeamStats[team]) {
-          playerTeamStats[team] = { totalMatchups: 0, picked: 0, correct: 0 };
-        }
-        playerTeamStats[team].totalMatchups++;
-      });
-
-      Object.entries(m.picks || {}).forEach(([p, rawPick]) => {
-        if (rawPick && rawPick !== '—' && rawPick !== '-') {
-          const pick = rawPick.trim().toUpperCase();
-
-          if (!poolTeamStatsLocked[pick]) {
-            poolTeamStatsLocked[pick] = { totalMatchups: 0, picked: 0, correct: 0 };
-          }
-          poolTeamStatsLocked[pick].picked++;
-
-          if (p === playerId) {
-            if (!playerTeamStats[pick]) {
-              playerTeamStats[pick] = { totalMatchups: 0, picked: 0, correct: 0 };
-            }
-            playerTeamStats[pick].picked++;
-          }
-
-          if (winner !== 'TIE' && pick === winner) {
-            poolTeamStatsLocked[pick].correct++;
-            if (p === playerId) {
-              playerTeamStats[pick].correct++;
-            }
-          }
-        }
-      });
-    });
-  });
-
-  return { playerTeamStats, poolTeamStatsLocked, totalPoolPlayers };
-}
-
 
     function renderPlayerProfile() {
       const player = document.getElementById('player-select').value;

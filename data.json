@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Thursday @ 9:52pm",
+    "lastUpdated": "Friday @ 9:09pm",
     "currentWeek": "Week 4"
   },
   "players": [
@@ -534,8 +534,8 @@
           },
           "game": "SF @ LV",
           "date": "2026-08-28T00:00Z",
-          "winner": null,
-          "status": "In Progress"
+          "winner": "SF",
+          "status": "Final"
         },
         {
           "id": "401873300",
@@ -547,8 +547,8 @@
           },
           "game": "LAR @ LAC",
           "date": "2026-08-28T02:00Z",
-          "winner": null,
-          "status": "In Progress"
+          "winner": "LAR",
+          "status": "Final"
         },
         {
           "id": "401873302",
@@ -560,8 +560,8 @@
           },
           "game": "WSH @ BAL",
           "date": "2026-08-28T22:00Z",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "BAL",
+          "status": "Final"
         },
         {
           "id": "401873304",
@@ -573,8 +573,8 @@
           },
           "game": "ATL @ MIA",
           "date": "2026-08-28T23:00Z",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "ATL",
+          "status": "Final"
         },
         {
           "id": "401873307",
@@ -586,8 +586,8 @@
           },
           "game": "HOU @ CAR",
           "date": "2026-08-28T23:00Z",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "CAR",
+          "status": "Final"
         },
         {
           "id": "401873303",
@@ -600,7 +600,7 @@
           "game": "NYG @ NYJ",
           "date": "2026-08-28T23:30Z",
           "winner": null,
-          "status": "Scheduled"
+          "status": "In Progress"
         },
         {
           "id": "401873306",
@@ -613,7 +613,7 @@
           "game": "TB @ JAX",
           "date": "2026-08-28T23:30Z",
           "winner": null,
-          "status": "Scheduled"
+          "status": "In Progress"
         },
         {
           "id": "401874048",
@@ -626,7 +626,7 @@
           "game": "NO @ DAL",
           "date": "2026-08-29T00:00Z",
           "winner": null,
-          "status": "Scheduled"
+          "status": "In Progress"
         },
         {
           "id": "401874102",
@@ -639,7 +639,7 @@
           "game": "ARI @ GB",
           "date": "2026-08-29T00:00Z",
           "winner": null,
-          "status": "Scheduled"
+          "status": "In Progress"
         },
         {
           "id": "401873305",
@@ -652,7 +652,7 @@
           "game": "SEA @ KC",
           "date": "2026-08-29T00:00Z",
           "winner": null,
-          "status": "Scheduled"
+          "status": "In Progress"
         },
         {
           "id": "401873301",
@@ -665,7 +665,7 @@
           "game": "CIN @ PHI",
           "date": "2026-08-29T00:00Z",
           "winner": null,
-          "status": "Scheduled"
+          "status": "In Progress"
         },
         {
           "id": "401873614",
@@ -678,7 +678,7 @@
           "game": "MIN @ DEN",
           "date": "2026-08-29T01:00Z",
           "winner": null,
-          "status": "Scheduled"
+          "status": "In Progress"
         },
         {
           "id": "401873308",
