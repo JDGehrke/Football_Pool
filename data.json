@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Friday @ 9:28pm",
+    "lastUpdated": "Sunday @ 5:03pm",
     "currentWeek": "Week 4"
   },
   "players": [
@@ -599,8 +599,8 @@
           },
           "game": "NYG @ NYJ",
           "date": "2026-08-28T23:30Z",
-          "winner": null,
-          "status": "Live"
+          "winner": "NYG",
+          "status": "Final"
         },
         {
           "id": "401873306",
@@ -625,8 +625,8 @@
           },
           "game": "NO @ DAL",
           "date": "2026-08-29T00:00Z",
-          "winner": null,
-          "status": "Live"
+          "winner": "NO",
+          "status": "Final"
         },
         {
           "id": "401874102",
@@ -638,8 +638,8 @@
           },
           "game": "ARI @ GB",
           "date": "2026-08-29T00:00Z",
-          "winner": null,
-          "status": "Live"
+          "winner": "GB",
+          "status": "Final"
         },
         {
           "id": "401873305",
@@ -651,8 +651,8 @@
           },
           "game": "SEA @ KC",
           "date": "2026-08-29T00:00Z",
-          "winner": null,
-          "status": "Live"
+          "winner": "TIE",
+          "status": "Final"
         },
         {
           "id": "401873301",
@@ -664,8 +664,8 @@
           },
           "game": "CIN @ PHI",
           "date": "2026-08-29T00:00Z",
-          "winner": null,
-          "status": "Live"
+          "winner": "CIN",
+          "status": "Final"
         },
         {
           "id": "401873614",
@@ -677,8 +677,8 @@
           },
           "game": "MIN @ DEN",
           "date": "2026-08-29T01:00Z",
-          "winner": null,
-          "status": "Live"
+          "winner": "DEN",
+          "status": "Final"
         },
         {
           "id": "401873308",
@@ -690,8 +690,8 @@
           },
           "game": "DET @ IND",
           "date": "2026-08-29T17:00Z",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "DET",
+          "status": "Final"
         },
         {
           "id": "401874394",
@@ -703,15 +703,15 @@
           },
           "game": "CHI @ TEN",
           "date": "2026-08-29T22:00Z",
-          "winner": null,
-          "status": "Scheduled"
+          "winner": "CHI",
+          "status": "Final"
         }
       ],
       "tiebreaker": {
         "game": "CHI @ TEN",
-        "status": "Scheduled",
-        "winner": null,
-        "actualTotalScore": 0,
+        "status": "Final",
+        "winner": "CHI",
+        "actualTotalScore": 39,
         "picks": {
           "AUSTIN": {
             "winner": "\u2014",
