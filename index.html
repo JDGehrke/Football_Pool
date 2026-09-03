@@ -438,6 +438,12 @@
       color: var(--text-muted);
       margin-top: 2px;
     }
+
+    /* HISTORICAL CHAMPIONS TABLE CENTER ALIGNMENT */
+    #hof-table th,
+    #hof-table td {
+      text-align: center !important;
+    }
   </style>
 </head>
 <body>
@@ -651,9 +657,9 @@
         <table id="hof-table">
           <thead>
             <tr>
-              <th>Year</th>
-              <th>Overall Champion</th>
-              <th>Weekly Wins</th>
+              <th class="text-center">Year</th>
+              <th class="text-center">Overall Champion</th>
+              <th class="text-center">Weekly Wins</th>
             </tr>
           </thead>
           <tbody id="hof-table-body"></tbody>
