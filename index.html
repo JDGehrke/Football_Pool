@@ -431,6 +431,13 @@
     }
     .gold-winner { color: #b45309; font-weight: bold; }
     .silver-winner { color: #475569; font-weight: bold; }
+    .hof-stat-sub {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: normal;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
   </style>
 </head>
 <body>
@@ -646,7 +653,7 @@
             <tr>
               <th>Year</th>
               <th>Overall Champion</th>
-              <th>Most Weekly Wins</th>
+              <th>Weekly Wins</th>
             </tr>
           </thead>
           <tbody id="hof-table-body"></tbody>
@@ -1245,7 +1252,6 @@
           `;
         }
 
-        // Only display short time under status when game is scheduled/pre-game
         const isScheduled = !m.winner && (!m.status || m.status === 'Scheduled' || m.status === 'Pre-Game');
         const timeSubtitle = (m.date && isScheduled) ? `<span class="game-time">${formatShortGameTime(m.date)}</span>` : '';
 
@@ -1356,7 +1362,6 @@
           const winner = m.winner ? m.winner.trim().toUpperCase() : null;
           const isFinal = Boolean(winner) && (m.status === 'STATUS_FINAL' || m.status === 'Final' || winner !== null);
 
-          // Only evaluate completed/final games for accuracy and pick rates
           if (!isFinal || !winner) return;
 
           const teamsInGame = (m.game || '')
@@ -1743,9 +1748,19 @@
       // Reigning Champions (Most Recent Year Entry)
       const reigning = hofData[0];
 
+      // Helper to check for valid stat values
+      const isValidStat = (val) => val !== undefined && val !== null && val !== '' && val !== 'N/A';
+
       // 1. Overall Champ Card
       document.getElementById('overall-champ-name').textContent = reigning.overall?.name || 'N/A';
-      document.getElementById('overall-champ-stat').textContent = reigning.overall?.record ? `${reigning.overall.record} Record` : 'N/A';
+      
+      const overallStatElem = document.getElementById('overall-champ-stat');
+      if (isValidStat(reigning.overall?.record)) {
+        overallStatElem.textContent = `${reigning.overall.record} Record`;
+        overallStatElem.style.display = 'block';
+      } else {
+        overallStatElem.style.display = 'none';
+      }
       
       const overallContainer = document.getElementById('overall-champ-avatar-container');
       if (reigning.overall?.photo) {
@@ -1756,7 +1771,14 @@
 
       // 2. Weekly Wins Champ Card
       document.getElementById('weekly-champ-name').textContent = reigning.weekly_wins?.name || 'N/A';
-      document.getElementById('weekly-champ-stat').textContent = reigning.weekly_wins?.wins !== undefined ? `${reigning.weekly_wins.wins} Weekly Wins` : 'N/A';
+      
+      const weeklyStatElem = document.getElementById('weekly-champ-stat');
+      if (isValidStat(reigning.weekly_wins?.wins)) {
+        weeklyStatElem.textContent = `${reigning.weekly_wins.wins} Weekly Wins`;
+        weeklyStatElem.style.display = 'block';
+      } else {
+        weeklyStatElem.style.display = 'none';
+      }
       
       const weeklyContainer = document.getElementById('weekly-champ-avatar-container');
       if (reigning.weekly_wins?.photo) {
@@ -1766,13 +1788,27 @@
       }
 
       // 3. Populate History Table
-      tbody.innerHTML = hofData.map(season => `
-        <tr>
-          <td><strong>${season.year}</strong></td>
-          <td class="gold-winner">🏆 ${season.overall?.name || 'N/A'} (${season.overall?.record || 'N/A'})</td>
-          <td class="silver-winner">🥈 ${season.weekly_wins?.name || 'N/A'} (${season.weekly_wins?.wins ?? 'N/A'} wins)</td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = hofData.map(season => {
+        const overallName = season.overall?.name || 'N/A';
+        const overallRecord = season.overall?.record;
+        const overallDisplay = isValidStat(overallRecord) 
+          ? `🏆 ${overallName}<span class="hof-stat-sub">(${overallRecord})</span>` 
+          : `🏆 ${overallName}`;
+
+        const weeklyName = season.weekly_wins?.name || 'N/A';
+        const weeklyWins = season.weekly_wins?.wins;
+        const weeklyDisplay = isValidStat(weeklyWins) 
+          ? `🥈 ${weeklyName}<span class="hof-stat-sub">(${weeklyWins} wins)</span>` 
+          : `🥈 ${weeklyName}`;
+
+        return `
+          <tr>
+            <td><strong>${season.year}</strong></td>
+            <td class="gold-winner">${overallDisplay}</td>
+            <td class="silver-winner">${weeklyDisplay}</td>
+          </tr>
+        `;
+      }).join('');
     }
 
     function switchTab(tabId, evt) {
