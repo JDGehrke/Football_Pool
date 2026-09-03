@@ -658,8 +658,8 @@
           <thead>
             <tr>
               <th class="text-center">Year</th>
-              <th class="text-center">Overall Champion</th>
-              <th class="text-center">Weekly Wins</th>
+              <th class="text-center">Overall 🏆</th>
+              <th class="text-center">Weekly Wins 🥈</th>
             </tr>
           </thead>
           <tbody id="hof-table-body"></tbody>
@@ -1798,14 +1798,14 @@
         const overallName = season.overall?.name || 'N/A';
         const overallRecord = season.overall?.record;
         const overallDisplay = isValidStat(overallRecord) 
-          ? `🏆 ${overallName}<span class="hof-stat-sub">(${overallRecord})</span>` 
-          : `🏆 ${overallName}`;
+          ? `${overallName}<span class="hof-stat-sub">(${overallRecord})</span>` 
+          : `${overallName}`;
 
         const weeklyName = season.weekly_wins?.name || 'N/A';
         const weeklyWins = season.weekly_wins?.wins;
         const weeklyDisplay = isValidStat(weeklyWins) 
-          ? `🥈 ${weeklyName}<span class="hof-stat-sub">(${weeklyWins} wins)</span>` 
-          : `🥈 ${weeklyName}`;
+          ? `${weeklyName}<span class="hof-stat-sub">(${weeklyWins} wins)</span>` 
+          : `${weeklyName}`;
 
         return `
           <tr>
