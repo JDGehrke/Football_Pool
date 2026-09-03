@@ -5,6 +5,124 @@
     "lastUpdated": "Sunday @ 5:03pm",
     "currentWeek": "Week 4"
   },
+  "hall_of_fame": [
+    {
+      "year": 2025,
+      "overall": {
+        "name": "Tony",
+        "record": "197-88",
+        "photo": "N/A"
+      },
+      "weekly_wins": {
+        "name": "Jim",
+        "wins": 4,
+        "photo": "images/weekly_2025.jpg"
+      }
+    },
+    {
+      "year": 2024,
+      "overall": {
+        "name": "Brandon",
+        "record": "207-78",
+        "photo": "N/A"
+      },
+      "weekly_wins": {
+        "name": "Tony",
+        "wins": 6,
+        "photo": "N/A"
+      }
+    },
+    {
+      "year": 2023,
+      "overall": {
+        "name": "Jim",
+        "record": "190-94",
+        "photo": "N/A"
+      },
+      "weekly_wins": {
+        "name": "Austin",
+        "wins": 5,
+        "photo": "N/A"
+      }
+    },
+    {
+      "year": 2022,
+      "overall": {
+        "name": "Jim",
+        "record": "188-96",
+        "photo": "N/A"
+      },
+      "weekly_wins": {
+        "name": "Jim",
+        "wins": 4,
+        "photo": "N/A"
+      }
+    },
+    {
+      "year": 2021,
+      "overall": {
+        "name": "Austin",
+        "record": "182-103",
+        "photo": "N/A"
+      },
+      "weekly_wins": {
+        "name": "Austin",
+        "wins": 5,
+        "photo": "N/A"
+      }
+    },
+    {
+      "year": 2020,
+      "overall": {
+        "name": "Jordan",
+        "record": "186-83",
+        "photo": "N/A"
+      },
+      "weekly_wins": {
+        "name": "Dan",
+        "wins": 4,
+        "photo": "N/A"
+      }
+    },
+    {
+      "year": 2019,
+      "overall": {
+        "name": "Jordan",
+        "record": "N/A",
+        "photo": "N/A"
+      },
+      "weekly_wins": {
+        "name": "Bethany",
+        "wins": "N/A",
+        "photo": "N/A"
+      }
+    },
+    {
+      "year": 2018,
+      "overall": {
+        "name": "N/A",
+        "record": "N/A",
+        "photo": "N/A"
+      }
+    },
+    {
+      "year": 2017,
+      "overall": {
+        "name": "Dan",
+        "record": "N/A",
+        "photo": "N/A"
+      }
+    },
+    {
+      "year": 2016,
+      "overall": {
+        "name": "Jordan",
+        "record": "N/A",
+        "photo": "N/A"
+      }
+    }
+  ],
+
   "players": [
     "AUSTIN",
     "BRANDON",
