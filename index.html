@@ -658,8 +658,8 @@
           <thead>
             <tr>
               <th class="text-center">Year</th>
-              <th class="text-center">Overall 🏆</th>
-              <th class="text-center">Weekly Wins 🥈</th>
+              <th class="text-center">🏆 Overall 🏆</th>
+              <th class="text-center">🥈 Weekly 🥈</th>
             </tr>
           </thead>
           <tbody id="hof-table-body"></tbody>
@@ -1795,13 +1795,13 @@
 
       // 3. Populate History Table
       tbody.innerHTML = hofData.map(season => {
-        const overallName = season.overall?.name || 'N/A';
+        const overallName = (season.overall?.name && season.overall.name !== 'N/A') ? season.overall.name : '—';
         const overallRecord = season.overall?.record;
         const overallDisplay = isValidStat(overallRecord) 
           ? `${overallName}<span class="hof-stat-sub">(${overallRecord})</span>` 
           : `${overallName}`;
 
-        const weeklyName = season.weekly_wins?.name || 'N/A';
+        const weeklyName = (season.weekly_wins?.name && season.weekly_wins.name !== 'N/A') ? season.weekly_wins.name : '—';
         const weeklyWins = season.weekly_wins?.wins;
         const weeklyDisplay = isValidStat(weeklyWins) 
           ? `${weeklyName}<span class="hof-stat-sub">(${weeklyWins} wins)</span>` 
