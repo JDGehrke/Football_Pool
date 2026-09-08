@@ -159,7 +159,7 @@ def update_existing_form(week_num, season_type, season_year):
     requests_list.append(
         {
             "updateFormInfo": {
-                "info": {"title": f"Orser Family Football Pool: {week_title}"},
+                "info": {"title": f"Lynn Orser Memorial Football Pool: {week_title}"},
                 "updateMask": "title",
             }
         }
@@ -249,7 +249,7 @@ def update_existing_form(week_num, season_type, season_year):
 # =============================================================================
 # RUN UPDATE TO FORM 
 # =============================================================================
-update_existing_form(current_week, 1, season)
+update_existing_form(current_week, 2, season)
 
 
 # =============================================================================
