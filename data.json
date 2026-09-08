@@ -88,36 +88,12 @@
       "year": 2019,
       "overall": {
         "name": "Jordan",
-        "record": "N/A",
+        "record": "169-98",
         "photo": "N/A"
       },
       "weekly_wins": {
         "name": "Bethany",
-        "wins": "N/A",
-        "photo": "N/A"
-      }
-    },
-    {
-      "year": 2018,
-      "overall": {
-        "name": "N/A",
-        "record": "N/A",
-        "photo": "N/A"
-      }
-    },
-    {
-      "year": 2017,
-      "overall": {
-        "name": "Dan",
-        "record": "N/A",
-        "photo": "N/A"
-      }
-    },
-    {
-      "year": 2016,
-      "overall": {
-        "name": "Jordan",
-        "record": "N/A",
+        "wins": 5,
         "photo": "N/A"
       }
     }
