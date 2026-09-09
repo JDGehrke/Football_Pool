@@ -17,7 +17,7 @@
       --success: #22c55e;
       --danger: #ef4444;
       --warning: #f59e0b;
-      --gold: #eab308;
+      --gold: #f59e0b;
       --silver: #94a3b8;
     }
 
@@ -38,13 +38,168 @@
     .tab-content.active { display: block; }
 
     /* --- CARDS & TABLES --- */
-    .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; }
     .card h3 { margin-bottom: 15px; color: var(--primary-color); font-size: 1.2rem; }
     
     table { width: 100%; border-collapse: collapse; text-align: left; }
     th, td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); }
     th { background-color: #f1f5f9; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
     tr:last-child td { border-bottom: none; }
+
+    /* --- SVG GRAPH STYLES --- */
+    .line-chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 280px;
+    }
+
+    .line-chart-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    /* Gridlines & Baseline */
+    .grid-line {
+      stroke: #f1f5f9;
+      stroke-width: 1;
+      stroke-dasharray: 4 4;
+    }
+
+    .grid-text {
+      font-size: 9px;
+      fill: var(--text-muted);
+      text-anchor: end;
+      font-weight: 600;
+    }
+
+    .avg-line {
+      stroke: #94a3b8;
+      stroke-width: 1.5;
+      stroke-dasharray: 3 3;
+    }
+
+    .avg-text {
+      font-size: 10px;
+      font-weight: 700;
+      fill: #64748b;
+    }
+
+    /* Gradient Line Path */
+    .chart-line {
+      fill: none;
+      stroke: url(#line-gradient);
+      stroke-width: 3.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .chart-area {
+      fill: url(#area-gradient);
+      opacity: 0.2;
+    }
+
+    /* Pulsing Leader Ring (#1 Gold) */
+    .leader-pulse {
+      fill: var(--gold);
+      opacity: 0.4;
+      animation: pulseRing 2s infinite ease-out;
+      transform-origin: center;
+    }
+
+    @keyframes pulseRing {
+      0% { r: 6px; opacity: 0.6; }
+      100% { r: 18px; opacity: 0; }
+    }
+
+    /* Node Points */
+    .chart-point {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .point-group:hover .chart-point {
+      r: 6.5;
+      filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.25));
+    }
+
+    /* Typography */
+    .chart-value-text {
+      font-size: 10px;
+      font-weight: 800;
+      fill: var(--primary-color);
+      text-anchor: middle;
+    }
+
+    .chart-label-text {
+      font-size: 10.5px;
+      font-weight: 600;
+      fill: var(--text-muted);
+      text-anchor: end;
+      transition: fill 0.2s ease, font-weight 0.2s ease;
+    }
+
+    .point-group:hover .chart-label-text {
+      fill: var(--secondary-color);
+      font-weight: 800;
+    }
+
+    /* Extended Tooltip Card Layout */
+    .chart-tooltip {
+      position: absolute;
+      padding: 8px 12px;
+      background: #0f172a;
+      color: #ffffff;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      pointer-events: none;
+      opacity: 0;
+      transform: translate(-50%, -120%);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      z-index: 10;
+      min-width: 150px;
+    }
+
+    .chart-tooltip::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 5px 5px 0;
+      border-style: solid;
+      border-color: #0f172a transparent;
+    }
+
+    .tooltip-header {
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: #38bdf8;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 4px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .tooltip-header .gold-crown {
+      color: var(--gold);
+    }
+
+    .tooltip-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 3px;
+      color: #cbd5e1;
+    }
+
+    .tooltip-row span:last-child {
+      font-weight: 700;
+      color: #ffffff;
+    }
 
     /* --- WEEK TRACKER NO-WRAP FOR PICKS COLUMN --- */
     #week-tracker-table th:nth-child(2),
@@ -292,23 +447,6 @@
       width: 100%;
     }
 
-    /* STANDALONE BAR CHART STYLES */
-    .chart-bar-row { display: flex; align-items: center; margin-bottom: 12px; gap: 15px; }
-    .chart-bar-label { width: 120px; font-weight: 600; font-size: 0.9rem; text-align: right; }
-    .chart-bar-track { flex: 1; background: #f1f5f9; border-radius: 6px; height: 26px; overflow: hidden; position: relative; }
-    .chart-bar-fill { 
-      background: var(--secondary-color); 
-      height: 100%; 
-      border-radius: 6px; 
-      transition: width 0.4s ease; 
-      display: flex; 
-      align-items: center; 
-      justify-content: flex-end; 
-      padding-right: 10px; 
-      min-width: 32px;
-    }
-    .chart-bar-value { color: #ffffff; font-weight: bold; font-size: 0.85rem; }
-
     /* RESPONSIVE SCROLLABLE TABLE WRAPPER */
     .matrix-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .pick-correct { background-color: #dcfce7 !important; color: #166534; font-weight: bold; }
@@ -467,8 +605,23 @@
   <!-- ================= OVERALL TAB ================= -->
   <div id="tab-overall" class="tab-content active">
     <div class="card">
-      <h3>Season Wins Overview</h3>
-      <div id="standalone-bar-chart"></div>
+      <h3>Season Wins Trajectory</h3>
+      <div class="line-chart-wrapper">
+        <div id="season-chart-tooltip" class="chart-tooltip"></div>
+        <svg id="season-line-chart" class="line-chart-svg" viewBox="0 0 900 280" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#f59e0b" />
+              <stop offset="12%" stop-color="#3b82f6" />
+              <stop offset="100%" stop-color="#1d4ed8" />
+            </linearGradient>
+            <linearGradient id="area-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#3b82f6" />
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
     </div>
 
     <div class="card">
@@ -598,9 +751,9 @@
           <thead>
             <tr>
               <th class="text-center">
-		Team 
-		<span class="th-subtitle">(Click)</span>
-	      </th>
+                Team 
+                <span class="th-subtitle">(Click)</span>
+              </th>
               <th class="text-center">
                 Pick %
                 <span class="th-subtitle">(Pool %)</span>
@@ -1009,24 +1162,8 @@
     function renderOverallTab() {
       const { sorted, playerRanks } = getPlayerRanks();
 
-      const leaderWins = computedStats[sorted[0]]?.correct || 0;
-      const maxWins = Math.max(leaderWins, 1);
-
-      const barContainer = document.getElementById('standalone-bar-chart');
-      barContainer.innerHTML = sorted.map(p => {
-        const wins = computedStats[p].correct;
-        const widthPct = (wins / maxWins) * 100;
-        return `
-          <div class="chart-bar-row">
-            <div class="chart-bar-label">${p}</div>
-            <div class="chart-bar-track">
-              <div class="chart-bar-fill" style="width: ${widthPct}%;">
-                <span class="chart-bar-value">${wins}</span>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
+      // Render Dynamic Season Trajectory Line Graph
+      renderSeasonLineChart(sorted);
 
       const lbBody = document.querySelector('#leaderboard-table tbody');
       lbBody.innerHTML = sorted.map(p => {
@@ -1082,6 +1219,177 @@
           </tr>
         `;
       }).join('');
+    }
+
+    function renderSeasonLineChart(sortedPlayers) {
+      const svg = document.getElementById('season-line-chart');
+      const tooltip = document.getElementById('season-chart-tooltip');
+      if (!svg || !tooltip) return;
+
+      // Clean out existing dynamic SVG elements while keeping <defs>
+      const defs = svg.querySelector('defs');
+      svg.innerHTML = '';
+      if (defs) svg.appendChild(defs);
+
+      if (!sortedPlayers || sortedPlayers.length === 0) return;
+
+      // Compute total games played so far across locked/completed matchups
+      let totalSeasonGames = 0;
+      Object.values(poolData.weeks || {}).forEach(w => {
+        (w.matchups || []).forEach(m => {
+          if (m.winner) totalSeasonGames++;
+        });
+      });
+      if (totalSeasonGames === 0) totalSeasonGames = 1;
+
+      const playersData = sortedPlayers.map(name => ({
+        name: name,
+        wins: computedStats[name]?.correct || 0,
+        losses: computedStats[name]?.incorrect || 0,
+        weeklyWins: computedStats[name]?.crowns || 0
+      }));
+
+      const width = 900;
+      const height = 280;
+      
+      const paddingLeft = 45;
+      const paddingRight = 30;
+      const paddingTop = 40;
+      const paddingBottom = 70;
+
+      const chartWidth = width - paddingLeft - paddingRight;
+      const chartHeight = height - paddingTop - paddingBottom;
+
+      const winsArr = playersData.map(p => p.wins);
+      const leaderWins = Math.max(...winsArr);
+      const minWins = Math.max(0, Math.min(...winsArr) - 8);
+      const range = Math.max(1, leaderWins - minWins);
+
+      const totalWinsSum = winsArr.reduce((a, b) => a + b, 0);
+      const avgWins = (totalWinsSum / playersData.length).toFixed(1);
+
+      const getY = (val) => paddingTop + chartHeight - (((val - minWins) / range) * chartHeight);
+
+      // 1. Gridlines
+      let gridHtml = '';
+      const step = 10;
+      const startVal = Math.ceil(minWins / step) * step;
+      for (let v = startVal; v <= leaderWins; v += step) {
+        const y = getY(v);
+        gridHtml += `
+          <line x1="${paddingLeft}" y1="${y}" x2="${width - paddingRight}" y2="${y}" class="grid-line" />
+          <text x="${paddingLeft - 8}" y="${y + 3}" class="grid-text">${v}</text>
+        `;
+      }
+
+      // 2. Average Line
+      const avgY = getY(avgWins);
+      gridHtml += `
+        <line x1="${paddingLeft}" y1="${avgY}" x2="${width - paddingRight}" y2="${avgY}" class="avg-line" />
+        <text x="${width - paddingRight}" y="${avgY - 6}" class="avg-text" text-anchor="end">AVG: ${avgWins}</text>
+      `;
+
+      // Map Coordinates & Metrics
+      const points = playersData.map((player, index) => {
+        const x = playersData.length === 1 
+          ? paddingLeft + (chartWidth / 2) 
+          : paddingLeft + (index / (playersData.length - 1)) * chartWidth;
+        const y = getY(player.wins);
+        
+        const totalPicks = player.wins + player.losses;
+        const pct = totalPicks > 0 ? ((player.wins / totalPicks) * 100).toFixed(1) : "0.0";
+        const gb = index === 0 ? "—" : `-${leaderWins - player.wins}`;
+
+        return { 
+          x, y, 
+          name: player.name, 
+          wins: player.wins, 
+          weeklyWins: player.weeklyWins,
+          pct: `${pct}%`,
+          gb,
+          rank: index + 1 
+        };
+      });
+
+      const linePathD = points.reduce((acc, pt, i) => `${acc} ${i === 0 ? 'M' : 'L'} ${pt.x} ${pt.y}`, '');
+      const areaPathD = `${linePathD} L ${points[points.length - 1].x} ${height - paddingBottom} L ${points[0].x} ${height - paddingBottom} Z`;
+
+      let chartHtml = gridHtml + `
+        <path class="chart-area" d="${areaPathD}" />
+        <path class="chart-line" d="${linePathD}" />
+      `;
+
+      // 3. Render Points & Pulsing Ring
+      points.forEach((pt) => {
+        const isLeader = pt.rank === 1;
+        const fill = isLeader ? '#fffbeb' : '#ffffff';
+        const stroke = isLeader ? '#f59e0b' : '#2563eb';
+        const strokeWidth = isLeader ? 3 : 2.5;
+
+        const leaderPulseHtml = isLeader ? `<circle cx="${pt.x}" cy="${pt.y}" class="leader-pulse" />` : '';
+
+        chartHtml += `
+          <g class="point-group" 
+             data-name="${pt.name}" 
+             data-wins="${pt.wins}" 
+             data-weekly="${pt.weeklyWins}"
+             data-pct="${pt.pct}"
+             data-gb="${pt.gb}"
+             data-rank="${pt.rank}" 
+             data-x="${pt.x}" 
+             data-y="${pt.y}">
+            
+            ${leaderPulseHtml}
+            
+            <text x="${pt.x}" y="${pt.y - 12}" class="chart-value-text">${pt.wins}</text>
+            
+            <circle cx="${pt.x}" cy="${pt.y}" r="4.5" 
+                    fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" 
+                    class="chart-point" />
+            
+            <text x="${pt.x}" y="${height - paddingBottom + 18}" 
+                  transform="rotate(-45, ${pt.x}, ${height - paddingBottom + 18})" 
+                  class="chart-label-text">
+              ${pt.name}
+            </text>
+          </g>
+        `;
+      });
+
+      svg.innerHTML += chartHtml;
+
+      // 4. Attach Tooltip Listeners
+      svg.querySelectorAll('.point-group').forEach(group => {
+        group.addEventListener('mouseenter', () => {
+          const { name, wins, weekly, pct, gb, rank, x, y } = group.dataset;
+          const svgBox = svg.getBoundingClientRect();
+          
+          const pxX = (x / width) * svgBox.width;
+          const pxY = (y / height) * svgBox.height;
+
+          const leaderBadge = rank === '1' ? '<span class="gold-crown">👑 #1</span>' : `#${rank}`;
+
+          tooltip.innerHTML = `
+            <div class="tooltip-header">
+              <span>${name}</span>
+              <span>${leaderBadge}</span>
+            </div>
+            <div class="tooltip-row"><span>Season Wins:</span> <span>${wins}</span></div>
+            <div class="tooltip-row"><span>Weekly Wins:</span> <span>${weekly}</span></div>
+            <div class="tooltip-row"><span>Accuracy:</span> <span>${pct}</span></div>
+            <div class="tooltip-row"><span>Games Back:</span> <span>${gb}</span></div>
+          `;
+
+          tooltip.style.left = `${pxX}px`;
+          tooltip.style.top = `${pxY}px`;
+          tooltip.style.opacity = '1';
+          tooltip.style.transform = 'translate(-50%, -120%)';
+        });
+
+        group.addEventListener('mouseleave', () => {
+          tooltip.style.opacity = '0';
+        });
+      });
     }
 
     function renderWeeklyTab() {
