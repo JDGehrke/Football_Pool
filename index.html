@@ -46,16 +46,17 @@
     th { background-color: #f1f5f9; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
     tr:last-child td { border-bottom: none; }
 
-    /* --- SVG GRAPH STYLES --- */
+    /* --- SVG GRAPH STYLES (FLUID HORIZONTAL LAYOUT) --- */
     .line-chart-wrapper {
       position: relative;
       width: 100%;
-      height: 280px;
+      overflow-x: hidden;
     }
 
     .line-chart-svg {
       width: 100%;
-      height: 100%;
+      height: auto;
+      display: block;
       overflow: visible;
     }
 
@@ -67,9 +68,9 @@
     }
 
     .grid-text {
-      font-size: 9px;
+      font-size: 10px;
       fill: var(--text-muted);
-      text-anchor: end;
+      text-anchor: middle;
       font-weight: 600;
     }
 
@@ -85,18 +86,16 @@
       fill: #64748b;
     }
 
-    /* Gradient Line Path */
-    .chart-line {
-      fill: none;
-      stroke: url(#line-gradient);
-      stroke-width: 3.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
+    /* Horizontal Bar & Line Path */
+    .chart-bar-bg {
+      fill: #f1f5f9;
+      rx: 4px;
     }
 
-    .chart-area {
-      fill: url(#area-gradient);
-      opacity: 0.2;
+    .chart-bar-fill {
+      fill: url(#line-gradient);
+      rx: 4px;
+      transition: width 0.3s ease;
     }
 
     /* Pulsing Leader Ring (#1 Gold) */
@@ -125,23 +124,23 @@
 
     /* Typography */
     .chart-value-text {
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 800;
       fill: var(--primary-color);
-      text-anchor: middle;
+      text-anchor: start;
     }
 
     .chart-label-text {
-      font-size: 10.5px;
-      font-weight: 600;
-      fill: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      fill: var(--text-main);
       text-anchor: end;
-      transition: fill 0.2s ease, font-weight 0.2s ease;
+      dominant-baseline: middle;
+      transition: fill 0.2s ease;
     }
 
     .point-group:hover .chart-label-text {
       fill: var(--secondary-color);
-      font-weight: 800;
     }
 
     /* Extended Tooltip Card Layout */
@@ -604,27 +603,24 @@
 
   <!-- ================= OVERALL TAB ================= -->
   <div id="tab-overall" class="tab-content active">
+    <!-- SEASON WINS TRAJECTORY (HORIZONTAL RESPONSIVE VISUAL) -->
     <div class="card">
       <h3>Season Wins Trajectory</h3>
       <div class="line-chart-wrapper">
         <div id="season-chart-tooltip" class="chart-tooltip"></div>
-        <svg id="season-line-chart" class="line-chart-svg" viewBox="0 0 900 280" preserveAspectRatio="none">
+        <svg id="season-line-chart" class="line-chart-svg">
           <defs>
             <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#f59e0b" />
-              <stop offset="12%" stop-color="#3b82f6" />
-              <stop offset="100%" stop-color="#1d4ed8" />
-            </linearGradient>
-            <linearGradient id="area-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" stop-color="#3b82f6" />
-              <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+              <stop offset="100%" stop-color="#f59e0b" />
             </linearGradient>
           </defs>
         </svg>
       </div>
     </div>
 
-    <div class="card">
+    <!-- FULL SEASON LEADERBOARD (HIDDEN FROM VIEW, CODE PRESERVED) -->
+    <div class="card" id="full-season-leaderboard-card" style="display: none;">
       <h3>Full Season Leaderboard</h3>
       <div class="matrix-wrapper">
         <table id="leaderboard-table">
@@ -913,6 +909,11 @@
         renderPlayerProfile();
         renderStandingsTab();
         renderHallOfFameTab();
+
+        window.addEventListener('resize', () => {
+          const { sorted, playerRanks } = getPlayerRanks();
+          renderSeasonLineChart(sorted, playerRanks);
+        });
       } catch (err) {
         console.error("Error loading JSON:", err);
         document.getElementById('dash-subtitle').innerText = "Failed to load data.json. Ensure file exists in root.";
@@ -1162,7 +1163,7 @@
     function renderOverallTab() {
       const { sorted, playerRanks } = getPlayerRanks();
 
-      // Render Dynamic Season Trajectory Line Graph passing calculated ranks
+      // Render Dynamic Responsive Horizontal Trajectory Chart
       renderSeasonLineChart(sorted, playerRanks);
 
       const lbBody = document.querySelector('#leaderboard-table tbody');
@@ -1224,9 +1225,9 @@
     function renderSeasonLineChart(sortedPlayers, playerRanks) {
       const svg = document.getElementById('season-line-chart');
       const tooltip = document.getElementById('season-chart-tooltip');
-      if (!svg || !tooltip) return;
+      const container = svg ? svg.parentElement : null;
+      if (!svg || !tooltip || !container) return;
 
-      // Clean out existing dynamic SVG elements while keeping <defs>
       const defs = svg.querySelector('defs');
       svg.innerHTML = '';
       if (defs) svg.appendChild(defs);
@@ -1243,60 +1244,53 @@
         gb: playerRanks[name]?.gb !== undefined ? playerRanks[name].gb : '—'
       }));
 
-      const width = 900;
-      const height = 280;
-      
-      const paddingLeft = 45;
-      const paddingRight = 30;
-      const paddingTop = 40;
-      const paddingBottom = 70;
+      const width = container.clientWidth || 800;
+      const rowHeight = 36;
+      const paddingTop = 30;
+      const paddingBottom = 30;
+      const paddingLeft = 110;
+      const paddingRight = 45;
 
-      const chartWidth = width - paddingLeft - paddingRight;
-      const chartHeight = height - paddingTop - paddingBottom;
+      const height = paddingTop + (playersData.length * rowHeight) + paddingBottom;
 
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      svg.style.height = `${height}px`;
+
+      const chartWidth = Math.max(100, width - paddingLeft - paddingRight);
       const winsArr = playersData.map(p => p.wins);
-      const leaderWins = Math.max(...winsArr);
-      const minWins = Math.max(0, Math.min(...winsArr) - 8);
-      const range = Math.max(1, leaderWins - minWins);
+      const leaderWins = Math.max(1, ...winsArr);
 
       const totalWinsSum = winsArr.reduce((a, b) => a + b, 0);
       const avgWins = (totalWinsSum / playersData.length).toFixed(1);
 
-      const getY = (val) => paddingTop + chartHeight - (((val - minWins) / range) * chartHeight);
+      const getX = (val) => paddingLeft + ((val / leaderWins) * chartWidth);
 
-      // 1. Gridlines
       let gridHtml = '';
-      const step = 10;
-      const startVal = Math.ceil(minWins / step) * step;
-      for (let v = startVal; v <= leaderWins; v += step) {
-        const y = getY(v);
+      const step = leaderWins <= 10 ? 2 : Math.ceil(leaderWins / 5);
+      for (let v = 0; v <= leaderWins; v += step) {
+        const x = getX(v);
         gridHtml += `
-          <line x1="${paddingLeft}" y1="${y}" x2="${width - paddingRight}" y2="${y}" class="grid-line" />
-          <text x="${paddingLeft - 8}" y="${y + 3}" class="grid-text">${v}</text>
+          <line x1="${x}" y1="${paddingTop - 10}" x2="${x}" y2="${height - paddingBottom + 5}" class="grid-line" />
+          <text x="${x}" y="${paddingTop - 15}" class="grid-text">${v}</text>
         `;
       }
 
-      // 2. Average Line
-      const avgY = getY(avgWins);
+      const avgX = getX(avgWins);
       gridHtml += `
-        <line x1="${paddingLeft}" y1="${avgY}" x2="${width - paddingRight}" y2="${avgY}" class="avg-line" />
-        <text x="${width - paddingRight}" y="${avgY - 6}" class="avg-text" text-anchor="end">AVG: ${avgWins}</text>
+        <line x1="${avgX}" y1="${paddingTop - 10}" x2="${avgX}" y2="${height - paddingBottom + 5}" class="avg-line" />
+        <text x="${avgX}" y="${height - paddingBottom + 20}" class="avg-text" text-anchor="middle">AVG: ${avgWins}</text>
       `;
 
-      // Map Coordinates & Metrics
       const points = playersData.map((player, index) => {
-        const x = playersData.length === 1 
-          ? paddingLeft + (chartWidth / 2) 
-          : paddingLeft + (index / (playersData.length - 1)) * chartWidth;
-        const y = getY(player.wins);
-        
+        const y = paddingTop + (index * rowHeight) + (rowHeight / 2);
+        const x = getX(player.wins);
         const totalPicks = player.wins + player.losses;
         const pct = totalPicks > 0 ? ((player.wins / totalPicks) * 100).toFixed(1) : "0.0";
 
-        return { 
-          x, y, 
-          name: player.name, 
-          wins: player.wins, 
+        return {
+          x, y,
+          name: player.name,
+          wins: player.wins,
           weeklyWins: player.weeklyWins,
           pct: `${pct}%`,
           rankStr: player.rankStr,
@@ -1306,14 +1300,19 @@
       });
 
       const linePathD = points.reduce((acc, pt, i) => `${acc} ${i === 0 ? 'M' : 'L'} ${pt.x} ${pt.y}`, '');
-      const areaPathD = `${linePathD} L ${points[points.length - 1].x} ${height - paddingBottom} L ${points[0].x} ${height - paddingBottom} Z`;
 
-      let chartHtml = gridHtml + `
-        <path class="chart-area" d="${areaPathD}" />
-        <path class="chart-line" d="${linePathD}" />
-      `;
+      let chartHtml = gridHtml;
 
-      // 3. Render Points & Pulsing Ring
+      points.forEach((pt) => {
+        const barWidth = pt.x - paddingLeft;
+        chartHtml += `
+          <rect x="${paddingLeft}" y="${pt.y - 10}" width="${chartWidth}" height="20" class="chart-bar-bg" />
+          <rect x="${paddingLeft}" y="${pt.y - 10}" width="${Math.max(0, barWidth)}" height="20" class="chart-bar-fill" />
+        `;
+      });
+
+      chartHtml += `<path class="chart-line" d="${linePathD}" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />`;
+
       points.forEach((pt) => {
         const isLeader = pt.rankNum === 1;
         const fill = isLeader ? '#fffbeb' : '#ffffff';
@@ -1336,24 +1335,19 @@
             
             ${leaderPulseHtml}
             
-            <text x="${pt.x}" y="${pt.y - 12}" class="chart-value-text">${pt.wins}</text>
+            <text x="${paddingLeft - 12}" y="${pt.y}" class="chart-label-text">${pt.name}</text>
             
-            <circle cx="${pt.x}" cy="${pt.y}" r="4.5" 
+            <circle cx="${pt.x}" cy="${pt.y}" r="5" 
                     fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" 
                     class="chart-point" />
             
-            <text x="${pt.x}" y="${height - paddingBottom + 18}" 
-                  transform="rotate(-45, ${pt.x}, ${height - paddingBottom + 18})" 
-                  class="chart-label-text">
-              ${pt.name}
-            </text>
+            <text x="${pt.x + 10}" y="${pt.y + 4}" class="chart-value-text">${pt.wins}</text>
           </g>
         `;
       });
 
       svg.innerHTML += chartHtml;
 
-      // 4. Attach Tooltip Listeners
       svg.querySelectorAll('.point-group').forEach(group => {
         group.addEventListener('mouseenter', () => {
           const { name, wins, weekly, pct, gb, rankstr, isleader, x, y } = group.dataset;
@@ -1861,8 +1855,6 @@
       }).join('');
     }
 
-    // --- TEAM BREAKDOWN MODAL LOGIC ---
-
     function openTeamBreakdownModal(team) {
       const player = document.getElementById('player-select').value;
       if (!player) return;
@@ -2054,13 +2046,9 @@
         return;
       }
 
-      // Reigning Champions (Most Recent Year Entry)
       const reigning = hofData[0];
-
-      // Helper to check for valid stat values
       const isValidStat = (val) => val !== undefined && val !== null && val !== '' && val !== 'N/A';
 
-      // 1. Overall Champ Card
       document.getElementById('overall-champ-name').textContent = reigning.overall?.name || 'N/A';
       
       const overallStatElem = document.getElementById('overall-champ-stat');
@@ -2078,7 +2066,6 @@
         overallContainer.innerHTML = `<div class="hof-avatar">🏆</div>`;
       }
 
-      // 2. Weekly Wins Champ Card
       document.getElementById('weekly-champ-name').textContent = reigning.weekly_wins?.name || 'N/A';
       
       const weeklyStatElem = document.getElementById('weekly-champ-stat');
@@ -2096,7 +2083,6 @@
         weeklyContainer.innerHTML = `<div class="hof-avatar">👑</div>`;
       }
 
-      // 3. Populate History Table
       tbody.innerHTML = hofData.map(season => {
         const overallName = (season.overall?.name && season.overall.name !== 'N/A') ? season.overall.name : '—';
         const overallRecord = season.overall?.record;
