@@ -158,7 +158,7 @@
       transition: opacity 0.15s ease, transform 0.15s ease;
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
       z-index: 100;
-      min-width: 150px;
+      min-width: 160px;
     }
 
     .chart-tooltip::after {
@@ -611,9 +611,9 @@
 
   <!-- ================= OVERALL TAB ================= -->
   <div id="tab-overall" class="tab-content active">
-    <!-- SEASON WINS TRAJECTORY (HORIZONTAL RESPONSIVE VISUAL) -->
+    <!-- OVERALL LEADERBOARD (HORIZONTAL RESPONSIVE VISUAL) -->
     <div class="card">
-      <h3>Season Wins Trajectory</h3>
+      <h3>Overall Leaderboard</h3>
       <div class="line-chart-wrapper">
         <div id="season-chart-tooltip" class="chart-tooltip"></div>
         <svg id="season-line-chart" class="line-chart-svg">
@@ -1254,7 +1254,14 @@
 
       if (!sortedPlayers || sortedPlayers.length === 0) return;
 
-      const playersData = sortedPlayers.map(name => ({
+      // Ensure data is sorted descending by total season wins
+      const sortedByWins = [...sortedPlayers].sort((a, b) => {
+        const winsA = computedStats[a]?.correct || 0;
+        const winsB = computedStats[b]?.correct || 0;
+        return winsB - winsA;
+      });
+
+      const playersData = sortedByWins.map(name => ({
         name: name,
         wins: computedStats[name]?.correct || 0,
         losses: computedStats[name]?.incorrect || 0,
@@ -1266,7 +1273,6 @@
 
       const width = container.clientWidth || 800;
       const rowHeight = 36;
-      // INCREASED PADDING TOP TO PREVENT TOP TOOLTIP CUTOFF
       const paddingTop = 60;
       const paddingBottom = 30;
       const paddingLeft = 110;
@@ -1312,6 +1318,7 @@
           x, y, index,
           name: player.name,
           wins: player.wins,
+          losses: player.losses,
           weeklyWins: player.weeklyWins,
           pct: `${pct}%`,
           rankStr: player.rankStr,
@@ -1346,6 +1353,7 @@
           <g class="point-group" 
              data-name="${pt.name}" 
              data-wins="${pt.wins}" 
+             data-losses="${pt.losses}"
              data-weekly="${pt.weeklyWins}"
              data-pct="${pt.pct}"
              data-gb="${pt.gb}"
@@ -1372,7 +1380,7 @@
 
       svg.querySelectorAll('.point-group').forEach(group => {
         group.addEventListener('mouseenter', () => {
-          const { name, wins, weekly, pct, gb, rankstr, isleader, index, x, y } = group.dataset;
+          const { name, wins, losses, weekly, pct, gb, rankstr, isleader, index, x, y } = group.dataset;
           const svgBox = svg.getBoundingClientRect();
           
           const pxX = (x / width) * svgBox.width;
@@ -1385,17 +1393,19 @@
               <span>${name}</span>
               <span>${leaderBadge}</span>
             </div>
-            <div class="tooltip-row"><span>Season Wins:</span> <span>${wins}</span></div>
-            <div class="tooltip-row"><span>Weekly Wins:</span> <span>${weekly}</span></div>
+            <div class="tooltip-row">
+              <span>Season Record:</span> 
+              <span><span class="text-success">${wins}</span>-<span class="text-danger">${losses}</span></span>
+            </div>
             <div class="tooltip-row"><span>Accuracy:</span> <span>${pct}</span></div>
             <div class="tooltip-row"><span>Games Back:</span> <span>${gb}</span></div>
+            <div class="tooltip-row"><span>Weekly Wins:</span> <span>${weekly}</span></div>
           `;
 
           tooltip.style.left = `${pxX}px`;
           tooltip.style.top = `${pxY}px`;
           tooltip.style.opacity = '1';
 
-          // DYNAMIC TOOLTIP POSITIONING TO PREVENT CLIPPING
           if (parseInt(index, 10) === 0 || pxY < 90) {
             tooltip.classList.add('tooltip-bottom');
             tooltip.style.transform = 'translate(-50%, 15px)';
