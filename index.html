@@ -38,7 +38,7 @@
     .tab-content.active { display: block; }
 
     /* --- CARDS & TABLES --- */
-    .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; }
+    .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; overflow: visible; }
     .card h3 { margin-bottom: 15px; color: var(--primary-color); font-size: 1.2rem; }
     
     table { width: 100%; border-collapse: collapse; text-align: left; }
@@ -50,7 +50,8 @@
     .line-chart-wrapper {
       position: relative;
       width: 100%;
-      overflow-x: hidden;
+      overflow: visible;
+      padding-top: 15px;
     }
 
     .line-chart-svg {
@@ -156,7 +157,7 @@
       transform: translate(-50%, -120%);
       transition: opacity 0.15s ease, transform 0.15s ease;
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-      z-index: 10;
+      z-index: 100;
       min-width: 150px;
     }
 
@@ -169,6 +170,13 @@
       border-width: 5px 5px 0;
       border-style: solid;
       border-color: #0f172a transparent;
+    }
+
+    .chart-tooltip.tooltip-bottom::after {
+      top: -5px;
+      bottom: auto;
+      border-width: 0 5px 5px;
+      border-color: transparent transparent #0f172a;
     }
 
     .tooltip-header {
@@ -1186,40 +1194,45 @@
         `;
       }).join('');
 
-      const crownSorted = [...poolData.players].sort((a, b) => {
-        if (computedStats[b].crowns !== computedStats[a].crowns) {
-          return computedStats[b].crowns - computedStats[a].crowns;
-        }
+      // FILTER CROWN STANDINGS TO ONLY PLAYERS WITH 1+ WINS
+      const crownWinners = [...poolData.players]
+        .filter(p => computedStats[p].crowns > 0)
+        .sort((a, b) => {
+          if (computedStats[b].crowns !== computedStats[a].crowns) {
+            return computedStats[b].crowns - computedStats[a].crowns;
+          }
 
-        const deltasA = computedStats[a].winningDeltas;
-        const deltasB = computedStats[b].winningDeltas;
-        
-        const avgA = deltasA.length > 0 ? (deltasA.reduce((sum, v) => sum + v, 0) / deltasA.length) : Infinity;
-        const avgB = deltasB.length > 0 ? (deltasB.reduce((sum, v) => sum + v, 0) / deltasB.length) : Infinity;
+          const deltasA = computedStats[a].winningDeltas;
+          const deltasB = computedStats[b].winningDeltas;
+          
+          const avgA = deltasA.length > 0 ? (deltasA.reduce((sum, v) => sum + v, 0) / deltasA.length) : Infinity;
+          const avgB = deltasB.length > 0 ? (deltasB.reduce((sum, v) => sum + v, 0) / deltasB.length) : Infinity;
 
-        return avgA - avgB;
-      });
+          return avgA - avgB;
+        });
 
       const crownBody = document.querySelector('#crowns-table tbody');
-      crownBody.innerHTML = crownSorted.map(p => {
-        const crowns = computedStats[p].crowns;
-        const deltas = computedStats[p].winningDeltas;
-        const avgDelta = deltas.length > 0 
-          ? (deltas.reduce((a, b) => a + b, 0) / deltas.length).toFixed(1) 
-          : 'N/A';
+      if (crownWinners.length === 0) {
+        crownBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted); padding: 15px;">No weekly crowns awarded yet.</td></tr>`;
+      } else {
+        crownBody.innerHTML = crownWinners.map(p => {
+          const crowns = computedStats[p].crowns;
+          const deltas = computedStats[p].winningDeltas;
+          const avgDelta = deltas.length > 0 
+            ? (deltas.reduce((a, b) => a + b, 0) / deltas.length).toFixed(1) 
+            : 'N/A';
 
-        const crownDisplay = crowns > 0 
-          ? `<span class="badge-win"><span class="crown-icon">👑</span><span class="crown-text">${crowns} ${crowns === 1 ? 'Win' : 'Wins'}</span></span>` 
-          : `0 Wins`;
+          const crownDisplay = `<span class="badge-win"><span class="crown-icon">👑</span><span class="crown-text">${crowns} ${crowns === 1 ? 'Win' : 'Wins'}</span></span>`;
 
-        return `
-          <tr>
-            <td><strong>${p}</strong></td>
-            <td class="text-center">${crownDisplay}</td>
-            <td class="text-center">${avgDelta}</td>
-          </tr>
-        `;
-      }).join('');
+          return `
+            <tr>
+              <td><strong>${p}</strong></td>
+              <td class="text-center">${crownDisplay}</td>
+              <td class="text-center">${avgDelta}</td>
+            </tr>
+          `;
+        }).join('');
+      }
     }
 
     function renderSeasonLineChart(sortedPlayers, playerRanks) {
@@ -1246,7 +1259,8 @@
 
       const width = container.clientWidth || 800;
       const rowHeight = 36;
-      const paddingTop = 30;
+      // INCREASED PADDING TOP TO PREVENT TOP TOOLTIP CUTOFF
+      const paddingTop = 60;
       const paddingBottom = 30;
       const paddingLeft = 110;
       const paddingRight = 45;
@@ -1288,7 +1302,7 @@
         const pct = totalPicks > 0 ? ((player.wins / totalPicks) * 100).toFixed(1) : "0.0";
 
         return {
-          x, y,
+          x, y, index,
           name: player.name,
           wins: player.wins,
           weeklyWins: player.weeklyWins,
@@ -1330,6 +1344,7 @@
              data-gb="${pt.gb}"
              data-rankstr="${pt.rankStr}"
              data-isleader="${isLeader}" 
+             data-index="${pt.index}"
              data-x="${pt.x}" 
              data-y="${pt.y}">
             
@@ -1350,7 +1365,7 @@
 
       svg.querySelectorAll('.point-group').forEach(group => {
         group.addEventListener('mouseenter', () => {
-          const { name, wins, weekly, pct, gb, rankstr, isleader, x, y } = group.dataset;
+          const { name, wins, weekly, pct, gb, rankstr, isleader, index, x, y } = group.dataset;
           const svgBox = svg.getBoundingClientRect();
           
           const pxX = (x / width) * svgBox.width;
@@ -1372,7 +1387,15 @@
           tooltip.style.left = `${pxX}px`;
           tooltip.style.top = `${pxY}px`;
           tooltip.style.opacity = '1';
-          tooltip.style.transform = 'translate(-50%, -120%)';
+
+          // DYNAMIC TOOLTIP POSITIONING TO PREVENT CLIPPING
+          if (parseInt(index, 10) === 0 || pxY < 90) {
+            tooltip.classList.add('tooltip-bottom');
+            tooltip.style.transform = 'translate(-50%, 15px)';
+          } else {
+            tooltip.classList.remove('tooltip-bottom');
+            tooltip.style.transform = 'translate(-50%, -120%)';
+          }
         });
 
         group.addEventListener('mouseleave', () => {
