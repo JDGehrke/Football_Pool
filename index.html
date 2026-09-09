@@ -208,6 +208,10 @@
       color: #ffffff;
     }
 
+    /* Ensure utility text classes override tooltip parent styles */
+    .chart-tooltip .text-success { color: var(--success) !important; font-weight: bold; }
+    .chart-tooltip .text-danger { color: var(--danger) !important; font-weight: bold; }
+
     /* --- WEEK TRACKER NO-WRAP FOR PICKS COLUMN --- */
     #week-tracker-table th:nth-child(2),
     #week-tracker-table td:nth-child(2) {
@@ -1397,8 +1401,8 @@
               <span>Season Record:</span> 
               <span><span class="text-success">${wins}</span>-<span class="text-danger">${losses}</span></span>
             </div>
-            <div class="tooltip-row"><span>Accuracy:</span> <span>${pct}</span></div>
             <div class="tooltip-row"><span>Games Back:</span> <span>${gb}</span></div>
+            <div class="tooltip-row"><span>Accuracy:</span> <span>${pct}</span></div>
             <div class="tooltip-row"><span>Weekly Wins:</span> <span>${weekly}</span></div>
           `;
 
