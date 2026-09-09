@@ -1097,25 +1097,32 @@
           if (maxWins > 0) {
             const topPlayers = poolData.players.filter(p => computedStats[p].weeklyHistory[weekKey].correct === maxWins);
             
-            let crownWinner = topPlayers[0];
+            let crownWinners = [topPlayers[0]];
             if (topPlayers.length > 1) {
               let minDiff = Infinity;
               topPlayers.forEach(p => {
                 const d = computedStats[p].weeklyHistory[weekKey].diff;
                 if (d !== null && d < minDiff) {
                   minDiff = d;
-                  crownWinner = p;
                 }
               });
-            }
 
-            if (computedStats[crownWinner]) {
-              computedStats[crownWinner].crowns++;
-              const crownDiff = computedStats[crownWinner].weeklyHistory[weekKey].diff;
-              if (crownDiff !== null) {
-                computedStats[crownWinner].winningDeltas.push(crownDiff);
+              if (minDiff !== Infinity) {
+                crownWinners = topPlayers.filter(p => computedStats[p].weeklyHistory[weekKey].diff === minDiff);
+              } else {
+                crownWinners = topPlayers;
               }
             }
+
+            crownWinners.forEach(crownWinner => {
+              if (computedStats[crownWinner]) {
+                computedStats[crownWinner].crowns++;
+                const crownDiff = computedStats[crownWinner].weeklyHistory[weekKey].diff;
+                if (crownDiff !== null) {
+                  computedStats[crownWinner].winningDeltas.push(crownDiff);
+                }
+              }
+            });
           }
         }
       });
@@ -1504,9 +1511,21 @@
 
       const maxWins = sortedPlayers.length > 0 ? (computedStats[sortedPlayers[0]]?.weeklyHistory[week]?.correct || 0) : 0;
       
-      const topScorersCount = sortedPlayers.filter(
+      const topScorers = sortedPlayers.filter(
         p => (computedStats[p]?.weeklyHistory[week]?.correct || 0) === maxWins
-      ).length;
+      );
+
+      let winningDiff = Infinity;
+      topScorers.forEach(p => {
+        const d = computedStats[p]?.weeklyHistory[week]?.diff;
+        if (d !== null && d !== undefined && d < winningDiff) {
+          winningDiff = d;
+        }
+      });
+
+      const winningPlayers = winningDiff !== Infinity
+        ? topScorers.filter(p => computedStats[p]?.weeklyHistory[week]?.diff === winningDiff)
+        : topScorers;
 
       const trackerBody = document.querySelector('#week-tracker-table tbody');
       trackerBody.innerHTML = sortedPlayers.map((p, idx) => {
@@ -1515,10 +1534,10 @@
         const diffStr = wHist.diff !== null ? `${wHist.diff}` : '-';
 
         let crownBadge = '';
-        if (wHist.correct > 0 && wHist.correct === maxWins && idx === 0) {
+        if (wHist.correct > 0 && wHist.correct === maxWins && winningPlayers.includes(p)) {
           if (isWeekComplete) {
             crownBadge = `<span class="crown-solid" title="Official Weekly Winner">👑</span>`;
-          } else if (topScorersCount === 1) {
+          } else if (winningPlayers.length === 1) {
             crownBadge = `<span class="crown-tentative" title="Tentative Weekly Leader">👑</span>`;
           }
         }
