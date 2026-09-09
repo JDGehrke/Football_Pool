@@ -996,7 +996,7 @@
 
         matchups.forEach(m => {
           const teamsInGame = (m.game || '')
-            .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s+-\s+/i)
+            .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
             .map(t => t.trim().toUpperCase())
             .filter(t => t.length >= 2);
 
@@ -1162,8 +1162,8 @@
     function renderOverallTab() {
       const { sorted, playerRanks } = getPlayerRanks();
 
-      // Render Dynamic Season Trajectory Line Graph
-      renderSeasonLineChart(sorted);
+      // Render Dynamic Season Trajectory Line Graph passing calculated ranks
+      renderSeasonLineChart(sorted, playerRanks);
 
       const lbBody = document.querySelector('#leaderboard-table tbody');
       lbBody.innerHTML = sorted.map(p => {
@@ -1221,7 +1221,7 @@
       }).join('');
     }
 
-    function renderSeasonLineChart(sortedPlayers) {
+    function renderSeasonLineChart(sortedPlayers, playerRanks) {
       const svg = document.getElementById('season-line-chart');
       const tooltip = document.getElementById('season-chart-tooltip');
       if (!svg || !tooltip) return;
@@ -1233,20 +1233,14 @@
 
       if (!sortedPlayers || sortedPlayers.length === 0) return;
 
-      // Compute total games played so far across locked/completed matchups
-      let totalSeasonGames = 0;
-      Object.values(poolData.weeks || {}).forEach(w => {
-        (w.matchups || []).forEach(m => {
-          if (m.winner) totalSeasonGames++;
-        });
-      });
-      if (totalSeasonGames === 0) totalSeasonGames = 1;
-
       const playersData = sortedPlayers.map(name => ({
         name: name,
         wins: computedStats[name]?.correct || 0,
         losses: computedStats[name]?.incorrect || 0,
-        weeklyWins: computedStats[name]?.crowns || 0
+        weeklyWins: computedStats[name]?.crowns || 0,
+        rankStr: playerRanks[name]?.rankStr || '—',
+        rankNum: playerRanks[name]?.rank || 1,
+        gb: playerRanks[name]?.gb !== undefined ? playerRanks[name].gb : '—'
       }));
 
       const width = 900;
@@ -1298,7 +1292,6 @@
         
         const totalPicks = player.wins + player.losses;
         const pct = totalPicks > 0 ? ((player.wins / totalPicks) * 100).toFixed(1) : "0.0";
-        const gb = index === 0 ? "—" : `-${leaderWins - player.wins}`;
 
         return { 
           x, y, 
@@ -1306,8 +1299,9 @@
           wins: player.wins, 
           weeklyWins: player.weeklyWins,
           pct: `${pct}%`,
-          gb,
-          rank: index + 1 
+          rankStr: player.rankStr,
+          rankNum: player.rankNum,
+          gb: player.gb
         };
       });
 
@@ -1321,7 +1315,7 @@
 
       // 3. Render Points & Pulsing Ring
       points.forEach((pt) => {
-        const isLeader = pt.rank === 1;
+        const isLeader = pt.rankNum === 1;
         const fill = isLeader ? '#fffbeb' : '#ffffff';
         const stroke = isLeader ? '#f59e0b' : '#2563eb';
         const strokeWidth = isLeader ? 3 : 2.5;
@@ -1335,7 +1329,8 @@
              data-weekly="${pt.weeklyWins}"
              data-pct="${pt.pct}"
              data-gb="${pt.gb}"
-             data-rank="${pt.rank}" 
+             data-rankstr="${pt.rankStr}"
+             data-isleader="${isLeader}" 
              data-x="${pt.x}" 
              data-y="${pt.y}">
             
@@ -1361,13 +1356,13 @@
       // 4. Attach Tooltip Listeners
       svg.querySelectorAll('.point-group').forEach(group => {
         group.addEventListener('mouseenter', () => {
-          const { name, wins, weekly, pct, gb, rank, x, y } = group.dataset;
+          const { name, wins, weekly, pct, gb, rankstr, isleader, x, y } = group.dataset;
           const svgBox = svg.getBoundingClientRect();
           
           const pxX = (x / width) * svgBox.width;
           const pxY = (y / height) * svgBox.height;
 
-          const leaderBadge = rank === '1' ? '<span class="gold-crown">👑 #1</span>' : `#${rank}`;
+          const leaderBadge = isleader === 'true' ? `<span class="gold-crown">👑 ${rankstr}</span>` : `${rankstr}`;
 
           tooltip.innerHTML = `
             <div class="tooltip-header">
@@ -1679,7 +1674,7 @@
           if (!isFinal || !winner) return;
 
           const teamsInGame = (m.game || '')
-            .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s+-\s+/i)
+            .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
             .map(t => t.trim().toUpperCase())
             .filter(t => t.length >= 2);
 
@@ -1897,7 +1892,7 @@
 
         matchups.forEach(m => {
           const teamsInGame = (m.game || '')
-            .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s+-\s+/i)
+            .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
             .map(t => t.trim().toUpperCase())
             .filter(t => t.length >= 2);
 
