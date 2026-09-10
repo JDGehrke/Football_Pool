@@ -1715,19 +1715,24 @@
 
         const isLocked = lockDate && (now >= lockDate);
 
+        // Only inspect weeks where picks are locked
         if (!isLocked) return;
 
         matchups.forEach(m => {
           const winner = m.winner ? m.winner.trim().toUpperCase() : null;
-          const isFinal = Boolean(winner) && (m.status === 'STATUS_FINAL' || m.status === 'Final' || winner !== null);
-
-          if (!isFinal || !winner) return;
+          const isFinal = Boolean(winner) && (
+            m.status === 'STATUS_FINAL' || 
+            m.status === 'Final' || 
+            m.status === 'Completed' || 
+            m.status === 'Post-Game'
+          );
 
           const teamsInGame = (m.game || '')
             .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
             .map(t => t.trim().toUpperCase())
             .filter(t => t.length >= 2);
 
+          // 1. Track Matchups & Picks (Allowed because week is locked)
           teamsInGame.forEach(team => {
             if (!poolTeamStatsLocked[team]) {
               poolTeamStatsLocked[team] = { totalMatchups: 0, picked: 0, correct: 0 };
@@ -1756,7 +1761,8 @@
                 playerTeamStats[pick].picked++;
               }
 
-              if (winner !== 'TIE' && pick === winner) {
+              // 2. Track Wins/Accuracy ONLY if the game is Final
+              if (isFinal && winner && winner !== 'TIE' && pick === winner) {
                 poolTeamStatsLocked[pick].correct++;
                 if (p === playerId) {
                   playerTeamStats[pick].correct++;
@@ -1867,7 +1873,7 @@
         .sort((a, b) => a.localeCompare(b));
 
       if (sortedTeams.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">No completed games recorded yet.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;">No locked games recorded yet.</td></tr>`;
         return;
       }
 
@@ -1951,7 +1957,12 @@
           const pickedTarget = (pick === team);
           
           const winner = m.winner ? m.winner.trim().toUpperCase() : null;
-          const isFinal = winner || m.status === 'STATUS_FINAL' || m.status === 'Final';
+          const isFinal = Boolean(winner) && (
+            m.status === 'STATUS_FINAL' || 
+            m.status === 'Final' || 
+            m.status === 'Completed' || 
+            m.status === 'Post-Game'
+          );
 
           let outcomeTag = 'Pending';
           let outcomeClass = 'pick-pending';
@@ -2019,7 +2030,7 @@
                   <td class="text-center">${r.pickText}</td>
                   <td class="text-center ${r.outcomeClass}">${r.outcomeTag}</td>
                 </tr>
-              `).join('') : `<tr><td colspan="3" style="text-align:center;">No completed games for this team yet.</td></tr>`}
+              `).join('') : `<tr><td colspan="3" style="text-align:center;">No locked games for this team yet.</td></tr>`}
             </tbody>
           </table>
         </div>
