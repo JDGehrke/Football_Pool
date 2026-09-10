@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Wednesday @ 7:31pm",
+    "lastUpdated": "Wednesday @ 7:39pm",
     "currentWeek": "Week 1"
   },
   "hall_of_fame": [
@@ -136,6 +136,7 @@
             "ANDI": "SEA",
             "MADDIE": "SEA",
             "KENZIE": "NE",
+            "BETHANY": "NE",
             "JEN": "SEA",
             "ELLY": "SEA",
             "NICK": "SEA",
@@ -149,7 +150,6 @@
             "HENNIE": "SEA",
             "DEVIN": "SEA",
             "HUNTER": "SEA",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "NE @ SEA",
@@ -167,6 +167,7 @@
             "ANDI": "LAR",
             "MADDIE": "LAR",
             "KENZIE": "LAR",
+            "BETHANY": "LAR",
             "JEN": "LAR",
             "ELLY": "SF",
             "NICK": "LAR",
@@ -180,7 +181,6 @@
             "HENNIE": "LAR",
             "DEVIN": "LAR",
             "HUNTER": "LAR",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "SF VS LAR",
@@ -198,6 +198,7 @@
             "ANDI": "TB",
             "MADDIE": "CIN",
             "KENZIE": "TB",
+            "BETHANY": "TB",
             "JEN": "TB",
             "ELLY": "CIN",
             "NICK": "CIN",
@@ -211,7 +212,6 @@
             "HENNIE": "CIN",
             "DEVIN": "CIN",
             "HUNTER": "CIN",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "TB @ CIN",
@@ -229,6 +229,7 @@
             "ANDI": "DET",
             "MADDIE": "DET",
             "KENZIE": "DET",
+            "BETHANY": "NO",
             "JEN": "DET",
             "ELLY": "DET",
             "NICK": "DET",
@@ -242,7 +243,6 @@
             "HENNIE": "DET",
             "DEVIN": "DET",
             "HUNTER": "DET",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "NO @ DET",
@@ -260,6 +260,7 @@
             "ANDI": "TEN",
             "MADDIE": "NYJ",
             "KENZIE": "TEN",
+            "BETHANY": "TEN",
             "JEN": "TEN",
             "ELLY": "TEN",
             "NICK": "NYJ",
@@ -273,7 +274,6 @@
             "HENNIE": "TEN",
             "DEVIN": "NYJ",
             "HUNTER": "NYJ",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "NYJ @ TEN",
@@ -291,6 +291,7 @@
             "ANDI": "IND",
             "MADDIE": "BAL",
             "KENZIE": "BAL",
+            "BETHANY": "IND",
             "JEN": "IND",
             "ELLY": "BAL",
             "NICK": "IND",
@@ -304,7 +305,6 @@
             "HENNIE": "BAL",
             "DEVIN": "BAL",
             "HUNTER": "BAL",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "BAL @ IND",
@@ -322,6 +322,7 @@
             "ANDI": "ATL",
             "MADDIE": "ATL",
             "KENZIE": "PIT",
+            "BETHANY": "ATL",
             "JEN": "PIT",
             "ELLY": "PIT",
             "NICK": "PIT",
@@ -335,7 +336,6 @@
             "HENNIE": "PIT",
             "DEVIN": "ATL",
             "HUNTER": "PIT",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "ATL @ PIT",
@@ -353,6 +353,7 @@
             "ANDI": "CAR",
             "MADDIE": "CAR",
             "KENZIE": "CHI",
+            "BETHANY": "CAR",
             "JEN": "CHI",
             "ELLY": "CHI",
             "NICK": "CHI",
@@ -366,7 +367,6 @@
             "HENNIE": "CAR",
             "DEVIN": "CHI",
             "HUNTER": "CHI",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "CHI @ CAR",
@@ -384,6 +384,7 @@
             "ANDI": "JAX",
             "MADDIE": "JAX",
             "KENZIE": "JAX",
+            "BETHANY": "JAX",
             "JEN": "JAX",
             "ELLY": "JAX",
             "NICK": "JAX",
@@ -397,7 +398,6 @@
             "HENNIE": "JAX",
             "DEVIN": "JAX",
             "HUNTER": "JAX",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "CLE @ JAX",
@@ -415,6 +415,7 @@
             "ANDI": "HOU",
             "MADDIE": "BUF",
             "KENZIE": "BUF",
+            "BETHANY": "HOU",
             "JEN": "HOU",
             "ELLY": "BUF",
             "NICK": "BUF",
@@ -428,7 +429,6 @@
             "HENNIE": "HOU",
             "DEVIN": "BUF",
             "HUNTER": "BUF",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "BUF @ HOU",
@@ -446,6 +446,7 @@
             "ANDI": "LV",
             "MADDIE": "MIA",
             "KENZIE": "MIA",
+            "BETHANY": "MIA",
             "JEN": "LV",
             "ELLY": "MIA",
             "NICK": "LV",
@@ -459,7 +460,6 @@
             "HENNIE": "MIA",
             "DEVIN": "MIA",
             "HUNTER": "LV",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "MIA @ LV",
@@ -477,6 +477,7 @@
             "ANDI": "GB",
             "MADDIE": "GB",
             "KENZIE": "GB",
+            "BETHANY": "MIN",
             "JEN": "MIN",
             "ELLY": "GB",
             "NICK": "GB",
@@ -490,7 +491,6 @@
             "HENNIE": "GB",
             "DEVIN": "GB",
             "HUNTER": "MIN",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "GB @ MIN",
@@ -508,6 +508,7 @@
             "ANDI": "PHI",
             "MADDIE": "PHI",
             "KENZIE": "PHI",
+            "BETHANY": "WSH",
             "JEN": "PHI",
             "ELLY": "PHI",
             "NICK": "PHI",
@@ -521,7 +522,6 @@
             "HENNIE": "PHI",
             "DEVIN": "PHI",
             "HUNTER": "PHI",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "WSH @ PHI",
@@ -539,6 +539,7 @@
             "ANDI": "LAC",
             "MADDIE": "LAC",
             "KENZIE": "ARI",
+            "BETHANY": "ARI",
             "JEN": "LAC",
             "ELLY": "LAC",
             "NICK": "LAC",
@@ -552,7 +553,6 @@
             "HENNIE": "ARI",
             "DEVIN": "ARI",
             "HUNTER": "LAC",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "ARI @ LAC",
@@ -570,6 +570,7 @@
             "ANDI": "NYG",
             "MADDIE": "DAL",
             "KENZIE": "DAL",
+            "BETHANY": "NYG",
             "JEN": "DAL",
             "ELLY": "DAL",
             "NICK": "DAL",
@@ -583,7 +584,6 @@
             "HENNIE": "DAL",
             "DEVIN": "NYG",
             "HUNTER": "DAL",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "DAL @ NYG",
@@ -601,6 +601,7 @@
             "ANDI": "KC",
             "MADDIE": "KC",
             "KENZIE": "DEN",
+            "BETHANY": "KC",
             "JEN": "DEN",
             "ELLY": "KC",
             "NICK": "KC",
@@ -614,7 +615,6 @@
             "HENNIE": "DEN",
             "DEVIN": "DEN",
             "HUNTER": "DEN",
-            "BETHANY": "\u2014",
             "TONY": "\u2014"
           },
           "game": "DEN @ KC",
@@ -638,8 +638,8 @@
             "predictedTotal": 38
           },
           "BETHANY": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "KC",
+            "predictedTotal": 24
           },
           "BRANDON": {
             "winner": "DEN",
