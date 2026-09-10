@@ -950,12 +950,32 @@
         (poolData.players || []).map(p => `<option value="${p}">${p}</option>`).join('');
 
       const matrixOptionsContainer = document.getElementById('matrix-player-options');
-      matrixOptionsContainer.innerHTML = (poolData.players || []).map(p => `
+      
+      const selectAllHtml = `
+        <li style="border-bottom: 1px solid var(--border-color); padding-bottom: 6px; margin-bottom: 6px;">
+          <input type="checkbox" id="chk-mat-select-all" checked onchange="toggleSelectAllMatrixPlayers(this)">
+          <label for="chk-mat-select-all"><strong>Select / Deselect All</strong></label>
+        </li>
+      `;
+
+      const playerOptionsHtml = (poolData.players || []).map(p => `
         <li>
-          <input type="checkbox" id="chk-mat-${p}" value="${p}" checked onchange="updateMatrixPlayerFilter()">
+          <input type="checkbox" id="chk-mat-${p}" class="matrix-player-chk" value="${p}" checked onchange="updateMatrixPlayerFilter()">
           <label for="chk-mat-${p}">${p}</label>
         </li>
       `).join('');
+
+      matrixOptionsContainer.innerHTML = selectAllHtml + playerOptionsHtml;
+    }
+
+    function toggleSelectAllMatrixPlayers(selectAllCheckbox) {
+      const playerCheckboxes = document.querySelectorAll('.matrix-player-chk');
+      
+      playerCheckboxes.forEach(cb => {
+        cb.checked = selectAllCheckbox.checked;
+      });
+
+      updateMatrixPlayerFilter();
     }
 
     function toggleMatrixDropdown() {
@@ -971,8 +991,21 @@
     });
 
     function updateMatrixPlayerFilter() {
-      const checkboxes = document.querySelectorAll('#matrix-player-options input[type="checkbox"]');
-      selectedMatrixPlayers = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+      const playerCheckboxes = document.querySelectorAll('.matrix-player-chk');
+      const selectAllCheckbox = document.getElementById('chk-mat-select-all');
+
+      selectedMatrixPlayers = Array.from(playerCheckboxes)
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+
+      if (selectAllCheckbox && playerCheckboxes.length > 0) {
+        const allChecked = Array.from(playerCheckboxes).every(cb => cb.checked);
+        const noneChecked = Array.from(playerCheckboxes).every(cb => !cb.checked);
+
+        selectAllCheckbox.checked = allChecked;
+        selectAllCheckbox.indeterminate = !allChecked && !noneChecked;
+      }
+
       renderMatrixOnly();
     }
 
