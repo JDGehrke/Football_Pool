@@ -296,7 +296,7 @@ for p in players:
     else:
         tiebreaker_picks.update({p: {
                                      'winner': game['picks'][p]
-                                     ,'predictedTotal': int(tiebreaker_scores[p])
+                                     ,'predictedTotal': int(round(float(tiebreaker_scores[p])))
                                      }
                                  })
 tiebreaker = {
