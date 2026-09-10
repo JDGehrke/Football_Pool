@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Wednesday @ 7:39pm",
+    "lastUpdated": "Wednesday @ 8:08pm",
     "currentWeek": "Week 1"
   },
   "hall_of_fame": [
@@ -138,6 +138,7 @@
             "KENZIE": "NE",
             "BETHANY": "NE",
             "JEN": "SEA",
+            "TONY": "SEA",
             "ELLY": "SEA",
             "NICK": "SEA",
             "EMILY": "SEA",
@@ -149,8 +150,7 @@
             "JIM": "SEA",
             "HENNIE": "SEA",
             "DEVIN": "SEA",
-            "HUNTER": "SEA",
-            "TONY": "\u2014"
+            "HUNTER": "SEA"
           },
           "game": "NE @ SEA",
           "date": "2026-09-10T00:20Z",
@@ -169,6 +169,7 @@
             "KENZIE": "LAR",
             "BETHANY": "LAR",
             "JEN": "LAR",
+            "TONY": "LAR",
             "ELLY": "SF",
             "NICK": "LAR",
             "EMILY": "SF",
@@ -180,8 +181,7 @@
             "JIM": "LAR",
             "HENNIE": "LAR",
             "DEVIN": "LAR",
-            "HUNTER": "LAR",
-            "TONY": "\u2014"
+            "HUNTER": "LAR"
           },
           "game": "SF VS LAR",
           "date": "2026-09-11T00:35Z",
@@ -200,6 +200,7 @@
             "KENZIE": "TB",
             "BETHANY": "TB",
             "JEN": "TB",
+            "TONY": "TB",
             "ELLY": "CIN",
             "NICK": "CIN",
             "EMILY": "TB",
@@ -211,8 +212,7 @@
             "JIM": "CIN",
             "HENNIE": "CIN",
             "DEVIN": "CIN",
-            "HUNTER": "CIN",
-            "TONY": "\u2014"
+            "HUNTER": "CIN"
           },
           "game": "TB @ CIN",
           "date": "2026-09-13T17:00Z",
@@ -231,6 +231,7 @@
             "KENZIE": "DET",
             "BETHANY": "NO",
             "JEN": "DET",
+            "TONY": "DET",
             "ELLY": "DET",
             "NICK": "DET",
             "EMILY": "NO",
@@ -242,8 +243,7 @@
             "JIM": "DET",
             "HENNIE": "DET",
             "DEVIN": "DET",
-            "HUNTER": "DET",
-            "TONY": "\u2014"
+            "HUNTER": "DET"
           },
           "game": "NO @ DET",
           "date": "2026-09-13T17:00Z",
@@ -262,6 +262,7 @@
             "KENZIE": "TEN",
             "BETHANY": "TEN",
             "JEN": "TEN",
+            "TONY": "TEN",
             "ELLY": "TEN",
             "NICK": "NYJ",
             "EMILY": "TEN",
@@ -273,8 +274,7 @@
             "JIM": "NYJ",
             "HENNIE": "TEN",
             "DEVIN": "NYJ",
-            "HUNTER": "NYJ",
-            "TONY": "\u2014"
+            "HUNTER": "NYJ"
           },
           "game": "NYJ @ TEN",
           "date": "2026-09-13T17:00Z",
@@ -293,6 +293,7 @@
             "KENZIE": "BAL",
             "BETHANY": "IND",
             "JEN": "IND",
+            "TONY": "IND",
             "ELLY": "BAL",
             "NICK": "IND",
             "EMILY": "BAL",
@@ -304,8 +305,7 @@
             "JIM": "BAL",
             "HENNIE": "BAL",
             "DEVIN": "BAL",
-            "HUNTER": "BAL",
-            "TONY": "\u2014"
+            "HUNTER": "BAL"
           },
           "game": "BAL @ IND",
           "date": "2026-09-13T17:00Z",
@@ -324,6 +324,7 @@
             "KENZIE": "PIT",
             "BETHANY": "ATL",
             "JEN": "PIT",
+            "TONY": "PIT",
             "ELLY": "PIT",
             "NICK": "PIT",
             "EMILY": "PIT",
@@ -335,8 +336,7 @@
             "JIM": "PIT",
             "HENNIE": "PIT",
             "DEVIN": "ATL",
-            "HUNTER": "PIT",
-            "TONY": "\u2014"
+            "HUNTER": "PIT"
           },
           "game": "ATL @ PIT",
           "date": "2026-09-13T17:00Z",
@@ -355,6 +355,7 @@
             "KENZIE": "CHI",
             "BETHANY": "CAR",
             "JEN": "CHI",
+            "TONY": "CAR",
             "ELLY": "CHI",
             "NICK": "CHI",
             "EMILY": "CHI",
@@ -366,8 +367,7 @@
             "JIM": "CAR",
             "HENNIE": "CAR",
             "DEVIN": "CHI",
-            "HUNTER": "CHI",
-            "TONY": "\u2014"
+            "HUNTER": "CHI"
           },
           "game": "CHI @ CAR",
           "date": "2026-09-13T17:00Z",
@@ -386,6 +386,7 @@
             "KENZIE": "JAX",
             "BETHANY": "JAX",
             "JEN": "JAX",
+            "TONY": "CLE",
             "ELLY": "JAX",
             "NICK": "JAX",
             "EMILY": "JAX",
@@ -397,8 +398,7 @@
             "JIM": "JAX",
             "HENNIE": "JAX",
             "DEVIN": "JAX",
-            "HUNTER": "JAX",
-            "TONY": "\u2014"
+            "HUNTER": "JAX"
           },
           "game": "CLE @ JAX",
           "date": "2026-09-13T17:00Z",
@@ -417,6 +417,7 @@
             "KENZIE": "BUF",
             "BETHANY": "HOU",
             "JEN": "HOU",
+            "TONY": "HOU",
             "ELLY": "BUF",
             "NICK": "BUF",
             "EMILY": "BUF",
@@ -428,8 +429,7 @@
             "JIM": "BUF",
             "HENNIE": "HOU",
             "DEVIN": "BUF",
-            "HUNTER": "BUF",
-            "TONY": "\u2014"
+            "HUNTER": "BUF"
           },
           "game": "BUF @ HOU",
           "date": "2026-09-13T17:00Z",
@@ -448,6 +448,7 @@
             "KENZIE": "MIA",
             "BETHANY": "MIA",
             "JEN": "LV",
+            "TONY": "MIA",
             "ELLY": "MIA",
             "NICK": "LV",
             "EMILY": "LV",
@@ -459,8 +460,7 @@
             "JIM": "LV",
             "HENNIE": "MIA",
             "DEVIN": "MIA",
-            "HUNTER": "LV",
-            "TONY": "\u2014"
+            "HUNTER": "LV"
           },
           "game": "MIA @ LV",
           "date": "2026-09-13T20:25Z",
@@ -479,6 +479,7 @@
             "KENZIE": "GB",
             "BETHANY": "MIN",
             "JEN": "MIN",
+            "TONY": "GB",
             "ELLY": "GB",
             "NICK": "GB",
             "EMILY": "GB",
@@ -490,8 +491,7 @@
             "JIM": "GB",
             "HENNIE": "GB",
             "DEVIN": "GB",
-            "HUNTER": "MIN",
-            "TONY": "\u2014"
+            "HUNTER": "MIN"
           },
           "game": "GB @ MIN",
           "date": "2026-09-13T20:25Z",
@@ -510,6 +510,7 @@
             "KENZIE": "PHI",
             "BETHANY": "WSH",
             "JEN": "PHI",
+            "TONY": "PHI",
             "ELLY": "PHI",
             "NICK": "PHI",
             "EMILY": "PHI",
@@ -521,8 +522,7 @@
             "JIM": "PHI",
             "HENNIE": "PHI",
             "DEVIN": "PHI",
-            "HUNTER": "PHI",
-            "TONY": "\u2014"
+            "HUNTER": "PHI"
           },
           "game": "WSH @ PHI",
           "date": "2026-09-13T20:25Z",
@@ -541,6 +541,7 @@
             "KENZIE": "ARI",
             "BETHANY": "ARI",
             "JEN": "LAC",
+            "TONY": "LAC",
             "ELLY": "LAC",
             "NICK": "LAC",
             "EMILY": "LAC",
@@ -552,8 +553,7 @@
             "JIM": "LAC",
             "HENNIE": "ARI",
             "DEVIN": "ARI",
-            "HUNTER": "LAC",
-            "TONY": "\u2014"
+            "HUNTER": "LAC"
           },
           "game": "ARI @ LAC",
           "date": "2026-09-13T20:25Z",
@@ -572,6 +572,7 @@
             "KENZIE": "DAL",
             "BETHANY": "NYG",
             "JEN": "DAL",
+            "TONY": "DAL",
             "ELLY": "DAL",
             "NICK": "DAL",
             "EMILY": "DAL",
@@ -583,8 +584,7 @@
             "JIM": "DAL",
             "HENNIE": "DAL",
             "DEVIN": "NYG",
-            "HUNTER": "DAL",
-            "TONY": "\u2014"
+            "HUNTER": "DAL"
           },
           "game": "DAL @ NYG",
           "date": "2026-09-14T00:20Z",
@@ -603,6 +603,7 @@
             "KENZIE": "DEN",
             "BETHANY": "KC",
             "JEN": "DEN",
+            "TONY": "KC",
             "ELLY": "KC",
             "NICK": "KC",
             "EMILY": "DEN",
@@ -614,8 +615,7 @@
             "JIM": "KC",
             "HENNIE": "DEN",
             "DEVIN": "DEN",
-            "HUNTER": "DEN",
-            "TONY": "\u2014"
+            "HUNTER": "DEN"
           },
           "game": "DEN @ KC",
           "date": "2026-09-15T00:15Z",
@@ -710,8 +710,8 @@
             "predictedTotal": 46
           },
           "TONY": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "KC",
+            "predictedTotal": 38
           },
           "WESLEY": {
             "winner": "KC",
