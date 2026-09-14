@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 10:25pm",
+    "lastUpdated": "Sunday @ 10:55pm",
     "currentWeek": "Week 1"
   },
   "hall_of_fame": [
@@ -588,8 +588,8 @@
           },
           "game": "DAL @ NYG",
           "date": "2026-09-14T00:20Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34"
+          "winner": "NYG",
+          "status": "Final"
         },
         {
           "id": "401872931",
