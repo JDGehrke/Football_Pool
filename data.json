@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 6:25pm",
+    "lastUpdated": "Sunday @ 7:05pm",
     "currentWeek": "Week 1"
   },
   "hall_of_fame": [
@@ -464,8 +464,8 @@
           },
           "game": "MIA @ LV",
           "date": "2026-09-13T20:25Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34"
+          "winner": "LV",
+          "status": "Final"
         },
         {
           "id": "401872927",
@@ -495,8 +495,8 @@
           },
           "game": "GB @ MIN",
           "date": "2026-09-13T20:25Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34"
+          "winner": "MIN",
+          "status": "Final"
         },
         {
           "id": "401872929",
@@ -526,8 +526,8 @@
           },
           "game": "WSH @ PHI",
           "date": "2026-09-13T20:25Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34"
+          "winner": "PHI",
+          "status": "Final"
         },
         {
           "id": "401872926",
@@ -557,8 +557,8 @@
           },
           "game": "ARI @ LAC",
           "date": "2026-09-13T20:25Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34"
+          "winner": "ARI",
+          "status": "Final"
         },
         {
           "id": "401872930",
