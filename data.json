@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Tuesday @ 6:26am",
+    "lastUpdated": "Tuesday @ 6:50pm",
     "currentWeek": "Week 1"
   },
   "hall_of_fame": [
@@ -155,7 +155,9 @@
           "game": "NE @ SEA",
           "date": "2026-09-10T00:20Z",
           "winner": "SEA",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "10",
+          "homeScore": "13"
         },
         {
           "id": "401872657",
@@ -186,7 +188,9 @@
           "game": "SF VS LAR",
           "date": "2026-09-11T00:35Z",
           "winner": "SF",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "27",
+          "homeScore": "7"
         },
         {
           "id": "401872925",
@@ -217,7 +221,9 @@
           "game": "TB @ CIN",
           "date": "2026-09-13T17:00Z",
           "winner": "CIN",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "27",
+          "homeScore": "33"
         },
         {
           "id": "401872923",
@@ -248,7 +254,9 @@
           "game": "NO @ DET",
           "date": "2026-09-13T17:00Z",
           "winner": "DET",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "30",
+          "homeScore": "31"
         },
         {
           "id": "401872924",
@@ -279,7 +287,9 @@
           "game": "NYJ @ TEN",
           "date": "2026-09-13T17:00Z",
           "winner": "NYJ",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "23",
+          "homeScore": "10"
         },
         {
           "id": "401872659",
@@ -310,7 +320,9 @@
           "game": "BAL @ IND",
           "date": "2026-09-13T17:00Z",
           "winner": "BAL",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "41",
+          "homeScore": "23"
         },
         {
           "id": "401872658",
@@ -341,7 +353,9 @@
           "game": "ATL @ PIT",
           "date": "2026-09-13T17:00Z",
           "winner": "PIT",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "13",
+          "homeScore": "20"
         },
         {
           "id": "401872661",
@@ -372,7 +386,9 @@
           "game": "CHI @ CAR",
           "date": "2026-09-13T17:00Z",
           "winner": "CHI",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "59",
+          "homeScore": "37"
         },
         {
           "id": "401872922",
@@ -403,7 +419,9 @@
           "game": "CLE @ JAX",
           "date": "2026-09-13T17:00Z",
           "winner": "JAX",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "10",
+          "homeScore": "34"
         },
         {
           "id": "401872660",
@@ -434,7 +452,9 @@
           "game": "BUF @ HOU",
           "date": "2026-09-13T17:00Z",
           "winner": "BUF",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "36",
+          "homeScore": "31"
         },
         {
           "id": "401872928",
@@ -465,7 +485,9 @@
           "game": "MIA @ LV",
           "date": "2026-09-13T20:25Z",
           "winner": "LV",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "13",
+          "homeScore": "27"
         },
         {
           "id": "401872927",
@@ -496,7 +518,9 @@
           "game": "GB @ MIN",
           "date": "2026-09-13T20:25Z",
           "winner": "MIN",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "22",
+          "homeScore": "39"
         },
         {
           "id": "401872929",
@@ -527,7 +551,9 @@
           "game": "WSH @ PHI",
           "date": "2026-09-13T20:25Z",
           "winner": "PHI",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "22",
+          "homeScore": "24"
         },
         {
           "id": "401872926",
@@ -558,7 +584,9 @@
           "game": "ARI @ LAC",
           "date": "2026-09-13T20:25Z",
           "winner": "ARI",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "26",
+          "homeScore": "14"
         },
         {
           "id": "401872930",
@@ -589,7 +617,9 @@
           "game": "DAL @ NYG",
           "date": "2026-09-14T00:20Z",
           "winner": "NYG",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "20",
+          "homeScore": "28"
         },
         {
           "id": "401872931",
@@ -620,7 +650,9 @@
           "game": "DEN @ KC",
           "date": "2026-09-15T00:15Z",
           "winner": "KC",
-          "status": "Final"
+          "status": "Final",
+          "awayScore": "10",
+          "homeScore": "31"
         }
       ],
       "tiebreaker": {
