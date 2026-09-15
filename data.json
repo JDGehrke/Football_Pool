@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Monday @ 7:39pm",
+    "lastUpdated": "Tuesday @ 6:26am",
     "currentWeek": "Week 1"
   },
   "hall_of_fame": [
@@ -619,15 +619,15 @@
           },
           "game": "DEN @ KC",
           "date": "2026-09-15T00:15Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34"
+          "winner": "KC",
+          "status": "Final"
         }
       ],
       "tiebreaker": {
         "game": "DEN @ KC",
-        "status": "\ud83d\udd34 Live \ud83d\udd34",
-        "winner": null,
-        "actualTotalScore": 14,
+        "status": "Final",
+        "winner": "KC",
+        "actualTotalScore": 41,
         "picks": {
           "ANDI": {
             "winner": "KC",
