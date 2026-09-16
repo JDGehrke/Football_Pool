@@ -2093,124 +2093,114 @@
     }
 
     function openTeamScheduleModal(team) {
-      const modalTitle = document.getElementById('modal-team-title');
-      const modalBody = document.getElementById('modal-team-body');
+  const modalTitle = document.getElementById('modal-team-title');
+  const modalBody = document.getElementById('modal-team-body');
+  
+  modalTitle.innerHTML = `${getTeamLogoHtml(team)} Schedule`;
+
+  let totalWins = 0, totalLosses = 0, totalTies = 0;
+  const logRows = [];
+
+  Object.entries(poolData.weeks || {}).forEach(([weekKey, weekData]) => {
+    const matchups = weekData.matchups || [];
+
+    matchups.forEach(m => {
+      const gameString = m.game || '';
       
-      modalTitle.innerHTML = `${getTeamLogoHtml(team)} Schedule & Outcomes`;
+      let awayTeam = '';
+      let homeTeam = '';
+      
+      if (gameString.includes('@')) {
+        const parts = gameString.split('@').map(s => s.trim().toUpperCase());
+        awayTeam = parts[0];
+        homeTeam = parts[1];
+      } else if (gameString.toLowerCase().includes('vs')) {
+        const parts = gameString.split(/vs\.?/i).map(s => s.trim().toUpperCase());
+        homeTeam = parts[0];
+        awayTeam = parts[1];
+      } else {
+        const parts = gameString.split(/\s+-\s+/).map(s => s.trim().toUpperCase());
+        awayTeam = parts[0];
+        homeTeam = parts[1];
+      }
 
-      let totalWins = 0, totalLosses = 0, totalTies = 0;
-      const logRows = [];
+      if (team !== awayTeam && team !== homeTeam) return;
 
-      Object.entries(poolData.weeks || {}).forEach(([weekKey, weekData]) => {
-        const matchups = weekData.matchups || [];
+      const isAway = (team === awayTeam);
+      const opponent = isAway ? homeTeam : awayTeam;
+      const prefix = isAway ? '@' : 'vs';
 
-        matchups.forEach(m => {
-          const gameString = m.game || '';
-          
-          let awayTeam = '';
-          let homeTeam = '';
-          
-          if (gameString.includes('@')) {
-            const parts = gameString.split('@').map(s => s.trim().toUpperCase());
-            awayTeam = parts[0];
-            homeTeam = parts[1];
-          } else if (gameString.toLowerCase().includes('vs')) {
-            const parts = gameString.split(/vs\.?/i).map(s => s.trim().toUpperCase());
-            homeTeam = parts[0];
-            awayTeam = parts[1];
-          } else {
-            const parts = gameString.split(/\s+-\s+/).map(s => s.trim().toUpperCase());
-            awayTeam = parts[0];
-            homeTeam = parts[1];
-          }
+      const winner = m.winner ? m.winner.trim().toUpperCase() : null;
+      
+      const isFinal = Boolean(winner) && (
+        m.status === 'STATUS_FINAL' || 
+        m.status === 'Final' || 
+        m.status === 'Completed' || 
+        m.status === 'Post-Game'
+      );
 
-          if (team !== awayTeam && team !== homeTeam) return;
+      let scoreText = 'Scheduled';
+      let outcomeClass = 'pick-pending';
 
-          const isAway = (team === awayTeam);
-          const opponent = isAway ? homeTeam : awayTeam;
-          const prefix = isAway ? '@' : 'vs';
+      if (m.score || (m.awayScore !== undefined && m.homeScore !== undefined)) {
+        scoreText = m.score || `${m.awayScore} - ${m.homeScore}`;
+      } else if (m.date) {
+        scoreText = formatShortGameTime(m.date);
+      }
 
-          const winner = m.winner ? m.winner.trim().toUpperCase() : null;
-          
-          const isFinal = Boolean(winner) && (
-            m.status === 'STATUS_FINAL' || 
-            m.status === 'Final' || 
-            m.status === 'Completed' || 
-            m.status === 'Post-Game'
-          );
+      if (isFinal && winner) {
+        if (winner === 'TIE') {
+          outcomeClass = 'pick-tie';
+          totalTies++;
+        } else if (winner === team) {
+          outcomeClass = 'pick-correct';
+          totalWins++;
+        } else {
+          outcomeClass = 'pick-incorrect';
+          totalLosses++;
+        }
+      }
 
-          let outcomeTag = m.status || 'Scheduled';
-          let outcomeClass = 'pick-pending';
-          
-          let scoreSubtitle = '';
-          if (m.score || (m.awayScore !== undefined && m.homeScore !== undefined)) {
-            scoreSubtitle = m.score || `${m.awayScore} - ${m.homeScore}`;
-          } else if (m.date) {
-            scoreSubtitle = formatShortGameTime(m.date);
-          }
-
-          if (isFinal && winner) {
-            if (winner === 'TIE') {
-              outcomeTag = 'Tie';
-              outcomeClass = 'pick-tie';
-              totalTies++;
-            } else if (winner === team) {
-              outcomeTag = `W ${prefix} ${opponent}`;
-              outcomeClass = 'pick-correct';
-              totalWins++;
-            } else {
-              outcomeTag = `L ${prefix} ${opponent}`;
-              outcomeClass = 'pick-incorrect';
-              totalLosses++;
-            }
-          }
-
-          logRows.push({
-            week: weekKey,
-            matchupText: `${prefix} ${getTeamLogoHtml(opponent, false)}`,
-            scoreSubtitle: scoreSubtitle,
-            outcomeTag: outcomeTag,
-            outcomeClass: outcomeClass
-          });
-        });
+      logRows.push({
+        matchupCombined: `Week ${weekKey} ${prefix} ${getTeamLogoHtml(opponent, false)}`,
+        scoreText: scoreText,
+        outcomeClass: outcomeClass
       });
+    });
+  });
 
-      const formatRecordStr = (w, l, t) => {
-        return `<strong>${w}-${l}${t > 0 ? `-${t}` : ''}</strong>`;
-      };
+  const formatRecordStr = (w, l, t) => {
+    return `<strong>${w}-${l}${t > 0 ? `-${t}` : ''}</strong>`;
+  };
 
-      modalBody.innerHTML = `
-        <div class="kpi-card" style="padding: 10px; margin-bottom: 20px;">
-          <div class="kpi-val" style="font-size: 1.5rem;">${formatRecordStr(totalWins, totalLosses, totalTies)}</div>
-          <div class="kpi-label">Current Season Record</div>
-        </div>
+  modalBody.innerHTML = `
+    <div class="kpi-card" style="padding: 10px; margin-bottom: 20px;">
+      <div class="kpi-val" style="font-size: 1.5rem;">${formatRecordStr(totalWins, totalLosses, totalTies)}</div>
+      <div class="kpi-label">Current Season Record</div>
+    </div>
 
-        <div class="matrix-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th class="text-center">Week</th>
-                <th class="text-center">Matchup</th>
-                <th class="text-center">Details / Score</th>
-                <th class="text-center">Outcome</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${logRows.length > 0 ? logRows.map(r => `
-                <tr>
-                  <td class="text-center"><strong>${r.week}</strong></td>
-                  <td class="text-center"><strong>${r.matchupText}</strong></td>
-                  <td class="text-center">${r.scoreSubtitle}</td>
-                  <td class="text-center ${r.outcomeClass}">${r.outcomeTag}</td>
-                </tr>
-              `).join('') : `<tr><td colspan="4" style="text-align:center;">No scheduled games found for this team.</td></tr>`}
-            </tbody>
-          </table>
-        </div>
-      `;
+    <div class="matrix-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th class="text-center">Game</th>
+            <th class="text-center">Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${logRows.length > 0 ? logRows.map(r => `
+            <tr>
+              <td class="text-center"><strong>${r.matchupCombined}</strong></td>
+              <td class="text-center ${r.outcomeClass}"><strong>${r.scoreText}</strong></td>
+            </tr>
+          `).join('') : `<tr><td colspan="2" style="text-align:center;">No scheduled games found for this team.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
 
-      document.getElementById('team-breakdown-modal').classList.add('active');
-    }
+  document.getElementById('team-breakdown-modal').classList.add('active');
+}
 
     function openTeamBreakdownModal(team) {
       const player = document.getElementById('player-select').value;
