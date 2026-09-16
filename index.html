@@ -1799,18 +1799,20 @@
               ${statusSubtitle}
             </td>
             ${selectedMatrixPlayers.map(p => {
-              const pick = m.picks?.[p] || '—';
+              const rawPick = m.picks?.[p];
+              const pick = (rawPick !== undefined && rawPick !== null && rawPick !== '' && rawPick !== '—' && rawPick !== '-') ? rawPick.trim() : null;
+              
               let cssClass = 'pick-pending';
               
               if (winner) {
                 if (winner === 'TIE') {
                   cssClass = 'pick-tie';
-                } else {
-                  cssClass = (pick === winner) ? 'pick-correct' : 'pick-incorrect';
+                } else if (pick) {
+                  cssClass = (pick.toUpperCase() === winner) ? 'pick-correct' : 'pick-incorrect';
                 }
               }
               
-              const pickDisplay = (pick !== '—' && pick !== '-') ? getTeamLogoHtml(pick, false) : '—';
+              const pickDisplay = pick ? getTeamLogoHtml(pick, false) : '—';
               return `<td class="${cssClass} text-center">${pickDisplay}</td>`;
             }).join('')}
           </tr>
