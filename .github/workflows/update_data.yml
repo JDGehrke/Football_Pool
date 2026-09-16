@@ -1,0 +1,36 @@
+name: GitHub Update Pool Data
+
+on:
+  workflow_dispatch: # Allows manual trigger from GitHub app/website
+  schedule:
+    # Runs every Tuesday at 9:00 AM UTC (4:00 AM EST / 3:00 AM CST)
+    - cron: '0 9 * * 2'
+
+jobs:
+  run-python-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run Python script
+        run: Github_Update_Pool.py
+
+      - name: Commit and push changes back to repo
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff-index --quiet HEAD || git commit -m "Auto-update pool data"
+          git push
