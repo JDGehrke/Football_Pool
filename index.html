@@ -187,7 +187,8 @@
     }
 
     /* Extended Tooltip Card Layout */
-    .chart-tooltip {
+    .chart-tooltip,
+    .crown-tooltip {
       position: absolute;
       padding: 8px 12px;
       background: #0f172a;
@@ -196,14 +197,22 @@
       font-size: 0.75rem;
       pointer-events: none;
       opacity: 0;
-      transform: translate(-50%, -120%);
       transition: opacity 0.15s ease, transform 0.15s ease;
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-      z-index: 100;
+      z-index: 1000;
       min-width: 160px;
     }
 
-    .chart-tooltip::after {
+    .chart-tooltip {
+      transform: translate(-50%, -120%);
+    }
+
+    .crown-tooltip {
+      transform: translate(-50%, -105%);
+    }
+
+    .chart-tooltip::after,
+    .crown-tooltip::after {
       content: '';
       position: absolute;
       bottom: -5px;
@@ -214,7 +223,8 @@
       border-color: #0f172a transparent;
     }
 
-    .chart-tooltip.tooltip-bottom::after {
+    .chart-tooltip.tooltip-bottom::after,
+    .crown-tooltip.tooltip-bottom::after {
       top: -5px;
       bottom: auto;
       border-width: 0 5px 5px;
@@ -251,8 +261,10 @@
     }
 
     /* Ensure utility text classes override tooltip parent styles */
-    .chart-tooltip .text-success { color: var(--success) !important; font-weight: bold; }
-    .chart-tooltip .text-danger { color: var(--danger) !important; font-weight: bold; }
+    .chart-tooltip .text-success,
+    .crown-tooltip .text-success { color: var(--success) !important; font-weight: bold; }
+    .chart-tooltip .text-danger,
+    .crown-tooltip .text-danger { color: var(--danger) !important; font-weight: bold; }
 
     /* --- WEEK TRACKER NO-WRAP FOR PICKS COLUMN --- */
     #week-tracker-table th:nth-child(2),
@@ -362,6 +374,11 @@
     .text-success { color: var(--success); font-weight: bold; }
     .text-danger { color: var(--danger); font-weight: bold; }
     
+    .badge-win-container {
+      position: relative;
+      display: inline-block;
+    }
+
     .badge-win { 
       background: #dcfce7; 
       color: #15803d; 
@@ -374,7 +391,7 @@
       justify-content: center;
       gap: 4px;
       white-space: nowrap;
-      cursor: help;
+      cursor: pointer;
     }
 
     @media (max-width: 480px) {
@@ -1304,13 +1321,21 @@
       } else {
         crownBody.innerHTML = crownWinners.map(p => {
           const crowns = computedStats[p].crowns;
-          const weeksWonStr = (computedStats[p].weeksWon || []).join(', ');
           const deltas = computedStats[p].winningDeltas;
           const avgDelta = deltas.length > 0 
             ? (deltas.reduce((a, b) => a + b, 0) / deltas.length).toFixed(1) 
             : 'N/A';
 
-          const crownDisplay = `<span class="badge-win" title="Weeks won: ${weeksWonStr}"><span class="crown-icon">👑</span><span class="crown-text">${crowns} ${crowns === 1 ? 'Win' : 'Wins'}</span></span>`;
+          const crownDisplay = `
+            <div class="badge-win-container" 
+                 onmouseenter="showCrownTooltip(event, '${p}')" 
+                 onmouseleave="hideCrownTooltip()">
+              <span class="badge-win">
+                <span class="crown-icon">👑</span>
+                <span class="crown-text">${crowns} ${crowns === 1 ? 'Win' : 'Wins'}</span>
+              </span>
+            </div>
+          `;
 
           return `
             <tr>
@@ -1320,6 +1345,70 @@
             </tr>
           `;
         }).join('');
+      }
+    }
+
+    function showCrownTooltip(evt, player) {
+      let tooltip = document.getElementById('crown-standings-tooltip');
+      if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'crown-standings-tooltip';
+        tooltip.className = 'crown-tooltip';
+        document.body.appendChild(tooltip);
+      }
+
+      const pStats = computedStats[player];
+      if (!pStats) return;
+
+      const weeksWon = pStats.weeksWon || [];
+      const totalCrowns = pStats.crowns || 0;
+
+      let weeksHtml = '';
+      if (weeksWon.length > 0) {
+        weeksHtml = weeksWon.map(wKey => {
+          const wHist = pStats.weeklyHistory[wKey] || { correct: 0, incorrect: 0 };
+          return `
+            <div class="tooltip-row">
+              <span>${wKey}:</span> 
+              <span><span class="text-success">${wHist.correct}</span>-<span class="text-danger">${wHist.incorrect}</span></span>
+            </div>
+          `;
+        }).join('');
+      } else {
+        weeksHtml = `<div class="tooltip-row"><span>No crowns won yet</span></div>`;
+      }
+
+      tooltip.innerHTML = `
+        <div class="tooltip-header">
+          <span>${player}</span>
+          <span class="gold-crown">👑 ${totalCrowns}</span>
+        </div>
+        ${weeksHtml}
+      `;
+
+      const target = evt.currentTarget;
+      const rect = target.getBoundingClientRect();
+      
+      const pxX = rect.left + (rect.width / 2);
+      const pxY = rect.top + window.scrollY;
+
+      tooltip.style.left = `${pxX}px`;
+      tooltip.style.top = `${pxY}px`;
+      tooltip.style.opacity = '1';
+
+      if (rect.top < 120) {
+        tooltip.classList.add('tooltip-bottom');
+        tooltip.style.transform = 'translate(-50%, 30px)';
+      } else {
+        tooltip.classList.remove('tooltip-bottom');
+        tooltip.style.transform = 'translate(-50%, -105%)';
+      }
+    }
+
+    function hideCrownTooltip() {
+      const tooltip = document.getElementById('crown-standings-tooltip');
+      if (tooltip) {
+        tooltip.style.opacity = '0';
       }
     }
 
