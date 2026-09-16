@@ -282,6 +282,8 @@ for game in picks_by_game:
          ,'date' : games_list[gid].get('date')
          ,'winner': games_list[gid].get('winner')
          ,'status': games_list[gid].get('status')
+         ,'awayScore': games_list[gid].get('awayScore')
+         ,'homeScore': games_list[gid].get('homeScore')
          })
     
 #BUILD TIEBREAKER WITH FINAL GAME
