@@ -2142,13 +2142,12 @@
       let scoreText = 'Scheduled';
       let outcomeClass = 'pick-pending';
 
-      if (m.score || (m.awayScore !== undefined && m.homeScore !== undefined)) {
-        scoreText = m.score || `${m.awayScore} - ${m.homeScore}`;
-      } else if (m.date) {
-        scoreText = formatShortGameTime(m.date);
-      }
-
-      if (isFinal && winner) {
+      // Only display the score if the game status is explicitly final/completed
+      if (isFinal) {
+        if (m.score || (m.awayScore !== undefined && m.homeScore !== undefined)) {
+          scoreText = m.score || `${m.awayScore} - ${m.homeScore}`;
+        }
+        
         if (winner === 'TIE') {
           outcomeClass = 'pick-tie';
           totalTies++;
@@ -2159,10 +2158,13 @@
           outcomeClass = 'pick-incorrect';
           totalLosses++;
         }
+      } else if (m.date) {
+        // Optional: shows date/time if available for upcoming games, otherwise defaults to 'Scheduled'
+        scoreText = formatShortGameTime(m.date);
       }
 
       logRows.push({
-        matchupCombined: `Week ${weekKey} ${prefix} ${getTeamLogoHtml(opponent, false)}`,
+        matchupCombined: `${weekKey} ${prefix} ${getTeamLogoHtml(opponent, false)}`,
         scoreText: scoreText,
         outcomeClass: outcomeClass
       });
