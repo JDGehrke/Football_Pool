@@ -2092,6 +2092,109 @@
       }).join('');
     }
 
+    function openTeamScheduleModal(team) {
+      const modalTitle = document.getElementById('modal-team-title');
+      const modalBody = document.getElementById('modal-team-body');
+      
+      modalTitle.innerHTML = `${getTeamLogoHtml(team)} Schedule & Outcomes`;
+
+      let totalWins = 0, totalLosses = 0, totalTies = 0;
+      const logRows = [];
+
+      Object.entries(poolData.weeks || {}).forEach(([weekKey, weekData]) => {
+        const matchups = weekData.matchups || [];
+
+        matchups.forEach(m => {
+          const teamsInGame = (m.game || '')
+            .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
+            .map(t => t.trim().toUpperCase())
+            .filter(t => t.length >= 2);
+
+          if (!teamsInGame.includes(team)) return;
+
+          const opponent = teamsInGame.find(t => t !== team) || 'Opponent';
+          const winner = m.winner ? m.winner.trim().toUpperCase() : null;
+          
+          const isFinal = Boolean(winner) && (
+            m.status === 'STATUS_FINAL' || 
+            m.status === 'Final' || 
+            m.status === 'Completed' || 
+            m.status === 'Post-Game'
+          );
+
+          let outcomeTag = m.status || 'Scheduled';
+          let outcomeClass = 'pick-pending';
+          
+          let scoreSubtitle = '';
+          if (m.score || (m.awayScore !== undefined && m.homeScore !== undefined)) {
+            scoreSubtitle = m.score || `${m.awayScore} - ${m.homeScore}`;
+          } else if (m.date) {
+            scoreSubtitle = formatShortGameTime(m.date);
+          }
+
+          if (isFinal && winner) {
+            if (winner === 'TIE') {
+              outcomeTag = 'Tie';
+              outcomeClass = 'pick-tie';
+              totalTies++;
+            } else if (winner === team) {
+              outcomeTag = `W vs ${opponent}`;
+              outcomeClass = 'pick-correct';
+              totalWins++;
+            } else {
+              outcomeTag = `L vs ${opponent}`;
+              outcomeClass = 'pick-incorrect';
+              totalLosses++;
+            }
+          }
+
+          logRows.push({
+            week: weekKey,
+            matchupText: `vs ${getTeamLogoHtml(opponent, false)}`,
+            scoreSubtitle: scoreSubtitle,
+            outcomeTag: outcomeTag,
+            outcomeClass: outcomeClass
+          });
+        });
+      });
+
+      const formatRecordStr = (w, l, t) => {
+        return `<strong>${w}-${l}${t > 0 ? `-${t}` : ''}</strong>`;
+      };
+
+      modalBody.innerHTML = `
+        <div class="kpi-card" style="padding: 10px; margin-bottom: 20px;">
+          <div class="kpi-val" style="font-size: 1.5rem;">${formatRecordStr(totalWins, totalLosses, totalTies)}</div>
+          <div class="kpi-label">Current Season Record</div>
+        </div>
+
+        <div class="matrix-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th class="text-center">Week</th>
+                <th class="text-center">Matchup</th>
+                <th class="text-center">Details / Score</th>
+                <th class="text-center">Outcome</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${logRows.length > 0 ? logRows.map(r => `
+                <tr>
+                  <td class="text-center"><strong>${r.week}</strong></td>
+                  <td class="text-center"><strong>${r.matchupText}</strong></td>
+                  <td class="text-center">${r.scoreSubtitle}</td>
+                  <td class="text-center ${r.outcomeClass}">${r.outcomeTag}</td>
+                </tr>
+              `).join('') : `<tr><td colspan="4" style="text-align:center;">No scheduled games found for this team.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      document.getElementById('team-breakdown-modal').classList.add('active');
+    }
+
     function openTeamBreakdownModal(team) {
       const player = document.getElementById('player-select').value;
       if (!player) return;
@@ -2257,7 +2360,9 @@
                     const pct = total > 0 ? ((rec.wins + 0.5 * rec.ties) / total).toFixed(3).replace(/^0/, '') : '.000';
                     return `
                       <tr>
-                        <td><strong>${getTeamLogoHtml(t)}</strong></td>
+                        <td class="clickable-team-cell" onclick="openTeamScheduleModal('${t}')">
+                          <strong>${getTeamLogoHtml(t)}</strong>
+                        </td>
                         <td class="text-success">${rec.wins}</td>
                         <td class="text-danger">${rec.losses}</td>
                         <td>${rec.ties}</td>
