@@ -1,10 +1,5 @@
-ast
 pandas
-json
-datetime
 requests
-os
-glob
-dotenv
-google.oauth2.service_account
-googleapiclient.discovery
+python-dotenv
+google-api-python-client
+google-auth
