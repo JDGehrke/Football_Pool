@@ -2105,14 +2105,31 @@
         const matchups = weekData.matchups || [];
 
         matchups.forEach(m => {
-          const teamsInGame = (m.game || '')
-            .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
-            .map(t => t.trim().toUpperCase())
-            .filter(t => t.length >= 2);
+          const gameString = m.game || '';
+          
+          let awayTeam = '';
+          let homeTeam = '';
+          
+          if (gameString.includes('@')) {
+            const parts = gameString.split('@').map(s => s.trim().toUpperCase());
+            awayTeam = parts[0];
+            homeTeam = parts[1];
+          } else if (gameString.toLowerCase().includes('vs')) {
+            const parts = gameString.split(/vs\.?/i).map(s => s.trim().toUpperCase());
+            homeTeam = parts[0];
+            awayTeam = parts[1];
+          } else {
+            const parts = gameString.split(/\s+-\s+/).map(s => s.trim().toUpperCase());
+            awayTeam = parts[0];
+            homeTeam = parts[1];
+          }
 
-          if (!teamsInGame.includes(team)) return;
+          if (team !== awayTeam && team !== homeTeam) return;
 
-          const opponent = teamsInGame.find(t => t !== team) || 'Opponent';
+          const isAway = (team === awayTeam);
+          const opponent = isAway ? homeTeam : awayTeam;
+          const prefix = isAway ? '@' : 'vs';
+
           const winner = m.winner ? m.winner.trim().toUpperCase() : null;
           
           const isFinal = Boolean(winner) && (
@@ -2138,11 +2155,11 @@
               outcomeClass = 'pick-tie';
               totalTies++;
             } else if (winner === team) {
-              outcomeTag = `W vs ${opponent}`;
+              outcomeTag = `W ${prefix} ${opponent}`;
               outcomeClass = 'pick-correct';
               totalWins++;
             } else {
-              outcomeTag = `L vs ${opponent}`;
+              outcomeTag = `L ${prefix} ${opponent}`;
               outcomeClass = 'pick-incorrect';
               totalLosses++;
             }
@@ -2150,7 +2167,7 @@
 
           logRows.push({
             week: weekKey,
-            matchupText: `vs ${getTeamLogoHtml(opponent, false)}`,
+            matchupText: `${prefix} ${getTeamLogoHtml(opponent, false)}`,
             scoreSubtitle: scoreSubtitle,
             outcomeTag: outcomeTag,
             outcomeClass: outcomeClass
