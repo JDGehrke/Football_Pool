@@ -374,6 +374,7 @@
       justify-content: center;
       gap: 4px;
       white-space: nowrap;
+      cursor: help;
     }
 
     @media (max-width: 480px) {
@@ -1063,6 +1064,7 @@
           correct: 0,
           incorrect: 0,
           crowns: 0,
+          weeksWon: [],
           winningDeltas: [],
           weeklyHistory: {},
           teamStats: {}
@@ -1194,6 +1196,7 @@
             crownWinners.forEach(crownWinner => {
               if (computedStats[crownWinner]) {
                 computedStats[crownWinner].crowns++;
+                computedStats[crownWinner].weeksWon.push(weekKey);
                 const crownDiff = computedStats[crownWinner].weeklyHistory[weekKey].diff;
                 if (crownDiff !== null) {
                   computedStats[crownWinner].winningDeltas.push(crownDiff);
@@ -1301,12 +1304,13 @@
       } else {
         crownBody.innerHTML = crownWinners.map(p => {
           const crowns = computedStats[p].crowns;
+          const weeksWonStr = (computedStats[p].weeksWon || []).join(', ');
           const deltas = computedStats[p].winningDeltas;
           const avgDelta = deltas.length > 0 
             ? (deltas.reduce((a, b) => a + b, 0) / deltas.length).toFixed(1) 
             : 'N/A';
 
-          const crownDisplay = `<span class="badge-win"><span class="crown-icon">👑</span><span class="crown-text">${crowns} ${crowns === 1 ? 'Win' : 'Wins'}</span></span>`;
+          const crownDisplay = `<span class="badge-win" title="Weeks won: ${weeksWonStr}"><span class="crown-icon">👑</span><span class="crown-text">${crowns} ${crowns === 1 ? 'Win' : 'Wins'}</span></span>`;
 
           return `
             <tr>
