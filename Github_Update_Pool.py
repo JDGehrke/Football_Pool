@@ -13,7 +13,11 @@ from dotenv import load_dotenv,dotenv_values
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
-os.chdir(r'C:\\Users\\jdgeh\Documents\Github\Football_Pool')
+# os.chdir(r'C:\\Users\\jdgeh\Documents\Github\Football_Pool')
+
+#Season/Week Values
+season = 2026
+current_week = 2
 
 # =============================================================================
 # ENV VARIABLES
