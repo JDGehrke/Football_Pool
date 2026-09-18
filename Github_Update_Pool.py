@@ -174,11 +174,11 @@ if get_picks == True:
         picks = pd.concat([picks,no_picks])
 
     #Push Picks to CSV
-    picks.to_csv(f'{season}\Week {current_week}.csv',index=False)
+    picks.to_csv(f'{season}/Week {current_week}.csv',index=False)
     
 
 else: #Read locked picks from csv 
-    picks = pd.read_csv(f'{season}\Week {current_week}.csv')
+    picks = pd.read_csv(f'{season}/Week {current_week}.csv')
 
 # =============================================================================
 # CLEAN AND REFORMAT
