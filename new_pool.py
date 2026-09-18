@@ -323,7 +323,7 @@ current_json['weeks'][f'Week {current_week}'] = week_json
     
 #Set Header Update Time
 # 1. Get current local time with timezone information
-now = dt.datetime.now(ZoneInfo('America/Chicago')).astimezone()
+now = dt.datetime.now(ZoneInfo('America/Chicago'))
 
 # 2. Format individual parts
 day = now.strftime("%A")  # Full weekday ("Sunday")

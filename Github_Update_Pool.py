@@ -8,7 +8,7 @@ import json
 import datetime as dt
 import requests
 import os
-import glob
+# import glob
 from zoneinfo import ZoneInfo
 from dotenv import load_dotenv,dotenv_values
 from google.oauth2.service_account import Credentials
@@ -332,7 +332,7 @@ current_json['weeks'][f'Week {current_week}'] = week_json
     
 #Set Header Update Time
 # 1. Get current local time with timezone information
-now = dt.datetime.now(ZoneInfo('America/Chicago')).astimezone()
+now = dt.datetime.now(ZoneInfo('America/Chicago'))
 
 # 2. Format individual parts
 day = now.strftime("%A")  # Full weekday ("Sunday")
