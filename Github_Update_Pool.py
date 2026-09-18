@@ -351,107 +351,107 @@ with open("data.json", "w", encoding="utf-8") as f:
 
 print("Saved updates to data.json!")
 
-# =============================================================================
-# PUSH TO GITHUB
-# =============================================================================
-# 1. Locate GitHub Desktop's git.exe path FIRST
-app_data = os.getenv("LOCALAPPDATA")
-git_paths = glob.glob(
-    os.path.join(
-        app_data,
-        "GitHubDesktop",
-        "app-*",
-        "resources",
-        "app",
-        "git",
-        "cmd",
-        "git.exe",
-    )
-)
+# # =============================================================================
+# # PUSH TO GITHUB
+# # =============================================================================
+# # 1. Locate GitHub Desktop's git.exe path FIRST
+# app_data = os.getenv("LOCALAPPDATA")
+# git_paths = glob.glob(
+#     os.path.join(
+#         app_data,
+#         "GitHubDesktop",
+#         "app-*",
+#         "resources",
+#         "app",
+#         "git",
+#         "cmd",
+#         "git.exe",
+#     )
+# )
 
-# 2. Set environment variable BEFORE importing git/GitPython
-os.environ["GIT_PYTHON_GIT_EXECUTABLE"] = max(git_paths, key=os.path.getmtime)
+# # 2. Set environment variable BEFORE importing git/GitPython
+# os.environ["GIT_PYTHON_GIT_EXECUTABLE"] = max(git_paths, key=os.path.getmtime)
 
-# 3. NOW import Repo (it will read the environment variable during initialization)
-from git import Repo
+# # 3. NOW import Repo (it will read the environment variable during initialization)
+# from git import Repo
 
-# FUNCTION TO PUSH TO GITHUB
-def commit_and_push_data_json(repo_path=".", file_relative_path="data.json", commit_message="Update pool data"):
-    """
-    Stashes local changes, pulls remote updates with rebase, reapplies local changes,
-    and stages, commits, and pushes data.json to GitHub using GitPython.
-    """
-    stashed = False
-    try:
-        repo = Repo(repo_path)
+# # FUNCTION TO PUSH TO GITHUB
+# def commit_and_push_data_json(repo_path=".", file_relative_path="data.json", commit_message="Update pool data"):
+#     """
+#     Stashes local changes, pulls remote updates with rebase, reapplies local changes,
+#     and stages, commits, and pushes data.json to GitHub using GitPython.
+#     """
+#     stashed = False
+#     try:
+#         repo = Repo(repo_path)
         
-        if repo.bare:
-            print("Error: Target directory is a bare repository.")
-            return False
+#         if repo.bare:
+#             print("Error: Target directory is a bare repository.")
+#             return False
 
-        abs_file_path = os.path.join(repo.working_dir, file_relative_path)
-        if not os.path.exists(abs_file_path):
-            print(f"Error: {file_relative_path} does not exist.")
-            return False
+#         abs_file_path = os.path.join(repo.working_dir, file_relative_path)
+#         if not os.path.exists(abs_file_path):
+#             print(f"Error: {file_relative_path} does not exist.")
+#             return False
 
-        # 1. Stash local changes if the working directory is dirty
-        if repo.is_dirty(untracked_files=True):
-            print("Unstaged changes detected. Stashing local changes before pull...")
-            repo.git.stash('save', 'Auto-stash before rebase pull')
-            stashed = True
+#         # 1. Stash local changes if the working directory is dirty
+#         if repo.is_dirty(untracked_files=True):
+#             print("Unstaged changes detected. Stashing local changes before pull...")
+#             repo.git.stash('save', 'Auto-stash before rebase pull')
+#             stashed = True
 
-        # 2. Pull latest changes from remote using rebase
-        origin = repo.remote(name="origin")
-        print("Pulling latest changes from remote...")
-        origin.pull(rebase=True)
+#         # 2. Pull latest changes from remote using rebase
+#         origin = repo.remote(name="origin")
+#         print("Pulling latest changes from remote...")
+#         origin.pull(rebase=True)
 
-        # 3. Reapply local changes if we stashed them
-        if stashed:
-            print("Reapplying stashed local changes...")
-            repo.git.stash('pop')
-            stashed = False
+#         # 3. Reapply local changes if we stashed them
+#         if stashed:
+#             print("Reapplying stashed local changes...")
+#             repo.git.stash('pop')
+#             stashed = False
 
-        # 4. Check if data.json actually needs to be committed
-        is_modified = file_relative_path in [item.a_path for item in repo.index.diff(None)]
-        is_untracked = file_relative_path in repo.untracked_files
-        is_staged = file_relative_path in [item.a_path for item in repo.index.diff("HEAD")]
+#         # 4. Check if data.json actually needs to be committed
+#         is_modified = file_relative_path in [item.a_path for item in repo.index.diff(None)]
+#         is_untracked = file_relative_path in repo.untracked_files
+#         is_staged = file_relative_path in [item.a_path for item in repo.index.diff("HEAD")]
 
-        if not (is_modified or is_untracked or is_staged):
-            print(f"No changes detected in {file_relative_path}. Skipping commit and push.")
-            return True
+#         if not (is_modified or is_untracked or is_staged):
+#             print(f"No changes detected in {file_relative_path}. Skipping commit and push.")
+#             return True
 
-        # 5. Stage specific file
-        repo.index.add([file_relative_path])
+#         # 5. Stage specific file
+#         repo.index.add([file_relative_path])
 
-        # 6. Commit changes
-        repo.index.commit(commit_message)
-        print(f"Committed changes with message: '{commit_message}'")
+#         # 6. Commit changes
+#         repo.index.commit(commit_message)
+#         print(f"Committed changes with message: '{commit_message}'")
 
-        # 7. Push to remote 'origin' on current active branch
-        push_info = origin.push()
+#         # 7. Push to remote 'origin' on current active branch
+#         push_info = origin.push()
 
-        # Check for errors in push response
-        for info in push_info:
-            if info.flags & info.ERROR:
-                print(f"Push error: {info.summary}")
-                return False
+#         # Check for errors in push response
+#         for info in push_info:
+#             if info.flags & info.ERROR:
+#                 print(f"Push error: {info.summary}")
+#                 return False
 
-        print(f"Successfully pushed {file_relative_path} to GitHub!")
-        return True
+#         print(f"Successfully pushed {file_relative_path} to GitHub!")
+#         return True
 
-    except Exception as e:
-        print(f"An error occurred during Git operation: {e}")
-        # Clean up stash if an exception interrupted the process after stashing
-        if stashed:
-            try:
-                print("Attempting to restore stashed changes after error...")
-                repo.git.stash('pop')
-            except Exception as stash_err:
-                print(f"Could not pop stash automatically: {stash_err}")
-        return False
+#     except Exception as e:
+#         print(f"An error occurred during Git operation: {e}")
+#         # Clean up stash if an exception interrupted the process after stashing
+#         if stashed:
+#             try:
+#                 print("Attempting to restore stashed changes after error...")
+#                 repo.git.stash('pop')
+#             except Exception as stash_err:
+#                 print(f"Could not pop stash automatically: {stash_err}")
+#         return False
 
-# PUSH TO GITHUB!
-commit_and_push_data_json(
-    file_relative_path="data.json",
-    commit_message="Auto-update NFL pool data.json"
-)
+# # PUSH TO GITHUB!
+# commit_and_push_data_json(
+#     file_relative_path="data.json",
+#     commit_message="Auto-update NFL pool data.json"
+# )
