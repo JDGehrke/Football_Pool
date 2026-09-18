@@ -15,10 +15,10 @@ from googleapiclient.discovery import build
 
 # os.chdir(r'C:\\Users\\jdgeh\Documents\Github\Football_Pool')
 
-# #Season/Week Values
-# season = 2026
-# current_week = 2
-
+#Season/Week Values
+season = 2026
+current_week = 2
+players = ['ANDI', 'AUSTIN', 'BETHANY', 'BRANDON', 'DAN', 'DEVIN', 'ELLY', 'EMILY', 'HENNIE', 'HUNTER', 'JEN', 'JIM', 'JORDAN', 'KAREN', 'KENNY', 'KENZIE', 'LYDIA', 'MADDIE', 'NICK', 'RICK', 'TONY', 'WESLEY']
 # =============================================================================
 # ENV VARIABLES
 # =============================================================================
@@ -32,8 +32,13 @@ env_vars = dotenv_values(".env")
 globals().update(env_vars)
 
 # 4. Adjust variable types
-players = ast.literal_eval(players)
-GOOGLE_CREDENTIALS = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
+# players = ast.literal_eval(players)
+# GOOGLE_CREDENTIALS = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
+
+try:
+    GOOGLE_CREDENTIALS = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
+except json.JSONDecodeError:
+    GOOGLE_CREDENTIALS = ast.literal_eval(os.getenv("GOOGLE_CREDENTIALS"))
 
 TEAM_MAP = {
     # Mascot / Short Name Mappings
