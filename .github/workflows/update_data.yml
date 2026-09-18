@@ -24,9 +24,11 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Create .env file from Secret
+      - name: Create .env file safely
+        env:
+          ENV_CONTENT: ${{ secrets.ENV_FILE }}
         run: |
-          echo "${{ secrets.ENV_FILE }}" > .env
+          python -c "import os; open('.env', 'w').write(os.environ['ENV_CONTENT'])"
 
       - name: Run Python script
         run: python Github_Update_Pool.py
