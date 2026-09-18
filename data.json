@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Friday @ 2:12am",
+    "lastUpdated": "Thursday @ 9:20pm",
     "currentWeek": "Week 2"
   },
   "hall_of_fame": [
@@ -774,18 +774,18 @@
             "WESLEY": "DET",
             "JORDAN": "BUF",
             "TONY": "BUF",
+            "HENNIE": "BUF",
             "HUNTER": "BUF",
             "AUSTIN": "BUF",
             "EMILY": "BUF",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "BUF",
+            "ELLY": "\u2014"
           },
           "game": "DET @ BUF",
           "date": "2026-09-18T00:15Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "10",
+          "awayScore": "17",
           "homeScore": "27"
         },
         {
@@ -807,12 +807,12 @@
             "WESLEY": "ATL",
             "JORDAN": "CAR",
             "TONY": "CAR",
+            "HENNIE": "ATL",
             "HUNTER": "ATL",
             "AUSTIN": "CAR",
             "EMILY": "ATL",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "ATL",
+            "ELLY": "\u2014"
           },
           "game": "CAR @ ATL",
           "date": "2026-09-20T17:00Z",
@@ -840,12 +840,12 @@
             "WESLEY": "CHI",
             "JORDAN": "CHI",
             "TONY": "CHI",
+            "HENNIE": "MIN",
             "HUNTER": "CHI",
             "AUSTIN": "CHI",
             "EMILY": "MIN",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "CHI",
+            "ELLY": "\u2014"
           },
           "game": "MIN @ CHI",
           "date": "2026-09-20T17:00Z",
@@ -873,12 +873,12 @@
             "WESLEY": "PHI",
             "JORDAN": "PHI",
             "TONY": "PHI",
+            "HENNIE": "TEN",
             "HUNTER": "PHI",
             "AUSTIN": "PHI",
             "EMILY": "PHI",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "PHI",
+            "ELLY": "\u2014"
           },
           "game": "PHI @ TEN",
           "date": "2026-09-20T17:00Z",
@@ -906,12 +906,12 @@
             "WESLEY": "PIT",
             "JORDAN": "PIT",
             "TONY": "PIT",
+            "HENNIE": "PIT",
             "HUNTER": "NE",
             "AUSTIN": "NE",
             "EMILY": "PIT",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "PIT",
+            "ELLY": "\u2014"
           },
           "game": "PIT @ NE",
           "date": "2026-09-20T17:00Z",
@@ -939,12 +939,12 @@
             "WESLEY": "GB",
             "JORDAN": "GB",
             "TONY": "GB",
+            "HENNIE": "GB",
             "HUNTER": "GB",
             "AUSTIN": "GB",
             "EMILY": "GB",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "GB",
+            "ELLY": "\u2014"
           },
           "game": "GB @ NYJ",
           "date": "2026-09-20T17:00Z",
@@ -972,12 +972,12 @@
             "WESLEY": "TB",
             "JORDAN": "TB",
             "TONY": "TB",
+            "HENNIE": "TB",
             "HUNTER": "TB",
             "AUSTIN": "TB",
             "EMILY": "TB",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "TB",
+            "ELLY": "\u2014"
           },
           "game": "CLE @ TB",
           "date": "2026-09-20T17:00Z",
@@ -1005,12 +1005,12 @@
             "WESLEY": "NO",
             "JORDAN": "BAL",
             "TONY": "NO",
+            "HENNIE": "BAL",
             "HUNTER": "NO",
             "AUSTIN": "NO",
             "EMILY": "BAL",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "BAL",
+            "ELLY": "\u2014"
           },
           "game": "NO @ BAL",
           "date": "2026-09-20T17:00Z",
@@ -1038,12 +1038,12 @@
             "WESLEY": "CIN",
             "JORDAN": "CIN",
             "TONY": "HOU",
+            "HENNIE": "HOU",
             "HUNTER": "HOU",
             "AUSTIN": "HOU",
             "EMILY": "CIN",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "HOU",
+            "ELLY": "\u2014"
           },
           "game": "CIN @ HOU",
           "date": "2026-09-20T17:00Z",
@@ -1071,12 +1071,12 @@
             "WESLEY": "JAX",
             "JORDAN": "JAX",
             "TONY": "DEN",
+            "HENNIE": "JAX",
             "HUNTER": "JAX",
             "AUSTIN": "JAX",
             "EMILY": "JAX",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "DEN",
+            "ELLY": "\u2014"
           },
           "game": "JAX @ DEN",
           "date": "2026-09-20T20:05Z",
@@ -1104,12 +1104,12 @@
             "WESLEY": "LV",
             "JORDAN": "LAC",
             "TONY": "LAC",
+            "HENNIE": "LV",
             "HUNTER": "LAC",
             "AUSTIN": "LAC",
             "EMILY": "LAC",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "LAC",
+            "ELLY": "\u2014"
           },
           "game": "LV @ LAC",
           "date": "2026-09-20T20:05Z",
@@ -1137,12 +1137,12 @@
             "WESLEY": "WSH",
             "JORDAN": "DAL",
             "TONY": "DAL",
+            "HENNIE": "DAL",
             "HUNTER": "DAL",
             "AUSTIN": "DAL",
             "EMILY": "WSH",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "DAL",
+            "ELLY": "\u2014"
           },
           "game": "WSH @ DAL",
           "date": "2026-09-20T20:25Z",
@@ -1170,12 +1170,12 @@
             "WESLEY": "SEA",
             "JORDAN": "ARI",
             "TONY": "SEA",
+            "HENNIE": "ARI",
             "HUNTER": "SEA",
             "AUSTIN": "SEA",
             "EMILY": "SEA",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "SEA",
+            "ELLY": "\u2014"
           },
           "game": "SEA @ ARI",
           "date": "2026-09-20T20:25Z",
@@ -1203,12 +1203,12 @@
             "WESLEY": "SF",
             "JORDAN": "SF",
             "TONY": "SF",
+            "HENNIE": "MIA",
             "HUNTER": "SF",
             "AUSTIN": "SF",
             "EMILY": "SF",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "SF",
+            "ELLY": "\u2014"
           },
           "game": "MIA @ SF",
           "date": "2026-09-20T20:25Z",
@@ -1236,12 +1236,12 @@
             "WESLEY": "IND",
             "JORDAN": "KC",
             "TONY": "KC",
+            "HENNIE": "IND",
             "HUNTER": "KC",
             "AUSTIN": "KC",
             "EMILY": "KC",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "KC",
+            "ELLY": "\u2014"
           },
           "game": "IND @ KC",
           "date": "2026-09-21T00:20Z",
@@ -1269,12 +1269,12 @@
             "WESLEY": "NYG",
             "JORDAN": "LAR",
             "TONY": "NYG",
+            "HENNIE": "LAR",
             "HUNTER": "LAR",
             "AUSTIN": "LAR",
             "EMILY": "NYG",
-            "ELLY": "\u2014",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "KENZIE": "LAR",
+            "ELLY": "\u2014"
           },
           "game": "NYG @ LAR",
           "date": "2026-09-22T00:15Z",
@@ -1323,8 +1323,8 @@
             "predictedTotal": 54
           },
           "HENNIE": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "LAR",
+            "predictedTotal": 69
           },
           "HUNTER": {
             "winner": "LAR",
@@ -1351,8 +1351,8 @@
             "predictedTotal": 69
           },
           "KENZIE": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "LAR",
+            "predictedTotal": 48
           },
           "LYDIA": {
             "winner": "NYG",
