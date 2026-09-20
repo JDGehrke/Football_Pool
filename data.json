@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 6:20pm",
+    "lastUpdated": "Sunday @ 6:35pm",
     "currentWeek": "Week 2"
   },
   "hall_of_fame": [
@@ -1146,10 +1146,10 @@
           },
           "game": "WSH @ DAL",
           "date": "2026-09-20T20:25Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "winner": "DAL",
+          "status": "Final",
           "awayScore": "20",
-          "homeScore": "30"
+          "homeScore": "37"
         },
         {
           "id": "401872943",
@@ -1179,8 +1179,8 @@
           },
           "game": "SEA @ ARI",
           "date": "2026-09-20T20:25Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "winner": "SEA",
+          "status": "Final",
           "awayScore": "31",
           "homeScore": "7"
         },
