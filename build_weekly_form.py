@@ -1,14 +1,85 @@
 # =============================================================================
 # FOOTBALL POOL - BUILD GOOGLE FORM
 # =============================================================================
-
+# import ast
 import json
-import ast
 import os
+import glob
 import requests
 from dotenv import load_dotenv,dotenv_values
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
+
+
+# =============================================================================
+# GIT SETUP & INITIAL PULL (Top of Script)
+# =============================================================================
+# 1. Locate GitHub Desktop's git.exe path
+app_data = os.getenv("LOCALAPPDATA")
+git_paths = glob.glob(
+    os.path.join(
+        app_data,
+        "GitHubDesktop",
+        "app-*",
+        "resources",
+        "app",
+        "git",
+        "cmd",
+        "git.exe",
+    )
+)
+
+# 2. Set environment variable BEFORE importing GitPython
+os.environ["GIT_PYTHON_GIT_EXECUTABLE"] = max(git_paths, key=os.path.getmtime)
+
+# 3. Initialize Repo
+from git import Repo
+repo = Repo(".")
+
+stashed = False
+try:
+    # Stash local uncommitted changes if any exist
+    if repo.is_dirty(untracked_files=True):
+        print(
+            "Unstaged changes detected. Stashing local changes before pull..."
+        )
+        repo.git.stash("save", "Auto-stash before rebase pull")
+        stashed = True
+
+    # Pull latest changes from origin
+    origin = repo.remote(name="origin")
+    print("Pulling latest changes from remote...")
+    origin.pull(rebase=True)
+
+    # Reapply stashed changes if saved
+    if stashed:
+        print("Reapplying stashed local changes...")
+        repo.git.stash("pop")
+        stashed = False
+
+except Exception as e:
+    print(f"An error occurred during Git pull: {e}")
+    if stashed:
+        try:
+            print("Attempting to restore stashed changes...")
+            repo.git.stash("pop")
+        except Exception as stash_err:
+            print(f"Could not pop stash automatically: {stash_err}")
+    raise e
+    
+
+# =============================================================================
+# LOAD IN PARAMETERS
+# =============================================================================
+# Load config from JSON file
+with open("parameters.json", "r") as f:
+    parameters = json.load(f)
+
+# Access your variables as standard Python types:
+season = parameters["season"]
+current_week = parameters["current_week"]
+players = parameters["players"]
+
 
 # =============================================================================
 # ENV VARIABLES
@@ -23,8 +94,8 @@ env_vars = dotenv_values(".env")
 globals().update(env_vars)
 
 # 4. Adjust variable types
-players = ast.literal_eval(players)
 GOOGLE_CREDENTIALS = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
+
 
 # ==============================================================================
 # FUNCTIONS
