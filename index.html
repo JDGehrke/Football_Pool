@@ -978,35 +978,43 @@
       return showText ? `${logoImg} ${abbr}` : logoImg;
     }
 
+
     async function initDashboard() {
-      try {
-        const res = await fetch(`./data.json?t=${Date.now()}`);
-        poolData = await res.json();
-        
-        document.getElementById('dash-title').innerText = poolData.metadata?.title || "NFL Pick 'Em Dashboard";
-        document.getElementById('dash-subtitle').innerText = poolData.metadata?.subtitle || "";
-        document.getElementById('dash-updated').innerText = `Last Updated: ${poolData.metadata?.lastUpdated || 'N/A'}`;
+  try {
+       const rawUrl = `https://raw.githubusercontent.com/JDGehrke/Football_Pool/main/data.json?t=${Date.now()}`;
+    const res = await fetch(rawUrl);
 
-        selectedMatrixPlayers = [...(poolData.players || [])];
-
-        populateDropdowns();
-        calculateStatistics();
-
-        renderOverallTab();
-        renderWeeklyTab();
-        renderPlayerProfile();
-        renderStandingsTab();
-        renderHallOfFameTab();
-
-        window.addEventListener('resize', () => {
-          const { sorted, playerRanks } = getPlayerRanks();
-          renderSeasonLineChart(sorted, playerRanks);
-        });
-      } catch (err) {
-        console.error("Error loading JSON:", err);
-        document.getElementById('dash-subtitle').innerText = "Failed to load data.json. Ensure file exists in root.";
-      }
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
     }
+
+    poolData = await res.json();
+    
+    document.getElementById('dash-title').innerText = poolData.metadata?.title || "NFL Pick 'Em Dashboard";
+    document.getElementById('dash-subtitle').innerText = poolData.metadata?.subtitle || "";
+    document.getElementById('dash-updated').innerText = `Last Updated: ${poolData.metadata?.lastUpdated || 'N/A'}`;
+
+    selectedMatrixPlayers = [...(poolData.players || [])];
+
+    populateDropdowns();
+    calculateStatistics();
+
+    renderOverallTab();
+    renderWeeklyTab();
+    renderPlayerProfile();
+    renderStandingsTab();
+    renderHallOfFameTab();
+
+    window.addEventListener('resize', () => {
+      const { sorted, playerRanks } = getPlayerRanks();
+      renderSeasonLineChart(sorted, playerRanks);
+    });
+  } catch (err) {
+    console.error("Error loading JSON:", err);
+    document.getElementById('dash-subtitle').innerText = "Failed to load data.json. Ensure URL and file exist.";
+  }
+}
+
 
     function populateDropdowns() {
       const weekKeys = Object.keys(poolData.weeks || {});
