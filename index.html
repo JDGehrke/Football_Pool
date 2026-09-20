@@ -2139,258 +2139,256 @@
     }
 
     function openTeamScheduleModal(team) {
-  const modalTitle = document.getElementById('modal-team-title');
-  const modalBody = document.getElementById('modal-team-body');
-  
-  modalTitle.innerHTML = `${getTeamLogoHtml(team)} Schedule`;
-
-  let totalWins = 0, totalLosses = 0, totalTies = 0;
-  const logRows = [];
-
-  Object.entries(poolData.weeks || {}).forEach(([weekKey, weekData]) => {
-    const matchups = weekData.matchups || [];
-
-    matchups.forEach(m => {
-      const gameString = m.game || '';
+      const modalTitle = document.getElementById('modal-team-title');
+      const modalBody = document.getElementById('modal-team-body');
       
-      let awayTeam = '';
-      let homeTeam = '';
-      
-      if (gameString.includes('@')) {
-        const parts = gameString.split('@').map(s => s.trim().toUpperCase());
-        awayTeam = parts[0];
-        homeTeam = parts[1];
-      } else if (gameString.toLowerCase().includes('vs')) {
-        const parts = gameString.split(/vs\.?/i).map(s => s.trim().toUpperCase());
-        homeTeam = parts[0];
-        awayTeam = parts[1];
-      } else {
-        const parts = gameString.split(/\s+-\s+/).map(s => s.trim().toUpperCase());
-        awayTeam = parts[0];
-        homeTeam = parts[1];
-      }
+      modalTitle.innerHTML = `${getTeamLogoHtml(team)} Schedule`;
 
-      if (team !== awayTeam && team !== homeTeam) return;
+      let totalWins = 0, totalLosses = 0, totalTies = 0;
+      const logRows = [];
 
-      const isAway = (team === awayTeam);
-      const opponent = isAway ? homeTeam : awayTeam;
-      const prefix = isAway ? '@' : 'vs';
+      Object.entries(poolData.weeks || {}).forEach(([weekKey, weekData]) => {
+        const matchups = weekData.matchups || [];
 
-      const winner = m.winner ? m.winner.trim().toUpperCase() : null;
-      
-      const isFinal = Boolean(winner) && (
-        m.status === 'STATUS_FINAL' || 
-        m.status === 'Final' || 
-        m.status === 'Completed' || 
-        m.status === 'Post-Game'
-      );
+        matchups.forEach(m => {
+          const gameString = m.game || '';
+          
+          let awayTeam = '';
+          let homeTeam = '';
+          
+          if (gameString.includes('@')) {
+            const parts = gameString.split('@').map(s => s.trim().toUpperCase());
+            awayTeam = parts[0];
+            homeTeam = parts[1];
+          } else if (gameString.toLowerCase().includes('vs')) {
+            const parts = gameString.split(/vs\.?/i).map(s => s.trim().toUpperCase());
+            homeTeam = parts[0];
+            awayTeam = parts[1];
+          } else {
+            const parts = gameString.split(/\s+-\s+/).map(s => s.trim().toUpperCase());
+            awayTeam = parts[0];
+            homeTeam = parts[1];
+          }
 
-      let scoreText = 'Scheduled';
-      let outcomeClass = 'pick-pending';
+          if (team !== awayTeam && team !== homeTeam) return;
 
-      // Only display the score if the game status is explicitly final/completed
-      if (isFinal) {
-        if (m.score || (m.awayScore !== undefined && m.homeScore !== undefined)) {
-          scoreText = m.score || `${m.awayScore} - ${m.homeScore}`;
-        }
-        
-        if (winner === 'TIE') {
-          outcomeClass = 'pick-tie';
-          totalTies++;
-        } else if (winner === team) {
-          outcomeClass = 'pick-correct';
-          totalWins++;
-        } else {
-          outcomeClass = 'pick-incorrect';
-          totalLosses++;
-        }
-      } else if (m.date) {
-        // Optional: shows date/time if available for upcoming games, otherwise defaults to 'Scheduled'
-        scoreText = formatShortGameTime(m.date);
-      }
+          const isAway = (team === awayTeam);
+          const opponent = isAway ? homeTeam : awayTeam;
+          const prefix = isAway ? '@' : 'vs';
 
-      logRows.push({
-        matchupCombined: `${weekKey} ${prefix} ${getTeamLogoHtml(opponent, false)}`,
-        scoreText: scoreText,
-        outcomeClass: outcomeClass
+          const winner = m.winner ? m.winner.trim().toUpperCase() : null;
+          
+          const isFinal = Boolean(winner) && (
+            m.status === 'STATUS_FINAL' || 
+            m.status === 'Final' || 
+            m.status === 'Completed' || 
+            m.status === 'Post-Game'
+          );
+
+          let scoreText = 'Scheduled';
+          let outcomeClass = 'pick-pending';
+
+          // Only display the score if the game status is explicitly final/completed
+          if (isFinal) {
+            if (m.score || (m.awayScore !== undefined && m.homeScore !== undefined)) {
+              scoreText = m.score || `${m.awayScore} - ${m.homeScore}`;
+            }
+            
+            if (winner === 'TIE') {
+              outcomeClass = 'pick-tie';
+              totalTies++;
+            } else if (winner === team) {
+              outcomeClass = 'pick-correct';
+              totalWins++;
+            } else {
+              outcomeClass = 'pick-incorrect';
+              totalLosses++;
+            }
+          } else if (m.date) {
+            // Optional: shows date/time if available for upcoming games, otherwise defaults to 'Scheduled'
+            scoreText = formatShortGameTime(m.date);
+          }
+
+          logRows.push({
+            matchupCombined: `${weekKey} ${prefix} ${getTeamLogoHtml(opponent, false)}`,
+            scoreText: scoreText,
+            outcomeClass: outcomeClass
+          });
+        });
       });
-    });
-  });
 
-  const formatRecordStr = (w, l, t) => {
-    return `<strong>${w}-${l}${t > 0 ? `-${t}` : ''}</strong>`;
-  };
+      const formatRecordStr = (w, l, t) => {
+        return `<strong>${w}-${l}${t > 0 ? `-${t}` : ''}</strong>`;
+      };
 
-  modalBody.innerHTML = `
-    <div class="kpi-card" style="padding: 10px; margin-bottom: 20px;">
-      <div class="kpi-val" style="font-size: 1.5rem;">${formatRecordStr(totalWins, totalLosses, totalTies)}</div>
-      <div class="kpi-label">Current Season Record</div>
-    </div>
+      modalBody.innerHTML = `
+        <div class="kpi-card" style="padding: 10px; margin-bottom: 20px;">
+          <div class="kpi-val" style="font-size: 1.5rem;">${formatRecordStr(totalWins, totalLosses, totalTies)}</div>
+          <div class="kpi-label">Current Season Record</div>
+        </div>
 
-    <div class="matrix-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th class="text-center">Game</th>
-            <th class="text-center">Result</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${logRows.length > 0 ? logRows.map(r => `
-            <tr>
-              <td class="text-center"><strong>${r.matchupCombined}</strong></td>
-              <td class="text-center ${r.outcomeClass}"><strong>${r.scoreText}</strong></td>
-            </tr>
-          `).join('') : `<tr><td colspan="2" style="text-align:center;">No scheduled games found for this team.</td></tr>`}
-        </tbody>
-      </table>
-    </div>
-  `;
+        <div class="matrix-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th class="text-center">Game</th>
+                <th class="text-center">Result</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${logRows.length > 0 ? logRows.map(r => `
+                <tr>
+                  <td class="text-center"><strong>${r.matchupCombined}</strong></td>
+                  <td class="text-center ${r.outcomeClass}"><strong>${r.scoreText}</strong></td>
+                </tr>
+              `).join('') : `<tr><td colspan="2" style="text-align:center;">No scheduled games found for this team.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      `;
 
-  document.getElementById('team-breakdown-modal').classList.add('active');
-}
-
-function openTeamBreakdownModal(team) {
-  const player = document.getElementById('player-select').value;
-  if (!player) return;
-
-  const modalTitle = document.getElementById('modal-team-title');
-  const modalBody = document.getElementById('modal-team-body');
-  
-  modalTitle.innerHTML = `${getTeamLogoHtml(team)} Breakdown &mdash; ${player}`;
-
-  let pickedWins = 0, pickedLosses = 0, pickedTies = 0;
-  let unpickedWins = 0, unpickedLosses = 0, unpickedTies = 0;
-
-  const logRows = [];
-  const now = new Date();
-
-  Object.entries(poolData.weeks || {}).forEach(([weekKey, weekData]) => {
-    const matchups = weekData.matchups || [];
-    
-    let lockDate = weekData.lockTime ? new Date(weekData.lockTime) : null;
-    if (!lockDate && matchups.length > 0) {
-      const dates = matchups.map(m => m.date).filter(Boolean).sort();
-      if (dates.length > 0) lockDate = new Date(dates[0]);
+      document.getElementById('team-breakdown-modal').classList.add('active');
     }
 
-    const isLocked = lockDate && (now >= lockDate);
-    if (!isLocked) return;
+    function openTeamBreakdownModal(team) {
+      const player = document.getElementById('player-select').value;
+      if (!player) return;
 
-    matchups.forEach(m => {
-      const gameString = m.game || '';
+      const modalTitle = document.getElementById('modal-team-title');
+      const modalBody = document.getElementById('modal-team-body');
       
-      let awayTeam = '';
-      let homeTeam = '';
+      modalTitle.innerHTML = `${getTeamLogoHtml(team)} Breakdown &mdash; ${player}`;
 
-      // Determine home and away teams to accurately set @ vs
-      if (gameString.includes('@')) {
-        const parts = gameString.split('@').map(s => s.trim().toUpperCase());
-        awayTeam = parts[0];
-        homeTeam = parts[1];
-      } else if (gameString.toLowerCase().includes('vs')) {
-        const parts = gameString.split(/vs\.?/i).map(s => s.trim().toUpperCase());
-        homeTeam = parts[0];
-        awayTeam = parts[1];
-      } else {
-        const parts = gameString.split(/\s+-\s+/).map(s => s.trim().toUpperCase());
-        awayTeam = parts[0];
-        homeTeam = parts[1];
-      }
+      let pickedWins = 0, pickedLosses = 0, pickedTies = 0;
+      let unpickedWins = 0, unpickedLosses = 0, unpickedTies = 0;
 
-      if (team !== awayTeam && team !== homeTeam) return;
+      const logRows = [];
+      const now = new Date();
 
-      const isAway = (team === awayTeam);
-      const opponent = isAway ? homeTeam : awayTeam;
-      const prefix = isAway ? '@' : 'vs';
-
-      const pick = m.picks?.[player]?.trim().toUpperCase();
-      const pickedTarget = (pick === team);
-      
-      const winner = m.winner ? m.winner.trim().toUpperCase() : null;
-      const isFinal = Boolean(winner) && (
-        m.status === 'STATUS_FINAL' || 
-        m.status === 'Final' || 
-        m.status === 'Completed' || 
-        m.status === 'Post-Game'
-      );
-
-      let outcomeTag = 'Pending';
-      let outcomeClass = 'pick-pending';
-      
-      if (isFinal && winner) {
-        const playerPickedWinner = (pick === winner);
-
-        if (winner === 'TIE') {
-          outcomeTag = 'Tie';
-          outcomeClass = 'pick-tie';
-          if (pickedTarget) pickedTies++;
-          else unpickedTies++;
-        } else if (winner === team) {
-          outcomeTag = `W vs ${opponent}`;
-          outcomeClass = playerPickedWinner ? 'pick-correct' : 'pick-incorrect';
-          if (pickedTarget) pickedWins++;
-          else unpickedWins++;
-        } else {
-          outcomeTag = `L vs ${opponent}`;
-          outcomeClass = playerPickedWinner ? 'pick-correct' : 'pick-incorrect';
-          if (pickedTarget) pickedLosses++;
-          else unpickedLosses++;
+      Object.entries(poolData.weeks || {}).forEach(([weekKey, weekData]) => {
+        const matchups = weekData.matchups || [];
+        
+        let lockDate = weekData.lockTime ? new Date(weekData.lockTime) : null;
+        if (!lockDate && matchups.length > 0) {
+          const dates = matchups.map(m => m.date).filter(Boolean).sort();
+          if (dates.length > 0) lockDate = new Date(dates[0]);
         }
-      }
 
-      logRows.push({
-        matchupText: `${weekKey} ${prefix} ${getTeamLogoHtml(opponent, false)}`,
-        pickedTarget: pickedTarget,
-        pickText: pick ? getTeamLogoHtml(pick, false) : '—',
-        outcomeTag: outcomeTag,
-        outcomeClass: outcomeClass
+        const isLocked = lockDate && (now >= lockDate);
+        if (!isLocked) return;
+
+        matchups.forEach(m => {
+          const gameString = m.game || '';
+          
+          let awayTeam = '';
+          let homeTeam = '';
+
+          // Determine home and away teams to accurately set @ vs
+          if (gameString.includes('@')) {
+            const parts = gameString.split('@').map(s => s.trim().toUpperCase());
+            awayTeam = parts[0];
+            homeTeam = parts[1];
+          } else if (gameString.toLowerCase().includes('vs')) {
+            const parts = gameString.split(/vs\.?/i).map(s => s.trim().toUpperCase());
+            homeTeam = parts[0];
+            awayTeam = parts[1];
+          } else {
+            const parts = gameString.split(/\s+-\s+/).map(s => s.trim().toUpperCase());
+            awayTeam = parts[0];
+            homeTeam = parts[1];
+          }
+
+          if (team !== awayTeam && team !== homeTeam) return;
+
+          const isAway = (team === awayTeam);
+          const opponent = isAway ? homeTeam : awayTeam;
+          const prefix = isAway ? '@' : 'vs';
+
+          const pick = m.picks?.[player]?.trim().toUpperCase();
+          const pickedTarget = (pick === team);
+          
+          const winner = m.winner ? m.winner.trim().toUpperCase() : null;
+          const isFinal = Boolean(winner) && (
+            m.status === 'STATUS_FINAL' || 
+            m.status === 'Final' || 
+            m.status === 'Completed' || 
+            m.status === 'Post-Game'
+          );
+
+          let outcomeTag = 'Pending';
+          let outcomeClass = 'pick-pending';
+          
+          if (isFinal && winner) {
+            const playerPickedWinner = (pick === winner);
+
+            if (winner === 'TIE') {
+              outcomeTag = 'Tie';
+              outcomeClass = 'pick-tie';
+              if (pickedTarget) pickedTies++;
+              else unpickedTies++;
+            } else if (winner === team) {
+              outcomeTag = `W vs ${opponent}`;
+              outcomeClass = playerPickedWinner ? 'pick-correct' : 'pick-incorrect';
+              if (pickedTarget) pickedWins++;
+              else unpickedWins++;
+            } else {
+              outcomeTag = `L vs ${opponent}`;
+              outcomeClass = playerPickedWinner ? 'pick-correct' : 'pick-incorrect';
+              if (pickedTarget) pickedLosses++;
+              else unpickedLosses++;
+            }
+          }
+
+          logRows.push({
+            matchupText: `${weekKey} ${prefix} ${getTeamLogoHtml(opponent, false)}`,
+            pickedTarget: pickedTarget,
+            pickText: pick ? getTeamLogoHtml(pick, false) : '—',
+            outcomeTag: outcomeTag,
+            outcomeClass: outcomeClass
+          });
+        });
       });
-    });
-  });
 
-  const formatRecordStr = (w, l, t) => {
-    return `<strong>${w}-${l}${t > 0 ? `-${t}` : ''}</strong>`;
-  };
+      const formatRecordStr = (w, l, t) => {
+        return `<strong>${w}-${l}${t > 0 ? `-${t}` : ''}</strong>`;
+      };
 
-  modalBody.innerHTML = `
-    <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 20px;">
-      <div class="kpi-card" style="padding: 10px;">
-        <div class="kpi-val" style="font-size: 1.3rem;">${formatRecordStr(pickedWins, pickedLosses, pickedTies)}</div>
-        <div class="kpi-label">When Picked</div>
-      </div>
-      <div class="kpi-card" style="padding: 10px;">
-        <div class="kpi-val" style="font-size: 1.3rem;">${formatRecordStr(unpickedWins, unpickedLosses, unpickedTies)}</div>
-        <div class="kpi-label">When Not Picked</div>
-      </div>
-    </div>
+      modalBody.innerHTML = `
+        <div class="kpi-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 20px;">
+          <div class="kpi-card" style="padding: 10px;">
+            <div class="kpi-val" style="font-size: 1.3rem;">${formatRecordStr(pickedWins, pickedLosses, pickedTies)}</div>
+            <div class="kpi-label">When Picked</div>
+          </div>
+          <div class="kpi-card" style="padding: 10px;">
+            <div class="kpi-val" style="font-size: 1.3rem;">${formatRecordStr(unpickedWins, unpickedLosses, unpickedTies)}</div>
+            <div class="kpi-label">When Not Picked</div>
+          </div>
+        </div>
 
-    <div class="matrix-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th class="text-center">Matchup</th>
-            <th class="text-center">Your Pick</th>
-            <th class="text-center">Outcome</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${logRows.length > 0 ? logRows.map(r => `
-            <tr>
-              <td><strong>${r.matchupText}</strong></td>
-              <td class="text-center">${r.pickText}</td>
-              <td class="text-center ${r.outcomeClass}">${r.outcomeTag}</td>
-            </tr>
-          `).join('') : `<tr><td colspan="3" style="text-align:center;">No locked games for this team yet.</td></tr>`}
-        </tbody>
-      </table>
-    </div>
-  `;
+        <div class="matrix-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th class="text-center">Matchup</th>
+                <th class="text-center">Your Pick</th>
+                <th class="text-center">Outcome</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${logRows.length > 0 ? logRows.map(r => `
+                <tr>
+                  <td><strong>${r.matchupText}</strong></td>
+                  <td class="text-center">${r.pickText}</td>
+                  <td class="text-center ${r.outcomeClass}">${r.outcomeTag}</td>
+                </tr>
+              `).join('') : `<tr><td colspan="3" style="text-align:center;">No locked games for this team yet.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      `;
 
-  document.getElementById('modal-breakdown-title') ? 
-    document.getElementById('team-breakdown-modal').classList.add('active') : 
-    document.getElementById('team-breakdown-modal').classList.add('active');
-}
+      document.getElementById('team-breakdown-modal').classList.add('active');
+    }
 
     function closeTeamModal(e) {
       if (!e || e.target.id === 'team-breakdown-modal' || e.target.classList.contains('modal-close-btn')) {
