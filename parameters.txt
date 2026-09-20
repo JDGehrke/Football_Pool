@@ -1,9 +1,0 @@
-#################################
-# FOOTBALL POOL PARAMETERS FILE #
-#################################
-
-season = 2026
-
-current_week = 2
-
-players = ['ANDI', 'AUSTIN', 'BETHANY', 'BRANDON', 'DAN', 'DEVIN', 'ELLY', 'EMILY', 'HENNIE', 'HUNTER', 'JEN', 'JIM', 'JORDAN', 'KAREN', 'KENNY', 'KENZIE', 'LYDIA', 'MADDIE', 'NICK', 'RICK', 'TONY', 'WESLEY']
