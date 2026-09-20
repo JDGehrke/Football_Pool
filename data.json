@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 2:05pm",
+    "lastUpdated": "Sunday @ 2:20pm",
     "currentWeek": "Week 2"
   },
   "hall_of_fame": [
@@ -818,7 +818,7 @@
           "date": "2026-09-20T17:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "20",
+          "awayScore": "27",
           "homeScore": "3"
         },
         {
@@ -916,9 +916,9 @@
           "game": "PIT @ NE",
           "date": "2026-09-20T17:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "status": "End of Period",
           "awayScore": "3",
-          "homeScore": "10"
+          "homeScore": "13"
         },
         {
           "id": "401872936",
@@ -951,7 +951,7 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "7",
-          "homeScore": "7"
+          "homeScore": "14"
         },
         {
           "id": "401872935",
@@ -983,7 +983,7 @@
           "date": "2026-09-20T17:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "9",
+          "awayScore": "16",
           "homeScore": "16"
         },
         {
@@ -1016,7 +1016,7 @@
           "date": "2026-09-20T17:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "9",
+          "awayScore": "17",
           "homeScore": "17"
         },
         {
@@ -1049,7 +1049,7 @@
           "date": "2026-09-20T17:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "10",
+          "awayScore": "17",
           "homeScore": "3"
         },
         {
