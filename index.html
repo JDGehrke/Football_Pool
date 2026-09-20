@@ -88,6 +88,24 @@
       white-space: nowrap;
     }
 
+    /* --- MATCHUP MATRIX PICK BREAKDOWN COLUMN STYLES --- */
+    .pick-counts-cell {
+      white-space: nowrap;
+      min-width: 85px;
+    }
+    .count-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      line-height: 1.2;
+    }
+    .count-row:first-child {
+      margin-bottom: 2px;
+    }
+
     /* --- SVG GRAPH STYLES (FLUID HORIZONTAL LAYOUT) --- */
     .line-chart-wrapper {
       position: relative;
@@ -1745,6 +1763,7 @@
         <tr>
           <th class="text-center">Game</th>
           <th class="text-center">Status</th>
+          <th class="text-center">Pick Breakdown</th>
           ${selectedMatrixPlayers.map(p => `<th class="text-center">${p}</th>`).join('')}
         </tr>
       `;
@@ -1752,7 +1771,7 @@
       const matrixBody = document.querySelector('#matrix-table tbody');
       
       if (selectedMatrixPlayers.length === 0) {
-        matrixBody.innerHTML = `<tr><td colspan="2" style="text-align:center;">No players selected. Use the filter dropdown to select players.</td></tr>`;
+        matrixBody.innerHTML = `<tr><td colspan="3" style="text-align:center;">No players selected. Use the filter dropdown to select players.</td></tr>`;
         return;
       }
 
@@ -1762,20 +1781,43 @@
         let formattedGame = m.game || '';
         const parts = formattedGame.split(/\s*(@|vs|\bAT\b|-|–)\s*/i);
 
+        let awayTeam = '';
+        let homeTeam = '';
+
         if (parts.length >= 3) {
-          const away = parts[0].trim();
+          awayTeam = parts[0].trim().toUpperCase();
           const sep = parts[1].trim();
-          const home = parts[2].trim();
+          homeTeam = parts[2].trim().toUpperCase();
 
           formattedGame = `
-            <span class="g-desk">${away} ${sep} ${home}</span>
+            <span class="g-desk">${awayTeam} ${sep} ${homeTeam}</span>
             <span class="g-mob">
-              <span>${away}</span>
+              <span>${awayTeam}</span>
               <span class="g-sep">${sep}</span>
-              <span>${home}</span>
+              <span>${homeTeam}</span>
             </span>
           `;
+        } else {
+          const gameTeams = (m.game || '')
+            .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
+            .map(t => t.trim().toUpperCase())
+            .filter(t => t.length >= 2);
+          if (gameTeams.length >= 2) {
+            awayTeam = gameTeams[0];
+            homeTeam = gameTeams[1];
+          }
         }
+
+        // Count picks across all players in poolData
+        let awayCount = 0;
+        let homeCount = 0;
+        Object.values(m.picks || {}).forEach(rawPick => {
+          if (rawPick && rawPick !== '—' && rawPick !== '-') {
+            const pick = rawPick.trim().toUpperCase();
+            if (pick === awayTeam) awayCount++;
+            if (pick === homeTeam) homeCount++;
+          }
+        });
 
         const isScheduled = !m.winner && (!m.status || m.status === 'Scheduled' || m.status === 'Pre-Game');
         
@@ -1797,6 +1839,10 @@
             <td class="text-center">
               <span class="badge-status">${m.status}</span>
               ${statusSubtitle}
+            </td>
+            <td class="text-center pick-counts-cell">
+              <div class="count-row">${getTeamLogoHtml(awayTeam, false)} - ${awayCount}</div>
+              <div class="count-row">${getTeamLogoHtml(homeTeam, false)} - ${homeCount}</div>
             </td>
             ${selectedMatrixPlayers.map(p => {
               const pick = m.picks?.[p] || '—';
