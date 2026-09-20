@@ -1,0 +1,44 @@
+{
+  "season": 2026
+  ,"current_week": 2
+  ,"players": [
+    "ANDI", "AUSTIN", "BETHANY", "BRANDON", "DAN", "DEVIN", 
+    "ELLY", "EMILY", "HENNIE", "HUNTER", "JEN", "JIM", 
+    "JORDAN", "KAREN", "KENNY", "KENZIE", "LYDIA", "MADDIE", 
+    "NICK", "RICK", "TONY", "WESLEY"
+  ]
+  ,"TEAM_MAP" : {
+    "Cardinals": "ARI",
+    "Falcons": "ATL",
+    "Ravens": "BAL",
+    "Bills": "BUF",
+    "Panthers": "CAR",
+    "Bears": "CHI",
+    "Bengals": "CIN",
+    "Browns": "CLE",
+    "Cowboys": "DAL",
+    "Broncos": "DEN",
+    "Lions": "DET",
+    "Packers": "GB",
+    "Texans": "HOU",
+    "Colts": "IND",
+    "Jaguars": "JAX",
+    "Chiefs": "KC",
+    "Raiders": "LV",
+    "Chargers": "LAC",
+    "Rams": "LAR",
+    "Dolphins": "MIA",
+    "Vikings": "MIN",
+    "Patriots": "NE",
+    "Saints": "NO",
+    "Giants": "NYG",
+    "Jets": "NYJ",
+    "Eagles": "PHI",
+    "Steelers": "PIT",
+    "49ers": "SF",
+    "Seahawks": "SEA",
+    "Buccaneers": "TB",
+    "Titans": "TEN",
+    "Commanders": "WSH"
+}
+}

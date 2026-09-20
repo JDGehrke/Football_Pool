@@ -71,6 +71,19 @@ except Exception as e:
         except Exception as stash_err:
             print(f"Could not pop stash automatically: {stash_err}")
     raise e
+    
+# =============================================================================
+# LOAD IN PARAMETERS
+# =============================================================================
+# Load config from JSON file
+with open("parameters.json", "r") as f:
+    parameters = json.load(f)
+
+# Access your variables as standard Python types:
+season = parameters["season"]
+current_week = parameters["current_week"]
+players = parameters["players"]
+TEAM_MAP = parameters["TEAM_MAP"]
 
 # =============================================================================
 # ENV VARIABLES
@@ -85,44 +98,7 @@ env_vars = dotenv_values(".env")
 globals().update(env_vars)
 
 # 4. Adjust variable types
-players = ast.literal_eval(players)
 GOOGLE_CREDENTIALS = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
-
-TEAM_MAP = {
-    # Mascot / Short Name Mappings
-    "Cardinals": "ARI",
-    "Falcons": "ATL",
-    "Ravens": "BAL",
-    "Bills": "BUF",
-    "Panthers": "CAR",
-    "Bears": "CHI",
-    "Bengals": "CIN",
-    "Browns": "CLE",
-    "Cowboys": "DAL",
-    "Broncos": "DEN",
-    "Lions": "DET",
-    "Packers": "GB",
-    "Texans": "HOU",
-    "Colts": "IND",
-    "Jaguars": "JAX",
-    "Chiefs": "KC",
-    "Raiders": "LV",
-    "Chargers": "LAC",
-    "Rams": "LAR",
-    "Dolphins": "MIA",
-    "Vikings": "MIN",
-    "Patriots": "NE",
-    "Saints": "NO",
-    "Giants": "NYG",
-    "Jets": "NYJ",
-    "Eagles": "PHI",
-    "Steelers": "PIT",
-    "49ers": "SF",
-    "Seahawks": "SEA",
-    "Buccaneers": "TB",
-    "Titans": "TEN",
-    "Commanders": "WSH"
-}
 
 # =============================================================================
 # READ IN CURRENT JSON FILE
@@ -177,7 +153,7 @@ if get_picks == True:
             ordered_columns.append(title)
     
     # 2. FETCH THE FORM RESPONSES
-    print("Fetching form responses...")
+    print("\n","Fetching form responses...")
     result = service.forms().responses().list(formId=FORM_ID).execute()
     
     # 3. PARSE RESPONSES USING THE NEW MAP
@@ -263,7 +239,7 @@ for game_id in game_cols:
 # =============================================================================
 # FETCHING LIVE SCORES
 # =============================================================================
-print("Fetching live NFL scores from ESPN...")
+print("\n","Fetching live NFL scores from ESPN...")
 response = requests.get(ESPN_URL, params= {'seasontype':2
                                            ,'week':current_week
                                            ,'dates':season})
@@ -272,7 +248,7 @@ data = response.json()
 # Extract the current week info
 week_info = data.get("week", {})
 week_number = week_info.get("number", "Unknown")
-print(f"🏈 Successfully loaded data for NFL Week {week_number}\n")
+print(f"🏈 Successfully loaded data for NFL Week {week_number}")
 
 games_list = {}
 
@@ -397,7 +373,7 @@ current_json['metadata']['lastUpdated'] = timestamp
 with open("data.json", "w", encoding="utf-8") as f:
     json.dump(current_json, f, indent=2)
 
-print("Saved updates to data.json!")
+print("Saved updates to data.json!","\n")
 
 # =============================================================================
 # STAGE ALL CHANGES, COMMIT & PUSH TO GITHUB (End of Script)
