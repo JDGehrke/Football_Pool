@@ -31,7 +31,7 @@ jobs:
           python -c "import os; open('.env', 'w').write(os.environ['ENV_CONTENT'])"
 
       - name: Run Python script
-        run: python Github_Update_Pool.py
+        run: python update_pool_github.py
 
       - name: Commit and push changes back to repo
         run: |
