@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 1:50pm",
+    "lastUpdated": "Sunday @ 2:05pm",
     "currentWeek": "Week 2"
   },
   "hall_of_fame": [
@@ -817,7 +817,7 @@
           "game": "CAR @ ATL",
           "date": "2026-09-20T17:00Z",
           "winner": null,
-          "status": "Halftime",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "20",
           "homeScore": "3"
         },
@@ -884,8 +884,8 @@
           "date": "2026-09-20T17:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "14",
-          "homeScore": "10"
+          "awayScore": "17",
+          "homeScore": "17"
         },
         {
           "id": "401872946",
@@ -983,8 +983,8 @@
           "date": "2026-09-20T17:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "6",
-          "homeScore": "9"
+          "awayScore": "9",
+          "homeScore": "16"
         },
         {
           "id": "401872938",
@@ -1017,7 +1017,7 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "9",
-          "homeScore": "14"
+          "homeScore": "17"
         },
         {
           "id": "401872934",
@@ -1049,7 +1049,7 @@
           "date": "2026-09-20T17:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "7",
+          "awayScore": "10",
           "homeScore": "3"
         },
         {
