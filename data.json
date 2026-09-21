@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 10:50pm",
+    "lastUpdated": "Sunday @ 11:05pm",
     "currentWeek": "Week 2"
   },
   "hall_of_fame": [
@@ -1245,10 +1245,10 @@
           },
           "game": "IND @ KC",
           "date": "2026-09-21T00:20Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "winner": "KC",
+          "status": "Final",
           "awayScore": "30",
-          "homeScore": "30"
+          "homeScore": "33"
         },
         {
           "id": "401872947",
