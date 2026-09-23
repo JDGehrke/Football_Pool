@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Tuesday @ 8:10pm",
+    "lastUpdated": "Wednesday @ 9:10am",
     "currentWeek": "Week 3"
   },
   "hall_of_fame": [
@@ -1387,6 +1387,7 @@
         {
           "id": "401872948",
           "picks": {
+            "NICK": "GB",
             "JEN": "GB",
             "MADDIE": "GB",
             "WESLEY": "GB",
@@ -1406,7 +1407,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1420,6 +1420,7 @@
         {
           "id": "401872953",
           "picks": {
+            "NICK": "BUF",
             "JEN": "BUF",
             "MADDIE": "BUF",
             "WESLEY": "LAC",
@@ -1439,7 +1440,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1453,6 +1453,7 @@
         {
           "id": "401872949",
           "picks": {
+            "NICK": "CAR",
             "JEN": "CLE",
             "MADDIE": "CAR",
             "WESLEY": "CAR",
@@ -1472,7 +1473,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1486,6 +1486,7 @@
         {
           "id": "401872954",
           "picks": {
+            "NICK": "DET",
             "JEN": "DET",
             "MADDIE": "DET",
             "WESLEY": "NYJ",
@@ -1505,7 +1506,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1519,6 +1519,7 @@
         {
           "id": "401872951",
           "picks": {
+            "NICK": "IND",
             "JEN": "IND",
             "MADDIE": "HOU",
             "WESLEY": "HOU",
@@ -1538,7 +1539,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1552,6 +1552,7 @@
         {
           "id": "401872952",
           "picks": {
+            "NICK": "KC",
             "JEN": "KC",
             "MADDIE": "KC",
             "WESLEY": "MIA",
@@ -1571,7 +1572,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1585,6 +1585,7 @@
         {
           "id": "401872956",
           "picks": {
+            "NICK": "NYG",
             "JEN": "NYG",
             "MADDIE": "NYG",
             "WESLEY": "TEN",
@@ -1604,7 +1605,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1618,6 +1618,7 @@
         {
           "id": "401872950",
           "picks": {
+            "NICK": "PIT",
             "JEN": "CIN",
             "MADDIE": "PIT",
             "WESLEY": "PIT",
@@ -1637,7 +1638,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1651,6 +1651,7 @@
         {
           "id": "401872955",
           "picks": {
+            "NICK": "SEA",
             "JEN": "SEA",
             "MADDIE": "SEA",
             "WESLEY": "SEA",
@@ -1670,7 +1671,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1684,6 +1684,7 @@
         {
           "id": "401872957",
           "picks": {
+            "NICK": "NE",
             "JEN": "NE",
             "MADDIE": "JAX",
             "WESLEY": "JAX",
@@ -1703,7 +1704,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1717,6 +1717,7 @@
         {
           "id": "401872958",
           "picks": {
+            "NICK": "SF",
             "JEN": "SF",
             "MADDIE": "SF",
             "WESLEY": "ARI",
@@ -1736,7 +1737,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1750,6 +1750,7 @@
         {
           "id": "401872959",
           "picks": {
+            "NICK": "MIN",
             "JEN": "MIN",
             "MADDIE": "MIN",
             "WESLEY": "TB",
@@ -1769,7 +1770,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1783,6 +1783,7 @@
         {
           "id": "401872960",
           "picks": {
+            "NICK": "DAL",
             "JEN": "BAL",
             "MADDIE": "DAL",
             "WESLEY": "DAL",
@@ -1802,7 +1803,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1816,6 +1816,7 @@
         {
           "id": "401872961",
           "picks": {
+            "NICK": "NO",
             "JEN": "LV",
             "MADDIE": "NO",
             "WESLEY": "NO",
@@ -1835,7 +1836,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1849,6 +1849,7 @@
         {
           "id": "401872962",
           "picks": {
+            "NICK": "LAR",
             "JEN": "DEN",
             "MADDIE": "DEN",
             "WESLEY": "LAR",
@@ -1868,7 +1869,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1882,6 +1882,7 @@
         {
           "id": "401872963",
           "picks": {
+            "NICK": "PHI",
             "JEN": "PHI",
             "MADDIE": "PHI",
             "WESLEY": "CHI",
@@ -1901,7 +1902,6 @@
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
           },
@@ -1992,8 +1992,8 @@
             "predictedTotal": 49
           },
           "NICK": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "PHI",
+            "predictedTotal": 36
           },
           "RICK": {
             "winner": "\u2014",
