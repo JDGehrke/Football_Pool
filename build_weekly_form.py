@@ -10,6 +10,7 @@ from dotenv import load_dotenv,dotenv_values
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
+os.chdir(r'C:\\Users\\jdgeh\Documents\Github\Football_Pool')
 
 # =============================================================================
 # GIT SETUP & INITIAL PULL (Top of Script)
