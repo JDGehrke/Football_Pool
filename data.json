@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Wednesday @ 10:10am",
+    "lastUpdated": "Wednesday @ 11:10am",
     "currentWeek": "Week 4"
   },
   "hall_of_fame": [
@@ -2016,6 +2016,7 @@
         {
           "id": "401872964",
           "picks": {
+            "BRANDON": "PIT",
             "MADDIE": "PIT",
             "NICK": "PIT",
             "KAREN": "CLE",
@@ -2025,7 +2026,6 @@
             "JEN": "CLE",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2049,6 +2049,7 @@
         {
           "id": "401872965",
           "picks": {
+            "BRANDON": "IND",
             "MADDIE": "WSH",
             "NICK": "IND",
             "KAREN": "WSH",
@@ -2058,7 +2059,6 @@
             "JEN": "WSH",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2082,6 +2082,7 @@
         {
           "id": "401872971",
           "picks": {
+            "BRANDON": "BUF",
             "MADDIE": "BUF",
             "NICK": "BUF",
             "KAREN": "BUF",
@@ -2091,7 +2092,6 @@
             "JEN": "BUF",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2115,6 +2115,7 @@
         {
           "id": "401872972",
           "picks": {
+            "BRANDON": "CHI",
             "MADDIE": "CHI",
             "NICK": "CHI",
             "KAREN": "NYJ",
@@ -2124,7 +2125,6 @@
             "JEN": "CHI",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2148,6 +2148,7 @@
         {
           "id": "401872969",
           "picks": {
+            "BRANDON": "CIN",
             "MADDIE": "CIN",
             "NICK": "CIN",
             "KAREN": "CIN",
@@ -2157,7 +2158,6 @@
             "JEN": "CIN",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2181,6 +2181,7 @@
         {
           "id": "401872966",
           "picks": {
+            "BRANDON": "NYG",
             "MADDIE": "NYG",
             "NICK": "NYG",
             "KAREN": "NYG",
@@ -2190,7 +2191,6 @@
             "JEN": "NYG",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2214,6 +2214,7 @@
         {
           "id": "401872970",
           "picks": {
+            "BRANDON": "LAR",
             "MADDIE": "PHI",
             "NICK": "LAR",
             "KAREN": "PHI",
@@ -2223,7 +2224,6 @@
             "JEN": "PHI",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2247,6 +2247,7 @@
         {
           "id": "401872968",
           "picks": {
+            "BRANDON": "GB",
             "MADDIE": "GB",
             "NICK": "GB",
             "KAREN": "TB",
@@ -2256,7 +2257,6 @@
             "JEN": "GB",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2280,6 +2280,7 @@
         {
           "id": "401872973",
           "picks": {
+            "BRANDON": "BAL",
             "MADDIE": "BAL",
             "NICK": "BAL",
             "KAREN": "BAL",
@@ -2289,7 +2290,6 @@
             "JEN": "BAL",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2313,6 +2313,7 @@
         {
           "id": "401872967",
           "picks": {
+            "BRANDON": "DAL",
             "MADDIE": "HOU",
             "NICK": "DAL",
             "KAREN": "DAL",
@@ -2322,7 +2323,6 @@
             "JEN": "HOU",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2346,6 +2346,7 @@
         {
           "id": "401872974",
           "picks": {
+            "BRANDON": "MIN",
             "MADDIE": "MIN",
             "NICK": "MIN",
             "KAREN": "MIN",
@@ -2355,7 +2356,6 @@
             "JEN": "MIN",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2379,6 +2379,7 @@
         {
           "id": "401872976",
           "picks": {
+            "BRANDON": "LV",
             "MADDIE": "KC",
             "NICK": "KC",
             "KAREN": "LV",
@@ -2388,7 +2389,6 @@
             "JEN": "KC",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2412,6 +2412,7 @@
         {
           "id": "401872975",
           "picks": {
+            "BRANDON": "SF",
             "MADDIE": "SF",
             "NICK": "SF",
             "KAREN": "SF",
@@ -2421,7 +2422,6 @@
             "JEN": "SF",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2445,6 +2445,7 @@
         {
           "id": "401872977",
           "picks": {
+            "BRANDON": "SEA",
             "MADDIE": "SEA",
             "NICK": "SEA",
             "KAREN": "SEA",
@@ -2454,7 +2455,6 @@
             "JEN": "SEA",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2478,6 +2478,7 @@
         {
           "id": "401872978",
           "picks": {
+            "BRANDON": "DET",
             "MADDIE": "DET",
             "NICK": "DET",
             "KAREN": "CAR",
@@ -2487,7 +2488,6 @@
             "JEN": "DET",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2511,6 +2511,7 @@
         {
           "id": "401872979",
           "picks": {
+            "BRANDON": "NO",
             "MADDIE": "ATL",
             "NICK": "ATL",
             "KAREN": "NO",
@@ -2520,7 +2521,6 @@
             "JEN": "NO",
             "ANDI": "\u2014",
             "AUSTIN": "\u2014",
-            "BRANDON": "\u2014",
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
@@ -2561,8 +2561,8 @@
             "predictedTotal": 28
           },
           "BRANDON": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "NO",
+            "predictedTotal": 40
           },
           "DAN": {
             "winner": "\u2014",
