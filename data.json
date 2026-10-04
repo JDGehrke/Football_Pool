@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 2:50pm",
+    "lastUpdated": "Sunday @ 3:05pm",
     "currentWeek": "Week 4"
   },
   "hall_of_fame": [
@@ -2109,8 +2109,8 @@
           "date": "2026-10-04T17:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "21",
-          "homeScore": "20"
+          "awayScore": "29",
+          "homeScore": "26"
         },
         {
           "id": "401872972",
@@ -2140,8 +2140,8 @@
           },
           "game": "NYJ @ CHI",
           "date": "2026-10-04T17:00Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "winner": "CHI",
+          "status": "Final",
           "awayScore": "12",
           "homeScore": "23"
         },
@@ -2176,7 +2176,7 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "22",
-          "homeScore": "10"
+          "homeScore": "17"
         },
         {
           "id": "401872966",
@@ -2209,7 +2209,7 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "24",
-          "homeScore": "27"
+          "homeScore": "30"
         },
         {
           "id": "401872970",
@@ -2241,7 +2241,7 @@
           "date": "2026-10-04T17:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "10",
+          "awayScore": "17",
           "homeScore": "20"
         },
         {
@@ -2272,8 +2272,8 @@
           },
           "game": "GB @ TB",
           "date": "2026-10-04T17:00Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "winner": "GB",
+          "status": "Final",
           "awayScore": "17",
           "homeScore": "14"
         },
@@ -2307,7 +2307,7 @@
           "date": "2026-10-04T17:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "10",
+          "awayScore": "18",
           "homeScore": "24"
         },
         {
@@ -2341,7 +2341,7 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "27",
-          "homeScore": "23"
+          "homeScore": "30"
         },
         {
           "id": "401872974",
