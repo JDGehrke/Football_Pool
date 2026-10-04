@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 6:35pm",
+    "lastUpdated": "Sunday @ 6:50pm",
     "currentWeek": "Week 4"
   },
   "hall_of_fame": [
@@ -2404,8 +2404,8 @@
           },
           "game": "KC @ LV",
           "date": "2026-10-04T20:25Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "winner": "KC",
+          "status": "Final",
           "awayScore": "30",
           "homeScore": "27"
         },
@@ -2437,8 +2437,8 @@
           },
           "game": "DEN @ SF",
           "date": "2026-10-04T20:25Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "winner": "SF",
+          "status": "Final",
           "awayScore": "14",
           "homeScore": "24"
         },
@@ -2470,8 +2470,8 @@
           },
           "game": "LAC @ SEA",
           "date": "2026-10-04T20:25Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "winner": "SEA",
+          "status": "Final",
           "awayScore": "23",
           "homeScore": "30"
         },
