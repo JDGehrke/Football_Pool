@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Monday @ 8:55pm",
+    "lastUpdated": "Monday @ 9:55pm",
     "currentWeek": "Week 4"
   },
   "hall_of_fame": [
@@ -2537,16 +2537,16 @@
           "game": "ATL @ NO",
           "date": "2026-10-06T00:15Z",
           "winner": null,
-          "status": "Halftime",
-          "awayScore": "24",
-          "homeScore": "7"
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "awayScore": "31",
+          "homeScore": "17"
         }
       ],
       "tiebreaker": {
         "game": "ATL @ NO",
-        "status": "Halftime",
+        "status": "\ud83d\udd34 Live \ud83d\udd34",
         "winner": null,
-        "actualTotalScore": 31,
+        "actualTotalScore": 48,
         "picks": {
           "ANDI": {
             "winner": "ATL",
