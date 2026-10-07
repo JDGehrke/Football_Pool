@@ -2120,7 +2120,7 @@
 
       const displayPlayers = sortedPlayersByRank.filter(p => selectedMatrixPlayers.includes(p));
 
-      // Build border styles for Record Transitions
+      // Build grey border styles for Record Transitions
       let lastRecordKey = null;
       const borderStyleMap = {};
 
@@ -2129,7 +2129,7 @@
         const currentRecordKey = `${wHist.correct}-${wHist.incorrect}`;
         
         if (idx > 0 && currentRecordKey !== lastRecordKey) {
-          borderStyleMap[p] = 'border-left: 3px solid var(--primary-color);';
+          borderStyleMap[p] = 'border-left: 2px solid var(--border-color);';
         } else {
           borderStyleMap[p] = '';
         }
@@ -2345,48 +2345,72 @@
           // 1. Track Matchups & Picks for all locked games (used for Pick %)
           teamsInGame.forEach(team => {
             if (!poolTeamStatsLocked[team]) {
-              poolTeamStatsLocked[team] = { totalMatchups: 0, picked: 0, correct: 0, finishedPicked: 0 };
+              poolTeamStatsLocked[team] = { totalMatchups: 0, picked: 0, correct: 0, finishedMatchups: 0 };
             }
             poolTeamStatsLocked[team].totalMatchups++;
 
             if (!playerTeamStats[team]) {
-              playerTeamStats[team] = { totalMatchups: 0, picked: 0, correct: 0, finishedPicked: 0 };
+              playerTeamStats[team] = { totalMatchups: 0, picked: 0, correct: 0, finishedMatchups: 0 };
             }
             playerTeamStats[team].totalMatchups++;
+
+            if (isFinal) {
+              poolTeamStatsLocked[team].finishedMatchups++;
+              playerTeamStats[team].finishedMatchups++;
+            }
           });
 
+          // Track Pool Pick % Across All Players
           Object.entries(m.picks || {}).forEach(([p, rawPick]) => {
             if (rawPick && rawPick !== '—' && rawPick !== '-') {
               const pick = rawPick.trim().toUpperCase();
 
               if (!poolTeamStatsLocked[pick]) {
-                poolTeamStatsLocked[pick] = { totalMatchups: 0, picked: 0, correct: 0, finishedPicked: 0 };
+                poolTeamStatsLocked[pick] = { totalMatchups: 0, picked: 0, correct: 0, finishedMatchups: 0 };
               }
               poolTeamStatsLocked[pick].picked++;
 
               if (p === playerId) {
                 if (!playerTeamStats[pick]) {
-                  playerTeamStats[pick] = { totalMatchups: 0, picked: 0, correct: 0, finishedPicked: 0 };
+                  playerTeamStats[pick] = { totalMatchups: 0, picked: 0, correct: 0, finishedMatchups: 0 };
                 }
                 playerTeamStats[pick].picked++;
               }
-
-              // 2. Track Wins & Finished Pick Counts ONLY if the game is Final
-              if (isFinal && winner) {
-                poolTeamStatsLocked[pick].finishedPicked++;
-                if (p === playerId) {
-                  playerTeamStats[pick].finishedPicked++;
-                }
-
-                if (winner !== 'TIE' && pick === winner) {
-                  poolTeamStatsLocked[pick].correct++;
-                  if (p === playerId) {
-                    playerTeamStats[pick].correct++;
-                  }
-                }
-              }
             }
           });
+
+          // 2. Evaluate Game Outcomes for Accuracy % across ALL games involving team
+          if (isFinal && winner) {
+            teamsInGame.forEach(team => {
+              const opponent = teamsInGame.find(t => t !== team);
+              
+              // Evaluate Player Outcome Accuracy for this Team Game
+              const playerPick = m.picks?.[playerId]?.trim().toUpperCase();
+              if (playerPick) {
+                if (winner === 'TIE') {
+                  // Ties do not penalize/reward
+                } else if (winner === team && playerPick === team) {
+                  // Picked team and team won
+                  playerTeamStats[team].correct++;
+                } else if (winner === opponent && playerPick === opponent) {
+                  // Picked opponent and team lost (correctly predicted outcome against team)
+                  playerTeamStats[team].correct++;
+                }
+              }
+
+              // Evaluate Pool Outcome Accuracy for this Team Game
+              Object.entries(m.picks || {}).forEach(([p, pPickRaw]) => {
+                const pPick = pPickRaw ? pPickRaw.trim().toUpperCase() : null;
+                if (pPick && winner !== 'TIE') {
+                  if (winner === team && pPick === team) {
+                    poolTeamStatsLocked[team].correct++;
+                  } else if (winner === opponent && pPick === opponent) {
+                    poolTeamStatsLocked[team].correct++;
+                  }
+                }
+              });
+            });
+          }
         });
       });
 
@@ -2498,25 +2522,26 @@
         const stat = playerTeamStats[team];
         const totalMatchups = stat.totalMatchups || 0;
         const timesPicked = stat.picked || 0;
-        const finishedTimesPicked = stat.finishedPicked || 0;
+        const finishedMatchups = stat.finishedMatchups || 0;
         
         const playerPickPctNum = totalMatchups > 0 ? (timesPicked / totalMatchups) * 100 : 0;
         const playerPickPctStr = playerPickPctNum.toFixed(1);
         
-        const poolStat = poolTeamStatsLocked[team] || { totalMatchups: 0, picked: 0, correct: 0, finishedPicked: 0 };
+        const poolStat = poolTeamStatsLocked[team] || { totalMatchups: 0, picked: 0, correct: 0, finishedMatchups: 0 };
         const totalPoolPossiblePicks = poolStat.totalMatchups * totalPoolPlayers;
         const poolPickPctNum = totalPoolPossiblePicks > 0 ? (poolStat.picked / totalPoolPossiblePicks) * 100 : 0;
         const poolPickPctStr = poolPickPctNum.toFixed(1);
 
-        // Calculate Accuracy % based only on completed/finished games
-        const playerAccNum = finishedTimesPicked > 0 ? (stat.correct / finishedTimesPicked) * 100 : 0;
-        const playerAccStr = finishedTimesPicked > 0 ? playerAccNum.toFixed(1) : 'N/A';
+        // Accuracy % now reflects ALL completed games involving this team
+        const playerAccNum = finishedMatchups > 0 ? (stat.correct / finishedMatchups) * 100 : 0;
+        const playerAccStr = finishedMatchups > 0 ? playerAccNum.toFixed(1) : 'N/A';
 
-        const poolAccNum = poolStat.finishedPicked > 0 ? (poolStat.correct / poolStat.finishedPicked) * 100 : 0;
-        const poolAccStr = poolStat.finishedPicked > 0 ? poolAccNum.toFixed(1) : 'N/A';
+        const poolTotalPossibleAccPicks = poolStat.finishedMatchups * totalPoolPlayers;
+        const poolAccNum = poolTotalPossibleAccPicks > 0 ? (poolStat.correct / poolTotalPossibleAccPicks) * 100 : 0;
+        const poolAccStr = poolTotalPossibleAccPicks > 0 ? poolAccNum.toFixed(1) : 'N/A';
 
         const pickPctClass = playerPickPctNum > poolPickPctNum ? 'stat-outperform' : '';
-        const accClass = (finishedTimesPicked > 0 && playerAccNum > poolAccNum) ? 'stat-outperform' : '';
+        const accClass = (finishedMatchups > 0 && playerAccNum > poolAccNum) ? 'stat-outperform' : '';
 
         return `
           <tr>
