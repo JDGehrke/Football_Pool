@@ -69,7 +69,7 @@
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
-    /* Freeze Columns 1, 2, and 3 for Matchup Matrix */
+    /* Freeze Columns 1 and 2 ONLY for Matchup Matrix */
     #matrix-table th:nth-child(1),
     #matrix-table td:nth-child(1) {
       position: sticky;
@@ -87,23 +87,20 @@
       background-color: var(--card-bg);
       min-width: 95px;
       white-space: nowrap;
-      border-right: 1px solid var(--border-color);
+      border-right: 2px solid var(--border-color);
     }
 
+    /* Column 3 (Pool Picks) scrolls normally */
     #matrix-table th:nth-child(3),
     #matrix-table td:nth-child(3) {
-      position: sticky;
-      left: 215px;
-      z-index: 5;
-      background-color: var(--card-bg);
+      position: static;
+      z-index: 1;
       min-width: 90px;
-      border-right: 2px solid var(--border-color);
     }
 
     /* Header z-indices for frozen columns */
     #matrix-table thead th:nth-child(1) { z-index: 15; background-color: #f1f5f9; }
     #matrix-table thead th:nth-child(2) { z-index: 15; background-color: #f1f5f9; }
-    #matrix-table thead th:nth-child(3) { z-index: 15; background-color: #f1f5f9; }
 
     /* Maintain row background colors for sticky cells on state classes */
     .matrix-wrapper table td:first-child.pick-correct { background-color: #dcfce7 !important; }
@@ -598,8 +595,35 @@
       cursor: pointer;
     }
 
+    .badge-neutral { 
+      background: #f1f5f9; 
+      color: #475569; 
+      padding: 4px 10px; 
+      border-radius: 6px; 
+      font-weight: 600; 
+      font-size: 0.8rem; 
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .delta-val-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .delta-val-badge:hover {
+      background-color: #f1f5f9;
+      color: var(--secondary-color);
+    }
+
     @media (max-width: 480px) {
-      .badge-win {
+      .badge-win, .badge-neutral {
         flex-direction: column;
         gap: 2px;
         padding: 4px 6px;
@@ -1597,29 +1621,42 @@
       if (crownWinners.length === 0) {
         crownBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted); padding: 15px;">No weekly crowns awarded yet.</td></tr>`;
       } else {
-        crownBody.innerHTML = crownWinners.map(p => {
+        const maxCrowns = computedStats[crownWinners[0]]?.crowns || 0;
+
+        crownBody.innerHTML = crownWinners.map((p, idx) => {
           const crowns = computedStats[p].crowns;
           const deltas = computedStats[p].winningDeltas;
           const avgDelta = deltas.length > 0 
             ? (deltas.reduce((a, b) => a + b, 0) / deltas.length).toFixed(1) 
             : 'N/A';
 
+          const isLeader = (idx === 0 || crowns === maxCrowns);
+          const badgeClass = isLeader ? 'badge-win' : 'badge-neutral';
+
           const crownDisplay = `
             <div class="badge-win-container" 
                  onmouseenter="showCrownTooltip(event, '${p}')" 
                  onmouseleave="hideCrownTooltip()">
-              <span class="badge-win">
+              <span class="${badgeClass}">
                 <span class="crown-icon">👑</span>
                 <span class="crown-text">${crowns} ${crowns === 1 ? 'Win' : 'Wins'}</span>
               </span>
             </div>
           `;
 
+          const deltaDisplay = `
+            <span class="delta-val-badge"
+                  onmouseenter="showDeltaTooltip(event, '${p}')" 
+                  onmouseleave="hideDeltaTooltip()">
+              ${avgDelta}
+            </span>
+          `;
+
           return `
             <tr>
               <td><strong>${p}</strong></td>
               <td class="text-center">${crownDisplay}</td>
-              <td class="text-center">${avgDelta}</td>
+              <td class="text-center">${deltaDisplay}</td>
             </tr>
           `;
         }).join('');
@@ -1664,6 +1701,62 @@
         ${weeksHtml}
       `;
 
+      positionTooltip(evt, tooltip);
+    }
+
+    function hideCrownTooltip() {
+      const tooltip = document.getElementById('crown-standings-tooltip');
+      if (tooltip) tooltip.style.opacity = '0';
+    }
+
+    function showDeltaTooltip(evt, player) {
+      let tooltip = document.getElementById('delta-standings-tooltip');
+      if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'delta-standings-tooltip';
+        tooltip.className = 'crown-tooltip';
+        document.body.appendChild(tooltip);
+      }
+
+      const pStats = computedStats[player];
+      if (!pStats) return;
+
+      const weeksWon = pStats.weeksWon || [];
+      const totalCrowns = pStats.crowns || 0;
+
+      let weeksHtml = '';
+      if (weeksWon.length > 0) {
+        weeksHtml = weeksWon.map(wKey => {
+          const wHist = pStats.weeklyHistory[wKey] || { diff: null };
+          const diffVal = wHist.diff !== null ? `+${wHist.diff.toFixed(1)}` : 'N/A';
+          return `
+            <div class="tooltip-row">
+              <span>${wKey}:</span> 
+              <span>${diffVal}</span>
+            </div>
+          `;
+        }).join('');
+      } else {
+        weeksHtml = `<div class="tooltip-row"><span>No winning deltas</span></div>`;
+      }
+
+      tooltip.innerHTML = `
+        <div class="tooltip-header">
+          <span>${player}</span>
+          <span style="color: #38bdf8; font-weight: 800;">Δ Delta</span>
+        </div>
+        ${weeksHtml}
+      `;
+
+      positionTooltip(evt, tooltip);
+    }
+
+    function hideDeltaTooltip() {
+      const tooltip = document.getElementById('delta-standings-tooltip');
+      if (tooltip) tooltip.style.opacity = '0';
+    }
+
+    function positionTooltip(evt, tooltip) {
       const target = evt.currentTarget;
       const rect = target.getBoundingClientRect();
       
@@ -1680,13 +1773,6 @@
       } else {
         tooltip.classList.remove('tooltip-bottom');
         tooltip.style.transform = 'translate(-50%, -105%)';
-      }
-    }
-
-    function hideCrownTooltip() {
-      const tooltip = document.getElementById('crown-standings-tooltip');
-      if (tooltip) {
-        tooltip.style.opacity = '0';
       }
     }
 
@@ -2034,6 +2120,22 @@
 
       const displayPlayers = sortedPlayersByRank.filter(p => selectedMatrixPlayers.includes(p));
 
+      // Build border styles for Record Transitions
+      let lastRecordKey = null;
+      const borderStyleMap = {};
+
+      displayPlayers.forEach((p, idx) => {
+        const wHist = computedStats[p]?.weeklyHistory[week] || { correct: 0, incorrect: 0 };
+        const currentRecordKey = `${wHist.correct}-${wHist.incorrect}`;
+        
+        if (idx > 0 && currentRecordKey !== lastRecordKey) {
+          borderStyleMap[p] = 'border-left: 3px solid var(--primary-color);';
+        } else {
+          borderStyleMap[p] = '';
+        }
+        lastRecordKey = currentRecordKey;
+      });
+
       const matrixHead = document.querySelector('#matrix-table thead');
       matrixHead.innerHTML = `
         <tr>
@@ -2042,8 +2144,9 @@
           <th class="text-center">Pool Picks</th>
           ${displayPlayers.map(p => {
             const wHist = computedStats[p]?.weeklyHistory[week] || { correct: 0, incorrect: 0 };
+            const dividerStyle = borderStyleMap[p] || '';
             return `
-              <th class="text-center">
+              <th class="text-center" style="${dividerStyle}">
                 ${p}
                 <span class="th-subtitle">(${wHist.correct}-${wHist.incorrect})</span>
               </th>
@@ -2140,8 +2243,9 @@
                 }
               }
               
+              const dividerStyle = borderStyleMap[p] || '';
               const pickDisplay = (pick !== '—' && pick !== '-') ? getTeamLogoHtml(pick, false) : '—';
-              return `<td class="${cssClass} text-center">${pickDisplay}</td>`;
+              return `<td class="${cssClass} text-center" style="${dividerStyle}">${pickDisplay}</td>`;
             }).join('')}
           </tr>
         `;
