@@ -1104,6 +1104,8 @@
     let computedStats = {};
     let poolTeamStats = {};
     let nflTeamRecords = {};
+    let teamOpponents = {};
+    let teamVictories = {};
     let selectedMatrixPlayers = [];
 
     const NFL_DIVISIONS = {
@@ -1116,6 +1118,18 @@
       "NFC South": ["ATL", "CAR", "NO", "TB"],
       "NFC West": ["ARI", "LAR", "SF", "SEA"]
     };
+
+    function getTeamDivision(team) {
+      for (const [divName, teams] of Object.entries(NFL_DIVISIONS)) {
+        if (teams.includes(team)) return divName;
+      }
+      return "";
+    }
+
+    function getTeamConference(team) {
+      const div = getTeamDivision(team);
+      return div.startsWith("AFC") ? "AFC" : "NFC";
+    }
 
     function formatGameTime(isoString) {
       if (!isoString) return '';
@@ -1275,13 +1289,18 @@
       computedStats = {};
       poolTeamStats = {};
       nflTeamRecords = {};
+      teamOpponents = {};
+      teamVictories = {};
 
-      Object.values(NFL_DIVISIONS).flat().forEach(t => {
+      const allTeams = Object.values(NFL_DIVISIONS).flat();
+      allTeams.forEach(t => {
         nflTeamRecords[t] = { 
           wins: 0, losses: 0, ties: 0,
           divWins: 0, divLosses: 0, divTies: 0,
           confWins: 0, confLosses: 0, confTies: 0 
         };
+        teamOpponents[t] = [];
+        teamVictories[t] = [];
       });
 
       (poolData.players || []).forEach(p => {
@@ -1331,15 +1350,43 @@
             const winnerClean = m.winner.trim().toUpperCase();
             const loserClean = teamsInGame.find(t => t !== winnerClean);
 
-            if (winnerClean !== 'TIE') {
-              if (nflTeamRecords[winnerClean]) nflTeamRecords[winnerClean].wins++;
-              if (loserClean && nflTeamRecords[loserClean]) nflTeamRecords[loserClean].losses++;
-            } else {
-              teamsInGame.forEach(t => {
-                if (nflTeamRecords[t]) {
-                  nflTeamRecords[t].ties = (nflTeamRecords[t].ties || 0) + 1;
+            if (teamsInGame.length === 2) {
+              const teamA = teamsInGame[0];
+              const teamB = teamsInGame[1];
+              if (teamOpponents[teamA]) teamOpponents[teamA].push(teamB);
+              if (teamOpponents[teamB]) teamOpponents[teamB].push(teamA);
+
+              const divA = getTeamDivision(teamA);
+              const divB = getTeamDivision(teamB);
+              const confA = getTeamConference(teamA);
+              const confB = getTeamConference(teamB);
+
+              const isDiv = (divA && divA === divB);
+              const isConf = (confA && confA === confB);
+
+              if (winnerClean !== 'TIE') {
+                if (nflTeamRecords[winnerClean]) {
+                  nflTeamRecords[winnerClean].wins++;
+                  if (isDiv) nflTeamRecords[winnerClean].divWins++;
+                  if (isConf) nflTeamRecords[winnerClean].confWins++;
                 }
-              });
+                if (loserClean && nflTeamRecords[loserClean]) {
+                  nflTeamRecords[loserClean].losses++;
+                  if (isDiv) nflTeamRecords[loserClean].divLosses++;
+                  if (isConf) nflTeamRecords[loserClean].confLosses++;
+                }
+                if (loserClean && teamVictories[winnerClean]) {
+                  teamVictories[winnerClean].push(loserClean);
+                }
+              } else {
+                teamsInGame.forEach(t => {
+                  if (nflTeamRecords[t]) {
+                    nflTeamRecords[t].ties++;
+                    if (isDiv) nflTeamRecords[t].divTies++;
+                    if (isConf) nflTeamRecords[t].confTies++;
+                  }
+                });
+              }
             }
 
             Object.entries(m.picks || {}).forEach(([p, rawPick]) => {
@@ -2405,7 +2452,6 @@
               totalLosses++;
             }
           } else if (m.date) {
-            // Optional: shows date/time if available for upcoming games, otherwise defaults to 'Scheduled'
             scoreText = formatShortGameTime(m.date);
           }
 
@@ -2483,7 +2529,6 @@
           let awayTeam = '';
           let homeTeam = '';
 
-          // Determine home and away teams to accurately set @ vs
           if (gameString.includes('@')) {
             const parts = gameString.split('@').map(s => s.trim().toUpperCase());
             awayTeam = parts[0];
@@ -2609,7 +2654,7 @@
       nfcGrid.innerHTML = '';
 
       Object.entries(NFL_DIVISIONS).forEach(([divisionName, teams]) => {
-        const sortedTeams = [...teams].sort(compareIntraDivision);
+        const sortedTeams = sortDivisionTeams([...teams]);
 
         const cardHtml = `
           <div class="card">
@@ -2676,14 +2721,40 @@
       }
     }
 
-    /* --- OFFICIAL NFL TIEBREAKER FUNCTIONS --- */
+    /* --- ESPN / OFFICIAL NFL TIEBREAKER ENGINE --- */
 
     function getWinPct(wins, losses, ties = 0) {
       const total = wins + losses + ties;
       return total > 0 ? (wins + 0.5 * ties) / total : 0;
     }
 
-    function compareIntraDivision(teamA, teamB) {
+    function getSOV(team) {
+      const defeated = teamVictories[team] || [];
+      if (defeated.length === 0) return 0;
+      let totalW = 0, totalL = 0, totalT = 0;
+      defeated.forEach(opp => {
+        const rec = nflTeamRecords[opp] || { wins: 0, losses: 0, ties: 0 };
+        totalW += rec.wins;
+        totalL += rec.losses;
+        totalT += rec.ties;
+      });
+      return getWinPct(totalW, totalL, totalT);
+    }
+
+    function getSOS(team) {
+      const opps = teamOpponents[team] || [];
+      if (opps.length === 0) return 0;
+      let totalW = 0, totalL = 0, totalT = 0;
+      opps.forEach(opp => {
+        const rec = nflTeamRecords[opp] || { wins: 0, losses: 0, ties: 0 };
+        totalW += rec.wins;
+        totalL += rec.losses;
+        totalT += rec.ties;
+      });
+      return getWinPct(totalW, totalL, totalT);
+    }
+
+    function compareIntraDivisionPair(teamA, teamB) {
       const recA = nflTeamRecords[teamA] || { wins: 0, losses: 0, ties: 0, divWins: 0, divLosses: 0, divTies: 0, confWins: 0, confLosses: 0, confTies: 0 };
       const recB = nflTeamRecords[teamB] || { wins: 0, losses: 0, ties: 0, divWins: 0, divLosses: 0, divTies: 0, confWins: 0, confLosses: 0, confTies: 0 };
 
@@ -2693,26 +2764,35 @@
       if (pctB !== pctA) return pctB - pctA;
 
       // 2. Division PCT
-      const divPctA = getWinPct(recA.divWins || 0, recA.divLosses || 0, recA.divTies || 0);
-      const divPctB = getWinPct(recB.divWins || 0, recB.divLosses || 0, recB.divTies || 0);
+      const divPctA = getWinPct(recA.divWins, recA.divLosses, recA.divTies);
+      const divPctB = getWinPct(recB.divWins, recB.divLosses, recB.divTies);
       if (divPctB !== divPctA) return divPctB - divPctA;
 
       // 3. Conference PCT
-      const confPctA = getWinPct(recA.confWins || 0, recA.confLosses || 0, recA.confTies || 0);
-      const confPctB = getWinPct(recB.confWins || 0, recB.confLosses || 0, recB.confTies || 0);
+      const confPctA = getWinPct(recA.confWins, recA.confLosses, recA.confTies);
+      const confPctB = getWinPct(recB.confWins, recB.confLosses, recB.confTies);
       if (confPctB !== confPctA) return confPctB - confPctA;
 
-      // 4. Total Wins
-      if (recB.wins !== recA.wins) return recB.wins - recA.wins;
+      // 4. Strength of Victory
+      const sovA = getSOV(teamA);
+      const sovB = getSOV(teamB);
+      if (sovB !== sovA) return sovB - sovA;
 
-      // 5. Alphabetical fallback
+      // 5. Strength of Schedule
+      const sosA = getSOS(teamA);
+      const sosB = getSOS(teamB);
+      if (sosB !== sosA) return sosB - sosA;
+
       return teamA.localeCompare(teamB);
     }
 
-    function compareWildCards(itemA, itemB) {
-      const teamA = itemA.team;
-      const teamB = itemB.team;
+    function sortDivisionTeams(teamsList) {
+      const list = [...teamsList];
+      list.sort((a, b) => compareIntraDivisionPair(a, b));
+      return list;
+    }
 
+    function compareWildCardTopCandidates(teamA, teamB) {
       const recA = nflTeamRecords[teamA] || { wins: 0, losses: 0, ties: 0, divWins: 0, divLosses: 0, divTies: 0, confWins: 0, confLosses: 0, confTies: 0 };
       const recB = nflTeamRecords[teamB] || { wins: 0, losses: 0, ties: 0, divWins: 0, divLosses: 0, divTies: 0, confWins: 0, confLosses: 0, confTies: 0 };
 
@@ -2721,64 +2801,111 @@
       const pctB = getWinPct(recB.wins, recB.losses, recB.ties);
       if (pctB !== pctA) return pctB - pctA;
 
-      // If in the same division, use Division PCT first
-      if (itemA.division === itemB.division) {
-        const divPctA = getWinPct(recA.divWins || 0, recA.divLosses || 0, recA.divTies || 0);
-        const divPctB = getWinPct(recB.divWins || 0, recB.divLosses || 0, recB.divTies || 0);
-        if (divPctB !== divPctA) return divPctB - divPctA;
+      // If in same division, apply division tiebreaker first
+      if (getTeamDivision(teamA) === getTeamDivision(teamB)) {
+        return compareIntraDivisionPair(teamA, teamB);
       }
 
-      // 2. Conference PCT (Primary cross-divisional tiebreaker)
-      const confPctA = getWinPct(recA.confWins || 0, recA.confLosses || 0, recA.confTies || 0);
-      const confPctB = getWinPct(recB.confWins || 0, recB.confLosses || 0, recB.confTies || 0);
+      // 2. Conference PCT
+      const confPctA = getWinPct(recA.confWins, recA.confLosses, recA.confTies);
+      const confPctB = getWinPct(recB.confWins, recB.confLosses, recB.confTies);
       if (confPctB !== confPctA) return confPctB - confPctA;
 
-      // 3. Total Wins
-      if (recB.wins !== recA.wins) return recB.wins - recA.wins;
+      // 3. Strength of Victory
+      const sovA = getSOV(teamA);
+      const sovB = getSOV(teamB);
+      if (sovB !== sovA) return sovB - sovA;
 
-      // 4. Alphabetical fallback
+      // 4. Strength of Schedule
+      const sosA = getSOS(teamA);
+      const sosB = getSOS(teamB);
+      if (sosB !== sosA) return sosB - sosA;
+
       return teamA.localeCompare(teamB);
     }
 
     function calculateConferencePlayoffPicture(confPrefix) {
-      const divisionLeaders = [];
-      const wildCardPool = [];
+      const confDivisions = Object.keys(NFL_DIVISIONS).filter(d => d.startsWith(confPrefix));
+      
+      const divLeaders = [];
+      const nonLeadersPool = [];
 
-      // Step 1: Identify Division Champions & Rank non-champions in division order
-      Object.entries(NFL_DIVISIONS).forEach(([divName, teams]) => {
-        if (!divName.startsWith(confPrefix)) return;
-
-        // Sort division teams using Intra-Division rules
-        const sortedDivTeams = [...teams].sort(compareIntraDivision);
-
-        // Division Leader (Seed contender 1-4)
-        divisionLeaders.push({ team: sortedDivTeams[0], division: divName, isDivLeader: true });
-
-        // Other division teams enter Wild Card pool
-        for (let i = 1; i < sortedDivTeams.length; i++) {
-          wildCardPool.push({ team: sortedDivTeams[i], division: divName, isDivLeader: false });
+      // Step 1: Separate division leaders from remaining pool
+      confDivisions.forEach(divName => {
+        const sortedDiv = sortDivisionTeams(NFL_DIVISIONS[divName]);
+        divLeaders.push(sortedDiv[0]);
+        for (let i = 1; i < sortedDiv.length; i++) {
+          nonLeadersPool.push(sortedDiv[i]);
         }
       });
 
-      // Step 2: Sort Division Leaders for Seeds 1–4
-      divisionLeaders.sort(compareWildCards);
+      // Step 2: Seed Division Champions (1-4)
+      const rankedLeaders = [];
+      let remainingLeaders = [...divLeaders];
 
-      // Step 3: Sort Wild Card Candidates for Seeds 5+
-      wildCardPool.sort(compareWildCards);
+      while (remainingLeaders.length > 0) {
+        remainingLeaders.sort((a, b) => compareWildCardTopCandidates(a, b));
+        const winner = remainingLeaders.shift();
+        rankedLeaders.push({ team: winner, isDivLeader: true });
+      }
 
-      // Step 4: Combine into full conference seeds
-      const ranked = [...divisionLeaders, ...wildCardPool];
+      // Step 3: Seed Wild Card Candidates (5-16) with Intra-Division Elimination Filter
+      const rankedWildCards = [];
+      let pool = [...nonLeadersPool];
 
-      return ranked.map((item, idx) => {
-        const team = item.team;
-        const rec = nflTeamRecords[team] || { wins: 0, losses: 0, ties: 0 };
+      while (pool.length > 0) {
+        // Group remaining pool by PCT
+        const pctGroups = {};
+        pool.forEach(t => {
+          const rec = nflTeamRecords[t] || { wins: 0, losses: 0, ties: 0 };
+          const pct = getWinPct(rec.wins, rec.losses, rec.ties).toFixed(4);
+          if (!pctGroups[pct]) pctGroups[pct] = [];
+          pctGroups[pct].push(t);
+        });
+
+        const sortedPcts = Object.keys(pctGroups).map(Number).sort((a, b) => b - a);
+        const topPctStr = sortedPcts[0].toFixed(4);
+        const topGroup = pctGroups[topPctStr];
+
+        if (topGroup.length === 1) {
+          const winner = topGroup[0];
+          rankedWildCards.push({ team: winner, isDivLeader: false });
+          pool = pool.filter(t => t !== winner);
+        } else {
+          // Multiple teams tied: Apply Intra-Division elimination step first
+          const divCandidates = {};
+          topGroup.forEach(t => {
+            const div = getTeamDivision(t);
+            if (!divCandidates[div]) divCandidates[div] = [];
+            divCandidates[div].push(t);
+          });
+
+          const eligibleCandidates = [];
+          Object.values(divCandidates).forEach(divTeams => {
+            const sortedDivSub = sortDivisionTeams(divTeams);
+            eligibleCandidates.push(sortedDivSub[0]);
+          });
+
+          eligibleCandidates.sort((a, b) => compareWildCardTopCandidates(a, b));
+          const stepWinner = eligibleCandidates[0];
+
+          rankedWildCards.push({ team: stepWinner, isDivLeader: false });
+          pool = pool.filter(t => t !== stepWinner);
+        }
+      }
+
+      const fullList = [...rankedLeaders, ...rankedWildCards];
+
+      return fullList.map((item, idx) => {
+        const t = item.team;
+        const rec = nflTeamRecords[t] || { wins: 0, losses: 0, ties: 0 };
         const total = rec.wins + rec.losses + rec.ties;
         const pctVal = getWinPct(rec.wins, rec.losses, rec.ties);
         const pctStr = total > 0 ? pctVal.toFixed(3).replace(/^0/, '') : '.000';
 
         return {
           seed: idx + 1,
-          team: team,
+          team: t,
           wins: rec.wins,
           losses: rec.losses,
           ties: rec.ties,
