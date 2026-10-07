@@ -1076,10 +1076,10 @@
 
     <!-- DIVISIONAL VIEW -->
     <div id="standings-divisional-view">
-      <h2 class="conference-title">🏈 American Football Conference (AFC)</h2>
+      <h2 class="conference-title">American Football Conference</h2>
       <div class="divisions-grid" id="afc-divisions-grid"></div>
 
-      <h2 class="conference-title">🏈 National Football Conference (NFC)</h2>
+      <h2 class="conference-title">National Football Conference</h2>
       <div class="divisions-grid" id="nfc-divisions-grid"></div>
     </div>
 
@@ -1370,7 +1370,7 @@
         const isTiebreakerFinal = weekData.tiebreaker?.status === 'Final' || isWeekComplete;
 
         (poolData.players || []).forEach(p => {
-          computedStats[p].weeklyHistory[weekKey] = { correct: 0, incorrect: 0, diff: null, winPct: 0 };
+          computedStats[p].weeklyHistory[weekKey] = { correct: 0, incorrect: 0, diff: null, rawDiff: null, winPct: 0 };
         });
 
         matchups.forEach(m => {
@@ -1478,10 +1478,13 @@
           const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal;
           
           if (isTiebreakerFinal && typeof tiebreakerActual === 'number' && typeof pred === 'number') {
-            const diff = Math.abs(pred - tiebreakerActual);
-            computedStats[p].weeklyHistory[weekKey].diff = diff;
+            const absDiff = Math.abs(pred - tiebreakerActual);
+            const rawDiff = pred - tiebreakerActual;
+            computedStats[p].weeklyHistory[weekKey].diff = absDiff;
+            computedStats[p].weeklyHistory[weekKey].rawDiff = rawDiff;
           } else {
             computedStats[p].weeklyHistory[weekKey].diff = null;
+            computedStats[p].weeklyHistory[weekKey].rawDiff = null;
           }
         });
 
@@ -1722,13 +1725,18 @@
       if (!pStats) return;
 
       const weeksWon = pStats.weeksWon || [];
-      const totalCrowns = pStats.crowns || 0;
 
       let weeksHtml = '';
       if (weeksWon.length > 0) {
         weeksHtml = weeksWon.map(wKey => {
-          const wHist = pStats.weeklyHistory[wKey] || { diff: null };
-          const diffVal = wHist.diff !== null ? `+${wHist.diff.toFixed(1)}` : 'N/A';
+          const wHist = pStats.weeklyHistory[wKey] || { rawDiff: null, diff: null };
+          let diffVal = 'N/A';
+          if (wHist.rawDiff !== null && wHist.rawDiff !== undefined) {
+            const val = wHist.rawDiff;
+            diffVal = val > 0 ? `+${val.toFixed(1)}` : `${val.toFixed(1)}`;
+          } else if (wHist.diff !== null && wHist.diff !== undefined) {
+            diffVal = `${wHist.diff.toFixed(1)}`;
+          }
           return `
             <div class="tooltip-row">
               <span>${wKey}:</span> 
@@ -3111,7 +3119,7 @@
 
       return `
         <div class="playoff-block">
-          <div class="playoff-block-header">🏈 ${confTitle}</div>
+          <div class="playoff-block-header">${confTitle}</div>
           <div class="playoff-table-wrapper">
             <table class="playoff-table">
               <thead>
@@ -3170,8 +3178,8 @@
     }
 
     function renderPlayoffPicture() {
-      document.getElementById('afc-playoff-picture').innerHTML = renderPlayoffPictureBlock('American Football Conference (AFC)', 'AFC');
-      document.getElementById('nfc-playoff-picture').innerHTML = renderPlayoffPictureBlock('National Football Conference (NFC)', 'NFC');
+      document.getElementById('afc-playoff-picture').innerHTML = renderPlayoffPictureBlock('American Football Conference', 'AFC');
+      document.getElementById('nfc-playoff-picture').innerHTML = renderPlayoffPictureBlock('National Football Conference', 'NFC');
     }
 
     function renderHallOfFameTab() {
