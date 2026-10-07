@@ -533,16 +533,6 @@
       font-size: 0.95rem;
     }
 
-    .div-leader-badge {
-      font-size: 0.7rem;
-      background: #e2e8f0;
-      color: #475569;
-      padding: 1px 5px;
-      border-radius: 4px;
-      margin-left: 6px;
-      font-weight: 600;
-    }
-
     /* --- KPI CARDS (2-WIDE or 4-WIDE LAYOUT) --- */
     .kpi-grid { 
       display: grid; 
@@ -1287,7 +1277,11 @@
       nflTeamRecords = {};
 
       Object.values(NFL_DIVISIONS).flat().forEach(t => {
-        nflTeamRecords[t] = { wins: 0, losses: 0, ties: 0 };
+        nflTeamRecords[t] = { 
+          wins: 0, losses: 0, ties: 0,
+          divWins: 0, divLosses: 0, divTies: 0,
+          confWins: 0, confLosses: 0, confTies: 0 
+        };
       });
 
       (poolData.players || []).forEach(p => {
@@ -2615,13 +2609,7 @@
       nfcGrid.innerHTML = '';
 
       Object.entries(NFL_DIVISIONS).forEach(([divisionName, teams]) => {
-        const sortedTeams = [...teams].sort((a, b) => {
-          const aRec = nflTeamRecords[a] || { wins: 0, losses: 0, ties: 0 };
-          const bRec = nflTeamRecords[b] || { wins: 0, losses: 0, ties: 0 };
-          
-          if (bRec.wins !== aRec.wins) return bRec.wins - aRec.wins;
-          return aRec.losses - bRec.losses;
-        });
+        const sortedTeams = [...teams].sort(compareIntraDivision);
 
         const cardHtml = `
           <div class="card">
@@ -2641,7 +2629,8 @@
                   ${sortedTeams.map(t => {
                     const rec = nflTeamRecords[t] || { wins: 0, losses: 0, ties: 0 };
                     const total = rec.wins + rec.losses + rec.ties;
-                    const pct = total > 0 ? ((rec.wins + 0.5 * rec.ties) / total).toFixed(3).replace(/^0/, '') : '.000';
+                    const pctVal = getWinPct(rec.wins, rec.losses, rec.ties);
+                    const pct = total > 0 ? pctVal.toFixed(3).replace(/^0/, '') : '.000';
                     return `
                       <tr>
                         <td class="clickable-team-cell" onclick="openTeamScheduleModal('${t}')">
@@ -2687,47 +2676,104 @@
       }
     }
 
+    /* --- OFFICIAL NFL TIEBREAKER FUNCTIONS --- */
+
+    function getWinPct(wins, losses, ties = 0) {
+      const total = wins + losses + ties;
+      return total > 0 ? (wins + 0.5 * ties) / total : 0;
+    }
+
+    function compareIntraDivision(teamA, teamB) {
+      const recA = nflTeamRecords[teamA] || { wins: 0, losses: 0, ties: 0, divWins: 0, divLosses: 0, divTies: 0, confWins: 0, confLosses: 0, confTies: 0 };
+      const recB = nflTeamRecords[teamB] || { wins: 0, losses: 0, ties: 0, divWins: 0, divLosses: 0, divTies: 0, confWins: 0, confLosses: 0, confTies: 0 };
+
+      // 1. Overall PCT
+      const pctA = getWinPct(recA.wins, recA.losses, recA.ties);
+      const pctB = getWinPct(recB.wins, recB.losses, recB.ties);
+      if (pctB !== pctA) return pctB - pctA;
+
+      // 2. Division PCT
+      const divPctA = getWinPct(recA.divWins || 0, recA.divLosses || 0, recA.divTies || 0);
+      const divPctB = getWinPct(recB.divWins || 0, recB.divLosses || 0, recB.divTies || 0);
+      if (divPctB !== divPctA) return divPctB - divPctA;
+
+      // 3. Conference PCT
+      const confPctA = getWinPct(recA.confWins || 0, recA.confLosses || 0, recA.confTies || 0);
+      const confPctB = getWinPct(recB.confWins || 0, recB.confLosses || 0, recB.confTies || 0);
+      if (confPctB !== confPctA) return confPctB - confPctA;
+
+      // 4. Total Wins
+      if (recB.wins !== recA.wins) return recB.wins - recA.wins;
+
+      // 5. Alphabetical fallback
+      return teamA.localeCompare(teamB);
+    }
+
+    function compareWildCards(itemA, itemB) {
+      const teamA = itemA.team;
+      const teamB = itemB.team;
+
+      const recA = nflTeamRecords[teamA] || { wins: 0, losses: 0, ties: 0, divWins: 0, divLosses: 0, divTies: 0, confWins: 0, confLosses: 0, confTies: 0 };
+      const recB = nflTeamRecords[teamB] || { wins: 0, losses: 0, ties: 0, divWins: 0, divLosses: 0, divTies: 0, confWins: 0, confLosses: 0, confTies: 0 };
+
+      // 1. Overall PCT
+      const pctA = getWinPct(recA.wins, recA.losses, recA.ties);
+      const pctB = getWinPct(recB.wins, recB.losses, recB.ties);
+      if (pctB !== pctA) return pctB - pctA;
+
+      // If in the same division, use Division PCT first
+      if (itemA.division === itemB.division) {
+        const divPctA = getWinPct(recA.divWins || 0, recA.divLosses || 0, recA.divTies || 0);
+        const divPctB = getWinPct(recB.divWins || 0, recB.divLosses || 0, recB.divTies || 0);
+        if (divPctB !== divPctA) return divPctB - divPctA;
+      }
+
+      // 2. Conference PCT (Primary cross-divisional tiebreaker)
+      const confPctA = getWinPct(recA.confWins || 0, recA.confLosses || 0, recA.confTies || 0);
+      const confPctB = getWinPct(recB.confWins || 0, recB.confLosses || 0, recB.confTies || 0);
+      if (confPctB !== confPctA) return confPctB - confPctA;
+
+      // 3. Total Wins
+      if (recB.wins !== recA.wins) return recB.wins - recA.wins;
+
+      // 4. Alphabetical fallback
+      return teamA.localeCompare(teamB);
+    }
+
     function calculateConferencePlayoffPicture(confPrefix) {
-      const divLeaders = [];
+      const divisionLeaders = [];
       const wildCardPool = [];
 
+      // Step 1: Identify Division Champions & Rank non-champions in division order
       Object.entries(NFL_DIVISIONS).forEach(([divName, teams]) => {
         if (!divName.startsWith(confPrefix)) return;
 
-        const sortedDivTeams = [...teams].sort((a, b) => {
-          const aRec = nflTeamRecords[a] || { wins: 0, losses: 0, ties: 0 };
-          const bRec = nflTeamRecords[b] || { wins: 0, losses: 0, ties: 0 };
-          const aPct = (aRec.wins + aRec.losses + aRec.ties) > 0 ? (aRec.wins + 0.5 * aRec.ties) / (aRec.wins + aRec.losses + aRec.ties) : 0;
-          const bPct = (bRec.wins + bRec.losses + bRec.ties) > 0 ? (bRec.wins + 0.5 * bRec.ties) / (bRec.wins + bRec.losses + bRec.ties) : 0;
-          return bPct - aPct;
-        });
+        // Sort division teams using Intra-Division rules
+        const sortedDivTeams = [...teams].sort(compareIntraDivision);
 
-        divLeaders.push({ team: sortedDivTeams[0], isDivLeader: true });
+        // Division Leader (Seed contender 1-4)
+        divisionLeaders.push({ team: sortedDivTeams[0], division: divName, isDivLeader: true });
+
+        // Other division teams enter Wild Card pool
         for (let i = 1; i < sortedDivTeams.length; i++) {
-          wildCardPool.push({ team: sortedDivTeams[i], isDivLeader: false });
+          wildCardPool.push({ team: sortedDivTeams[i], division: divName, isDivLeader: false });
         }
       });
 
-      const sortByPct = (a, b) => {
-        const aRec = nflTeamRecords[a.team] || { wins: 0, losses: 0, ties: 0 };
-        const bRec = nflTeamRecords[b.team] || { wins: 0, losses: 0, ties: 0 };
-        const aPct = (aRec.wins + aRec.losses + aRec.ties) > 0 ? (aRec.wins + 0.5 * aRec.ties) / (aRec.wins + aRec.losses + aRec.ties) : 0;
-        const bPct = (bRec.wins + bRec.losses + bRec.ties) > 0 ? (bRec.wins + 0.5 * bRec.ties) / (bRec.wins + bRec.losses + bRec.ties) : 0;
-        
-        if (bPct !== aPct) return bPct - aPct;
-        return bRec.wins - aRec.wins;
-      };
+      // Step 2: Sort Division Leaders for Seeds 1–4
+      divisionLeaders.sort(compareWildCards);
 
-      divLeaders.sort(sortByPct);
-      wildCardPool.sort(sortByPct);
+      // Step 3: Sort Wild Card Candidates for Seeds 5+
+      wildCardPool.sort(compareWildCards);
 
-      const ranked = [...divLeaders, ...wildCardPool];
+      // Step 4: Combine into full conference seeds
+      const ranked = [...divisionLeaders, ...wildCardPool];
 
       return ranked.map((item, idx) => {
         const team = item.team;
         const rec = nflTeamRecords[team] || { wins: 0, losses: 0, ties: 0 };
         const total = rec.wins + rec.losses + rec.ties;
-        const pctVal = total > 0 ? (rec.wins + 0.5 * rec.ties) / total : 0;
+        const pctVal = getWinPct(rec.wins, rec.losses, rec.ties);
         const pctStr = total > 0 ? pctVal.toFixed(3).replace(/^0/, '') : '.000';
 
         return {
