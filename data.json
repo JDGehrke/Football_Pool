@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Thursday @ 5:10pm",
+    "lastUpdated": "Thursday @ 6:10pm",
     "currentWeek": "Week 5"
   },
   "hall_of_fame": [
@@ -2645,6 +2645,7 @@
         {
           "id": "401872980",
           "picks": {
+            "AUSTIN": "DAL",
             "JEN": "DAL",
             "MADDIE": "DAL",
             "BRANDON": "DAL",
@@ -2659,8 +2660,7 @@
             "KENNY": "DAL",
             "KENZIE": "DAL",
             "JIM": "DAL",
-            "AUSTIN": "\u2014",
-            "DAN": "\u2014",
+            "DAN": "DAL",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "HUNTER": "\u2014",
@@ -2678,6 +2678,7 @@
         {
           "id": "401872981",
           "picks": {
+            "AUSTIN": "JAX",
             "JEN": "JAX",
             "MADDIE": "PHI",
             "BRANDON": "JAX",
@@ -2692,8 +2693,7 @@
             "KENNY": "JAX",
             "KENZIE": "JAX",
             "JIM": "JAX",
-            "AUSTIN": "\u2014",
-            "DAN": "\u2014",
+            "DAN": "JAX",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "HUNTER": "\u2014",
@@ -2711,6 +2711,7 @@
         {
           "id": "401872990",
           "picks": {
+            "AUSTIN": "CHI",
             "JEN": "CHI",
             "MADDIE": "GB",
             "BRANDON": "CHI",
@@ -2725,8 +2726,7 @@
             "KENNY": "GB",
             "KENZIE": "GB",
             "JIM": "GB",
-            "AUSTIN": "\u2014",
-            "DAN": "\u2014",
+            "DAN": "CHI",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "HUNTER": "\u2014",
@@ -2744,6 +2744,7 @@
         {
           "id": "401872984",
           "picks": {
+            "AUSTIN": "HOU",
             "JEN": "TEN",
             "MADDIE": "TEN",
             "BRANDON": "HOU",
@@ -2758,8 +2759,7 @@
             "KENNY": "HOU",
             "KENZIE": "HOU",
             "JIM": "HOU",
-            "AUSTIN": "\u2014",
-            "DAN": "\u2014",
+            "DAN": "HOU",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "HUNTER": "\u2014",
@@ -2777,6 +2777,7 @@
         {
           "id": "401872982",
           "picks": {
+            "AUSTIN": "CIN",
             "JEN": "CIN",
             "MADDIE": "CIN",
             "BRANDON": "CIN",
@@ -2791,8 +2792,7 @@
             "KENNY": "CIN",
             "KENZIE": "CIN",
             "JIM": "CIN",
-            "AUSTIN": "\u2014",
-            "DAN": "\u2014",
+            "DAN": "CIN",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "HUNTER": "\u2014",
@@ -2810,6 +2810,7 @@
         {
           "id": "401872986",
           "picks": {
+            "AUSTIN": "NE",
             "JEN": "LV",
             "MADDIE": "NE",
             "BRANDON": "LV",
@@ -2824,8 +2825,7 @@
             "KENNY": "LV",
             "KENZIE": "NE",
             "JIM": "NE",
-            "AUSTIN": "\u2014",
-            "DAN": "\u2014",
+            "DAN": "NE",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "HUNTER": "\u2014",
@@ -2843,6 +2843,7 @@
         {
           "id": "401872987",
           "picks": {
+            "AUSTIN": "MIN",
             "JEN": "MIN",
             "MADDIE": "MIN",
             "BRANDON": "MIN",
@@ -2857,8 +2858,7 @@
             "KENNY": "NO",
             "KENZIE": "NO",
             "JIM": "MIN",
-            "AUSTIN": "\u2014",
-            "DAN": "\u2014",
+            "DAN": "MIN",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "HUNTER": "\u2014",
@@ -2876,6 +2876,7 @@
         {
           "id": "401872983",
           "picks": {
+            "AUSTIN": "CLE",
             "JEN": "CLE",
             "MADDIE": "NYJ",
             "BRANDON": "CLE",
@@ -2890,8 +2891,7 @@
             "KENNY": "NYJ",
             "KENZIE": "CLE",
             "JIM": "CLE",
-            "AUSTIN": "\u2014",
-            "DAN": "\u2014",
+            "DAN": "NYJ",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "HUNTER": "\u2014",
@@ -2909,6 +2909,7 @@
         {
           "id": "401872985",
           "picks": {
+            "AUSTIN": "IND",
             "JEN": "PIT",
             "MADDIE": "PIT",
             "BRANDON": "PIT",
@@ -2923,8 +2924,7 @@
             "KENNY": "PIT",
             "KENZIE": "PIT",
             "JIM": "PIT",
-            "AUSTIN": "\u2014",
-            "DAN": "\u2014",
+            "DAN": "PIT",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "HUNTER": "\u2014",
@@ -2942,6 +2942,7 @@
         {
           "id": "401872988",
           "picks": {
+            "AUSTIN": "NYG",
             "JEN": "NYG",
             "MADDIE": "NYG",
             "BRANDON": "NYG",
@@ -2956,8 +2957,7 @@
             "KENNY": "NYG",
             "KENZIE": "NYG",
             "JIM": "NYG",
-            "AUSTIN": "\u2014",
-            "DAN": "\u2014",
+            "DAN": "WSH",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "HUNTER": "\u2014",
@@ -2975,6 +2975,7 @@
         {
           "id": "401872989",
           "picks": {
+            "AUSTIN": "DEN",
             "JEN": "DEN",
             "MADDIE": "LAC",
             "BRANDON": "DEN",
@@ -2989,8 +2990,7 @@
             "KENNY": "DEN",
             "KENZIE": "DEN",
             "JIM": "LAC",
-            "AUSTIN": "\u2014",
-            "DAN": "\u2014",
+            "DAN": "DEN",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "HUNTER": "\u2014",
@@ -3008,6 +3008,7 @@
         {
           "id": "401872991",
           "picks": {
+            "AUSTIN": "DET",
             "JEN": "DET",
             "MADDIE": "DET",
             "BRANDON": "DET",
@@ -3022,8 +3023,7 @@
             "KENNY": "ARI",
             "KENZIE": "DET",
             "JIM": "DET",
-            "AUSTIN": "\u2014",
-            "DAN": "\u2014",
+            "DAN": "DET",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "HUNTER": "\u2014",
@@ -3041,6 +3041,7 @@
         {
           "id": "401872992",
           "picks": {
+            "AUSTIN": "SEA",
             "JEN": "SEA",
             "MADDIE": "SEA",
             "BRANDON": "SF",
@@ -3055,8 +3056,7 @@
             "KENNY": "SF",
             "KENZIE": "SF",
             "JIM": "SF",
-            "AUSTIN": "\u2014",
-            "DAN": "\u2014",
+            "DAN": "SEA",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "HUNTER": "\u2014",
@@ -3074,6 +3074,7 @@
         {
           "id": "401872993",
           "picks": {
+            "AUSTIN": "ATL",
             "JEN": "BAL",
             "MADDIE": "ATL",
             "BRANDON": "BAL",
@@ -3088,8 +3089,7 @@
             "KENNY": "BAL",
             "KENZIE": "ATL",
             "JIM": "BAL",
-            "AUSTIN": "\u2014",
-            "DAN": "\u2014",
+            "DAN": "ATL",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "HUNTER": "\u2014",
@@ -3107,6 +3107,7 @@
         {
           "id": "401872994",
           "picks": {
+            "AUSTIN": "BUF",
             "JEN": "BUF",
             "MADDIE": "BUF",
             "BRANDON": "LAR",
@@ -3121,8 +3122,7 @@
             "KENNY": "BUF",
             "KENZIE": "LAR",
             "JIM": "LAR",
-            "AUSTIN": "\u2014",
-            "DAN": "\u2014",
+            "DAN": "LAR",
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "HUNTER": "\u2014",
@@ -3149,8 +3149,8 @@
             "predictedTotal": 47
           },
           "AUSTIN": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "BUF",
+            "predictedTotal": 57
           },
           "BETHANY": {
             "winner": "BUF",
@@ -3161,8 +3161,8 @@
             "predictedTotal": 58
           },
           "DAN": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "LAR",
+            "predictedTotal": 37
           },
           "DEVIN": {
             "winner": "\u2014",
