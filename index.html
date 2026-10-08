@@ -2343,264 +2343,274 @@
       return false;
     }
 
-    function openPathToCrownModal() {
-      const modal = document.getElementById('path-to-crown-modal');
-      const body = document.getElementById('modal-crown-body');
-      
-      const week = document.getElementById('week-select').value;
-      const weekData = poolData.weeks[week];
-      if (!weekData) return;
+function openPathToCrownModal() {
+  const modal = document.getElementById('path-to-crown-modal');
+  const body = document.getElementById('modal-crown-body');
+  
+  const week = document.getElementById('week-select').value;
+  const weekData = poolData.weeks[week];
+  if (!weekData) return;
 
-      const matchups = weekData.matchups || [];
-      const remainingGames = matchups.filter(m => !m.winner || (m.status !== 'Final' && m.status !== 'STATUS_FINAL'));
+  const matchups = weekData.matchups || [];
+  const remainingGames = matchups.filter(m => !m.winner || (m.status !== 'Final' && m.status !== 'STATUS_FINAL'));
 
-      if (!isSundayEveningOrLater(matchups)) {
-        body.innerHTML = `
-          <div style="text-align: center; padding: 30px 10px;">
-            <div style="font-size: 2.5rem; margin-bottom: 15px;">🔒</div>
-            <h4 style="font-size: 1.1rem; color: var(--primary-color); margin-bottom: 8px;">Path to Crown is Locked</h4>
-            <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 400px; margin: 0 auto;">
-              Scenarios unlock on <strong>Sunday at 7:00 PM CST</strong> (or when 3 or fewer games remain in the week).
-            </p>
-          </div>
-        `;
-        modal.classList.add('active');
-        return;
+  // Check Sunday 7 PM CST / <=3 games rule
+  if (!isSundayEveningOrLater(matchups)) {
+    body.innerHTML = `
+      <div style="text-align: center; padding: 30px 10px;">
+        <div style="font-size: 2.5rem; margin-bottom: 15px;">🔒</div>
+        <h4 style="font-size: 1.1rem; color: var(--primary-color); margin-bottom: 8px;">Path to Crown is Locked</h4>
+        <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 400px; margin: 0 auto;">
+          Scenarios unlock on <strong>Sunday at 7:00 PM CST</strong> (or when 3 or fewer games remain in the week).
+        </p>
+      </div>
+    `;
+    modal.classList.add('active');
+    return;
+  }
+
+  if (remainingGames.length === 0) {
+    body.innerHTML = `
+      <div style="text-align: center; padding: 30px 10px;">
+        <div style="font-size: 2.5rem; margin-bottom: 15px;">🏁</div>
+        <h4 style="font-size: 1.1rem; color: var(--primary-color); margin-bottom: 8px;">Week Complete</h4>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">
+          All games for ${week} have concluded and final results are posted.
+        </p>
+      </div>
+    `;
+    modal.classList.add('active');
+    return;
+  }
+
+  // Extract Game Teams
+  const parsedRemaining = remainingGames.map((m, idx) => {
+    const teamsInGame = (m.game || '')
+      .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
+      .map(t => t.trim().toUpperCase())
+      .filter(t => t.length >= 2);
+    return {
+      id: idx,
+      away: teamsInGame[0] || 'AWAY',
+      home: teamsInGame[1] || 'HOME',
+      picks: m.picks || {}
+    };
+  });
+
+  const currentWins = {};
+  const tiebreakerPicks = weekData.tiebreaker?.picks || {};
+  
+  (poolData.players || []).forEach(p => {
+    currentWins[p] = computedStats[p]?.weeklyHistory[week]?.correct || 0;
+  });
+
+  // Generate 2^N Permutations
+  const numGames = parsedRemaining.length;
+  const totalPermutations = Math.pow(2, numGames);
+  const permutationMatrix = [];
+
+  for (let i = 0; i < totalPermutations; i++) {
+    const outcomeObj = {};
+    const simulatedWinners = [];
+
+    parsedRemaining.forEach((g, bitIdx) => {
+      const isHomeWin = (i & (1 << bitIdx)) !== 0;
+      const winner = isHomeWin ? g.home : g.away;
+      outcomeObj[g.id] = winner;
+      simulatedWinners.push(winner);
+    });
+
+    // Calculate wins per player under this permutation
+    const pScores = {};
+    (poolData.players || []).forEach(p => {
+      let extra = 0;
+      parsedRemaining.forEach(g => {
+        const playerPick = (g.picks[p] || '').trim().toUpperCase();
+        if (playerPick === outcomeObj[g.id]) extra++;
+      });
+      pScores[p] = currentWins[p] + extra;
+    });
+
+    const maxScore = Math.max(...Object.values(pScores));
+    const topContenders = (poolData.players || []).filter(p => pScores[p] === maxScore);
+
+    permutationMatrix.push({
+      simulatedWinners: simulatedWinners,
+      winnersMap: outcomeObj,
+      topContenders: topContenders,
+      maxScore: maxScore
+    });
+  }
+
+  // Helper to compute tiebreaker ranges for a tied group of contenders
+  function computeGroupRanges(contenderList) {
+    const validPlayers = contenderList
+      .filter(p => typeof tiebreakerPicks[p]?.predictedTotal === 'number')
+      .map(p => ({ player: p, pred: tiebreakerPicks[p].predictedTotal }))
+      .sort((a, b) => a.pred - b.pred);
+
+    if (validPlayers.length === 0) return {};
+
+    const ranges = {};
+    for (let i = 0; i < validPlayers.length; i++) {
+      const curr = validPlayers[i];
+      let lowBound = null;
+      let highBound = null;
+
+      if (i > 0) {
+        const prev = validPlayers[i - 1];
+        lowBound = (prev.pred + curr.pred) / 2;
+      }
+      if (i < validPlayers.length - 1) {
+        const next = validPlayers[i + 1];
+        highBound = (curr.pred + next.pred) / 2;
       }
 
-      if (remainingGames.length === 0) {
-        body.innerHTML = `
-          <div style="text-align: center; padding: 30px 10px;">
-            <div style="font-size: 2.5rem; margin-bottom: 15px;">🏁</div>
-            <h4 style="font-size: 1.1rem; color: var(--primary-color); margin-bottom: 8px;">Week Complete</h4>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">
-              All games for ${week} have concluded and final results are posted.
-            </p>
-          </div>
-        `;
-        modal.classList.add('active');
-        return;
+      let text = "Any Score";
+      if (lowBound !== null && highBound !== null) {
+        text = `${lowBound.toFixed(1)} < Score < ${highBound.toFixed(1)}`;
+      } else if (lowBound !== null) {
+        text = `Score > ${lowBound.toFixed(1)}`;
+      } else if (highBound !== null) {
+        text = `Score < ${highBound.toFixed(1)}`;
       }
 
-      const parsedRemaining = remainingGames.map((m, idx) => {
-        const teamsInGame = (m.game || '')
-          .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
-          .map(t => t.trim().toUpperCase())
-          .filter(t => t.length >= 2);
-        return {
-          id: idx,
-          away: teamsInGame[0] || 'AWAY',
-          home: teamsInGame[1] || 'HOME',
-          picks: m.picks || {}
-        };
+      ranges[curr.player] = {
+        text: text,
+        low: lowBound,
+        high: highBound
+      };
+    }
+    return ranges;
+  }
+
+  // Process Scenarios & Group Ranges
+  const contenderScenarios = {};
+  (poolData.players || []).forEach(p => contenderScenarios[p] = []);
+
+  const matrixDisplayRows = [];
+
+  permutationMatrix.forEach(perm => {
+    const winnersStr = perm.simulatedWinners.join(' & ');
+
+    if (perm.topContenders.length === 1) {
+      const soleWinner = perm.topContenders[0];
+      contenderScenarios[soleWinner].push({
+        winners: winnersStr,
+        conditionText: `Clinches outright if <strong>${winnersStr}</strong> win.`
       });
 
-      const currentWins = {};
-      const tiebreakerPicks = weekData.tiebreaker?.picks || {};
-      
-      (poolData.players || []).forEach(p => {
-        currentWins[p] = computedStats[p]?.weeklyHistory[week]?.correct || 0;
+      matrixDisplayRows.push({
+        winnersMap: perm.winnersMap,
+        scoreRange: "Any Score",
+        winnerStr: `👑 ${soleWinner}`
       });
-
-      const numGames = parsedRemaining.length;
-      const totalPermutations = Math.pow(2, numGames);
-      const permutationMatrix = [];
-
-      for (let i = 0; i < totalPermutations; i++) {
-        const outcomeObj = {};
-        const simulatedWinners = [];
-
-        parsedRemaining.forEach((g, bitIdx) => {
-          const isHomeWin = (i & (1 << bitIdx)) !== 0;
-          const winner = isHomeWin ? g.home : g.away;
-          outcomeObj[g.id] = winner;
-          simulatedWinners.push(winner);
-        });
-
-        const pScores = {};
-        (poolData.players || []).forEach(p => {
-          let extra = 0;
-          parsedRemaining.forEach(g => {
-            const playerPick = (g.picks[p] || '').trim().toUpperCase();
-            if (playerPick === outcomeObj[g.id]) extra++;
-          });
-          pScores[p] = currentWins[p] + extra;
-        });
-
-        const maxScore = Math.max(...Object.values(pScores));
-        const topContenders = (poolData.players || []).filter(p => pScores[p] === maxScore);
-
-        permutationMatrix.push({
-          simulatedWinners: simulatedWinners,
-          winnersMap: outcomeObj,
-          topContenders: topContenders,
-          maxScore: maxScore
-        });
-      }
-
-      const contenderScenarios = {};
-      (poolData.players || []).forEach(p => contenderScenarios[p] = []);
-
-      permutationMatrix.forEach(perm => {
-        if (perm.topContenders.length === 1) {
-          const soleWinner = perm.topContenders[0];
-          contenderScenarios[soleWinner].push({
-            winners: perm.simulatedWinners,
-            tiebreaker: "Outright Win",
-            requiresScore: false
-          });
-        } else if (perm.topContenders.length >= 2) {
-          const topList = perm.topContenders;
-          topList.forEach(p => {
-            const playerPred = tiebreakerPicks[p]?.predictedTotal;
-            contenderScenarios[p].push({
-              winners: perm.simulatedWinners,
-              tiebreaker: `Tied with ${topList.filter(x => x !== p).join(', ')}`,
-              requiresScore: true,
-              pred: playerPred,
-              opponents: topList.filter(x => x !== p)
-            });
-          });
-        }
-      });
-
-      const activeContenders = (poolData.players || []).filter(p => contenderScenarios[p].length > 0);
-      const eliminatedPlayers = (poolData.players || []).filter(p => contenderScenarios[p].length === 0);
-
-      let html = `
-        <div style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem;">
-          ⚡ <strong>${remainingGames.length} Game${remainingGames.length > 1 ? 's' : ''} Remaining</strong> &mdash; Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}.
-        </div>
-      `;
-
-      if (activeContenders.length > 0) {
-        html += `<h4 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--primary-color);">👑 Contenders & Clinch Paths</h4>`;
-
-        activeContenders.forEach((p, idx) => {
-          const rankClass = idx === 0 ? 'rank-1' : 'rank-2';
-          const pWinsNow = currentWins[p];
-          const predVal = tiebreakerPicks[p]?.predictedTotal ?? 'N/A';
-          const scenarios = contenderScenarios[p];
-
-          const outrightScenarios = scenarios.filter(s => !s.requiresScore);
-          const tieScenarios = scenarios.filter(s => s.requiresScore);
-
-          let bulletsHtml = '';
-
-          if (outrightScenarios.length > 0) {
-            outrightScenarios.forEach(s => {
-              bulletsHtml += `<li>Clinches outright if <strong>${s.winners.join(' & ')}</strong> win.</li>`;
-            });
-          }
-
-          if (tieScenarios.length > 0) {
-            tieScenarios.forEach(s => {
-              const opps = s.opponents;
-              
-              if (typeof predVal === 'number') {
-                const oppVals = opps.map(op => tiebreakerPicks[op]?.predictedTotal).filter(v => typeof v === 'number');
-                if (oppVals.length > 0) {
-                  const avgOpp = oppVals.reduce((a,b)=>a+b, 0) / oppVals.length;
-                  const pivot = ((predVal + avgOpp) / 2).toFixed(1);
-                  const dirStr = predVal < avgOpp ? `Under ${pivot}` : `Over/Equal to ${pivot}`;
-                  bulletsHtml += `<li>Clinches via tiebreaker if <strong>${s.winners.join(' & ')}</strong> win AND Total Score is <strong>${dirStr}</strong>.</li>`;
-                } else {
-                  bulletsHtml += `<li>Clinches via tiebreaker if <strong>${s.winners.join(' & ')}</strong> win (Predicted Total: ${predVal}).</li>`;
-                }
-              } else {
-                bulletsHtml += `<li>Clinches via tiebreaker if <strong>${s.winners.join(' & ')}</strong> win.</li>`;
-              }
-            });
-          }
-
-          html += `
-            <div class="ptc-contender-card ${rankClass}">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <strong>${idx === 0 ? '🥇' : '🥈'} ${p} <span style="color: var(--text-muted); font-size: 0.8rem;">(${pWinsNow} Wins • Pred: ${predVal})</span></strong>
-                <span class="badge-status">${scenarios.length} Scenario${scenarios.length > 1 ? 's' : ''}</span>
-              </div>
-              <ul class="ptc-scenario-list">${bulletsHtml}</ul>
-            </div>
-          `;
-        });
-      }
-
-      if (eliminatedPlayers.length > 0) {
-        html += `
-          <div style="margin: 15px 0; padding: 10px; background: #f1f5f9; border-radius: 6px; font-size: 0.8rem; color: var(--text-muted);">
-            ❌ <strong>Eliminated from Crown:</strong> ${eliminatedPlayers.join(', ')}
-          </div>
-        `;
-      }
-
-      // OUTCOME MATRIX TABLE
-      const matrixRowsHtml = permutationMatrix.map(perm => {
-        const gameCols = parsedRemaining.map(g => `<td class="text-center"><strong>${getTeamLogoHtml(perm.winnersMap[g.id])}</strong></td>`).join('');
+    } else {
+      const ranges = computeGroupRanges(perm.topContenders);
+      perm.topContenders.forEach(p => {
+        const rInfo = ranges[p];
+        const rangeText = rInfo ? rInfo.text : "Tiebreaker";
         
-        if (perm.topContenders.length === 1) {
-          return `
-            <tr>
-              ${gameCols}
-              <td class="text-center">Any Score</td>
-              <td class="text-center text-success"><strong>👑 ${perm.topContenders[0]}</strong></td>
-            </tr>
-          `;
-        } else {
-          const p1 = perm.topContenders[0];
-          const p2 = perm.topContenders[1];
-          const val1 = tiebreakerPicks[p1]?.predictedTotal;
-          const val2 = tiebreakerPicks[p2]?.predictedTotal;
+        contenderScenarios[p].push({
+          winners: winnersStr,
+          conditionText: `Clinches via tiebreaker if <strong>${winnersStr}</strong> win AND Total Score is <strong>${rangeText}</strong>.`
+        });
 
-          if (typeof val1 === 'number' && typeof val2 === 'number') {
-            const pivot = ((val1 + val2) / 2).toFixed(1);
-            const lowerPlayer = val1 < val2 ? p1 : p2;
-            const higherPlayer = val1 < val2 ? p2 : p1;
+        matrixDisplayRows.push({
+          winnersMap: perm.winnersMap,
+          scoreRange: rangeText,
+          winnerStr: `👑 ${p}`
+        });
+      });
+    }
+  });
 
-            return `
-              <tr>
-                ${gameCols}
-                <td class="text-center">&lt; ${pivot} pts</td>
-                <td class="text-center text-success"><strong>👑 ${lowerPlayer}</strong></td>
-              </tr>
-              <tr>
-                ${gameCols}
-                <td class="text-center">&ge; ${pivot} pts</td>
-                <td class="text-center text-success"><strong>👑 ${higherPlayer}</strong></td>
-              </tr>
-            `;
-          } else {
-            return `
-              <tr>
-                ${gameCols}
-                <td class="text-center">Tiebreaker</td>
-                <td class="text-center text-success"><strong>👑 ${perm.topContenders.join(' / ')}</strong></td>
-              </tr>
-            `;
-          }
-        }
-      }).join('');
+  // SORT CONTENDERS USING WEEK RESULTS TABLE LOGIC
+  const activeContenders = (poolData.players || [])
+    .filter(p => contenderScenarios[p].length > 0)
+    .sort((a, b) => {
+      const winsA = currentWins[a] || 0;
+      const winsB = currentWins[b] || 0;
+
+      if (winsB !== winsA) return winsB - winsA;
+
+      const predA = tiebreakerPicks[a]?.predictedTotal ?? Infinity;
+      const predB = tiebreakerPicks[b]?.predictedTotal ?? Infinity;
+      return predA - predB;
+    });
+
+  const eliminatedPlayers = (poolData.players || []).filter(p => contenderScenarios[p].length === 0);
+
+  // Render Modal HTML
+  let html = `
+    <div style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem;">
+      ⚡ <strong>${remainingGames.length} Game${remainingGames.length > 1 ? 's' : ''} Remaining</strong> &mdash; Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}.
+    </div>
+  `;
+
+  if (activeContenders.length > 0) {
+    html += `<h4 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--primary-color);">👑 Contenders & Clinch Paths</h4>`;
+
+    activeContenders.forEach(p => {
+      const pWinsNow = currentWins[p];
+      const predVal = tiebreakerPicks[p]?.predictedTotal ?? 'N/A';
+      const scenarios = contenderScenarios[p];
+
+      const bulletsHtml = scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
 
       html += `
-        <h4 style="font-size: 0.95rem; margin: 20px 0 10px 0; color: var(--primary-color);">🔮 Outcome Matrix</h4>
-        <div class="matrix-wrapper">
-          <table>
-            <thead>
-              <tr>
-                ${parsedRemaining.map(g => `<th class="text-center">${g.away} @ ${g.home}</th>`).join('')}
-                <th class="text-center">Tiebreaker Total Score</th>
-                <th class="text-center">Crown Winner</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${matrixRowsHtml}
-            </tbody>
-          </table>
+        <div class="ptc-contender-card rank-2" style="border-left: 4px solid var(--secondary-color); background: #f8fafc;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong>${p} <span style="color: var(--text-muted); font-size: 0.8rem;">(${pWinsNow} Wins • Pred: ${predVal})</span></strong>
+            <span class="badge-status">${scenarios.length} Scenario${scenarios.length > 1 ? 's' : ''}</span>
+          </div>
+          <ul class="ptc-scenario-list">${bulletsHtml}</ul>
         </div>
       `;
+    });
+  }
 
-      body.innerHTML = html;
-      modal.classList.add('active');
-    }
+  if (eliminatedPlayers.length > 0) {
+    html += `
+      <div style="margin: 15px 0; padding: 10px; background: #f1f5f9; border-radius: 6px; font-size: 0.8rem; color: var(--text-muted);">
+        ❌ <strong>Eliminated from Crown:</strong> ${eliminatedPlayers.join(', ')}
+      </div>
+    `;
+  }
+
+  // OUTCOME MATRIX TABLE
+  const matrixRowsHtml = matrixDisplayRows.map(row => {
+    const gameCols = parsedRemaining.map(g => `<td class="text-center"><strong>${getTeamLogoHtml(row.winnersMap[g.id])}</strong></td>`).join('');
+    return `
+      <tr>
+        ${gameCols}
+        <td class="text-center"><strong>${row.scoreRange}</strong></td>
+        <td class="text-center text-success"><strong>${row.winnerStr}</strong></td>
+      </tr>
+    `;
+  }).join('');
+
+  html += `
+    <h4 style="font-size: 0.95rem; margin: 20px 0 10px 0; color: var(--primary-color);">🔮 Outcome Matrix</h4>
+    <div class="matrix-wrapper">
+      <table>
+        <thead>
+          <tr>
+            ${parsedRemaining.map(g => `<th class="text-center">${g.away} @${g.home}</th>`).join('')}
+            <th class="text-center">Tiebreaker Total Score</th>
+            <th class="text-center">Crown Winner</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${matrixRowsHtml}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  body.innerHTML = html;
+  modal.classList.add('active');
+}
 
     function closeCrownModal(e) {
       if (!e || e.target.id === 'path-to-crown-modal' || e.target.classList.contains('modal-close-btn')) {
