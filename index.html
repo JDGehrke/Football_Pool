@@ -2383,20 +2383,7 @@ function openPathToCrownModal() {
     return;
   }
 
-  // Extract Game Teams
-  const parsedRemaining = remainingGames.map((m, idx) => {
-    const teamsInGame = (m.game || '')
-      .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
-      .map(t => t.trim().toUpperCase())
-      .filter(t => t.length >= 2);
-    return {
-      id: idx,
-      away: teamsInGame[0] || 'AWAY',
-      home: teamsInGame[1] || 'HOME',
-      picks: m.picks || {}
-    };
-  });
-
+  // 1. Compute current base wins & tiebreaker predictions for all players
   const currentWins = {};
   const tiebreakerPicks = weekData.tiebreaker?.picks || {};
   
@@ -2404,8 +2391,57 @@ function openPathToCrownModal() {
     currentWins[p] = computedStats[p]?.weeklyHistory[week]?.correct || 0;
   });
 
-  // Generate 2^N Permutations
-  const numGames = parsedRemaining.length;
+  // 2. Identify mathematically alive contenders across ALL remaining games
+  const maxPossibleWins = {};
+  (poolData.players || []).forEach(p => {
+    maxPossibleWins[p] = (currentWins[p] || 0) + remainingGames.length;
+  });
+
+  const highestPossibleWins = Math.max(...Object.values(maxPossibleWins));
+
+  // A player is alive if their max possible record can tie or beat the leader's current record
+  const aliveContenders = (poolData.players || []).filter(p => maxPossibleWins[p] >= Math.max(...Object.values(currentWins)));
+
+  // 3. Separate Relevant vs. Irrelevant Games based on Alive Contenders' picks
+  const relevantGames = [];
+  const irrelevantGames = [];
+
+  remainingGames.forEach((m, idx) => {
+    const teamsInGame = (m.game || '')
+      .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
+      .map(t => t.trim().toUpperCase())
+      .filter(t => t.length >= 2);
+
+    const awayTeam = teamsInGame[0] || 'AWAY';
+    const homeTeam = teamsInGame[1] || 'HOME';
+
+    // Collect picks among ALIVE contenders
+    const contenderPicks = aliveContenders.map(p => (m.picks?.[p] || '').trim().toUpperCase()).filter(Boolean);
+    const uniquePicks = [...new Set(contenderPicks)];
+
+    const gameObject = {
+      id: idx,
+      away: awayTeam,
+      home: homeTeam,
+      picks: m.picks || {},
+      unanimousTeam: uniquePicks.length === 1 ? uniquePicks[0] : null
+    };
+
+    if (uniquePicks.length === 1 && contenderPicks.length === aliveContenders.length) {
+      irrelevantGames.push(gameObject);
+    } else {
+      relevantGames.push(gameObject);
+    }
+  });
+
+  // If ALL games are unanimous, fallback to using all games so matrix can still render
+  const gamesToSimulate = relevantGames.length > 0 ? relevantGames : remainingGames.map((m, idx) => {
+    const teamsInGame = (m.game || '').split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i).map(t => t.trim().toUpperCase()).filter(t => t.length >= 2);
+    return { id: idx, away: teamsInGame[0] || 'AWAY', home: teamsInGame[1] || 'HOME', picks: m.picks || {} };
+  });
+
+  // 4. Generate 2^N Permutations for Relevant Games Only
+  const numGames = gamesToSimulate.length;
   const totalPermutations = Math.pow(2, numGames);
   const permutationMatrix = [];
 
@@ -2413,17 +2449,18 @@ function openPathToCrownModal() {
     const outcomeObj = {};
     const simulatedWinners = [];
 
-    parsedRemaining.forEach((g, bitIdx) => {
+    gamesToSimulate.forEach((g, bitIdx) => {
       const isHomeWin = (i & (1 << bitIdx)) !== 0;
       const winner = isHomeWin ? g.home : g.away;
       outcomeObj[g.id] = winner;
       simulatedWinners.push(winner);
     });
 
+    // Calculate projected wins per player under this permutation
     const pScores = {};
     (poolData.players || []).forEach(p => {
       let extra = 0;
-      parsedRemaining.forEach(g => {
+      gamesToSimulate.forEach(g => {
         const playerPick = (g.picks[p] || '').trim().toUpperCase();
         if (playerPick === outcomeObj[g.id]) extra++;
       });
@@ -2562,9 +2599,19 @@ function openPathToCrownModal() {
   // Render Modal HTML
   let html = `
     <div style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem;">
-      ⚡ <strong>${remainingGames.length} Game${remainingGames.length > 1 ? 's' : ''} Remaining</strong> &mdash; Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}.
+      ⚡ <strong>${gamesToSimulate.length} Decisive Game${gamesToSimulate.length > 1 ? 's' : ''} Remaining</strong> &mdash; Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}.
     </div>
   `;
+
+  // Render Irrelevant Games Notification Banner
+  if (irrelevantGames.length > 0) {
+    const irrText = irrelevantGames.map(g => `<strong>${g.away} @ ${g.home}</strong> (all contenders picked ${getTeamLogoHtml(g.unanimousTeam)})`).join(', ');
+    html += `
+      <div style="margin-bottom: 15px; padding: 10px 14px; background: #f1f5f9; border-left: 4px solid #94a3b8; border-radius: 6px; font-size: 0.825rem; color: #475569;">
+        ℹ️ <strong>Irrelevant Game${irrelevantGames.length > 1 ? 's' : ''}:</strong> ${irrText}. Outcome does not affect weekly crown standings.
+      </div>
+    `;
+  }
 
   if (activeContenders.length > 0) {
     html += `<h4 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--primary-color);">👑 Contenders & Clinch Paths</h4>`;
@@ -2597,7 +2644,7 @@ function openPathToCrownModal() {
 
   // OUTCOME MATRIX TABLE
   const matrixRowsHtml = matrixDisplayRows.map(row => {
-    const gameCols = parsedRemaining.map(g => `<td class="text-center"><strong>${getTeamLogoHtml(row.winnersMap[g.id])}</strong></td>`).join('');
+    const gameCols = gamesToSimulate.map(g => `<td class="text-center"><strong>${getTeamLogoHtml(row.winnersMap[g.id])}</strong></td>`).join('');
     return `
       <tr>
         ${gameCols}
@@ -2613,7 +2660,7 @@ function openPathToCrownModal() {
       <table>
         <thead>
           <tr>
-            ${parsedRemaining.map(g => `<th class="text-center">${g.away} @${g.home}</th>`).join('')}
+            ${gamesToSimulate.map(g => `<th class="text-center">${g.away} @${g.home}</th>`).join('')}
             <th class="text-center">Tiebreaker Total Score</th>
             <th class="text-center">Crown Winner</th>
           </tr>
