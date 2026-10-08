@@ -107,7 +107,7 @@ elif dt.datetime.strptime(current_json['weeks'][f'Week {current_week}']['lockTim
     get_picks = True 
     
 else: #After Locktime
-    get_picks = True
+    get_picks = False
     
 
 if get_picks == True:

@@ -54,53 +54,56 @@
     tr:last-child td { border-bottom: none; }
 
     /* --- STICKY TABLE ADJUSTMENTS --- */
-    .matrix-wrapper {
-      max-height: 70vh;
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-      position: relative;
-    }
+.matrix-wrapper {
+  max-height: 70vh;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+}
 
-    .matrix-wrapper table thead th {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      background-color: #f1f5f9;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    }
+.matrix-wrapper table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #f1f5f9;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
 
-    /* Freeze Columns 1 and 2 ONLY for Matchup Matrix */
-    #matrix-table th:nth-child(1),
-    #matrix-table td:nth-child(1) {
-      position: sticky;
-      left: 0;
-      z-index: 5;
-      background-color: var(--card-bg);
-      min-width: 120px;
-    }
+/* Freeze Columns 1, 2, and 3 for Matchup Matrix on Vertical Scroll */
+#matrix-table th:nth-child(1),
+#matrix-table td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background-color: var(--card-bg);
+  min-width: 120px;
+}
 
-    #matrix-table th:nth-child(2),
-    #matrix-table td:nth-child(2) {
-      position: sticky;
-      left: 120px;
-      z-index: 5;
-      background-color: var(--card-bg);
-      min-width: 95px;
-      white-space: nowrap;
-      border-right: 2px solid var(--border-color);
-    }
+#matrix-table th:nth-child(2),
+#matrix-table td:nth-child(2) {
+  position: sticky;
+  left: 120px;
+  z-index: 5;
+  background-color: var(--card-bg);
+  min-width: 95px;
+  white-space: nowrap;
+}
 
-    /* Column 3 (Pool Picks) scrolls normally */
-    #matrix-table th:nth-child(3),
-    #matrix-table td:nth-child(3) {
-      position: static;
-      z-index: 1;
-      min-width: 90px;
-    }
+/* Column 3 (Pool Picks) Sticky Setup */
+#matrix-table th:nth-child(3),
+#matrix-table td:nth-child(3) {
+  position: sticky;
+  left: 215px; /* 120px (col 1) + 95px (col 2) */
+  z-index: 5;
+  background-color: var(--card-bg);
+  min-width: 90px;
+  border-right: 2px solid var(--border-color);
+}
 
-    /* Header z-indices for frozen columns */
-    #matrix-table thead th:nth-child(1) { z-index: 15; background-color: #f1f5f9; }
-    #matrix-table thead th:nth-child(2) { z-index: 15; background-color: #f1f5f9; }
+/* Header z-indices for all frozen columns */
+#matrix-table thead th:nth-child(1) { z-index: 15; background-color: #f1f5f9; }
+#matrix-table thead th:nth-child(2) { z-index: 15; background-color: #f1f5f9; }
+#matrix-table thead th:nth-child(3) { z-index: 15; background-color: #f1f5f9; }
 
     /* Maintain row background colors for sticky cells on state classes */
     .matrix-wrapper table td:first-child.pick-correct { background-color: #dcfce7 !important; }
@@ -1009,7 +1012,7 @@
 
       <!-- DYNAMIC PATH TO CROWN ACTION BUTTON -->
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown
+        <span>🔮</span> Path to Crown <span>🔮</span>
       </button>
     </div>
 
@@ -2661,8 +2664,8 @@ function openPathToCrownModal() {
         <thead>
           <tr>
             ${gamesToSimulate.map(g => `<th class="text-center">${g.away} @${g.home}</th>`).join('')}
-            <th class="text-center">Tiebreaker Total Score</th>
-            <th class="text-center">Crown Winner</th>
+            <th class="text-center">Tiebreaker</th>
+            <th class="text-center">Winner</th>
           </tr>
         </thead>
         <tbody>
