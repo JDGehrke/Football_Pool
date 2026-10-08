@@ -37,35 +37,21 @@ os.environ["GIT_PYTHON_GIT_EXECUTABLE"] = max(git_paths, key=os.path.getmtime)
 from git import Repo
 repo = Repo(".")
 
-stashed = False
 try:
-    # Stash local uncommitted changes if any exist
-    if repo.is_dirty(untracked_files=True):
-        print(
-            "Unstaged changes detected. Stashing local changes before pull..."
-        )
-        repo.git.stash("save", "Auto-stash before rebase pull")
-        stashed = True
+    print("Cleaning local uncommitted changes and untracked files...")
+    # Discard local edits to tracked files
+    repo.git.reset('--hard', 'HEAD')
+    
+    # Remove untracked files/folders (like 'index - Copy.html')
+    repo.git.clean('-fd')
 
     # Pull latest changes from origin
     origin = repo.remote(name="origin")
     print("Pulling latest changes from remote...")
     origin.pull(rebase=True)
 
-    # Reapply stashed changes if saved
-    if stashed:
-        print("Reapplying stashed local changes...")
-        repo.git.stash("pop")
-        stashed = False
-
 except Exception as e:
     print(f"An error occurred during Git pull: {e}")
-    if stashed:
-        try:
-            print("Attempting to restore stashed changes...")
-            repo.git.stash("pop")
-        except Exception as stash_err:
-            print(f"Could not pop stash automatically: {stash_err}")
     raise e
     
 
