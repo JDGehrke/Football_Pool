@@ -2545,7 +2545,7 @@
       "tiebreaker": {
         "game": "ATL @ NO",
         "status": "Scheduled",
-        "winner": Null,
+        "winner": "N/A",
         "actualTotalScore": 0,
         "picks": {
           "ANDI": {
