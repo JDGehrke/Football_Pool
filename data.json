@@ -2503,10 +2503,10 @@
           },
           "game": "DET @ CAR",
           "date": "2026-10-05T00:20Z",
-          "winner": "CAR",
-          "status": "Final",
-          "awayScore": "26",
-          "homeScore": "32"
+          "winner": null,
+          "status": "Scheduled",
+          "awayScore": "0",
+          "homeScore": "0"
         },
         {
           "id": "401872979",
