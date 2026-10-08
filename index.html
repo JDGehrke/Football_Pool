@@ -2420,7 +2420,6 @@ function openPathToCrownModal() {
       simulatedWinners.push(winner);
     });
 
-    // Calculate wins per player under this permutation
     const pScores = {};
     (poolData.players || []).forEach(p => {
       let extra = 0;
@@ -2467,18 +2466,24 @@ function openPathToCrownModal() {
       }
 
       let text = "Any Score";
+      let sortVal = -Infinity;
+
       if (lowBound !== null && highBound !== null) {
         text = `${lowBound.toFixed(1)} < Score < ${highBound.toFixed(1)}`;
+        sortVal = lowBound;
       } else if (lowBound !== null) {
         text = `Score > ${lowBound.toFixed(1)}`;
+        sortVal = lowBound;
       } else if (highBound !== null) {
         text = `Score < ${highBound.toFixed(1)}`;
+        sortVal = -Infinity;
       }
 
       ranges[curr.player] = {
         text: text,
         low: lowBound,
-        high: highBound
+        high: highBound,
+        sortVal: sortVal
       };
     }
     return ranges;
@@ -2501,8 +2506,10 @@ function openPathToCrownModal() {
       });
 
       matrixDisplayRows.push({
+        gameWinnersKey: winnersStr,
         winnersMap: perm.winnersMap,
         scoreRange: "Any Score",
+        sortVal: -Infinity,
         winnerStr: `👑 ${soleWinner}`
       });
     } else {
@@ -2510,6 +2517,7 @@ function openPathToCrownModal() {
       perm.topContenders.forEach(p => {
         const rInfo = ranges[p];
         const rangeText = rInfo ? rInfo.text : "Tiebreaker";
+        const sortVal = rInfo ? rInfo.sortVal : -Infinity;
         
         contenderScenarios[p].push({
           winners: winnersStr,
@@ -2517,12 +2525,22 @@ function openPathToCrownModal() {
         });
 
         matrixDisplayRows.push({
+          gameWinnersKey: winnersStr,
           winnersMap: perm.winnersMap,
           scoreRange: rangeText,
+          sortVal: sortVal,
           winnerStr: `👑 ${p}`
         });
       });
     }
+  });
+
+  // SORT MATRIX ROWS: 1. By Game Winner Key, 2. By Score Threshold (sortVal) Ascending
+  matrixDisplayRows.sort((a, b) => {
+    if (a.gameWinnersKey !== b.gameWinnersKey) {
+      return a.gameWinnersKey.localeCompare(b.gameWinnersKey);
+    }
+    return a.sortVal - b.sortVal;
   });
 
   // SORT CONTENDERS USING WEEK RESULTS TABLE LOGIC
