@@ -28,7 +28,7 @@
       padding: 20px; 
       max-width: 1200px; 
       margin: 0 auto; 
-      font-size: 0.875rem; /* Reduced base font size by 1pt (14px) */
+      font-size: 0.875rem;
     }
 
     /* --- HEADER --- */
@@ -1645,7 +1645,6 @@
     function renderOverallTab() {
       const { sorted, playerRanks } = getPlayerRanks();
 
-      // Render Dynamic Responsive Horizontal Trajectory Chart
       renderSeasonLineChart(sorted, playerRanks);
 
       const lbBody = document.querySelector('#leaderboard-table tbody');
@@ -1668,7 +1667,6 @@
         `;
       }).join('');
 
-      // FILTER CROWN STANDINGS TO ONLY PLAYERS WITH 1+ WINS
       const crownWinners = [...poolData.players]
         .filter(p => computedStats[p].crowns > 0)
         .sort((a, b) => {
@@ -1861,7 +1859,6 @@
 
       if (!sortedPlayers || sortedPlayers.length === 0) return;
 
-      // Ensure data is sorted descending by total season wins
       const sortedByWins = [...sortedPlayers].sort((a, b) => {
         const winsA = computedStats[a]?.correct || 0;
         const winsB = computedStats[b]?.correct || 0;
@@ -2187,7 +2184,6 @@
       const weekData = poolData.weeks[week];
       if (!weekData) return;
 
-      // Order players by their current week rank (following Week Results table order)
       const sortedPlayersByRank = [...poolData.players].sort((a, b) => {
         const aHist = computedStats[a]?.weeklyHistory[week] || { correct: 0, diff: null };
         const bHist = computedStats[b]?.weeklyHistory[week] || { correct: 0, diff: null };
@@ -2203,7 +2199,6 @@
 
       const displayPlayers = sortedPlayersByRank.filter(p => selectedMatrixPlayers.includes(p));
 
-      // Build grey border styles for Record Transitions
       let lastRecordKey = null;
       const borderStyleMap = {};
 
@@ -2278,7 +2273,6 @@
           }
         }
 
-        // Count picks across all players in poolData
         let awayCount = 0;
         let homeCount = 0;
         Object.values(m.picks || {}).forEach(rawPick => {
@@ -2293,10 +2287,8 @@
         
         let statusSubtitle = '';
         if (isScheduled && m.date) {
-          // Future game: display scheduled date/time
           statusSubtitle = `<span class="game-time">${formatShortGameTime(m.date)}</span>`;
         } else if (m.score || (m.awayScore !== undefined && m.homeScore !== undefined)) {
-          // Started/Finished game: replace date/time with score in the same subtitle slot
           const scoreDisplay = m.score || `${m.awayScore} - ${m.homeScore}`;
           statusSubtitle = `<span class="game-time">${scoreDisplay}</span>`;
         }
@@ -2342,11 +2334,9 @@
       const currentDay = now.getDay(); // 0 is Sunday
       const currentHours = now.getHours(); // 24-hr format (19 = 7 PM)
 
-      // 1. If today is Sunday at/after 7:00 PM local time (19:00), or Monday/Tuesday
       if (currentDay === 0 && currentHours >= 19) return true;
       if (currentDay === 1 || currentDay === 2) return true;
 
-      // 2. Alternatively, check if 3 or fewer uncompleted games remain
       const remainingGames = matchups.filter(m => !m.winner || m.status !== 'Final');
       if (remainingGames.length > 0 && remainingGames.length <= 3) return true;
 
@@ -2364,7 +2354,6 @@
       const matchups = weekData.matchups || [];
       const remainingGames = matchups.filter(m => !m.winner || (m.status !== 'Final' && m.status !== 'STATUS_FINAL'));
 
-      // Check Sunday 7 PM CST / <=3 games rule
       if (!isSundayEveningOrLater(matchups)) {
         body.innerHTML = `
           <div style="text-align: center; padding: 30px 10px;">
@@ -2393,7 +2382,6 @@
         return;
       }
 
-      // Extract Game Teams
       const parsedRemaining = remainingGames.map((m, idx) => {
         const teamsInGame = (m.game || '')
           .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
@@ -2407,7 +2395,6 @@
         };
       });
 
-      // Compute current base wins for each player
       const currentWins = {};
       const tiebreakerPicks = weekData.tiebreaker?.picks || {};
       
@@ -2415,7 +2402,6 @@
         currentWins[p] = computedStats[p]?.weeklyHistory[week]?.correct || 0;
       });
 
-      // Generate 2^N Permutations
       const numGames = parsedRemaining.length;
       const totalPermutations = Math.pow(2, numGames);
       const permutationMatrix = [];
@@ -2425,14 +2411,12 @@
         const simulatedWinners = [];
 
         parsedRemaining.forEach((g, bitIdx) => {
-          // Bit bitIdx: 0 -> away team wins, 1 -> home team wins
           const isHomeWin = (i & (1 << bitIdx)) !== 0;
           const winner = isHomeWin ? g.home : g.away;
           outcomeObj[g.id] = winner;
           simulatedWinners.push(winner);
         });
 
-        // Calculate wins per player under this permutation
         const pScores = {};
         (poolData.players || []).forEach(p => {
           let extra = 0;
@@ -2454,7 +2438,6 @@
         });
       }
 
-      // Group scenarios and build outcome matrix
       const contenderScenarios = {};
       (poolData.players || []).forEach(p => contenderScenarios[p] = []);
 
@@ -2467,7 +2450,6 @@
             requiresScore: false
           });
         } else if (perm.topContenders.length >= 2) {
-          // Tiebreaker scenarios
           const topList = perm.topContenders;
           topList.forEach(p => {
             const playerPred = tiebreakerPicks[p]?.predictedTotal;
@@ -2482,11 +2464,9 @@
         }
       });
 
-      // Filter active contenders
       const activeContenders = (poolData.players || []).filter(p => contenderScenarios[p].length > 0);
       const eliminatedPlayers = (poolData.players || []).filter(p => contenderScenarios[p].length === 0);
 
-      // Render Modal UI
       let html = `
         <div style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem;">
           ⚡ <strong>${remainingGames.length} Game${remainingGames.length > 1 ? 's' : ''} Remaining</strong> &mdash; Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}.
@@ -2516,7 +2496,6 @@
           if (tieScenarios.length > 0) {
             tieScenarios.forEach(s => {
               const opps = s.opponents;
-              const oppPreds = opps.map(op => `${op} (${tiebreakerPicks[op]?.predictedTotal ?? 'N/A'})`).join(', ');
               
               if (typeof predVal === 'number') {
                 const oppVals = opps.map(op => tiebreakerPicks[op]?.predictedTotal).filter(v => typeof v === 'number');
@@ -2555,6 +2534,52 @@
       }
 
       // OUTCOME MATRIX TABLE
+      const matrixRowsHtml = permutationMatrix.map(perm => {
+        const gameCols = parsedRemaining.map(g => `<td class="text-center"><strong>${getTeamLogoHtml(perm.winnersMap[g.id])}</strong></td>`).join('');
+        
+        if (perm.topContenders.length === 1) {
+          return `
+            <tr>
+              ${gameCols}
+              <td class="text-center">Any Score</td>
+              <td class="text-center text-success"><strong>👑 ${perm.topContenders[0]}</strong></td>
+            </tr>
+          `;
+        } else {
+          const p1 = perm.topContenders[0];
+          const p2 = perm.topContenders[1];
+          const val1 = tiebreakerPicks[p1]?.predictedTotal;
+          const val2 = tiebreakerPicks[p2]?.predictedTotal;
+
+          if (typeof val1 === 'number' && typeof val2 === 'number') {
+            const pivot = ((val1 + val2) / 2).toFixed(1);
+            const lowerPlayer = val1 < val2 ? p1 : p2;
+            const higherPlayer = val1 < val2 ? p2 : p1;
+
+            return `
+              <tr>
+                ${gameCols}
+                <td class="text-center">&lt; ${pivot} pts</td>
+                <td class="text-center text-success"><strong>👑 ${lowerPlayer}</strong></td>
+              </tr>
+              <tr>
+                ${gameCols}
+                <td class="text-center">&ge; ${pivot} pts</td>
+                <td class="text-center text-success"><strong>👑 ${higherPlayer}</strong></td>
+              </tr>
+            `;
+          } else {
+            return `
+              <tr>
+                ${gameCols}
+                <td class="text-center">Tiebreaker</td>
+                <td class="text-center text-success"><strong>👑 ${perm.topContenders.join(' / ')}</strong></td>
+              </tr>
+            `;
+          }
+        }
+      }).join('');
+
       html += `
         <h4 style="font-size: 0.95rem; margin: 20px 0 10px 0; color: var(--primary-color);">🔮 Outcome Matrix</h4>
         <div class="matrix-wrapper">
@@ -2567,51 +2592,7 @@
               </tr>
             </thead>
             <tbody>
-              ${permutationMatrix.map(perm => {
-                const gameCols = parsedRemaining.map(g => `<td class="text-center"><strong>${getTeamLogoHtml(perm.winnersMap[g.id])}</strong></td>`).join('');
-                
-                if (perm.topContenders.length === 1) {
-                  return `
-                    <tr>
-                      ${gameCols}
-                      <td class="text-center">Any Score</td>
-                      <td class="text-center text-success"><strong>👑 ${perm.topContenders[0]}</strong></td>
-                    </tr>
-                  `;
-                } else {
-                  // Resolve Pivot Points for Matrix Rows
-                  const p1 = perm.topContenders[0];
-                  const p2 = perm.topContenders[1];
-                  const val1 = tiebreakerPicks[p1]?.predictedTotal;
-                  const val2 = tiebreakerPicks[p2]?.predictedTotal;
-
-                  if (typeof val1 === 'number' && typeof val2 === 'number') {
-                    const pivot = ((val1 + val2) / 2).toFixed(1);
-                    const lowerPlayer = val1 < val2 ? p1 : p2;
-                    const higherPlayer = val1 < val2 ? p2 : p1;
-
-                    return `
-                      <tr>
-                        ${gameCols}
-                        <td class="text-center">&lt; ${pivot} pts</td>
-                        <td class="text-center text-success"><strong>👑 ${lowerPlayer}</strong></td>
-                      </tr>
-                      <tr>
-                        ${gameCols}
-                        <td class="text-center">&ge; ${pivot} pts</td>
-                        <td class="text-center text-success"><strong>👑 ${higherPlayer}</strong></td>
-                      </tr>
-                    `;
-                  } else {
-                    return `
-                      <tr>
-                        ${gameCols}
-                        <td class="text-center">Tiebreaker</td>
-                        <td class="text-center text-success"><strong>👑 ${perm.topContenders.join(' / ')}</strong></td>
-                      </tr>
-                    `;
-                  }
-                }).join('')}
+              ${matrixRowsHtml}
             </tbody>
           </table>
         </div>
@@ -2647,7 +2628,6 @@
         if (isLocked) {
           labels.push(`${weekNum}`);
 
-          // Exclude pending/scheduled games without a winner or final status
           const finishedMatchups = matchups.filter(m => 
             m.winner && m.winner !== '' && (m.status === 'STATUS_FINAL' || m.status === 'Final' || m.status === 'Completed' || m.status === 'Post-Game')
           );
@@ -2700,7 +2680,6 @@
 
         const isLocked = lockDate && (now >= lockDate);
 
-        // Only inspect weeks where picks are locked
         if (!isLocked) return;
 
         matchups.forEach(m => {
@@ -2717,7 +2696,6 @@
             .map(t => t.trim().toUpperCase())
             .filter(t => t.length >= 2);
 
-          // 1. Track Matchups & Picks for all locked games (used for Pick %)
           teamsInGame.forEach(team => {
             if (!poolTeamStatsLocked[team]) {
               poolTeamStatsLocked[team] = { totalMatchups: 0, picked: 0, correct: 0, finishedMatchups: 0 };
@@ -2735,7 +2713,6 @@
             }
           });
 
-          // Track Pool Pick % Across All Players
           Object.entries(m.picks || {}).forEach(([p, rawPick]) => {
             if (rawPick && rawPick !== '—' && rawPick !== '-') {
               const pick = rawPick.trim().toUpperCase();
@@ -2754,26 +2731,21 @@
             }
           });
 
-          // 2. Evaluate Game Outcomes for Accuracy % across ALL games involving team
           if (isFinal && winner) {
             teamsInGame.forEach(team => {
               const opponent = teamsInGame.find(t => t !== team);
               
-              // Evaluate Player Outcome Accuracy for this Team Game
               const playerPick = m.picks?.[playerId]?.trim().toUpperCase();
               if (playerPick) {
                 if (winner === 'TIE') {
                   // Ties do not penalize/reward
                 } else if (winner === team && playerPick === team) {
-                  // Picked team and team won
                   playerTeamStats[team].correct++;
                 } else if (winner === opponent && playerPick === opponent) {
-                  // Picked opponent and team lost (correctly predicted outcome against team)
                   playerTeamStats[team].correct++;
                 }
               }
 
-              // Evaluate Pool Outcome Accuracy for this Team Game
               Object.entries(m.picks || {}).forEach(([p, pPickRaw]) => {
                 const pPick = pPickRaw ? pPickRaw.trim().toUpperCase() : null;
                 if (pPick && winner !== 'TIE') {
@@ -2907,7 +2879,6 @@
         const poolPickPctNum = totalPoolPossiblePicks > 0 ? (poolStat.picked / totalPoolPossiblePicks) * 100 : 0;
         const poolPickPctStr = poolPickPctNum.toFixed(1);
 
-        // Accuracy % now reflects ALL completed games involving this team
         const playerAccNum = finishedMatchups > 0 ? (stat.correct / finishedMatchups) * 100 : 0;
         const playerAccStr = finishedMatchups > 0 ? playerAccNum.toFixed(1) : 'N/A';
 
@@ -2986,7 +2957,6 @@
           let scoreText = 'Scheduled';
           let outcomeClass = 'pick-pending';
 
-          // Only display the score if the game status is explicitly final/completed
           if (isFinal) {
             if (m.score || (m.awayScore !== undefined && m.homeScore !== undefined)) {
               scoreText = m.score || `${m.awayScore} - ${m.homeScore}`;
@@ -3309,27 +3279,22 @@
       const recA = nflTeamRecords[teamA] || { wins: 0, losses: 0, ties: 0, divWins: 0, divLosses: 0, divTies: 0, confWins: 0, confLosses: 0, confTies: 0 };
       const recB = nflTeamRecords[teamB] || { wins: 0, losses: 0, ties: 0, divWins: 0, divLosses: 0, divTies: 0, confWins: 0, confLosses: 0, confTies: 0 };
 
-      // 1. Overall PCT
       const pctA = getWinPct(recA.wins, recA.losses, recA.ties);
       const pctB = getWinPct(recB.wins, recB.losses, recB.ties);
       if (pctB !== pctA) return pctB - pctA;
 
-      // 2. Division PCT
       const divPctA = getWinPct(recA.divWins, recA.divLosses, recA.divTies);
       const divPctB = getWinPct(recB.divWins, recB.divLosses, recB.divTies);
       if (divPctB !== divPctA) return divPctB - divPctA;
 
-      // 3. Conference PCT
       const confPctA = getWinPct(recA.confWins, recA.confLosses, recA.confTies);
       const confPctB = getWinPct(recB.confWins, recB.confLosses, recB.confTies);
       if (confPctB !== confPctA) return confPctB - confPctA;
 
-      // 4. Strength of Victory
       const sovA = getSOV(teamA);
       const sovB = getSOV(teamB);
       if (sovB !== sovA) return sovB - sovA;
 
-      // 5. Strength of Schedule
       const sosA = getSOS(teamA);
       const sosB = getSOS(teamB);
       if (sosB !== sosA) return sosB - sosA;
@@ -3347,27 +3312,22 @@
       const recA = nflTeamRecords[teamA] || { wins: 0, losses: 0, ties: 0, divWins: 0, divLosses: 0, divTies: 0, confWins: 0, confLosses: 0, confTies: 0 };
       const recB = nflTeamRecords[teamB] || { wins: 0, losses: 0, ties: 0, divWins: 0, divLosses: 0, divTies: 0, confWins: 0, confLosses: 0, confTies: 0 };
 
-      // 1. Overall PCT
       const pctA = getWinPct(recA.wins, recA.losses, recA.ties);
       const pctB = getWinPct(recB.wins, recB.losses, recB.ties);
       if (pctB !== pctA) return pctB - pctA;
 
-      // If in same division, apply division tiebreaker first
       if (getTeamDivision(teamA) === getTeamDivision(teamB)) {
         return compareIntraDivisionPair(teamA, teamB);
       }
 
-      // 2. Conference PCT
       const confPctA = getWinPct(recA.confWins, recA.confLosses, recA.confTies);
       const confPctB = getWinPct(recB.confWins, recB.confLosses, recB.confTies);
       if (confPctB !== confPctA) return confPctB - confPctA;
 
-      // 3. Strength of Victory
       const sovA = getSOV(teamA);
       const sovB = getSOV(teamB);
       if (sovB !== sovA) return sovB - sovA;
 
-      // 4. Strength of Schedule
       const sosA = getSOS(teamA);
       const sosB = getSOS(teamB);
       if (sosB !== sosA) return sosB - sosA;
@@ -3381,7 +3341,6 @@
       const divLeaders = [];
       const nonLeadersPool = [];
 
-      // Step 1: Separate division leaders from remaining pool
       confDivisions.forEach(divName => {
         const sortedDiv = sortDivisionTeams(NFL_DIVISIONS[divName]);
         divLeaders.push(sortedDiv[0]);
@@ -3390,7 +3349,6 @@
         }
       });
 
-      // Step 2: Seed Division Champions (1-4)
       const rankedLeaders = [];
       let remainingLeaders = [...divLeaders];
 
@@ -3400,12 +3358,10 @@
         rankedLeaders.push({ team: winner, isDivLeader: true });
       }
 
-      // Step 3: Seed Wild Card Candidates (5-16) with Intra-Division Elimination Filter
       const rankedWildCards = [];
       let pool = [...nonLeadersPool];
 
       while (pool.length > 0) {
-        // Group remaining pool by PCT
         const pctGroups = {};
         pool.forEach(t => {
           const rec = nflTeamRecords[t] || { wins: 0, losses: 0, ties: 0 };
@@ -3423,7 +3379,6 @@
           rankedWildCards.push({ team: winner, isDivLeader: false });
           pool = pool.filter(t => t !== winner);
         } else {
-          // Multiple teams tied: Apply Intra-Division elimination step first
           const divCandidates = {};
           topGroup.forEach(t => {
             const div = getTeamDivision(t);
@@ -3501,7 +3456,6 @@
                 </tr>
               </thead>
               <tbody>
-                <!-- PLAYOFFS SECTION -->
                 <tr class="vertical-banner-row">
                   <td colspan="7">
                     <div class="banner-content-container">
@@ -3515,7 +3469,6 @@
                   </td>
                 </tr>
 
-                <!-- PLAYOFF CUT DASHED LINE -->
                 <tr class="cut-line-row">
                   <td colspan="7">
                     <div class="cut-line">
@@ -3524,7 +3477,6 @@
                   </td>
                 </tr>
 
-                <!-- IN THE HUNT SECTION -->
                 <tr class="vertical-banner-row">
                   <td colspan="7">
                     <div class="banner-content-container">
