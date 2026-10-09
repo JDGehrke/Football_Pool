@@ -53,7 +53,7 @@
     th { background-color: #f1f5f9; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
     tr:last-child td { border-bottom: none; }
 
-    /* --- STICKY TABLE ADJUSTMENTS --- */
+/* --- MATCHUP MATRIX STICKY & COMPACT LAYOUT --- */
 .matrix-wrapper {
   max-height: 70vh;
   overflow: auto;
@@ -61,74 +61,110 @@
   position: relative;
 }
 
+/* Freeze Header Row Vertically for All Columns */
 .matrix-wrapper table thead th {
   position: sticky;
   top: 0;
   z-index: 10;
   background-color: #f1f5f9;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  padding: 6px 8px; /* Compact padding */
+  font-size: 0.75rem;
 }
 
-/* Freeze Columns 1, 2, and 3 for Matchup Matrix on Vertical Scroll */
+/* --- Freeze Columns 1 & 2 Horizontally --- */
+
+/* Column 1: Game */
 #matrix-table th:nth-child(1),
 #matrix-table td:nth-child(1) {
   position: sticky;
   left: 0;
   z-index: 5;
   background-color: var(--card-bg);
-  min-width: 120px;
+  min-width: 100px;
+  max-width: 110px;
+  padding: 6px 6px;
 }
 
+/* Column 2: Status */
 #matrix-table th:nth-child(2),
 #matrix-table td:nth-child(2) {
   position: sticky;
-  left: 120px;
+  left: 100px; /* Offset matching Column 1 width */
   z-index: 5;
   background-color: var(--card-bg);
-  min-width: 95px;
+  min-width: 80px;
+  max-width: 85px;
   white-space: nowrap;
+  border-right: 2px solid var(--border-color); /* Divider between frozen & scrolling columns */
+  padding: 6px 6px;
 }
 
-/* Column 3 (Pool Picks) Sticky Setup */
-#matrix-table th:nth-child(3),
-#matrix-table td:nth-child(3) {
-  position: sticky;
-  left: 215px; /* 120px (col 1) + 95px (col 2) */
-  z-index: 5;
-  background-color: var(--card-bg);
-  min-width: 90px;
-  border-right: 2px solid var(--border-color);
+/* --- Columns 3+ (Pool Picks & Players) Scroll Horizontally --- */
+#matrix-table th:nth-child(n+3),
+#matrix-table td:nth-child(n+3) {
+  position: static;
+  z-index: 1;
+  min-width: 65px; /* Shrunk column width for cleaner fit */
+  padding: 6px 4px;
+  font-size: 0.8rem;
 }
 
-/* Header z-indices for all frozen columns */
+/* Header Z-Indices for Frozen Corner Cells */
 #matrix-table thead th:nth-child(1) { z-index: 15; background-color: #f1f5f9; }
 #matrix-table thead th:nth-child(2) { z-index: 15; background-color: #f1f5f9; }
-#matrix-table thead th:nth-child(3) { z-index: 15; background-color: #f1f5f9; }
 
-    /* Maintain row background colors for sticky cells on state classes */
-    .matrix-wrapper table td:first-child.pick-correct { background-color: #dcfce7 !important; }
-    .matrix-wrapper table td:first-child.pick-incorrect { background-color: #fee2e2 !important; }
-    .matrix-wrapper table td:first-child.pick-tie { background-color: #fef08a !important; }
-    .matrix-wrapper table td:first-child.pick-pending { background-color: #ffffff !important; }
+/* Sticky Cell Background Overrides for State Classes */
+#matrix-table td:nth-child(1).pick-correct,
+#matrix-table td:nth-child(2).pick-correct { background-color: #dcfce7 !important; }
 
-    /* --- MATCHUP MATRIX PICK BREAKDOWN COLUMN STYLES --- */
-    .pick-counts-cell {
-      white-space: nowrap;
-      min-width: 85px;
-    }
-    .count-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      font-weight: 600;
-      font-size: 0.8rem;
-      line-height: 1.2;
-    }
-    .count-row:first-child {
-      margin-bottom: 2px;
-    }
+#matrix-table td:nth-child(1).pick-incorrect,
+#matrix-table td:nth-child(2).pick-incorrect { background-color: #fee2e2 !important; }
 
+#matrix-table td:nth-child(1).pick-tie,
+#matrix-table td:nth-child(2).pick-tie { background-color: #fef08a !important; }
+
+#matrix-table td:nth-child(1).pick-pending,
+#matrix-table td:nth-child(2).pick-pending { background-color: #ffffff !important; }
+
+/* --- COMPACT PICK COUNTS CELL (COL 3) --- */
+.pick-counts-cell {
+  white-space: nowrap;
+  min-width: 65px !important;
+}
+.count-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-weight: 600;
+  font-size: 0.725rem;
+  line-height: 1.1;
+}
+
+/* --- MOBILE TWEAKS --- */
+@media (max-width: 600px) {
+  #matrix-table th:nth-child(1),
+  #matrix-table td:nth-child(1) {
+    min-width: 85px;
+    max-width: 90px;
+    font-size: 0.75rem;
+  }
+
+  #matrix-table th:nth-child(2),
+  #matrix-table td:nth-child(2) {
+    left: 85px;
+    min-width: 70px;
+    max-width: 75px;
+    font-size: 0.7rem;
+  }
+
+  #matrix-table th:nth-child(n+3),
+  #matrix-table td:nth-child(n+3) {
+    min-width: 55px;
+    padding: 4px 2px;
+  }
+}
     /* --- SVG GRAPH STYLES (FLUID HORIZONTAL LAYOUT) --- */
     .line-chart-wrapper {
       position: relative;
