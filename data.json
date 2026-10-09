@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Thursday @ 11:10pm",
+    "lastUpdated": "Friday @ 5:37pm",
     "currentWeek": "Week 5"
   },
   "hall_of_fame": [
@@ -2662,10 +2662,10 @@
             "KENNY": "DAL",
             "RICK": "DAL",
             "KENZIE": "DAL",
+            "DEVIN": "DAL",
             "JIM": "DAL",
             "TONY": "DAL",
             "DAN": "DAL",
-            "DEVIN": "\u2014",
             "ELLY": "\u2014"
           },
           "game": "TB @ DAL",
@@ -2695,10 +2695,10 @@
             "KENNY": "JAX",
             "RICK": "JAX",
             "KENZIE": "JAX",
+            "DEVIN": "JAX",
             "JIM": "JAX",
             "TONY": "JAX",
             "DAN": "JAX",
-            "DEVIN": "\u2014",
             "ELLY": "\u2014"
           },
           "game": "PHI VS JAX",
@@ -2728,10 +2728,10 @@
             "KENNY": "GB",
             "RICK": "CHI",
             "KENZIE": "GB",
+            "DEVIN": "CHI",
             "JIM": "GB",
             "TONY": "GB",
             "DAN": "CHI",
-            "DEVIN": "\u2014",
             "ELLY": "\u2014"
           },
           "game": "CHI @ GB",
@@ -2761,10 +2761,10 @@
             "KENNY": "HOU",
             "RICK": "HOU",
             "KENZIE": "HOU",
+            "DEVIN": "HOU",
             "JIM": "HOU",
             "TONY": "HOU",
             "DAN": "HOU",
-            "DEVIN": "\u2014",
             "ELLY": "\u2014"
           },
           "game": "HOU @ TEN",
@@ -2794,10 +2794,10 @@
             "KENNY": "CIN",
             "RICK": "CIN",
             "KENZIE": "CIN",
+            "DEVIN": "MIA",
             "JIM": "CIN",
             "TONY": "CIN",
             "DAN": "CIN",
-            "DEVIN": "\u2014",
             "ELLY": "\u2014"
           },
           "game": "CIN @ MIA",
@@ -2827,10 +2827,10 @@
             "KENNY": "LV",
             "RICK": "LV",
             "KENZIE": "NE",
+            "DEVIN": "LV",
             "JIM": "NE",
             "TONY": "NE",
             "DAN": "NE",
-            "DEVIN": "\u2014",
             "ELLY": "\u2014"
           },
           "game": "LV @ NE",
@@ -2860,10 +2860,10 @@
             "KENNY": "NO",
             "RICK": "MIN",
             "KENZIE": "NO",
+            "DEVIN": "MIN",
             "JIM": "MIN",
             "TONY": "MIN",
             "DAN": "MIN",
-            "DEVIN": "\u2014",
             "ELLY": "\u2014"
           },
           "game": "MIN @ NO",
@@ -2893,10 +2893,10 @@
             "KENNY": "NYJ",
             "RICK": "CLE",
             "KENZIE": "CLE",
+            "DEVIN": "NYJ",
             "JIM": "CLE",
             "TONY": "NYJ",
             "DAN": "NYJ",
-            "DEVIN": "\u2014",
             "ELLY": "\u2014"
           },
           "game": "CLE @ NYJ",
@@ -2926,10 +2926,10 @@
             "KENNY": "PIT",
             "RICK": "PIT",
             "KENZIE": "PIT",
+            "DEVIN": "IND",
             "JIM": "PIT",
             "TONY": "PIT",
             "DAN": "PIT",
-            "DEVIN": "\u2014",
             "ELLY": "\u2014"
           },
           "game": "IND @ PIT",
@@ -2959,10 +2959,10 @@
             "KENNY": "NYG",
             "RICK": "NYG",
             "KENZIE": "NYG",
+            "DEVIN": "NYG",
             "JIM": "NYG",
             "TONY": "WSH",
             "DAN": "WSH",
-            "DEVIN": "\u2014",
             "ELLY": "\u2014"
           },
           "game": "NYG @ WSH",
@@ -2992,10 +2992,10 @@
             "KENNY": "DEN",
             "RICK": "LAC",
             "KENZIE": "DEN",
+            "DEVIN": "DEN",
             "JIM": "LAC",
             "TONY": "DEN",
             "DAN": "DEN",
-            "DEVIN": "\u2014",
             "ELLY": "\u2014"
           },
           "game": "DEN @ LAC",
@@ -3025,10 +3025,10 @@
             "KENNY": "ARI",
             "RICK": "DET",
             "KENZIE": "DET",
+            "DEVIN": "DET",
             "JIM": "DET",
             "TONY": "DET",
             "DAN": "DET",
-            "DEVIN": "\u2014",
             "ELLY": "\u2014"
           },
           "game": "DET @ ARI",
@@ -3058,10 +3058,10 @@
             "KENNY": "SF",
             "RICK": "SF",
             "KENZIE": "SF",
+            "DEVIN": "SEA",
             "JIM": "SF",
             "TONY": "SEA",
             "DAN": "SEA",
-            "DEVIN": "\u2014",
             "ELLY": "\u2014"
           },
           "game": "SF @ SEA",
@@ -3091,10 +3091,10 @@
             "KENNY": "BAL",
             "RICK": "ATL",
             "KENZIE": "ATL",
+            "DEVIN": "BAL",
             "JIM": "BAL",
             "TONY": "BAL",
             "DAN": "ATL",
-            "DEVIN": "\u2014",
             "ELLY": "\u2014"
           },
           "game": "BAL @ ATL",
@@ -3124,10 +3124,10 @@
             "KENNY": "BUF",
             "RICK": "LAR",
             "KENZIE": "LAR",
+            "DEVIN": "LAR",
             "JIM": "LAR",
             "TONY": "LAR",
             "DAN": "LAR",
-            "DEVIN": "\u2014",
             "ELLY": "\u2014"
           },
           "game": "BUF @ LAR",
@@ -3165,8 +3165,8 @@
             "predictedTotal": 37
           },
           "DEVIN": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "LAR",
+            "predictedTotal": 69
           },
           "ELLY": {
             "winner": "\u2014",
