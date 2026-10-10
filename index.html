@@ -163,13 +163,13 @@
   #matrix-table td:nth-child(2) {
     left: 85px;
     min-width: 70px;
-    max-width: 80px;
+    max-width: 85px;
     font-size: 0.7rem;
   }
 
   #matrix-table th:nth-child(n+3),
   #matrix-table td:nth-child(n+3) {
-    min-width: 55px;
+    min-width: 45px;
     padding: 4px 2px;
   }
 }
@@ -2267,7 +2267,7 @@
         <tr>
           <th class="text-center">Game</th>
           <th class="text-center">Status</th>
-          <th class="text-center">Pool Picks</th>
+          <th class="text-center">Pool</th>
           ${displayPlayers.map(p => {
             const wHist = computedStats[p]?.weeklyHistory[week] || { correct: 0, incorrect: 0 };
             const dividerStyle = borderStyleMap[p] || '';
