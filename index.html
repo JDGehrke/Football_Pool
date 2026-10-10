@@ -53,6 +53,7 @@
     th { background-color: #f1f5f9; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
     tr:last-child td { border-bottom: none; }
 
+
 /* --- MATCHUP MATRIX STICKY & COMPACT LAYOUT --- */
 .matrix-wrapper {
   max-height: 70vh;
@@ -61,18 +62,18 @@
   position: relative;
 }
 
-/* Freeze Header Row Vertically for All Columns */
-.matrix-wrapper table thead th {
+/* 1. FREEZE ALL HEADER CELLS VERTICALLY */
+#matrix-table thead th {
   position: sticky;
   top: 0;
-  z-index: 10;
-  background-color: #f1f5f9;
+  z-index: 10; /* Keeps headers above scrolling table body */
+  background-color: #f1f5f9 !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  padding: 6px 8px; /* Compact padding */
+  padding: 6px 8px;
   font-size: 0.75rem;
 }
 
-/* --- Freeze Columns 1 & 2 Horizontally --- */
+/* 2. FREEZE COLUMNS 1 & 2 HORIZONTALLY */
 
 /* Column 1: Game */
 #matrix-table th:nth-child(1),
@@ -90,29 +91,36 @@
 #matrix-table th:nth-child(2),
 #matrix-table td:nth-child(2) {
   position: sticky;
-  left: 100px; /* Offset matching Column 1 width */
+  left: 100px; /* Width offset of Column 1 */
   z-index: 5;
   background-color: var(--card-bg);
   min-width: 80px;
   max-width: 85px;
   white-space: nowrap;
-  border-right: 2px solid var(--border-color); /* Divider between frozen & scrolling columns */
+  border-right: 2px solid var(--border-color); /* Divider line */
   padding: 6px 6px;
 }
 
-/* --- Columns 3+ (Pool Picks & Players) Scroll Horizontally --- */
+/* 3. CORNER HEADERS (GAMES & STATUS) NEED HIGHEST Z-INDEX */
+#matrix-table thead th:nth-child(1),
+#matrix-table thead th:nth-child(2) {
+  z-index: 25; /* Stays above both vertical and horizontal scrolling */
+  background-color: #f1f5f9 !important;
+}
+
+/* 4. SCROLLABLE COLUMNS (POOL PICKS & PLAYERS) */
 #matrix-table th:nth-child(n+3),
 #matrix-table td:nth-child(n+3) {
-  position: static;
-  z-index: 1;
-  min-width: 65px; /* Shrunk column width for cleaner fit */
+  min-width: 65px;
   padding: 6px 4px;
   font-size: 0.8rem;
 }
 
-/* Header Z-Indices for Frozen Corner Cells */
-#matrix-table thead th:nth-child(1) { z-index: 15; background-color: #f1f5f9; }
-#matrix-table thead th:nth-child(2) { z-index: 15; background-color: #f1f5f9; }
+/* Ensure body cells stay behind fixed headers */
+#matrix-table tbody td {
+  position: relative;
+  z-index: 1;
+}
 
 /* Sticky Cell Background Overrides for State Classes */
 #matrix-table td:nth-child(1).pick-correct,
@@ -155,7 +163,7 @@
   #matrix-table td:nth-child(2) {
     left: 85px;
     min-width: 70px;
-    max-width: 75px;
+    max-width: 80px;
     font-size: 0.7rem;
   }
 
@@ -165,6 +173,7 @@
     padding: 4px 2px;
   }
 }
+
     /* --- SVG GRAPH STYLES (FLUID HORIZONTAL LAYOUT) --- */
     .line-chart-wrapper {
       position: relative;
