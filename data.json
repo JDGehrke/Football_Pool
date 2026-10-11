@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 12:05pm",
+    "lastUpdated": "Sunday @ 12:20pm",
     "currentWeek": "Week 5"
   },
   "hall_of_fame": [
@@ -2703,10 +2703,10 @@
           },
           "game": "PHI VS JAX",
           "date": "2026-10-11T13:30Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "14",
-          "homeScore": "16"
+          "winner": "JAX",
+          "status": "Final",
+          "awayScore": "17",
+          "homeScore": "19"
         },
         {
           "id": "401872990",
@@ -2739,7 +2739,7 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
-          "homeScore": "0"
+          "homeScore": "7"
         },
         {
           "id": "401872984",
@@ -2772,7 +2772,7 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
-          "homeScore": "0"
+          "homeScore": "3"
         },
         {
           "id": "401872982",
@@ -2804,7 +2804,7 @@
           "date": "2026-10-11T17:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "0",
+          "awayScore": "7",
           "homeScore": "0"
         },
         {
@@ -2837,8 +2837,8 @@
           "date": "2026-10-11T17:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "0",
-          "homeScore": "0"
+          "awayScore": "6",
+          "homeScore": "7"
         },
         {
           "id": "401872987",
@@ -2870,7 +2870,7 @@
           "date": "2026-10-11T17:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "0",
+          "awayScore": "3",
           "homeScore": "0"
         },
         {
@@ -2904,7 +2904,7 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
-          "homeScore": "0"
+          "homeScore": "7"
         },
         {
           "id": "401872985",
@@ -2936,8 +2936,8 @@
           "date": "2026-10-11T17:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "0",
-          "homeScore": "0"
+          "awayScore": "3",
+          "homeScore": "7"
         },
         {
           "id": "401872988",
@@ -2970,7 +2970,7 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
-          "homeScore": "0"
+          "homeScore": "6"
         },
         {
           "id": "401872989",
