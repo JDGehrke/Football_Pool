@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 4:50pm",
+    "lastUpdated": "Sunday @ 5:05pm",
     "currentWeek": "Week 5"
   },
   "hall_of_fame": [
@@ -3003,7 +3003,7 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "10",
-          "homeScore": "3"
+          "homeScore": "10"
         },
         {
           "id": "401872991",
@@ -3034,8 +3034,8 @@
           "game": "DET @ ARI",
           "date": "2026-10-11T20:25Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "21",
+          "status": "Halftime",
+          "awayScore": "24",
           "homeScore": "7"
         },
         {
@@ -3067,8 +3067,8 @@
           "game": "SF @ SEA",
           "date": "2026-10-11T20:25Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "14",
+          "status": "Halftime",
+          "awayScore": "21",
           "homeScore": "13"
         },
         {
