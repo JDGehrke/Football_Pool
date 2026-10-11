@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 1:20pm",
+    "lastUpdated": "Sunday @ 1:35pm",
     "currentWeek": "Week 5"
   },
   "hall_of_fame": [
@@ -2737,7 +2737,7 @@
           "game": "CHI @ GB",
           "date": "2026-10-11T17:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "status": "Halftime",
           "awayScore": "7",
           "homeScore": "14"
         },
@@ -2770,7 +2770,7 @@
           "game": "HOU @ TEN",
           "date": "2026-10-11T17:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "status": "Halftime",
           "awayScore": "12",
           "homeScore": "3"
         },
@@ -2804,7 +2804,7 @@
           "date": "2026-10-11T17:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "14",
+          "awayScore": "21",
           "homeScore": "7"
         },
         {
@@ -2836,9 +2836,9 @@
           "game": "LV @ NE",
           "date": "2026-10-11T17:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "status": "Halftime",
           "awayScore": "7",
-          "homeScore": "14"
+          "homeScore": "21"
         },
         {
           "id": "401872987",
@@ -2869,7 +2869,7 @@
           "game": "MIN @ NO",
           "date": "2026-10-11T17:00Z",
           "winner": null,
-          "status": "Halftime",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "6",
           "homeScore": "7"
         },
@@ -2902,7 +2902,7 @@
           "game": "CLE @ NYJ",
           "date": "2026-10-11T17:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "status": "Halftime",
           "awayScore": "6",
           "homeScore": "7"
         },
@@ -2935,9 +2935,9 @@
           "game": "IND @ PIT",
           "date": "2026-10-11T17:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "status": "Halftime",
           "awayScore": "13",
-          "homeScore": "14"
+          "homeScore": "17"
         },
         {
           "id": "401872988",
@@ -2968,9 +2968,9 @@
           "game": "NYG @ WSH",
           "date": "2026-10-11T17:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "status": "Halftime",
           "awayScore": "3",
-          "homeScore": "9"
+          "homeScore": "12"
         },
         {
           "id": "401872989",
