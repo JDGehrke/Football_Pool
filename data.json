@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Monday @ 9:55pm",
+    "lastUpdated": "Monday @ 10:55pm",
     "currentWeek": "Week 5"
   },
   "hall_of_fame": [
@@ -3132,17 +3132,17 @@
           },
           "game": "BUF @ LAR",
           "date": "2026-10-13T00:15Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "27",
-          "homeScore": "20"
+          "winner": "BUF",
+          "status": "Final",
+          "awayScore": "37",
+          "homeScore": "34"
         }
       ],
       "tiebreaker": {
         "game": "BUF @ LAR",
-        "status": "\ud83d\udd34 Live \ud83d\udd34",
-        "winner": null,
-        "actualTotalScore": 47,
+        "status": "Final",
+        "winner": "BUF",
+        "actualTotalScore": 71,
         "picks": {
           "ANDI": {
             "winner": "BUF",
