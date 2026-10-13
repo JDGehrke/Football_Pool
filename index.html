@@ -2692,7 +2692,7 @@ function openPathToCrownModal() {
 
   // OUTCOME MATRIX TABLE
   const matrixRowsHtml = matrixDisplayRows.map(row => {
-    const gameCols = gamesToSimulate.map(g => `<td class="text-center"><strong>${getTeamLogoHtml(row.winnersMap[g.id])}</strong></td>`).join('');
+    const gameCols = gamesToSimulate.map(g => `<td class="text-center"><strong>${getTeamLogoHtml(row.winnersMap[g.id],False)}</strong></td>`).join('');
     return `
       <tr>
         ${gameCols}
