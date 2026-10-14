@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Wednesday @ 7:10am",
+    "lastUpdated": "Wednesday @ 8:10am",
     "currentWeek": "Week 6"
   },
   "hall_of_fame": [
@@ -3244,6 +3244,7 @@
             "KAREN": "DEN",
             "JEN": "SEA",
             "ANDI": "SEA",
+            "NICK": "SEA",
             "BETHANY": "DEN",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
@@ -3259,7 +3260,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -3277,6 +3277,7 @@
             "KAREN": "JAX",
             "JEN": "JAX",
             "ANDI": "JAX",
+            "NICK": "JAX",
             "BETHANY": "JAX",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
@@ -3292,7 +3293,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -3310,6 +3310,7 @@
             "KAREN": "ATL",
             "JEN": "CHI",
             "ANDI": "ATL",
+            "NICK": "CHI",
             "BETHANY": "ATL",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
@@ -3325,7 +3326,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -3343,6 +3343,7 @@
             "KAREN": "CLE",
             "JEN": "BAL",
             "ANDI": "CLE",
+            "NICK": "BAL",
             "BETHANY": "BAL",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
@@ -3358,7 +3359,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -3376,6 +3376,7 @@
             "KAREN": "IND",
             "JEN": "IND",
             "ANDI": "IND",
+            "NICK": "IND",
             "BETHANY": "IND",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
@@ -3391,7 +3392,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -3409,6 +3409,7 @@
             "KAREN": "NE",
             "JEN": "NE",
             "ANDI": "NE",
+            "NICK": "NE",
             "BETHANY": "NE",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
@@ -3424,7 +3425,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -3442,6 +3442,7 @@
             "KAREN": "NYG",
             "JEN": "NO",
             "ANDI": "NYG",
+            "NICK": "NYG",
             "BETHANY": "NYG",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
@@ -3457,7 +3458,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -3475,6 +3475,7 @@
             "KAREN": "PHI",
             "JEN": "CAR",
             "ANDI": "PHI",
+            "NICK": "PHI",
             "BETHANY": "CAR",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
@@ -3490,7 +3491,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -3508,6 +3508,7 @@
             "KAREN": "PIT",
             "JEN": "TB",
             "ANDI": "PIT",
+            "NICK": "PIT",
             "BETHANY": "PIT",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
@@ -3523,7 +3524,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -3541,6 +3541,7 @@
             "KAREN": "LAR",
             "JEN": "LAR",
             "ANDI": "LAR",
+            "NICK": "LAR",
             "BETHANY": "LAR",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
@@ -3556,7 +3557,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -3574,6 +3574,7 @@
             "KAREN": "KC",
             "JEN": "KC",
             "ANDI": "KC",
+            "NICK": "KC",
             "BETHANY": "KC",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
@@ -3589,7 +3590,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -3607,6 +3607,7 @@
             "KAREN": "LV",
             "JEN": "BUF",
             "ANDI": "BUF",
+            "NICK": "BUF",
             "BETHANY": "LV",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
@@ -3622,7 +3623,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -3640,6 +3640,7 @@
             "KAREN": "GB",
             "JEN": "GB",
             "ANDI": "GB",
+            "NICK": "GB",
             "BETHANY": "GB",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
@@ -3655,7 +3656,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -3673,6 +3673,7 @@
             "KAREN": "SF",
             "JEN": "SF",
             "ANDI": "SF",
+            "NICK": "SF",
             "BETHANY": "SF",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
@@ -3688,7 +3689,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -3780,8 +3780,8 @@
             "predictedTotal": "\u2014"
           },
           "NICK": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "SF",
+            "predictedTotal": 46
           },
           "RICK": {
             "winner": "\u2014",
