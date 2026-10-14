@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Tuesday @ 10:10pm",
+    "lastUpdated": "Tuesday @ 11:10pm",
     "currentWeek": "Week 6"
   },
   "hall_of_fame": [
@@ -3243,8 +3243,8 @@
           "picks": {
             "KAREN": "DEN",
             "JEN": "SEA",
+            "ANDI": "SEA",
             "BETHANY": "DEN",
-            "ANDI": "\u2014",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
             "DAN": "\u2014",
@@ -3276,8 +3276,8 @@
           "picks": {
             "KAREN": "JAX",
             "JEN": "JAX",
+            "ANDI": "JAX",
             "BETHANY": "JAX",
-            "ANDI": "\u2014",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
             "DAN": "\u2014",
@@ -3309,8 +3309,8 @@
           "picks": {
             "KAREN": "ATL",
             "JEN": "CHI",
+            "ANDI": "ATL",
             "BETHANY": "ATL",
-            "ANDI": "\u2014",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
             "DAN": "\u2014",
@@ -3342,8 +3342,8 @@
           "picks": {
             "KAREN": "CLE",
             "JEN": "BAL",
+            "ANDI": "CLE",
             "BETHANY": "BAL",
-            "ANDI": "\u2014",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
             "DAN": "\u2014",
@@ -3375,8 +3375,8 @@
           "picks": {
             "KAREN": "IND",
             "JEN": "IND",
+            "ANDI": "IND",
             "BETHANY": "IND",
-            "ANDI": "\u2014",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
             "DAN": "\u2014",
@@ -3408,8 +3408,8 @@
           "picks": {
             "KAREN": "NE",
             "JEN": "NE",
+            "ANDI": "NE",
             "BETHANY": "NE",
-            "ANDI": "\u2014",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
             "DAN": "\u2014",
@@ -3441,8 +3441,8 @@
           "picks": {
             "KAREN": "NYG",
             "JEN": "NO",
+            "ANDI": "NYG",
             "BETHANY": "NYG",
-            "ANDI": "\u2014",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
             "DAN": "\u2014",
@@ -3474,8 +3474,8 @@
           "picks": {
             "KAREN": "PHI",
             "JEN": "CAR",
+            "ANDI": "PHI",
             "BETHANY": "CAR",
-            "ANDI": "\u2014",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
             "DAN": "\u2014",
@@ -3507,8 +3507,8 @@
           "picks": {
             "KAREN": "PIT",
             "JEN": "TB",
+            "ANDI": "PIT",
             "BETHANY": "PIT",
-            "ANDI": "\u2014",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
             "DAN": "\u2014",
@@ -3540,8 +3540,8 @@
           "picks": {
             "KAREN": "LAR",
             "JEN": "LAR",
+            "ANDI": "LAR",
             "BETHANY": "LAR",
-            "ANDI": "\u2014",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
             "DAN": "\u2014",
@@ -3573,8 +3573,8 @@
           "picks": {
             "KAREN": "KC",
             "JEN": "KC",
+            "ANDI": "KC",
             "BETHANY": "KC",
-            "ANDI": "\u2014",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
             "DAN": "\u2014",
@@ -3606,8 +3606,8 @@
           "picks": {
             "KAREN": "LV",
             "JEN": "BUF",
+            "ANDI": "BUF",
             "BETHANY": "LV",
-            "ANDI": "\u2014",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
             "DAN": "\u2014",
@@ -3639,8 +3639,8 @@
           "picks": {
             "KAREN": "GB",
             "JEN": "GB",
+            "ANDI": "GB",
             "BETHANY": "GB",
-            "ANDI": "\u2014",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
             "DAN": "\u2014",
@@ -3672,8 +3672,8 @@
           "picks": {
             "KAREN": "SF",
             "JEN": "SF",
+            "ANDI": "SF",
             "BETHANY": "SF",
-            "ANDI": "\u2014",
             "AUSTIN": "\u2014",
             "BRANDON": "\u2014",
             "DAN": "\u2014",
@@ -3708,8 +3708,8 @@
         "actualTotalScore": 0,
         "picks": {
           "ANDI": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "SF",
+            "predictedTotal": 47
           },
           "AUSTIN": {
             "winner": "\u2014",
