@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 1:35pm",
+    "lastUpdated": "Sunday @ 1:50pm",
     "currentWeek": "Week 6"
   },
   "hall_of_fame": [
@@ -3333,7 +3333,7 @@
           "game": "CHI @ ATL",
           "date": "2026-10-18T17:00Z",
           "winner": null,
-          "status": "Halftime",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "21",
           "homeScore": "7"
         },
@@ -3366,9 +3366,9 @@
           "game": "BAL @ CLE",
           "date": "2026-10-18T17:00Z",
           "winner": null,
-          "status": "Halftime",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "10",
-          "homeScore": "0"
+          "homeScore": "3"
         },
         {
           "id": "401873003",
@@ -3399,8 +3399,8 @@
           "game": "TEN @ IND",
           "date": "2026-10-18T17:00Z",
           "winner": null,
-          "status": "Halftime",
-          "awayScore": "0",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "awayScore": "3",
           "homeScore": "13"
         },
         {
@@ -3432,7 +3432,7 @@
           "game": "NYJ @ NE",
           "date": "2026-10-18T17:00Z",
           "winner": null,
-          "status": "Halftime",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "3",
           "homeScore": "17"
         },
@@ -3465,8 +3465,8 @@
           "game": "NO @ NYG",
           "date": "2026-10-18T17:00Z",
           "winner": null,
-          "status": "Halftime",
-          "awayScore": "10",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "awayScore": "16",
           "homeScore": "10"
         },
         {
@@ -3498,7 +3498,7 @@
           "game": "CAR @ PHI",
           "date": "2026-10-18T17:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "status": "Halftime",
           "awayScore": "10",
           "homeScore": "7"
         },
@@ -3531,7 +3531,7 @@
           "game": "PIT @ TB",
           "date": "2026-10-18T17:00Z",
           "winner": null,
-          "status": "Halftime",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "3",
           "homeScore": "13"
         },
