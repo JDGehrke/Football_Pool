@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Monday @ 9:55pm",
+    "lastUpdated": "Monday @ 10:55pm",
     "currentWeek": "Week 6"
   },
   "hall_of_fame": [
@@ -3695,16 +3695,16 @@
           },
           "game": "WSH @ SF",
           "date": "2026-10-20T00:15Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "winner": "SF",
+          "status": "Final",
           "awayScore": "17",
           "homeScore": "23"
         }
       ],
       "tiebreaker": {
         "game": "WSH @ SF",
-        "status": "\ud83d\udd34 Live \ud83d\udd34",
-        "winner": null,
+        "status": "Final",
+        "winner": "SF",
         "actualTotalScore": 40,
         "picks": {
           "ANDI": {
