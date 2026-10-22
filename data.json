@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Thursday @ 4:10pm",
+    "lastUpdated": "Thursday @ 5:10pm",
     "currentWeek": "Week 7"
   },
   "hall_of_fame": [
@@ -3813,6 +3813,7 @@
             "KAREN": "NE",
             "LYDIA": "CHI",
             "ELLY": "CHI",
+            "JIM": "NE",
             "EMILY": "CHI",
             "HENNIE": "NE",
             "KENNY": "NE",
@@ -3822,7 +3823,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HUNTER": "\u2014",
-            "JIM": "\u2014",
             "JORDAN": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
@@ -3846,6 +3846,7 @@
             "KAREN": "PIT",
             "LYDIA": "PIT",
             "ELLY": "PIT",
+            "JIM": "PIT",
             "EMILY": "PIT",
             "HENNIE": "PIT",
             "KENNY": "PIT",
@@ -3855,7 +3856,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HUNTER": "\u2014",
-            "JIM": "\u2014",
             "JORDAN": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
@@ -3879,6 +3879,7 @@
             "KAREN": "ATL",
             "LYDIA": "SF",
             "ELLY": "SF",
+            "JIM": "SF",
             "EMILY": "SF",
             "HENNIE": "SF",
             "KENNY": "SF",
@@ -3888,7 +3889,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HUNTER": "\u2014",
-            "JIM": "\u2014",
             "JORDAN": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
@@ -3912,6 +3912,7 @@
             "KAREN": "CLE",
             "LYDIA": "CLE",
             "ELLY": "CLE",
+            "JIM": "CLE",
             "EMILY": "CLE",
             "HENNIE": "CLE",
             "KENNY": "TEN",
@@ -3921,7 +3922,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HUNTER": "\u2014",
-            "JIM": "\u2014",
             "JORDAN": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
@@ -3945,6 +3945,7 @@
             "KAREN": "MIN",
             "LYDIA": "MIN",
             "ELLY": "MIN",
+            "JIM": "MIN",
             "EMILY": "MIN",
             "HENNIE": "MIN",
             "KENNY": "IND",
@@ -3954,7 +3955,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HUNTER": "\u2014",
-            "JIM": "\u2014",
             "JORDAN": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
@@ -3978,6 +3978,7 @@
             "KAREN": "NYJ",
             "LYDIA": "NYJ",
             "ELLY": "NYJ",
+            "JIM": "NYJ",
             "EMILY": "NYJ",
             "HENNIE": "NYJ",
             "KENNY": "NYJ",
@@ -3987,7 +3988,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HUNTER": "\u2014",
-            "JIM": "\u2014",
             "JORDAN": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
@@ -4011,6 +4011,7 @@
             "KAREN": "CAR",
             "LYDIA": "CAR",
             "ELLY": "CAR",
+            "JIM": "CAR",
             "EMILY": "CAR",
             "HENNIE": "CAR",
             "KENNY": "CAR",
@@ -4020,7 +4021,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HUNTER": "\u2014",
-            "JIM": "\u2014",
             "JORDAN": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
@@ -4044,6 +4044,7 @@
             "KAREN": "BAL",
             "LYDIA": "BAL",
             "ELLY": "BAL",
+            "JIM": "BAL",
             "EMILY": "BAL",
             "HENNIE": "BAL",
             "KENNY": "BAL",
@@ -4053,7 +4054,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HUNTER": "\u2014",
-            "JIM": "\u2014",
             "JORDAN": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
@@ -4077,6 +4077,7 @@
             "KAREN": "NYG",
             "LYDIA": "NYG",
             "ELLY": "NYG",
+            "JIM": "HOU",
             "EMILY": "NYG",
             "HENNIE": "HOU",
             "KENNY": "NYG",
@@ -4086,7 +4087,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HUNTER": "\u2014",
-            "JIM": "\u2014",
             "JORDAN": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
@@ -4110,6 +4110,7 @@
             "KAREN": "DEN",
             "LYDIA": "DEN",
             "ELLY": "DEN",
+            "JIM": "DEN",
             "EMILY": "DEN",
             "HENNIE": "DEN",
             "KENNY": "DEN",
@@ -4119,7 +4120,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HUNTER": "\u2014",
-            "JIM": "\u2014",
             "JORDAN": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
@@ -4143,6 +4143,7 @@
             "KAREN": "DET",
             "LYDIA": "GB",
             "ELLY": "GB",
+            "JIM": "GB",
             "EMILY": "GB",
             "HENNIE": "GB",
             "KENNY": "GB",
@@ -4152,7 +4153,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HUNTER": "\u2014",
-            "JIM": "\u2014",
             "JORDAN": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
@@ -4176,6 +4176,7 @@
             "KAREN": "LV",
             "LYDIA": "LV",
             "ELLY": "LV",
+            "JIM": "LAR",
             "EMILY": "LV",
             "HENNIE": "LV",
             "KENNY": "LAR",
@@ -4185,7 +4186,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HUNTER": "\u2014",
-            "JIM": "\u2014",
             "JORDAN": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
@@ -4209,6 +4209,7 @@
             "KAREN": "KC",
             "LYDIA": "KC",
             "ELLY": "KC",
+            "JIM": "KC",
             "EMILY": "KC",
             "HENNIE": "SEA",
             "KENNY": "SEA",
@@ -4218,7 +4219,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HUNTER": "\u2014",
-            "JIM": "\u2014",
             "JORDAN": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
@@ -4242,6 +4242,7 @@
             "KAREN": "PHI",
             "LYDIA": "DAL",
             "ELLY": "PHI",
+            "JIM": "PHI",
             "EMILY": "PHI",
             "HENNIE": "DAL",
             "KENNY": "PHI",
@@ -4251,7 +4252,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HUNTER": "\u2014",
-            "JIM": "\u2014",
             "JORDAN": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014"
@@ -4315,8 +4315,8 @@
             "predictedTotal": 12
           },
           "JIM": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "PHI",
+            "predictedTotal": 41
           },
           "JORDAN": {
             "winner": "\u2014",
