@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 1:35pm",
+    "lastUpdated": "Sunday @ 1:50pm",
     "currentWeek": "Week 7"
   },
   "hall_of_fame": [
@@ -3898,7 +3898,7 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "14",
-          "homeScore": "12"
+          "homeScore": "19"
         },
         {
           "id": "401873013",
@@ -3929,7 +3929,7 @@
           "game": "CLE @ TEN",
           "date": "2026-10-25T17:00Z",
           "winner": null,
-          "status": "Halftime",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "17",
           "homeScore": "14"
         },
@@ -4028,7 +4028,7 @@
           "game": "TB @ CAR",
           "date": "2026-10-25T17:00Z",
           "winner": null,
-          "status": "Halftime",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "33",
           "homeScore": "6"
         },
@@ -4061,8 +4061,8 @@
           "game": "CIN @ BAL",
           "date": "2026-10-25T17:00Z",
           "winner": null,
-          "status": "Halftime",
-          "awayScore": "0",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "awayScore": "7",
           "homeScore": "13"
         },
         {
@@ -4094,7 +4094,7 @@
           "game": "NYG @ HOU",
           "date": "2026-10-25T17:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "status": "Halftime",
           "awayScore": "14",
           "homeScore": "14"
         },
