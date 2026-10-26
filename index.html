@@ -1343,14 +1343,7 @@
     async function initDashboard() {
       try {
         const rawUrl = `https://raw.githubusercontent.com/JDGehrke/Football_Pool/main/data.json?t=${Date.now()}`;
-
-const res = await fetch(rawUrl, {
-  cache: 'no-store', // Tells browser not to store or use cache
-  headers: {
-    'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache'
-  }
-});
+        const res = await fetch(rawUrl);
 
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
