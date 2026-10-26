@@ -2391,6 +2391,7 @@
       return false;
     }
 
+
 function openPathToCrownModal() {
   const modal = document.getElementById('path-to-crown-modal');
   const body = document.getElementById('modal-crown-body');
@@ -2431,7 +2432,7 @@ function openPathToCrownModal() {
     return;
   }
 
-  // 1. Compute current base wins & tiebreaker predictions for all players
+  // 1. Compute current base wins & tiebreaker predictions
   const currentWins = {};
   const tiebreakerPicks = weekData.tiebreaker?.picks || {};
   
@@ -2439,56 +2440,28 @@ function openPathToCrownModal() {
     currentWins[p] = computedStats[p]?.weeklyHistory[week]?.correct || 0;
   });
 
-  // 2. Identify mathematically alive contenders across ALL remaining games
   const maxPossibleWins = {};
   (poolData.players || []).forEach(p => {
     maxPossibleWins[p] = (currentWins[p] || 0) + remainingGames.length;
   });
 
-  const highestPossibleWins = Math.max(...Object.values(maxPossibleWins));
-
-  // A player is alive if their max possible record can tie or beat the leader's current record
   const aliveContenders = (poolData.players || []).filter(p => maxPossibleWins[p] >= Math.max(...Object.values(currentWins)));
 
-  // 3. Separate Relevant vs. Irrelevant Games based on Alive Contenders' picks
-  const relevantGames = [];
-  const irrelevantGames = [];
-
-  remainingGames.forEach((m, idx) => {
+  // Extract Game Teams
+  const gamesToSimulate = remainingGames.map((m, idx) => {
     const teamsInGame = (m.game || '')
       .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
       .map(t => t.trim().toUpperCase())
       .filter(t => t.length >= 2);
-
-    const awayTeam = teamsInGame[0] || 'AWAY';
-    const homeTeam = teamsInGame[1] || 'HOME';
-
-    // Collect picks among ALIVE contenders
-    const contenderPicks = aliveContenders.map(p => (m.picks?.[p] || '').trim().toUpperCase()).filter(Boolean);
-    const uniquePicks = [...new Set(contenderPicks)];
-
-    const gameObject = {
+    return {
       id: idx,
-      away: awayTeam,
-      home: homeTeam,
-      picks: m.picks || {},
-      unanimousTeam: uniquePicks.length === 1 ? uniquePicks[0] : null
+      away: teamsInGame[0] || 'AWAY',
+      home: teamsInGame[1] || 'HOME',
+      picks: m.picks || {}
     };
-
-    if (uniquePicks.length === 1 && contenderPicks.length === aliveContenders.length) {
-      irrelevantGames.push(gameObject);
-    } else {
-      relevantGames.push(gameObject);
-    }
   });
 
-  // If ALL games are unanimous, fallback to using all games so matrix can still render
-  const gamesToSimulate = relevantGames.length > 0 ? relevantGames : remainingGames.map((m, idx) => {
-    const teamsInGame = (m.game || '').split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i).map(t => t.trim().toUpperCase()).filter(t => t.length >= 2);
-    return { id: idx, away: teamsInGame[0] || 'AWAY', home: teamsInGame[1] || 'HOME', picks: m.picks || {} };
-  });
-
-  // 4. Generate 2^N Permutations for Relevant Games Only
+  // 2. Generate 2^N Permutations
   const numGames = gamesToSimulate.length;
   const totalPermutations = Math.pow(2, numGames);
   const permutationMatrix = [];
@@ -2504,7 +2477,6 @@ function openPathToCrownModal() {
       simulatedWinners.push(winner);
     });
 
-    // Calculate projected wins per player under this permutation
     const pScores = {};
     (poolData.players || []).forEach(p => {
       let extra = 0;
@@ -2526,7 +2498,7 @@ function openPathToCrownModal() {
     });
   }
 
-  // Helper to compute tiebreaker ranges for a tied group of contenders
+  // Helper to compute tiebreaker ranges
   function computeGroupRanges(contenderList) {
     const validPlayers = contenderList
       .filter(p => typeof tiebreakerPicks[p]?.predictedTotal === 'number')
@@ -2564,38 +2536,35 @@ function openPathToCrownModal() {
         sortVal = -Infinity;
       }
 
-      ranges[curr.player] = {
-        text: text,
-        low: lowBound,
-        high: highBound,
-        sortVal: sortVal
-      };
+      ranges[curr.player] = { text, low: lowBound, high: highBound, sortVal };
     }
     return ranges;
   }
 
-  // Process Scenarios & Group Ranges
-  const contenderScenarios = {};
-  (poolData.players || []).forEach(p => contenderScenarios[p] = []);
+  // 3. Process Raw Scenarios & Simplify Boolean Paths (Wildcard / Don't Care collapsing)
+  const rawScenariosByPlayer = {};
+  (poolData.players || []).forEach(p => rawScenariosByPlayer[p] = []);
 
   const matrixDisplayRows = [];
 
   permutationMatrix.forEach(perm => {
-    const winnersStr = perm.simulatedWinners.join(' & ');
-
     if (perm.topContenders.length === 1) {
       const soleWinner = perm.topContenders[0];
-      contenderScenarios[soleWinner].push({
-        winners: winnersStr,
-        conditionText: `Clinches outright if <strong>${winnersStr}</strong> win.`
+      rawScenariosByPlayer[soleWinner].push({
+        winnersArray: perm.simulatedWinners,
+        isOutright: true,
+        scoreRange: "Any Score",
+        sortVal: -Infinity,
+        conditionText: `Clinches outright if <strong>${perm.simulatedWinners.join(' & ')}</strong> win.`
       });
 
       matrixDisplayRows.push({
-        gameWinnersKey: winnersStr,
         winnersMap: perm.winnersMap,
+        simulatedWinners: perm.simulatedWinners,
         scoreRange: "Any Score",
         sortVal: -Infinity,
-        winnerStr: soleWinner
+        winnerStr: soleWinner,
+        isOutright: true
       });
     } else {
       const ranges = computeGroupRanges(perm.topContenders);
@@ -2603,40 +2572,133 @@ function openPathToCrownModal() {
         const rInfo = ranges[p];
         const rangeText = rInfo ? rInfo.text : "Tiebreaker";
         const sortVal = rInfo ? rInfo.sortVal : -Infinity;
-        
-        contenderScenarios[p].push({
-          winners: winnersStr,
-          conditionText: `Clinches via tiebreaker if <strong>${winnersStr}</strong> win AND Total Score is <strong>${rangeText}</strong>.`
+
+        rawScenariosByPlayer[p].push({
+          winnersArray: perm.simulatedWinners,
+          isOutright: false,
+          scoreRange: rangeText,
+          sortVal: sortVal,
+          conditionText: `Clinches via tiebreaker if <strong>${perm.simulatedWinners.join(' & ')}</strong> win AND Total Score is <strong>${rangeText}</strong>.`
         });
 
         matrixDisplayRows.push({
-          gameWinnersKey: winnersStr,
           winnersMap: perm.winnersMap,
+          simulatedWinners: perm.simulatedWinners,
           scoreRange: rangeText,
           sortVal: sortVal,
-          winnerStr: p
+          winnerStr: p,
+          isOutright: false
         });
       });
     }
   });
 
-  // SORT MATRIX ROWS: 1. By Game Winner Key, 2. By Score Threshold (sortVal) Ascending
-  matrixDisplayRows.sort((a, b) => {
-    if (a.gameWinnersKey !== b.gameWinnersKey) {
-      return a.gameWinnersKey.localeCompare(b.gameWinnersKey);
-    }
-    return a.sortVal - b.sortVal;
+  // Helper to Simplify Subsets (e.g. if LAR+KC+DAL and LV+KC+DAL both lead to Tony with Any Score, combine to * + KC + DAL)
+  function simplifyScenarios(scenarios) {
+    // Group by outcome type (outright vs tiebreaker) and score range
+    const grouped = {};
+    scenarios.forEach(s => {
+      const key = `${s.isOutright}_${s.scoreRange}`;
+      if (!grouped[key]) grouped[key] = [];
+      grouped[key].push(s.winnersArray);
+    });
+
+    const simplified = [];
+    Object.keys(grouped).forEach(key => {
+      const [isOutrightStr, scoreRange] = key.split('_');
+      const isOutright = isOutrightStr === 'true';
+      const arrs = grouped[key];
+
+      // Try pairing arrays to find wildcard columns
+      let combined = arrs.map(a => [...a]);
+      
+      // Basic boolean reduction for single varying positions
+      for (let gIdx = 0; gIdx < gamesToSimulate.length; gIdx++) {
+        const awayTeam = gamesToSimulate[gIdx].away;
+        const homeTeam = gamesToSimulate[gIdx].home;
+
+        // Check if we can find pairs that differ only at gIdx
+        const matchPairs = {};
+        combined.forEach(arr => {
+          const copy = [...arr];
+          const val = copy[gIdx];
+          copy[gIdx] = 'WILD';
+          const signature = copy.join(',');
+          if (!matchPairs[signature]) matchPairs[signature] = new Set();
+          matchPairs[signature].add(val);
+        });
+
+        Object.keys(matchPairs).forEach(sig => {
+          if (matchPairs[sig].size === 2) { // Both Away and Home give same result!
+            const sigArr = sig.split(',');
+            // replace WILD with * or omit
+            combined = combined.filter(arr => {
+              const cCopy = [...arr];
+              cCopy[gIdx] = 'WILD';
+              return cCopy.join(',') !== sig;
+            });
+            const wildcardRep = sigArr.map(x => x === 'WILD' ? `${awayTeam}/${homeTeam}` : x);
+            if (!combined.some(c => c.join(',') === wildcardRep.join(','))) {
+              combined.push(wildcardRep);
+            }
+          }
+        });
+      }
+
+      combined.forEach(winnersArr => {
+        const formattedWinStr = winnersArr.join(' & ');
+        if (isOutright) {
+          simplified.push({
+            isOutright: true,
+            sortTier: 1,
+            sortVal: -Infinity,
+            conditionText: `Clinches outright if <strong>${formattedWinStr}</strong> win.`
+          });
+        } else {
+          // find matching sortVal
+          const matchObj = scenarios.find(s => s.scoreRange === scoreRange);
+          const sVal = matchObj ? matchObj.sortVal : 0;
+          simplified.push({
+            isOutright: false,
+            sortTier: 2,
+            sortVal: sVal,
+            conditionText: `Clinches via tiebreaker if <strong>${formattedWinStr}</strong> win AND Total Score is <strong>${scoreRange}</strong>.`
+          });
+        }
+      });
+    });
+
+    // Sort simplified paths by difficulty: Outrights first (fewer game dependencies / wildcard count), then tiebreakers by score
+    return simplified.sort((a, b) => {
+      if (a.sortTier !== b.sortTier) return a.sortTier - b.sortTier;
+      // Secondary sort by number of wildcards / specifiers
+      const countWildcards = (str) => (str.match(/\//g) || []).length;
+      const wcA = countWildcards(a.conditionText);
+      const wcB = countWildcards(b.conditionText);
+      if (wcA !== wcB) return wcB - wcA; // Fewer strict requirements first
+      return a.sortVal - b.sortVal;
+    });
+  }
+
+  const contenderScenarios = {};
+  (poolData.players || []).forEach(p => {
+    contenderScenarios[p] = simplifyScenarios(rawScenariosByPlayer[p]);
   });
 
-  // SORT CONTENDERS USING WEEK RESULTS TABLE LOGIC
+  // SORT MATRIX ROWS: 1. Outrights first, then Tiebreakers by Score
+  matrixDisplayRows.sort((a, b) => {
+    if (a.isOutright !== b.isOutright) return a.isOutright ? -1 : 1;
+    if (a.sortVal !== b.sortVal) return a.sortVal - b.sortVal;
+    return a.winnerStr.localeCompare(b.winnerStr);
+  });
+
+  // SORT CONTENDERS FOR DISPLAY
   const activeContenders = (poolData.players || [])
     .filter(p => contenderScenarios[p].length > 0)
     .sort((a, b) => {
       const winsA = currentWins[a] || 0;
       const winsB = currentWins[b] || 0;
-
       if (winsB !== winsA) return winsB - winsA;
-
       const predA = tiebreakerPicks[a]?.predictedTotal ?? Infinity;
       const predB = tiebreakerPicks[b]?.predictedTotal ?? Infinity;
       return predA - predB;
@@ -2651,16 +2713,6 @@ function openPathToCrownModal() {
     </div>
   `;
 
-  // Render Irrelevant Games Notification Banner
-  if (irrelevantGames.length > 0) {
-    const irrText = irrelevantGames.map(g => `<strong>${g.away} @ ${g.home}</strong> (all contenders picked ${getTeamLogoHtml(g.unanimousTeam)})`).join(', ');
-    html += `
-      <div style="margin-bottom: 15px; padding: 10px 14px; background: #f1f5f9; border-left: 4px solid #94a3b8; border-radius: 6px; font-size: 0.825rem; color: #475569;">
-        ℹ️ <strong>Irrelevant Game${irrelevantGames.length > 1 ? 's' : ''}:</strong> ${irrText}. Outcome does not affect weekly crown standings.
-      </div>
-    `;
-  }
-
   if (activeContenders.length > 0) {
     html += `<h4 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--primary-color);">👑 Contenders & Clinch Paths</h4>`;
 
@@ -2668,7 +2720,6 @@ function openPathToCrownModal() {
       const pWinsNow = currentWins[p];
       const predVal = tiebreakerPicks[p]?.predictedTotal ?? 'N/A';
       const scenarios = contenderScenarios[p];
-
       const bulletsHtml = scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
 
       html += `
@@ -2690,9 +2741,13 @@ function openPathToCrownModal() {
     `;
   }
 
-  // OUTCOME MATRIX TABLE
+  // OUTCOME MATRIX TABLE (Logos Only & 3-Row Mobile Header)
   const matrixRowsHtml = matrixDisplayRows.map(row => {
-    const gameCols = gamesToSimulate.map(g => `<td class="text-center"><strong>${getTeamLogoHtml(row.winnersMap[g.id])}</strong></td>`).join('');
+    const gameCols = gamesToSimulate.map(g => {
+      const winningTeamName = row.winnersMap[g.id];
+      return `<td class="text-center"><strong>${getTeamLogoHtml(winningTeamName)}</strong></td>`;
+    }).join('');
+
     return `
       <tr>
         ${gameCols}
@@ -2702,15 +2757,25 @@ function openPathToCrownModal() {
     `;
   }).join('');
 
+  const tableHeadersHtml = gamesToSimulate.map(g => `
+    <th class="text-center">
+      <div class="matrix-header-stack">
+        <span>${getTeamLogoHtml(g.away)}</span>
+        <span class="matrix-at-symbol">@</span>
+        <span>${getTeamLogoHtml(g.home)}</span>
+      </div>
+    </th>
+  `).join('');
+
   html += `
     <h4 style="font-size: 0.95rem; margin: 20px 0 10px 0; color: var(--primary-color);">🔮 Outcome Matrix</h4>
     <div class="matrix-wrapper">
-      <table>
+      <table class="outcome-matrix-table">
         <thead>
           <tr>
-            ${gamesToSimulate.map(g => `<th class="text-center">${g.away} @${g.home}</th>`).join('')}
-            <th class="text-center">Tiebreaker</th>
-            <th class="text-center">Winner</th>
+            ${tableHeadersHtml}
+            <th class="text-center">Tiebreaker Total Score</th>
+            <th class="text-center">Crown Winner</th>
           </tr>
         </thead>
         <tbody>
