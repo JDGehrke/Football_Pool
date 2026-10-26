@@ -53,128 +53,116 @@
     th { background-color: #f1f5f9; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
     tr:last-child td { border-bottom: none; }
 
+    /* --- MATCHUP MATRIX STICKY & COMPACT LAYOUT --- */
+    .matrix-wrapper {
+      max-height: 70vh;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+    }
 
-/* --- MATCHUP MATRIX STICKY & COMPACT LAYOUT --- */
-.matrix-wrapper {
-  max-height: 70vh;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  position: relative;
-}
+    #matrix-table thead th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background-color: #f1f5f9 !important;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      padding: 6px 8px;
+      font-size: 0.75rem;
+    }
 
-/* 1. FREEZE ALL HEADER CELLS VERTICALLY */
-#matrix-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 10; /* Keeps headers above scrolling table body */
-  background-color: #f1f5f9 !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  padding: 6px 8px;
-  font-size: 0.75rem;
-}
+    #matrix-table th:nth-child(1),
+    #matrix-table td:nth-child(1) {
+      position: sticky;
+      left: 0;
+      z-index: 5;
+      background-color: var(--card-bg);
+      min-width: 100px;
+      max-width: 110px;
+      padding: 6px 6px;
+    }
 
-/* 2. FREEZE COLUMNS 1 & 2 HORIZONTALLY */
+    #matrix-table th:nth-child(2),
+    #matrix-table td:nth-child(2) {
+      position: sticky;
+      left: 100px;
+      z-index: 5;
+      background-color: var(--card-bg);
+      min-width: 80px;
+      max-width: 85px;
+      white-space: nowrap;
+      border-right: 2px solid var(--border-color);
+      padding: 6px 6px;
+    }
 
-/* Column 1: Game */
-#matrix-table th:nth-child(1),
-#matrix-table td:nth-child(1) {
-  position: sticky;
-  left: 0;
-  z-index: 5;
-  background-color: var(--card-bg);
-  min-width: 100px;
-  max-width: 110px;
-  padding: 6px 6px;
-}
+    #matrix-table thead th:nth-child(1),
+    #matrix-table thead th:nth-child(2) {
+      z-index: 25;
+      background-color: #f1f5f9 !important;
+    }
 
-/* Column 2: Status */
-#matrix-table th:nth-child(2),
-#matrix-table td:nth-child(2) {
-  position: sticky;
-  left: 100px; /* Width offset of Column 1 */
-  z-index: 5;
-  background-color: var(--card-bg);
-  min-width: 80px;
-  max-width: 85px;
-  white-space: nowrap;
-  border-right: 2px solid var(--border-color); /* Divider line */
-  padding: 6px 6px;
-}
+    #matrix-table th:nth-child(n+3),
+    #matrix-table td:nth-child(n+3) {
+      min-width: 65px;
+      padding: 6px 4px;
+      font-size: 0.8rem;
+    }
 
-/* 3. CORNER HEADERS (GAMES & STATUS) NEED HIGHEST Z-INDEX */
-#matrix-table thead th:nth-child(1),
-#matrix-table thead th:nth-child(2) {
-  z-index: 25; /* Stays above both vertical and horizontal scrolling */
-  background-color: #f1f5f9 !important;
-}
+    #matrix-table tbody td {
+      position: relative;
+      z-index: 1;
+    }
 
-/* 4. SCROLLABLE COLUMNS (POOL PICKS & PLAYERS) */
-#matrix-table th:nth-child(n+3),
-#matrix-table td:nth-child(n+3) {
-  min-width: 65px;
-  padding: 6px 4px;
-  font-size: 0.8rem;
-}
+    #matrix-table td:nth-child(1).pick-correct,
+    #matrix-table td:nth-child(2).pick-correct { background-color: #dcfce7 !important; }
 
-/* Ensure body cells stay behind fixed headers */
-#matrix-table tbody td {
-  position: relative;
-  z-index: 1;
-}
+    #matrix-table td:nth-child(1).pick-incorrect,
+    #matrix-table td:nth-child(2).pick-incorrect { background-color: #fee2e2 !important; }
 
-/* Sticky Cell Background Overrides for State Classes */
-#matrix-table td:nth-child(1).pick-correct,
-#matrix-table td:nth-child(2).pick-correct { background-color: #dcfce7 !important; }
+    #matrix-table td:nth-child(1).pick-tie,
+    #matrix-table td:nth-child(2).pick-tie { background-color: #fef08a !important; }
 
-#matrix-table td:nth-child(1).pick-incorrect,
-#matrix-table td:nth-child(2).pick-incorrect { background-color: #fee2e2 !important; }
+    #matrix-table td:nth-child(1).pick-pending,
+    #matrix-table td:nth-child(2).pick-pending { background-color: #ffffff !important; }
 
-#matrix-table td:nth-child(1).pick-tie,
-#matrix-table td:nth-child(2).pick-tie { background-color: #fef08a !important; }
+    .pick-counts-cell {
+      white-space: nowrap;
+      min-width: 65px !important;
+    }
+    .count-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      font-weight: 600;
+      font-size: 0.725rem;
+      line-height: 1.1;
+    }
 
-#matrix-table td:nth-child(1).pick-pending,
-#matrix-table td:nth-child(2).pick-pending { background-color: #ffffff !important; }
+    @media (max-width: 600px) {
+      #matrix-table th:nth-child(1),
+      #matrix-table td:nth-child(1) {
+        min-width: 85px;
+        max-width: 90px;
+        font-size: 0.75rem;
+      }
 
-/* --- COMPACT PICK COUNTS CELL (COL 3) --- */
-.pick-counts-cell {
-  white-space: nowrap;
-  min-width: 65px !important;
-}
-.count-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  font-weight: 600;
-  font-size: 0.725rem;
-  line-height: 1.1;
-}
+      #matrix-table th:nth-child(2),
+      #matrix-table td:nth-child(2) {
+        left: 85px;
+        min-width: 70px;
+        max-width: 85px;
+        font-size: 0.7rem;
+      }
 
-/* --- MOBILE TWEAKS --- */
-@media (max-width: 600px) {
-  #matrix-table th:nth-child(1),
-  #matrix-table td:nth-child(1) {
-    min-width: 85px;
-    max-width: 90px;
-    font-size: 0.75rem;
-  }
+      #matrix-table th:nth-child(n+3),
+      #matrix-table td:nth-child(n+3) {
+        min-width: 45px;
+        padding: 4px 2px;
+      }
+    }
 
-  #matrix-table th:nth-child(2),
-  #matrix-table td:nth-child(2) {
-    left: 85px;
-    min-width: 70px;
-    max-width: 85px;
-    font-size: 0.7rem;
-  }
-
-  #matrix-table th:nth-child(n+3),
-  #matrix-table td:nth-child(n+3) {
-    min-width: 45px;
-    padding: 4px 2px;
-  }
-}
-
-    /* --- SVG GRAPH STYLES (FLUID HORIZONTAL LAYOUT) --- */
+    /* --- SVG GRAPH STYLES --- */
     .line-chart-wrapper {
       position: relative;
       width: 100%;
@@ -189,7 +177,6 @@
       overflow: visible;
     }
 
-    /* Gridlines & Baseline */
     .grid-line {
       stroke: #f1f5f9;
       stroke-width: 1;
@@ -215,7 +202,6 @@
       fill: #64748b;
     }
 
-    /* Horizontal Bar & Line Path */
     .chart-bar-bg {
       fill: #f1f5f9;
       rx: 4px;
@@ -227,7 +213,6 @@
       transition: width 0.3s ease;
     }
 
-    /* Pulsing Leader Ring (#1 Gold) */
     .leader-pulse {
       fill: var(--gold);
       opacity: 0.4;
@@ -240,7 +225,6 @@
       100% { r: 18px; opacity: 0; }
     }
 
-    /* Node Points */
     .chart-point {
       cursor: pointer;
       transition: all 0.2s ease;
@@ -251,7 +235,6 @@
       filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.25));
     }
 
-    /* Typography */
     .chart-value-text {
       font-size: 11px;
       font-weight: 800;
@@ -272,7 +255,6 @@
       fill: var(--secondary-color);
     }
 
-    /* Extended Tooltip Card Layout */
     .chart-tooltip,
     .crown-tooltip {
       position: absolute;
@@ -346,19 +328,16 @@
       color: #ffffff;
     }
 
-    /* Ensure utility text classes override tooltip parent styles */
     .chart-tooltip .text-success,
     .crown-tooltip .text-success { color: var(--success) !important; font-weight: bold; }
     .chart-tooltip .text-danger,
     .crown-tooltip .text-danger { color: var(--danger) !important; font-weight: bold; }
 
-    /* --- WEEK TRACKER NO-WRAP FOR PICKS COLUMN --- */
     #week-tracker-table th:nth-child(2),
     #week-tracker-table td:nth-child(2) {
       white-space: nowrap;
     }
 
-    /* --- TEAM ACCURACY TABLE COMPACT LAYOUT & NO-WRAP --- */
     #team-accuracy-table {
       table-layout: fixed;
       width: 100%;
@@ -375,10 +354,8 @@
       text-align: left;
     }
 
-    /* TABLE ALIGNMENT UTILITIES */
     .text-center { text-align: center !important; }
 
-    /* --- TEAM LOGOS --- */
     .team-logo-icon {
       width: 20px;
       height: 20px;
@@ -387,61 +364,56 @@
       object-fit: contain;
     }
 
-/* --- OUTCOME MATRIX 3-ROW HEADER STACK --- */
-.matrix-header-stack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  line-height: 1.2;
-  gap: 2px;
-}
-.matrix-at-symbol {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  font-weight: 600;
-}
-.outcome-matrix-table img {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
-}
+    /* --- OUTCOME MATRIX 3-ROW HEADER STACK --- */
+    .matrix-header-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.2;
+      gap: 2px;
+    }
+    .matrix-at-symbol {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .outcome-matrix-table img {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
 
-/* Sortable Outcome Matrix Headers */
-.outcome-matrix-table th.sortable-header {
-  cursor: pointer;
-  user-select: none;
-  transition: background-color 0.15s ease;
-}
+    .outcome-matrix-table th.sortable-header {
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.15s ease;
+    }
 
-.outcome-matrix-table th.sortable-header:hover {
-  background-color: #e2e8f0 !important;
-}
+    .outcome-matrix-table th.sortable-header:hover {
+      background-color: #e2e8f0 !important;
+    }
 
-.sort-indicator {
-  font-size: 0.65rem;
-  color: var(--primary-color);
-  margin-left: 2px;
-}
+    .sort-indicator {
+      font-size: 0.65rem;
+      color: var(--primary-color);
+      margin-left: 2px;
+    }
 
-/* Contender Card Active Highlight */
-.ptc-contender-card.active-highlight {
-  border-left-color: #f59e0b !important;
-  background-color: #fef3c7 !important;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
-}
+    .ptc-contender-card.active-highlight {
+      border-left-color: #f59e0b !important;
+      background-color: #fef3c7 !important;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+    }
 
-/* Outcome Matrix Row Highlight */
-.outcome-matrix-table tbody tr.highlighted-row {
-  background-color: #fef08a !important; /* Soft gold highlight */
-  font-weight: bold;
-}
-.outcome-matrix-table tbody tr.highlighted-row td {
-  background-color: #fef08a !important;
-}
+    .outcome-matrix-table tbody tr.highlighted-row {
+      background-color: #fef08a !important;
+      font-weight: bold;
+    }
+    .outcome-matrix-table tbody tr.highlighted-row td {
+      background-color: #fef08a !important;
+    }
 
-
-    /* CLICKABLE TEAM ROW STYLING */
     .clickable-team-cell {
       cursor: pointer;
       transition: background-color 0.15s ease;
@@ -455,7 +427,6 @@
       text-decoration: underline;
     }
 
-    /* --- CONSOLIDATED METRIC STYLES --- */
     .metric-primary {
       font-weight: bold;
       font-size: 0.9rem;
@@ -469,7 +440,6 @@
       margin-top: 2px;
     }
 
-    /* COLUMN HEADER SUBTITLE STYLES */
     .th-subtitle {
       display: block;
       font-size: 0.7rem;
@@ -480,11 +450,9 @@
       letter-spacing: normal;
     }
 
-    /* CONDITIONAL HIGHLIGHTING */
     .stat-outperform { background-color: #dcfce7 !important; color: #166534; }
     .stat-outperform .metric-secondary { color: #15803d; }
 
-    /* --- STANDINGS GRID & TOGGLE STYLES --- */
     .standings-toggle-bar {
       display: flex;
       justify-content: center;
@@ -550,7 +518,6 @@
       .divisions-grid { grid-template-columns: 1fr; }
     }
 
-    /* PLAYOFF PICTURE STYLES */
     .playoff-block {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -590,7 +557,6 @@
       font-size: 0.85rem;
     }
 
-    /* Vertical Banner Headers */
     .vertical-banner-row td {
       padding: 0 !important;
       position: relative;
@@ -674,25 +640,21 @@
       font-size: 0.9rem;
     }
 
-    /* --- KPI CARDS (2-WIDE or 4-WIDE LAYOUT) --- */
+    /* --- KPI CARDS (RESPONSIVE: 4-WIDE DESKTOP, 2x2 MOBILE) --- */
     .kpi-grid { 
       display: grid; 
       grid-template-columns: repeat(4, 1fr); 
       gap: 15px; 
       margin-bottom: 25px; 
     }
-    @media (max-width: 900px) {
+    @media (max-width: 768px) {
       .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 480px) {
-      .kpi-grid { grid-template-columns: 1fr; }
     }
 
     .kpi-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
     .kpi-card .kpi-val { font-size: 1.65rem; font-weight: bold; color: var(--primary-color); }
     .kpi-card .kpi-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
 
-    /* --- UTILITIES & BADGES --- */
     .text-success { color: var(--success); font-weight: bold; }
     .text-danger { color: var(--danger); font-weight: bold; }
     
@@ -760,19 +722,14 @@
 
     .badge-status { background: #f1f5f9; color: var(--text-muted); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; display: inline-block; }
 
-    /* GAME CELL & TIME SUBTITLE */
     .game-title { font-weight: bold; display: block; }
     .game-time { font-size: 0.7rem; color: var(--text-muted); font-weight: normal; display: block; margin-top: 3px; white-space: nowrap; }
 
-    /* WRAPPING BEHAVIOR FOR MATRIX GAMES ON MOBILE */
     .g-desk { display: inline-block; white-space: nowrap; }
     .g-mob  { display: none; }
 
     @media (max-width: 600px) {
-      .g-desk { 
-        display: none !important; 
-      }
-      
+      .g-desk { display: none !important; }
       .g-mob { 
         display: flex !important; 
         flex-direction: column !important; 
@@ -780,19 +737,16 @@
         line-height: 1.1 !important;
         font-size: 0.7rem !important;
       }
-      
       .g-mob span { 
         display: block !important; 
         width: 100% !important; 
         text-align: center !important; 
       }
-      
       .g-mob .g-sep { 
         color: #94a3b8; 
         font-size: 0.6rem !important; 
         margin: 1px 0 !important; 
       }
-      
       #matrix-table td:first-child,
       #matrix-table th:first-child {
         white-space: normal !important;
@@ -801,13 +755,11 @@
       }
     }
 
-    /* --- CROWN STYLING --- */
     .crown-tentative { opacity: 0.35; filter: grayscale(100%); margin-right: 6px; cursor: help; }
     .crown-solid { margin-right: 6px; }
 
     select { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.875rem; outline: none; }
 
-    /* --- MULTI-SELECT DROPDOWN STYLES --- */
     .dropdown-check-list {
       display: inline-block;
       position: relative;
@@ -832,7 +784,6 @@
       padding: 3px;
       margin-left: 10px;
       transform: rotate(45deg);
-      -webkit-transform: rotate(45deg);
       vertical-align: middle;
     }
     .dropdown-check-list ul.items {
@@ -872,16 +823,23 @@
     .pick-tie { background-color: #fef08a !important; color: #854d0e; font-weight: bold; }
     .pick-pending { background-color: #ffffff; color: var(--text-main); }
 
-    /* LINE & SCATTER CHART STYLES */
+    /* LINE & SCATTER CHART STYLES (RESPONSIVE X-AXIS LABELS) */
     .scatter-chart-wrapper { width: 100%; height: 220px; position: relative; padding: 10px 0; }
     .scatter-svg { width: 100%; height: 100%; overflow: visible; }
     .scatter-line { stroke: var(--secondary-color); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
     .scatter-point { fill: #ffffff; stroke: var(--secondary-color); stroke-width: 3; r: 6; transition: all 0.2s ease; cursor: pointer; }
     .scatter-point:hover { r: 8; fill: var(--secondary-color); }
     .scatter-text-val { font-size: 11px; font-weight: bold; fill: var(--primary-color); text-anchor: middle; }
-    .scatter-text-label { font-size: 11px; font-weight: 600; fill: var(--text-muted); text-anchor: middle; }
+    .scatter-text-label { font-size: 10px; font-weight: 600; fill: var(--text-muted); text-anchor: middle; }
+    
+    @media (max-width: 600px) {
+      .scatter-text-label {
+        font-size: 8.5px;
+        transform: rotate(-30deg);
+        transform-origin: center;
+      }
+    }
 
-    /* --- MODAL DIALOG STYLES --- */
     .modal-backdrop {
       display: none;
       position: fixed;
@@ -923,7 +881,6 @@
     .modal-close-btn:hover { color: var(--text-main); }
     .modal-body { padding: 20px; overflow-y: auto; }
 
-    /* PATH TO CROWN MODAL SPECIFIC STYLES */
     .ptc-contender-card {
       background: #f8fafc;
       border: 1px solid var(--border-color);
@@ -949,7 +906,6 @@
       line-height: 1.4;
     }
 
-    /* --- HALL OF FAME STYLES --- */
     .hof-card-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -1021,7 +977,6 @@
       margin-top: 2px;
     }
 
-    /* HISTORICAL CHAMPIONS TABLE CENTER ALIGNMENT */
     #hof-table th,
     #hof-table td {
       text-align: center !important;
@@ -1048,7 +1003,6 @@
 
   <!-- ================= OVERALL TAB ================= -->
   <div id="tab-overall" class="tab-content active">
-    <!-- OVERALL LEADERBOARD (HORIZONTAL RESPONSIVE VISUAL) -->
     <div class="card">
       <h3>Overall Leaderboard</h3>
       <div class="line-chart-wrapper">
@@ -1064,7 +1018,6 @@
       </div>
     </div>
 
-    <!-- FULL SEASON LEADERBOARD (HIDDEN FROM VIEW, CODE PRESERVED) -->
     <div class="card" id="full-season-leaderboard-card" style="display: none;">
       <h3>Full Season Leaderboard</h3>
       <div class="matrix-wrapper">
@@ -1109,13 +1062,11 @@
         <select id="week-select" onchange="renderWeeklyTab()"></select>
       </div>
 
-      <!-- DYNAMIC PATH TO CROWN ACTION BUTTON -->
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
         <span>🔮</span> Path to Crown <span>🔮</span>
       </button>
     </div>
 
-    <!-- PRE-WEEK SUBMISSION TRACKER -->
     <div id="pre-week-container" class="card" style="display: none;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
         <h3 style="margin-bottom: 0;">Pre-Week Pick Submissions</h3>
@@ -1137,9 +1088,7 @@
       </div>
     </div>
 
-    <!-- ACTIVE / POST-WEEK VISUALS -->
     <div id="active-week-container">
-      <!-- WEEK RESULTS -->
       <div class="card">
         <h3>Week Results</h3>
         <div class="matrix-wrapper">
@@ -1157,7 +1106,6 @@
         </div>
       </div>
 
-      <!-- MATCHUP MATRIX -->
       <div class="card">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
           <h3 style="margin-bottom: 0;">Matchup Matrix</h3>
@@ -1228,7 +1176,6 @@
       </div>
     </div>
 
-    <!-- DIVISIONAL VIEW -->
     <div id="standings-divisional-view">
       <h2 class="conference-title">American Football Conference</h2>
       <div class="divisions-grid" id="afc-divisions-grid"></div>
@@ -1237,7 +1184,6 @@
       <div class="divisions-grid" id="nfc-divisions-grid"></div>
     </div>
 
-    <!-- PLAYOFF PICTURE VIEW -->
     <div id="standings-playoffs-view" style="display: none;">
       <div id="afc-playoff-picture"></div>
       <div id="nfc-playoff-picture"></div>
@@ -1247,7 +1193,6 @@
   <!-- ================= HALL OF FAME TAB ================= -->
   <div id="tab-hof" class="tab-content">
     <div class="hof-card-grid">
-      <!-- REIGNING OVERALL CHAMP -->
       <div class="hof-champ-card overall-gold">
         <span class="hof-champ-title">Reigning Overall Champion</span>
         <div id="overall-champ-avatar-container">
@@ -1257,7 +1202,6 @@
         <div class="hof-champ-stat" id="overall-champ-stat">-- Record</div>
       </div>
 
-      <!-- REIGNING WEEKLY WINS CHAMP -->
       <div class="hof-champ-card weekly-silver">
         <span class="hof-champ-title">Reigning Weekly Wins Champion</span>
         <div id="weekly-champ-avatar-container">
@@ -1268,7 +1212,6 @@
       </div>
     </div>
 
-    <!-- HALL OF FAME HISTORY TABLE -->
     <div class="card">
       <h3>Historical Champions</h3>
       <div class="matrix-wrapper">
@@ -1293,9 +1236,7 @@
         <h3>🏆 Path to the Crown</h3>
         <button class="modal-close-btn" onclick="closeCrownModal()">&times;</button>
       </div>
-      <div class="modal-body" id="modal-crown-body">
-        <!-- Content dynamically built by JS -->
-      </div>
+      <div class="modal-body" id="modal-crown-body"></div>
     </div>
   </div>
 
@@ -1306,9 +1247,7 @@
         <h3 id="modal-team-title">Team Log</h3>
         <button class="modal-close-btn" onclick="closeTeamModal()">&times;</button>
       </div>
-      <div class="modal-body" id="modal-team-body">
-        <!-- Content inserted dynamically -->
-      </div>
+      <div class="modal-body" id="modal-team-body"></div>
     </div>
   </div>
 
@@ -1460,11 +1399,7 @@
 
     function toggleSelectAllMatrixPlayers(selectAllCheckbox) {
       const playerCheckboxes = document.querySelectorAll('.matrix-player-chk');
-      
-      playerCheckboxes.forEach(cb => {
-        cb.checked = selectAllCheckbox.checked;
-      });
-
+      playerCheckboxes.forEach(cb => cb.checked = selectAllCheckbox.checked);
       updateMatrixPlayerFilter();
     }
 
@@ -1618,7 +1553,7 @@
                 poolTeamStats[pick].picked++;
 
                 if (winnerClean === 'TIE') {
-                  // Do not increment stats for ties
+                  // Tie
                 } else if (pick === winnerClean) {
                   computedStats[p].correct++;
                   computedStats[p].weeklyHistory[weekKey].correct++;
@@ -2429,12 +2364,10 @@
       }).join('');
     }
 
-    /* --- PATH TO CROWN (SCENARIO MATRIX) ENGINE --- */
-
     function isSundayEveningOrLater(matchups) {
       const now = new Date();
-      const currentDay = now.getDay(); // 0 is Sunday
-      const currentHours = now.getHours(); // 24-hr format (19 = 7 PM)
+      const currentDay = now.getDay();
+      const currentHours = now.getHours();
 
       if (currentDay === 0 && currentHours >= 19) return true;
       if (currentDay === 1 || currentDay === 2) return true;
@@ -2445,470 +2378,457 @@
       return false;
     }
 
+    let currentMatrixSort = { colIndex: null, direction: 'asc' };
+    let activeHighlightedPlayer = null;
 
-let currentMatrixSort = { colIndex: null, direction: 'asc' };
-let activeHighlightedPlayer = null;
+    function sortOutcomeMatrix(colIndex) {
+      const table = document.querySelector('.outcome-matrix-table');
+      if (!table) return;
 
-// Sort Outcome Matrix by Column
-function sortOutcomeMatrix(colIndex) {
-  const table = document.querySelector('.outcome-matrix-table');
-  if (!table) return;
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
 
-  const tbody = table.querySelector('tbody');
-  const rows = Array.from(tbody.querySelectorAll('tr'));
-
-  if (currentMatrixSort.colIndex === colIndex) {
-    currentMatrixSort.direction = currentMatrixSort.direction === 'asc' ? 'desc' : 'asc';
-  } else {
-    currentMatrixSort.colIndex = colIndex;
-    currentMatrixSort.direction = 'asc';
-  }
-
-  const isAsc = currentMatrixSort.direction === 'asc';
-
-  rows.sort((rowA, rowB) => {
-    const cellA = rowA.children[colIndex];
-    const cellB = rowB.children[colIndex];
-
-    let valA = cellA.querySelector('img')?.alt || cellA.textContent.trim();
-    let valB = cellB.querySelector('img')?.alt || cellB.textContent.trim();
-
-    const numA = parseFloat(valA.replace(/[^0-9.-]+/g, ''));
-    const numB = parseFloat(valB.replace(/[^0-9.-]+/g, ''));
-
-    if (!isNaN(numA) && !isNaN(numB) && !valA.includes('<')) {
-      return isAsc ? numA - numB : numB - numA;
-    }
-
-    return isAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-  });
-
-  rows.forEach(row => tbody.appendChild(row));
-
-  const headers = table.querySelectorAll('thead th');
-  headers.forEach((th, idx) => {
-    th.classList.remove('sort-asc', 'sort-desc');
-    const indicator = th.querySelector('.sort-indicator');
-    if (indicator) indicator.textContent = '';
-
-    if (idx === colIndex) {
-      th.classList.add(isAsc ? 'sort-asc' : 'sort-desc');
-      if (indicator) indicator.textContent = isAsc ? ' ▲' : ' ▼';
-    }
-  });
-}
-
-// Highlight rows in Outcome Matrix when clicking a Contender
-function toggleContenderHighlight(playerName) {
-  const allCards = document.querySelectorAll('.ptc-contender-card');
-  const allRows = document.querySelectorAll('.outcome-matrix-table tbody tr');
-
-  if (activeHighlightedPlayer === playerName) {
-    // Toggle off
-    activeHighlightedPlayer = null;
-    allCards.forEach(c => c.classList.remove('active-highlight'));
-    allRows.forEach(r => r.classList.remove('highlighted-row'));
-  } else {
-    // Toggle on
-    activeHighlightedPlayer = playerName;
-    
-    allCards.forEach(c => {
-      if (c.getAttribute('data-player') === playerName) {
-        c.classList.add('active-highlight');
+      if (currentMatrixSort.colIndex === colIndex) {
+        currentMatrixSort.direction = currentMatrixSort.direction === 'asc' ? 'desc' : 'asc';
       } else {
-        c.classList.remove('active-highlight');
+        currentMatrixSort.colIndex = colIndex;
+        currentMatrixSort.direction = 'asc';
       }
-    });
 
-    allRows.forEach(r => {
-      if (r.getAttribute('data-winner') === playerName) {
-        r.classList.add('highlighted-row');
+      const isAsc = currentMatrixSort.direction === 'asc';
+
+      rows.sort((rowA, rowB) => {
+        const cellA = rowA.children[colIndex];
+        const cellB = rowB.children[colIndex];
+
+        let valA = cellA.querySelector('img')?.alt || cellA.textContent.trim();
+        let valB = cellB.querySelector('img')?.alt || cellB.textContent.trim();
+
+        const numA = parseFloat(valA.replace(/[^0-9.-]+/g, ''));
+        const numB = parseFloat(valB.replace(/[^0-9.-]+/g, ''));
+
+        if (!isNaN(numA) && !isNaN(numB) && !valA.includes('<')) {
+          return isAsc ? numA - numB : numB - numA;
+        }
+
+        return isAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+      });
+
+      rows.forEach(row => tbody.appendChild(row));
+
+      const headers = table.querySelectorAll('thead th');
+      headers.forEach((th, idx) => {
+        th.classList.remove('sort-asc', 'sort-desc');
+        const indicator = th.querySelector('.sort-indicator');
+        if (indicator) indicator.textContent = '';
+
+        if (idx === colIndex) {
+          th.classList.add(isAsc ? 'sort-asc' : 'sort-desc');
+          if (indicator) indicator.textContent = isAsc ? ' ▲' : ' ▼';
+        }
+      });
+    }
+
+    function toggleContenderHighlight(playerName) {
+      const allCards = document.querySelectorAll('.ptc-contender-card');
+      const allRows = document.querySelectorAll('.outcome-matrix-table tbody tr');
+
+      if (activeHighlightedPlayer === playerName) {
+        activeHighlightedPlayer = null;
+        allCards.forEach(c => c.classList.remove('active-highlight'));
+        allRows.forEach(r => r.classList.remove('highlighted-row'));
       } else {
-        r.classList.remove('highlighted-row');
-      }
-    });
-  }
-}
-
-
-function openPathToCrownModal() {
-  const modal = document.getElementById('path-to-crown-modal');
-  const body = document.getElementById('modal-crown-body');
-  
-  activeHighlightedPlayer = null; // Reset highlight state on open
-  currentMatrixSort = { colIndex: null, direction: 'asc' };
-
-  const week = document.getElementById('week-select').value;
-  const weekData = poolData.weeks[week];
-  if (!weekData) return;
-
-  const matchups = weekData.matchups || [];
-  const remainingGames = matchups.filter(m => !m.winner || (m.status !== 'Final' && m.status !== 'STATUS_FINAL'));
-
-  if (!isSundayEveningOrLater(matchups)) {
-    body.innerHTML = `
-      <div style="text-align: center; padding: 30px 10px;">
-        <div style="font-size: 2.5rem; margin-bottom: 15px;">🔒</div>
-        <h4 style="font-size: 1.1rem; color: var(--primary-color); margin-bottom: 8px;">Path to Crown is Locked</h4>
-        <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 400px; margin: 0 auto;">
-          Scenarios unlock on <strong>Sunday at 7:00 PM CST</strong> (or when 3 or fewer games remain in the week).
-        </p>
-      </div>
-    `;
-    modal.classList.add('active');
-    return;
-  }
-
-  if (remainingGames.length === 0) {
-    body.innerHTML = `
-      <div style="text-align: center; padding: 30px 10px;">
-        <div style="font-size: 2.5rem; margin-bottom: 15px;">🏁</div>
-        <h4 style="font-size: 1.1rem; color: var(--primary-color); margin-bottom: 8px;">Week Complete</h4>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">
-          All games for ${week} have concluded and final results are posted.
-        </p>
-      </div>
-    `;
-    modal.classList.add('active');
-    return;
-  }
-
-  // 1. Compute current base wins & tiebreaker predictions
-  const currentWins = {};
-  const tiebreakerPicks = weekData.tiebreaker?.picks || {};
-  
-  (poolData.players || []).forEach(p => {
-    currentWins[p] = computedStats[p]?.weeklyHistory[week]?.correct || 0;
-  });
-
-  const gamesToSimulate = remainingGames.map((m, idx) => {
-    const teamsInGame = (m.game || '')
-      .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
-      .map(t => t.trim().toUpperCase())
-      .filter(t => t.length >= 2);
-    return {
-      id: idx,
-      away: teamsInGame[0] || 'AWAY',
-      home: teamsInGame[1] || 'HOME',
-      picks: m.picks || {}
-    };
-  });
-
-  // 2. Generate Permutations
-  const numGames = gamesToSimulate.length;
-  const totalPermutations = Math.pow(2, numGames);
-  const permutationMatrix = [];
-
-  for (let i = 0; i < totalPermutations; i++) {
-    const outcomeObj = {};
-    const simulatedWinners = [];
-
-    gamesToSimulate.forEach((g, bitIdx) => {
-      const isHomeWin = (i & (1 << bitIdx)) !== 0;
-      const winner = isHomeWin ? g.home : g.away;
-      outcomeObj[g.id] = winner;
-      simulatedWinners.push(winner);
-    });
-
-    const pScores = {};
-    (poolData.players || []).forEach(p => {
-      let extra = 0;
-      gamesToSimulate.forEach(g => {
-        const playerPick = (g.picks[p] || '').trim().toUpperCase();
-        if (playerPick === outcomeObj[g.id]) extra++;
-      });
-      pScores[p] = currentWins[p] + extra;
-    });
-
-    const maxScore = Math.max(...Object.values(pScores));
-    const topContenders = (poolData.players || []).filter(p => pScores[p] === maxScore);
-
-    permutationMatrix.push({
-      simulatedWinners: simulatedWinners,
-      winnersMap: outcomeObj,
-      topContenders: topContenders,
-      maxScore: maxScore
-    });
-  }
-
-  function computeGroupRanges(contenderList) {
-    const validPlayers = contenderList
-      .filter(p => typeof tiebreakerPicks[p]?.predictedTotal === 'number')
-      .map(p => ({ player: p, pred: tiebreakerPicks[p].predictedTotal }))
-      .sort((a, b) => a.pred - b.pred);
-
-    if (validPlayers.length === 0) return {};
-
-    const ranges = {};
-    for (let i = 0; i < validPlayers.length; i++) {
-      const curr = validPlayers[i];
-      let lowBound = null;
-      let highBound = null;
-
-      if (i > 0) {
-        const prev = validPlayers[i - 1];
-        lowBound = (prev.pred + curr.pred) / 2;
-      }
-      if (i < validPlayers.length - 1) {
-        const next = validPlayers[i + 1];
-        highBound = (curr.pred + next.pred) / 2;
-      }
-
-      let text = "Any Score";
-      let sortVal = -Infinity;
-
-      if (lowBound !== null && highBound !== null) {
-        text = `${lowBound.toFixed(1)} < Score < ${highBound.toFixed(1)}`;
-        sortVal = lowBound;
-      } else if (lowBound !== null) {
-        text = `Score > ${lowBound.toFixed(1)}`;
-        sortVal = lowBound;
-      } else if (highBound !== null) {
-        text = `Score < ${highBound.toFixed(1)}`;
-        sortVal = -Infinity;
-      }
-
-      ranges[curr.player] = { text, low: lowBound, high: highBound, sortVal };
-    }
-    return ranges;
-  }
-
-  // 3. Process Scenarios
-  const rawScenariosByPlayer = {};
-  (poolData.players || []).forEach(p => rawScenariosByPlayer[p] = []);
-
-  const matrixDisplayRows = [];
-
-  permutationMatrix.forEach(perm => {
-    if (perm.topContenders.length === 1) {
-      const soleWinner = perm.topContenders[0];
-      rawScenariosByPlayer[soleWinner].push({
-        winnersArray: perm.simulatedWinners,
-        isOutright: true,
-        scoreRange: "Any Score",
-        sortVal: -Infinity,
-        conditionText: `Clinches outright if <strong>${perm.simulatedWinners.join(' & ')}</strong> win.`
-      });
-
-      matrixDisplayRows.push({
-        winnersMap: perm.winnersMap,
-        simulatedWinners: perm.simulatedWinners,
-        scoreRange: "Any Score",
-        sortVal: -Infinity,
-        winnerStr: soleWinner,
-        isOutright: true
-      });
-    } else {
-      const ranges = computeGroupRanges(perm.topContenders);
-      perm.topContenders.forEach(p => {
-        const rInfo = ranges[p];
-        const rangeText = rInfo ? rInfo.text : "Tiebreaker";
-        const sortVal = rInfo ? rInfo.sortVal : -Infinity;
-
-        rawScenariosByPlayer[p].push({
-          winnersArray: perm.simulatedWinners,
-          isOutright: false,
-          scoreRange: rangeText,
-          sortVal: sortVal,
-          conditionText: `Clinches via tiebreaker if <strong>${perm.simulatedWinners.join(' & ')}</strong> win AND <strong>${rangeText}</strong>.`
+        activeHighlightedPlayer = playerName;
+        
+        allCards.forEach(c => {
+          if (c.getAttribute('data-player') === playerName) {
+            c.classList.add('active-highlight');
+          } else {
+            c.classList.remove('active-highlight');
+          }
         });
 
-        matrixDisplayRows.push({
-          winnersMap: perm.winnersMap,
-          simulatedWinners: perm.simulatedWinners,
-          scoreRange: rangeText,
-          sortVal: sortVal,
-          winnerStr: p,
-          isOutright: false
-        });
-      });
-    }
-  });
-
-  function simplifyScenarios(scenarios) {
-    const grouped = {};
-    scenarios.forEach(s => {
-      const key = `${s.isOutright}_${s.scoreRange}`;
-      if (!grouped[key]) grouped[key] = [];
-      grouped[key].push(s.winnersArray);
-    });
-
-    const simplified = [];
-    Object.keys(grouped).forEach(key => {
-      const [isOutrightStr, scoreRange] = key.split('_');
-      const isOutright = isOutrightStr === 'true';
-      const arrs = grouped[key];
-
-      let combined = arrs.map(a => [...a]);
-      
-      for (let gIdx = 0; gIdx < gamesToSimulate.length; gIdx++) {
-        const awayTeam = gamesToSimulate[gIdx].away;
-        const homeTeam = gamesToSimulate[gIdx].home;
-
-        const matchPairs = {};
-        combined.forEach(arr => {
-          const copy = [...arr];
-          const val = copy[gIdx];
-          copy[gIdx] = 'WILD';
-          const signature = copy.join(',');
-          if (!matchPairs[signature]) matchPairs[signature] = new Set();
-          matchPairs[signature].add(val);
-        });
-
-        Object.keys(matchPairs).forEach(sig => {
-          if (matchPairs[sig].size === 2) {
-            const sigArr = sig.split(',');
-            combined = combined.filter(arr => {
-              const cCopy = [...arr];
-              cCopy[gIdx] = 'WILD';
-              return cCopy.join(',') !== sig;
-            });
-            const wildcardRep = sigArr.map(x => x === 'WILD' ? `${awayTeam}/${homeTeam}` : x);
-            if (!combined.some(c => c.join(',') === wildcardRep.join(','))) {
-              combined.push(wildcardRep);
-            }
+        allRows.forEach(r => {
+          if (r.getAttribute('data-winner') === playerName) {
+            r.classList.add('highlighted-row');
+          } else {
+            r.classList.remove('highlighted-row');
           }
         });
       }
+    }
 
-      combined.forEach(winnersArr => {
-        const formattedWinStr = winnersArr.join(' & ');
-        if (isOutright) {
-          simplified.push({
+    function openPathToCrownModal() {
+      const modal = document.getElementById('path-to-crown-modal');
+      const body = document.getElementById('modal-crown-body');
+      
+      activeHighlightedPlayer = null;
+      currentMatrixSort = { colIndex: null, direction: 'asc' };
+
+      const week = document.getElementById('week-select').value;
+      const weekData = poolData.weeks[week];
+      if (!weekData) return;
+
+      const matchups = weekData.matchups || [];
+      const remainingGames = matchups.filter(m => !m.winner || (m.status !== 'Final' && m.status !== 'STATUS_FINAL'));
+
+      if (!isSundayEveningOrLater(matchups)) {
+        body.innerHTML = `
+          <div style="text-align: center; padding: 30px 10px;">
+            <div style="font-size: 2.5rem; margin-bottom: 15px;">🔒</div>
+            <h4 style="font-size: 1.1rem; color: var(--primary-color); margin-bottom: 8px;">Path to Crown is Locked</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 400px; margin: 0 auto;">
+              Scenarios unlock on <strong>Sunday at 7:00 PM CST</strong> (or when 3 or fewer games remain in the week).
+            </p>
+          </div>
+        `;
+        modal.classList.add('active');
+        return;
+      }
+
+      if (remainingGames.length === 0) {
+        body.innerHTML = `
+          <div style="text-align: center; padding: 30px 10px;">
+            <div style="font-size: 2.5rem; margin-bottom: 15px;">🏁</div>
+            <h4 style="font-size: 1.1rem; color: var(--primary-color); margin-bottom: 8px;">Week Complete</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+              All games for ${week} have concluded and final results are posted.
+            </p>
+          </div>
+        `;
+        modal.classList.add('active');
+        return;
+      }
+
+      const currentWins = {};
+      const tiebreakerPicks = weekData.tiebreaker?.picks || {};
+      
+      (poolData.players || []).forEach(p => {
+        currentWins[p] = computedStats[p]?.weeklyHistory[week]?.correct || 0;
+      });
+
+      const gamesToSimulate = remainingGames.map((m, idx) => {
+        const teamsInGame = (m.game || '')
+          .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
+          .map(t => t.trim().toUpperCase())
+          .filter(t => t.length >= 2);
+        return {
+          id: idx,
+          away: teamsInGame[0] || 'AWAY',
+          home: teamsInGame[1] || 'HOME',
+          picks: m.picks || {}
+        };
+      });
+
+      const numGames = gamesToSimulate.length;
+      const totalPermutations = Math.pow(2, numGames);
+      const permutationMatrix = [];
+
+      for (let i = 0; i < totalPermutations; i++) {
+        const outcomeObj = {};
+        const simulatedWinners = [];
+
+        gamesToSimulate.forEach((g, bitIdx) => {
+          const isHomeWin = (i & (1 << bitIdx)) !== 0;
+          const winner = isHomeWin ? g.home : g.away;
+          outcomeObj[g.id] = winner;
+          simulatedWinners.push(winner);
+        });
+
+        const pScores = {};
+        (poolData.players || []).forEach(p => {
+          let extra = 0;
+          gamesToSimulate.forEach(g => {
+            const playerPick = (g.picks[p] || '').trim().toUpperCase();
+            if (playerPick === outcomeObj[g.id]) extra++;
+          });
+          pScores[p] = currentWins[p] + extra;
+        });
+
+        const maxScore = Math.max(...Object.values(pScores));
+        const topContenders = (poolData.players || []).filter(p => pScores[p] === maxScore);
+
+        permutationMatrix.push({
+          simulatedWinners: simulatedWinners,
+          winnersMap: outcomeObj,
+          topContenders: topContenders,
+          maxScore: maxScore
+        });
+      }
+
+      function computeGroupRanges(contenderList) {
+        const validPlayers = contenderList
+          .filter(p => typeof tiebreakerPicks[p]?.predictedTotal === 'number')
+          .map(p => ({ player: p, pred: tiebreakerPicks[p].predictedTotal }))
+          .sort((a, b) => a.pred - b.pred);
+
+        if (validPlayers.length === 0) return {};
+
+        const ranges = {};
+        for (let i = 0; i < validPlayers.length; i++) {
+          const curr = validPlayers[i];
+          let lowBound = null;
+          let highBound = null;
+
+          if (i > 0) {
+            const prev = validPlayers[i - 1];
+            lowBound = (prev.pred + curr.pred) / 2;
+          }
+          if (i < validPlayers.length - 1) {
+            const next = validPlayers[i + 1];
+            highBound = (curr.pred + next.pred) / 2;
+          }
+
+          let text = "Any Score";
+          let sortVal = -Infinity;
+
+          if (lowBound !== null && highBound !== null) {
+            text = `${lowBound.toFixed(1)} < Score < ${highBound.toFixed(1)}`;
+            sortVal = lowBound;
+          } else if (lowBound !== null) {
+            text = `Score > ${lowBound.toFixed(1)}`;
+            sortVal = lowBound;
+          } else if (highBound !== null) {
+            text = `Score < ${highBound.toFixed(1)}`;
+            sortVal = -Infinity;
+          }
+
+          ranges[curr.player] = { text, low: lowBound, high: highBound, sortVal };
+        }
+        return ranges;
+      }
+
+      const rawScenariosByPlayer = {};
+      (poolData.players || []).forEach(p => rawScenariosByPlayer[p] = []);
+
+      const matrixDisplayRows = [];
+
+      permutationMatrix.forEach(perm => {
+        if (perm.topContenders.length === 1) {
+          const soleWinner = perm.topContenders[0];
+          rawScenariosByPlayer[soleWinner].push({
+            winnersArray: perm.simulatedWinners,
             isOutright: true,
-            sortTier: 1,
+            scoreRange: "Any Score",
             sortVal: -Infinity,
-            conditionText: `Clinches outright if <strong>${formattedWinStr}</strong> win.`
+            conditionText: `Clinches outright if <strong>${perm.simulatedWinners.join(' & ')}</strong> win.`
+          });
+
+          matrixDisplayRows.push({
+            winnersMap: perm.winnersMap,
+            simulatedWinners: perm.simulatedWinners,
+            scoreRange: "Any Score",
+            sortVal: -Infinity,
+            winnerStr: soleWinner,
+            isOutright: true
           });
         } else {
-          const matchObj = scenarios.find(s => s.scoreRange === scoreRange);
-          const sVal = matchObj ? matchObj.sortVal : 0;
-          simplified.push({
-            isOutright: false,
-            sortTier: 2,
-            sortVal: sVal,
-            conditionText: `Clinches via tiebreaker if <strong>${formattedWinStr}</strong> win AND <strong>${scoreRange}</strong>.`
+          const ranges = computeGroupRanges(perm.topContenders);
+          perm.topContenders.forEach(p => {
+            const rInfo = ranges[p];
+            const rangeText = rInfo ? rInfo.text : "Tiebreaker";
+            const sortVal = rInfo ? rInfo.sortVal : -Infinity;
+
+            rawScenariosByPlayer[p].push({
+              winnersArray: perm.simulatedWinners,
+              isOutright: false,
+              scoreRange: rangeText,
+              sortVal: sortVal,
+              conditionText: `Clinches via tiebreaker if <strong>${perm.simulatedWinners.join(' & ')}</strong> win AND <strong>${rangeText}</strong>.`
+            });
+
+            matrixDisplayRows.push({
+              winnersMap: perm.winnersMap,
+              simulatedWinners: perm.simulatedWinners,
+              scoreRange: rangeText,
+              sortVal: sortVal,
+              winnerStr: p,
+              isOutright: false
+            });
           });
         }
       });
-    });
 
-    return simplified.sort((a, b) => {
-      if (a.sortTier !== b.sortTier) return a.sortTier - b.sortTier;
-      const countWildcards = (str) => (str.match(/\//g) || []).length;
-      const wcA = countWildcards(a.conditionText);
-      const wcB = countWildcards(b.conditionText);
-      if (wcA !== wcB) return wcB - wcA;
-      return a.sortVal - b.sortVal;
-    });
-  }
+      function simplifyScenarios(scenarios) {
+        const grouped = {};
+        scenarios.forEach(s => {
+          const key = `${s.isOutright}_${s.scoreRange}`;
+          if (!grouped[key]) grouped[key] = [];
+          grouped[key].push(s.winnersArray);
+        });
 
-  const contenderScenarios = {};
-  (poolData.players || []).forEach(p => {
-    contenderScenarios[p] = simplifyScenarios(rawScenariosByPlayer[p]);
-  });
+        const simplified = [];
+        Object.keys(grouped).forEach(key => {
+          const [isOutrightStr, scoreRange] = key.split('_');
+          const isOutright = isOutrightStr === 'true';
+          const arrs = grouped[key];
 
-  matrixDisplayRows.sort((a, b) => {
-    if (a.isOutright !== b.isOutright) return a.isOutright ? -1 : 1;
-    if (a.sortVal !== b.sortVal) return a.sortVal - b.sortVal;
-    return a.winnerStr.localeCompare(b.winnerStr);
-  });
+          let combined = arrs.map(a => [...a]);
+          
+          for (let gIdx = 0; gIdx < gamesToSimulate.length; gIdx++) {
+            const awayTeam = gamesToSimulate[gIdx].away;
+            const homeTeam = gamesToSimulate[gIdx].home;
 
-  const activeContenders = (poolData.players || [])
-    .filter(p => contenderScenarios[p].length > 0)
-    .sort((a, b) => {
-      const winsA = currentWins[a] || 0;
-      const winsB = currentWins[b] || 0;
-      if (winsB !== winsA) return winsB - winsA;
-      const predA = tiebreakerPicks[a]?.predictedTotal ?? Infinity;
-      const predB = tiebreakerPicks[b]?.predictedTotal ?? Infinity;
-      return predA - predB;
-    });
+            const matchPairs = {};
+            combined.forEach(arr => {
+              const copy = [...arr];
+              const val = copy[gIdx];
+              copy[gIdx] = 'WILD';
+              const signature = copy.join(',');
+              if (!matchPairs[signature]) matchPairs[signature] = new Set();
+              matchPairs[signature].add(val);
+            });
 
-  // Render HTML
-  let html = `
-    <div style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem;">
-      ⚡ Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}. <span style="font-style: italic;">(Click a contender to highlight their paths)</span>
-    </div>
-  `;
+            Object.keys(matchPairs).forEach(sig => {
+              if (matchPairs[sig].size === 2) {
+                const sigArr = sig.split(',');
+                combined = combined.filter(arr => {
+                  const cCopy = [...arr];
+                  cCopy[gIdx] = 'WILD';
+                  return cCopy.join(',') !== sig;
+                });
+                const wildcardRep = sigArr.map(x => x === 'WILD' ? `${awayTeam}/${homeTeam}` : x);
+                if (!combined.some(c => c.join(',') === wildcardRep.join(','))) {
+                  combined.push(wildcardRep);
+                }
+              }
+            });
+          }
 
-  if (activeContenders.length > 0) {
-    html += `<h4 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--primary-color);">👑 Contenders & Clinch Paths</h4>`;
+          combined.forEach(winnersArr => {
+            const formattedWinStr = winnersArr.join(' & ');
+            if (isOutright) {
+              simplified.push({
+                isOutright: true,
+                sortTier: 1,
+                sortVal: -Infinity,
+                conditionText: `Clinches outright if <strong>${formattedWinStr}</strong> win.`
+              });
+            } else {
+              const matchObj = scenarios.find(s => s.scoreRange === scoreRange);
+              const sVal = matchObj ? matchObj.sortVal : 0;
+              simplified.push({
+                isOutright: false,
+                sortTier: 2,
+                sortVal: sVal,
+                conditionText: `Clinches via tiebreaker if <strong>${formattedWinStr}</strong> win AND <strong>${scoreRange}</strong>.`
+              });
+            }
+          });
+        });
 
-    activeContenders.forEach(p => {
-      const pWinsNow = currentWins[p];
-      const predVal = tiebreakerPicks[p]?.predictedTotal ?? 'N/A';
-      const scenarios = contenderScenarios[p];
-      const bulletsHtml = scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
+        return simplified.sort((a, b) => {
+          if (a.sortTier !== b.sortTier) return a.sortTier - b.sortTier;
+          const countWildcards = (str) => (str.match(/\//g) || []).length;
+          const wcA = countWildcards(a.conditionText);
+          const wcB = countWildcards(b.conditionText);
+          if (wcA !== wcB) return wcB - wcA;
+          return a.sortVal - b.sortVal;
+        });
+      }
 
-      html += `
-        <div class="ptc-contender-card rank-2" data-player="${p}" onclick="toggleContenderHighlight('${p}')" style="border-left: 4px solid var(--secondary-color); background: #f8fafc; cursor: pointer; transition: all 0.2s ease;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong>${p} <span style="color: var(--text-muted); font-size: 0.8rem;">(${pWinsNow} Wins • Score Pred: ${predVal})</span></strong>
-          </div>
-          <ul class="ptc-scenario-list">${bulletsHtml}</ul>
+      const contenderScenarios = {};
+      (poolData.players || []).forEach(p => {
+        contenderScenarios[p] = simplifyScenarios(rawScenariosByPlayer[p]);
+      });
+
+      matrixDisplayRows.sort((a, b) => {
+        if (a.isOutright !== b.isOutright) return a.isOutright ? -1 : 1;
+        if (a.sortVal !== b.sortVal) return a.sortVal - b.sortVal;
+        return a.winnerStr.localeCompare(b.winnerStr);
+      });
+
+      const activeContenders = (poolData.players || [])
+        .filter(p => contenderScenarios[p].length > 0)
+        .sort((a, b) => {
+          const winsA = currentWins[a] || 0;
+          const winsB = currentWins[b] || 0;
+          if (winsB !== winsA) return winsB - winsA;
+          const predA = tiebreakerPicks[a]?.predictedTotal ?? Infinity;
+          const predB = tiebreakerPicks[b]?.predictedTotal ?? Infinity;
+          return predA - predB;
+        });
+
+      let html = `
+        <div style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem;">
+          ⚡ Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}. <span style="font-style: italic;">(Click a contender to highlight their paths)</span>
         </div>
       `;
-    });
-  }
 
-  // OUTCOME MATRIX TABLE (With Sortable Headers & Data-Winner Rows)
-  const matrixRowsHtml = matrixDisplayRows.map(row => {
-    const gameCols = gamesToSimulate.map(g => {
-      const winningTeamName = row.winnersMap[g.id];
-      return `<td class="text-center"><strong>${getTeamLogoHtml(winningTeamName, false)}</strong></td>`;
-    }).join('');
+      if (activeContenders.length > 0) {
+        html += `<h4 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--primary-color);">👑 Contenders & Clinch Paths</h4>`;
 
-    return `
-      <tr data-winner="${row.winnerStr}">
-        ${gameCols}
-        <td class="text-center"><strong>${row.scoreRange}</strong></td>
-        <td class="text-center"><strong>${row.winnerStr}</strong></td>
-      </tr>
-    `;
-  }).join('');
+        activeContenders.forEach(p => {
+          const pWinsNow = currentWins[p];
+          const predVal = tiebreakerPicks[p]?.predictedTotal ?? 'N/A';
+          const scenarios = contenderScenarios[p];
+          const bulletsHtml = scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
 
-  const tableHeadersHtml = gamesToSimulate.map((g, idx) => `
-    <th class="text-center sortable-header" onclick="sortOutcomeMatrix(${idx})">
-      <div class="matrix-header-stack">
-        <span>${g.away}</span>
-        <span class="matrix-at-symbol">@</span>
-        <span>${g.home}</span>
-      </div>
-      <span class="sort-indicator"></span>
-    </th>
-  `).join('');
+          html += `
+            <div class="ptc-contender-card rank-2" data-player="${p}" onclick="toggleContenderHighlight('${p}')" style="border-left: 4px solid var(--secondary-color); background: #f8fafc; cursor: pointer; transition: all 0.2s ease;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong>${p} <span style="color: var(--text-muted); font-size: 0.8rem;">(${pWinsNow} Wins • Score Pred: ${predVal})</span></strong>
+              </div>
+              <ul class="ptc-scenario-list">${bulletsHtml}</ul>
+            </div>
+          `;
+        });
+      }
 
-  const tiebreakerColIndex = gamesToSimulate.length;
-  const crownColIndex = gamesToSimulate.length + 1;
+      const matrixRowsHtml = matrixDisplayRows.map(row => {
+        const gameCols = gamesToSimulate.map(g => {
+          const winningTeamName = row.winnersMap[g.id];
+          return `<td class="text-center"><strong>${getTeamLogoHtml(winningTeamName, false)}</strong></td>`;
+        }).join('');
 
-  html += `
-    <h4 style="font-size: 0.95rem; margin: 20px 0 10px 0; color: var(--primary-color);">🔮 Outcome Matrix</h4>
-    <div class="matrix-wrapper">
-      <table class="outcome-matrix-table">
-        <thead>
-          <tr>
-            ${tableHeadersHtml}
-            <th class="text-center sortable-header" onclick="sortOutcomeMatrix(${tiebreakerColIndex})">
-              Tiebreaker <span class="sort-indicator"></span>
-            </th>
-            <th class="text-center sortable-header" onclick="sortOutcomeMatrix(${crownColIndex})">
-              Crown <span class="sort-indicator"></span>
-            </th>
+        return `
+          <tr data-winner="${row.winnerStr}">
+            ${gameCols}
+            <td class="text-center"><strong>${row.scoreRange}</strong></td>
+            <td class="text-center"><strong>${row.winnerStr}</strong></td>
           </tr>
-        </thead>
-        <tbody>
-          ${matrixRowsHtml}
-        </tbody>
-      </table>
-    </div>
-  `;
+        `;
+      }).join('');
 
-  body.innerHTML = html;
-  modal.classList.add('active');
-}
+      const tableHeadersHtml = gamesToSimulate.map((g, idx) => `
+        <th class="text-center sortable-header" onclick="sortOutcomeMatrix(${idx})">
+          <div class="matrix-header-stack">
+            <span>${g.away}</span>
+            <span class="matrix-at-symbol">@</span>
+            <span>${g.home}</span>
+          </div>
+          <span class="sort-indicator"></span>
+        </th>
+      `).join('');
 
+      const tiebreakerColIndex = gamesToSimulate.length;
+      const crownColIndex = gamesToSimulate.length + 1;
 
+      html += `
+        <h4 style="font-size: 0.95rem; margin: 20px 0 10px 0; color: var(--primary-color);">🔮 Outcome Matrix</h4>
+        <div class="matrix-wrapper">
+          <table class="outcome-matrix-table">
+            <thead>
+              <tr>
+                ${tableHeadersHtml}
+                <th class="text-center sortable-header" onclick="sortOutcomeMatrix(${tiebreakerColIndex})">
+                  Tiebreaker <span class="sort-indicator"></span>
+                </th>
+                <th class="text-center sortable-header" onclick="sortOutcomeMatrix(${crownColIndex})">
+                  Crown <span class="sort-indicator"></span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              ${matrixRowsHtml}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      body.innerHTML = html;
+      modal.classList.add('active');
+    }
 
     function closeCrownModal(e) {
       if (!e || e.target.id === 'path-to-crown-modal' || e.target.classList.contains('modal-close-btn')) {
@@ -3046,7 +2966,7 @@ function openPathToCrownModal() {
               const playerPick = m.picks?.[playerId]?.trim().toUpperCase();
               if (playerPick) {
                 if (winner === 'TIE') {
-                  // Ties do not penalize/reward
+                  // Tie
                 } else if (winner === team && playerPick === team) {
                   playerTeamStats[team].correct++;
                 } else if (winner === opponent && playerPick === opponent) {
@@ -3138,7 +3058,8 @@ function openPathToCrownModal() {
         
         const val = winPercentages[index];
         const y = val !== null ? (paddingTop + (1 - (val / 100)) * chartHeight) : null;
-        return { x: x, y: y, week: w, val: val !== null ? `${val}%` : '-' };
+        const shortW = w.replace('Week ', 'Wk ');
+        return { x: x, y: y, week: shortW, val: val !== null ? `${val}%` : '-' };
       });
 
       const validPoints = points.filter(p => p.y !== null);
@@ -3549,8 +3470,6 @@ function openPathToCrownModal() {
         btnPlayoff.classList.remove('active');
       }
     }
-
-    /* --- ESPN / OFFICIAL NFL TIEBREAKER ENGINE --- */
 
     function getWinPct(wins, losses, ties = 0) {
       const total = wins + losses + ties;
