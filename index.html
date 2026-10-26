@@ -557,6 +557,23 @@
       font-size: 0.85rem;
     }
 
+/* --- RESPONSIVE PLAYOFF TEAM DISPLAY --- */
+.playoff-team-desktop {
+  display: inline-block;
+}
+.playoff-team-mobile {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .playoff-team-desktop {
+    display: none !important;
+  }
+  .playoff-team-mobile {
+    display: inline-block !important;
+  }
+}
+
     .vertical-banner-row td {
       padding: 0 !important;
       position: relative;
@@ -830,13 +847,11 @@
     .scatter-point { fill: #ffffff; stroke: var(--secondary-color); stroke-width: 3; r: 6; transition: all 0.2s ease; cursor: pointer; }
     .scatter-point:hover { r: 8; fill: var(--secondary-color); }
     .scatter-text-val { font-size: 11px; font-weight: bold; fill: var(--primary-color); text-anchor: middle; }
-    .scatter-text-label { font-size: 10px; font-weight: 600; fill: var(--text-muted); text-anchor: middle; }
+    .scatter-text-label { font-size: 11px; font-weight: 600; fill: var(--text-muted); text-anchor: middle; }
     
     @media (max-width: 600px) {
       .scatter-text-label {
-        font-size: 8.5px;
-        transform: rotate(-30deg);
-        transform-origin: center;
+        font-size: 9.5px;
       }
     }
 
@@ -3051,6 +3066,8 @@
       const chartHeight = 140; 
       const availableWidth = containerWidth - (paddingX * 2);
 
+      const isMobile = containerWidth < 600;
+
       const points = labels.map((w, index) => {
         const x = labels.length === 1 
           ? containerWidth / 2 
@@ -3058,7 +3075,10 @@
         
         const val = winPercentages[index];
         const y = val !== null ? (paddingTop + (1 - (val / 100)) * chartHeight) : null;
-        const shortW = w.replace('Week ', 'Wk ');
+        
+        // Shorten label to just the number on mobile (e.g., "Week 1" -> "1")
+        const shortW = isMobile ? w.replace('Week ', '').replace('Wk ', '') : w.replace('Week ', 'Wk ');
+
         return { x: x, y: y, week: shortW, val: val !== null ? `${val}%` : '-' };
       });
 
@@ -3136,7 +3156,8 @@
       }).join('');
     }
 
-    function openTeamScheduleModal(team) {
+
+function openTeamScheduleModal(team) {
       const modalTitle = document.getElementById('modal-team-title');
       const modalBody = document.getElementById('modal-team-body');
       
@@ -3145,8 +3166,10 @@
       let totalWins = 0, totalLosses = 0, totalTies = 0;
       const logRows = [];
 
+      // Iterate through all weeks in order to catch Bye Weeks properly
       Object.entries(poolData.weeks || {}).forEach(([weekKey, weekData]) => {
         const matchups = weekData.matchups || [];
+        let teamFoundInWeek = false;
 
         matchups.forEach(m => {
           const gameString = m.game || '';
@@ -3170,6 +3193,7 @@
 
           if (team !== awayTeam && team !== homeTeam) return;
 
+          teamFoundInWeek = true;
           const isAway = (team === awayTeam);
           const opponent = isAway ? homeTeam : awayTeam;
           const prefix = isAway ? '@' : 'vs';
@@ -3211,6 +3235,15 @@
             outcomeClass: outcomeClass
           });
         });
+
+        // If the team has no game scheduled this week, add a Bye Week row
+        if (!teamFoundInWeek) {
+          logRows.push({
+            matchupCombined: `${weekKey}`,
+            scoreText: 'BYE WEEK',
+            outcomeClass: 'pick-pending'
+          });
+        }
       });
 
       const formatRecordStr = (w, l, t) => {
@@ -3245,6 +3278,7 @@
 
       document.getElementById('team-breakdown-modal').classList.add('active');
     }
+
 
     function openTeamBreakdownModal(team) {
       const player = document.getElementById('player-select').value;
@@ -3648,7 +3682,7 @@
       });
     }
 
-    function renderPlayoffPictureBlock(confTitle, confPrefix) {
+function renderPlayoffPictureBlock(confTitle, confPrefix) {
       const seeded = calculateConferencePlayoffPicture(confPrefix);
       const playoffTeams = seeded.slice(0, 7);
       const huntTeams = seeded.slice(7);
@@ -3657,7 +3691,10 @@
         <tr class="${rowClass}">
           <td style="width: 40px; text-align: center;"><span class="seed-num">${t.seed}</span></td>
           <td class="clickable-team-cell" onclick="openTeamScheduleModal('${t.team}')">
-            <strong>${getTeamLogoHtml(t.team)}</strong>
+            <strong>
+              <span class="playoff-team-desktop">${getTeamLogoHtml(t.team, true)}</span>
+              <span class="playoff-team-mobile">${getTeamLogoHtml(t.team, false)}</span>
+            </strong>
           </td>
           <td class="text-success text-center" style="width: 45px;">${t.wins}</td>
           <td class="text-danger text-center" style="width: 45px;">${t.losses}</td>
@@ -3722,6 +3759,7 @@
         </div>
       `;
     }
+
 
     function renderPlayoffPicture() {
       document.getElementById('afc-playoff-picture').innerHTML = renderPlayoffPictureBlock('American Football Conference', 'AFC');
