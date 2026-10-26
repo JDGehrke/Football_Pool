@@ -2562,7 +2562,7 @@ function openPathToCrownModal() {
     return ranges;
   }
 
-  // 3. Process Raw Scenarios & Simplify Boolean Paths
+  // 3. Process Raw Scenarios & Simplify Boolean Paths (Text only for Clinch Paths)
   const rawScenariosByPlayer = {};
   (poolData.players || []).forEach(p => rawScenariosByPlayer[p] = []);
 
@@ -2652,8 +2652,7 @@ function openPathToCrownModal() {
               cCopy[gIdx] = 'WILD';
               return cCopy.join(',') !== sig;
             });
-            // Represent wildcard as logos instead of text names if possible, or keep clean separator
-            const wildcardRep = sigArr.map(x => x === 'WILD' ? `${getTeamLogoHtml(awayTeam)}/${getTeamLogoHtml(homeTeam)}` : x);
+            const wildcardRep = sigArr.map(x => x === 'WILD' ? `${awayTeam}/${homeTeam}` : x);
             if (!combined.some(c => c.join(',') === wildcardRep.join(','))) {
               combined.push(wildcardRep);
             }
@@ -2753,11 +2752,11 @@ function openPathToCrownModal() {
     `;
   }
 
-  // OUTCOME MATRIX TABLE (Logos Only in Rows, 3-Row Stacked Headers)
+  // OUTCOME MATRIX TABLE (Text Headers, Logo-Only Rows using getTeamLogoHtml(team, false))
   const matrixRowsHtml = matrixDisplayRows.map(row => {
     const gameCols = gamesToSimulate.map(g => {
       const winningTeamName = row.winnersMap[g.id];
-      return `<td class="text-center"><strong>${getTeamLogoHtml(winningTeamName)}</strong></td>`;
+      return `<td class="text-center"><strong>${getTeamLogoHtml(winningTeamName, false)}</strong></td>`;
     }).join('');
 
     return `
@@ -2772,9 +2771,9 @@ function openPathToCrownModal() {
   const tableHeadersHtml = gamesToSimulate.map(g => `
     <th class="text-center">
       <div class="matrix-header-stack">
-        <span>${getTeamLogoHtml(g.away)}</span>
+        <span>${g.away}</span>
         <span class="matrix-at-symbol">@</span>
-        <span>${getTeamLogoHtml(g.home)}</span>
+        <span>${g.home}</span>
       </div>
     </th>
   `).join('');
