@@ -2466,8 +2466,6 @@ function openPathToCrownModal() {
     maxPossibleWins[p] = (currentWins[p] || 0) + remainingGames.length;
   });
 
-  const aliveContenders = (poolData.players || []).filter(p => maxPossibleWins[p] >= Math.max(...Object.values(currentWins)));
-
   // Extract Game Teams
   const gamesToSimulate = remainingGames.map((m, idx) => {
     const teamsInGame = (m.game || '')
@@ -2562,7 +2560,7 @@ function openPathToCrownModal() {
     return ranges;
   }
 
-  // 3. Process Raw Scenarios & Simplify Boolean Paths (Text only for Clinch Paths)
+  // 3. Process Raw Scenarios & Simplify Boolean Paths
   const rawScenariosByPlayer = {};
   (poolData.players || []).forEach(p => rawScenariosByPlayer[p] = []);
 
@@ -2599,7 +2597,7 @@ function openPathToCrownModal() {
           isOutright: false,
           scoreRange: rangeText,
           sortVal: sortVal,
-          conditionText: `Clinches via tiebreaker if <strong>${perm.simulatedWinners.join(' & ')}</strong> win AND Total Score is <strong>${rangeText}</strong>.`
+          conditionText: `Clinches via tiebreaker if <strong>${perm.simulatedWinners.join(' & ')}</strong> win AND <strong>${rangeText}</strong>.`
         });
 
         matrixDisplayRows.push({
@@ -2640,165 +2638,7 @@ function openPathToCrownModal() {
           const val = copy[gIdx];
           copy[gIdx] = 'WILD';
           const signature = copy.join(',');
-          if (!matchPairs[signature]) matchPairs[signature] = new Set();
-          matchPairs[signature].add(val);
-        });
-
-        Object.keys(matchPairs).forEach(sig => {
-          if (matchPairs[sig].size === 2) {
-            const sigArr = sig.split(',');
-            combined = combined.filter(arr => {
-              const cCopy = [...arr];
-              cCopy[gIdx] = 'WILD';
-              return cCopy.join(',') !== sig;
-            });
-            const wildcardRep = sigArr.map(x => x === 'WILD' ? `${awayTeam}/${homeTeam}` : x);
-            if (!combined.some(c => c.join(',') === wildcardRep.join(','))) {
-              combined.push(wildcardRep);
-            }
-          }
-        });
-      }
-
-      combined.forEach(winnersArr => {
-        const formattedWinStr = winnersArr.join(' & ');
-        if (isOutright) {
-          simplified.push({
-            isOutright: true,
-            sortTier: 1,
-            sortVal: -Infinity,
-            conditionText: `Clinches outright if <strong>${formattedWinStr}</strong> win.`
-          });
-        } else {
-          const matchObj = scenarios.find(s => s.scoreRange === scoreRange);
-          const sVal = matchObj ? matchObj.sortVal : 0;
-          simplified.push({
-            isOutright: false,
-            sortTier: 2,
-            sortVal: sVal,
-            conditionText: `Clinches via tiebreaker if <strong>${formattedWinStr}</strong> win AND Total Score is <strong>${scoreRange}</strong>.`
-          });
-        }
-      });
-    });
-
-    return simplified.sort((a, b) => {
-      if (a.sortTier !== b.sortTier) return a.sortTier - b.sortTier;
-      const countWildcards = (str) => (str.match(/\//g) || []).length;
-      const wcA = countWildcards(a.conditionText);
-      const wcB = countWildcards(b.conditionText);
-      if (wcA !== wcB) return wcB - wcA;
-      return a.sortVal - b.sortVal;
-    });
-  }
-
-  const contenderScenarios = {};
-  (poolData.players || []).forEach(p => {
-    contenderScenarios[p] = simplifyScenarios(rawScenariosByPlayer[p]);
-  });
-
-  // SORT MATRIX ROWS: 1. Outrights first, then Tiebreakers by Score
-  matrixDisplayRows.sort((a, b) => {
-    if (a.isOutright !== b.isOutright) return a.isOutright ? -1 : 1;
-    if (a.sortVal !== b.sortVal) return a.sortVal - b.sortVal;
-    return a.winnerStr.localeCompare(b.winnerStr);
-  });
-
-  const activeContenders = (poolData.players || [])
-    .filter(p => contenderScenarios[p].length > 0)
-    .sort((a, b) => {
-      const winsA = currentWins[a] || 0;
-      const winsB = currentWins[b] || 0;
-      if (winsB !== winsA) return winsB - winsA;
-      const predA = tiebreakerPicks[a]?.predictedTotal ?? Infinity;
-      const predB = tiebreakerPicks[b]?.predictedTotal ?? Infinity;
-      return predA - predB;
-    });
-
-  const eliminatedPlayers = (poolData.players || []).filter(p => contenderScenarios[p].length === 0);
-
-  // Render Modal HTML
-  let html = `
-    <div style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem;">
-      ⚡ <strong>${gamesToSimulate.length} Decisive Game${gamesToSimulate.length > 1 ? 's' : ''} Remaining</strong> &mdash; Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}.
-    </div>
-  `;
-
-  if (activeContenders.length > 0) {
-    html += `<h4 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--primary-color);">👑 Contenders & Clinch Paths</h4>`;
-
-    activeContenders.forEach(p => {
-      const pWinsNow = currentWins[p];
-      const predVal = tiebreakerPicks[p]?.predictedTotal ?? 'N/A';
-      const scenarios = contenderScenarios[p];
-      const bulletsHtml = scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
-
-      html += `
-        <div class="ptc-contender-card rank-2" style="border-left: 4px solid var(--secondary-color); background: #f8fafc;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong>${p} <span style="color: var(--text-muted); font-size: 0.8rem;">(${pWinsNow} Wins • Pred: ${predVal})</span></strong>
-          </div>
-          <ul class="ptc-scenario-list">${bulletsHtml}</ul>
-        </div>
-      `;
-    });
-  }
-
-  if (eliminatedPlayers.length > 0) {
-    html += `
-      <div style="margin: 15px 0; padding: 10px; background: #f1f5f9; border-radius: 6px; font-size: 0.8rem; color: var(--text-muted);">
-        ❌ <strong>Eliminated from Crown:</strong> ${eliminatedPlayers.join(', ')}
-      </div>
-    `;
-  }
-
-  // OUTCOME MATRIX TABLE (Text Headers, Logo-Only Rows using getTeamLogoHtml(team, false))
-  const matrixRowsHtml = matrixDisplayRows.map(row => {
-    const gameCols = gamesToSimulate.map(g => {
-      const winningTeamName = row.winnersMap[g.id];
-      return `<td class="text-center"><strong>${getTeamLogoHtml(winningTeamName, false)}</strong></td>`;
-    }).join('');
-
-    return `
-      <tr>
-        ${gameCols}
-        <td class="text-center"><strong>${row.scoreRange}</strong></td>
-        <td class="text-center"><strong>${row.winnerStr}</strong></td>
-      </tr>
-    `;
-  }).join('');
-
-  const tableHeadersHtml = gamesToSimulate.map(g => `
-    <th class="text-center">
-      <div class="matrix-header-stack">
-        <span>${g.away}</span>
-        <span class="matrix-at-symbol">@</span>
-        <span>${g.home}</span>
-      </div>
-    </th>
-  `).join('');
-
-  html += `
-    <h4 style="font-size: 0.95rem; margin: 20px 0 10px 0; color: var(--primary-color);">🔮 Outcome Matrix</h4>
-    <div class="matrix-wrapper">
-      <table class="outcome-matrix-table">
-        <thead>
-          <tr>
-            ${tableHeadersHtml}
-            <th class="text-center">Tiebreaker Total Score</th>
-            <th class="text-center">Crown Winner</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${matrixRowsHtml}
-        </tbody>
-      </table>
-    </div>
-  `;
-
-  body.innerHTML = html;
-  modal.classList.add('active');
-}
+          if (!matchPairs
 
     function closeCrownModal(e) {
       if (!e || e.target.id === 'path-to-crown-modal' || e.target.classList.contains('modal-close-btn')) {
