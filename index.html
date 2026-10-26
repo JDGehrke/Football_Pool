@@ -387,6 +387,27 @@
       object-fit: contain;
     }
 
+/* --- OUTCOME MATRIX 3-ROW HEADER STACK --- */
+.matrix-header-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+  gap: 2px;
+}
+.matrix-at-symbol {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.outcome-matrix-table img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+
     /* CLICKABLE TEAM ROW STYLING */
     .clickable-team-cell {
       cursor: pointer;
@@ -2541,7 +2562,7 @@ function openPathToCrownModal() {
     return ranges;
   }
 
-  // 3. Process Raw Scenarios & Simplify Boolean Paths (Wildcard / Don't Care collapsing)
+  // 3. Process Raw Scenarios & Simplify Boolean Paths
   const rawScenariosByPlayer = {};
   (poolData.players || []).forEach(p => rawScenariosByPlayer[p] = []);
 
@@ -2593,9 +2614,7 @@ function openPathToCrownModal() {
     }
   });
 
-  // Helper to Simplify Subsets (e.g. if LAR+KC+DAL and LV+KC+DAL both lead to Tony with Any Score, combine to * + KC + DAL)
   function simplifyScenarios(scenarios) {
-    // Group by outcome type (outright vs tiebreaker) and score range
     const grouped = {};
     scenarios.forEach(s => {
       const key = `${s.isOutright}_${s.scoreRange}`;
@@ -2609,15 +2628,12 @@ function openPathToCrownModal() {
       const isOutright = isOutrightStr === 'true';
       const arrs = grouped[key];
 
-      // Try pairing arrays to find wildcard columns
       let combined = arrs.map(a => [...a]);
       
-      // Basic boolean reduction for single varying positions
       for (let gIdx = 0; gIdx < gamesToSimulate.length; gIdx++) {
         const awayTeam = gamesToSimulate[gIdx].away;
         const homeTeam = gamesToSimulate[gIdx].home;
 
-        // Check if we can find pairs that differ only at gIdx
         const matchPairs = {};
         combined.forEach(arr => {
           const copy = [...arr];
@@ -2629,15 +2645,15 @@ function openPathToCrownModal() {
         });
 
         Object.keys(matchPairs).forEach(sig => {
-          if (matchPairs[sig].size === 2) { // Both Away and Home give same result!
+          if (matchPairs[sig].size === 2) {
             const sigArr = sig.split(',');
-            // replace WILD with * or omit
             combined = combined.filter(arr => {
               const cCopy = [...arr];
               cCopy[gIdx] = 'WILD';
               return cCopy.join(',') !== sig;
             });
-            const wildcardRep = sigArr.map(x => x === 'WILD' ? `${awayTeam}/${homeTeam}` : x);
+            // Represent wildcard as logos instead of text names if possible, or keep clean separator
+            const wildcardRep = sigArr.map(x => x === 'WILD' ? `${getTeamLogoHtml(awayTeam)}/${getTeamLogoHtml(homeTeam)}` : x);
             if (!combined.some(c => c.join(',') === wildcardRep.join(','))) {
               combined.push(wildcardRep);
             }
@@ -2655,7 +2671,6 @@ function openPathToCrownModal() {
             conditionText: `Clinches outright if <strong>${formattedWinStr}</strong> win.`
           });
         } else {
-          // find matching sortVal
           const matchObj = scenarios.find(s => s.scoreRange === scoreRange);
           const sVal = matchObj ? matchObj.sortVal : 0;
           simplified.push({
@@ -2668,14 +2683,12 @@ function openPathToCrownModal() {
       });
     });
 
-    // Sort simplified paths by difficulty: Outrights first (fewer game dependencies / wildcard count), then tiebreakers by score
     return simplified.sort((a, b) => {
       if (a.sortTier !== b.sortTier) return a.sortTier - b.sortTier;
-      // Secondary sort by number of wildcards / specifiers
       const countWildcards = (str) => (str.match(/\//g) || []).length;
       const wcA = countWildcards(a.conditionText);
       const wcB = countWildcards(b.conditionText);
-      if (wcA !== wcB) return wcB - wcA; // Fewer strict requirements first
+      if (wcA !== wcB) return wcB - wcA;
       return a.sortVal - b.sortVal;
     });
   }
@@ -2692,7 +2705,6 @@ function openPathToCrownModal() {
     return a.winnerStr.localeCompare(b.winnerStr);
   });
 
-  // SORT CONTENDERS FOR DISPLAY
   const activeContenders = (poolData.players || [])
     .filter(p => contenderScenarios[p].length > 0)
     .sort((a, b) => {
@@ -2741,7 +2753,7 @@ function openPathToCrownModal() {
     `;
   }
 
-  // OUTCOME MATRIX TABLE (Logos Only & 3-Row Mobile Header)
+  // OUTCOME MATRIX TABLE (Logos Only in Rows, 3-Row Stacked Headers)
   const matrixRowsHtml = matrixDisplayRows.map(row => {
     const gameCols = gamesToSimulate.map(g => {
       const winningTeamName = row.winnersMap[g.id];
