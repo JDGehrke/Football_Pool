@@ -407,6 +407,39 @@
   object-fit: contain;
 }
 
+/* Sortable Outcome Matrix Headers */
+.outcome-matrix-table th.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease;
+}
+
+.outcome-matrix-table th.sortable-header:hover {
+  background-color: #e2e8f0 !important;
+}
+
+.sort-indicator {
+  font-size: 0.65rem;
+  color: var(--primary-color);
+  margin-left: 2px;
+}
+
+/* Contender Card Active Highlight */
+.ptc-contender-card.active-highlight {
+  border-left-color: #f59e0b !important;
+  background-color: #fef3c7 !important;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+}
+
+/* Outcome Matrix Row Highlight */
+.outcome-matrix-table tbody tr.highlighted-row {
+  background-color: #fef08a !important; /* Soft gold highlight */
+  font-weight: bold;
+}
+.outcome-matrix-table tbody tr.highlighted-row td {
+  background-color: #fef08a !important;
+}
+
 
     /* CLICKABLE TEAM ROW STYLING */
     .clickable-team-cell {
@@ -2412,10 +2445,99 @@
       return false;
     }
 
+
+let currentMatrixSort = { colIndex: null, direction: 'asc' };
+let activeHighlightedPlayer = null;
+
+// Sort Outcome Matrix by Column
+function sortOutcomeMatrix(colIndex) {
+  const table = document.querySelector('.outcome-matrix-table');
+  if (!table) return;
+
+  const tbody = table.querySelector('tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+
+  if (currentMatrixSort.colIndex === colIndex) {
+    currentMatrixSort.direction = currentMatrixSort.direction === 'asc' ? 'desc' : 'asc';
+  } else {
+    currentMatrixSort.colIndex = colIndex;
+    currentMatrixSort.direction = 'asc';
+  }
+
+  const isAsc = currentMatrixSort.direction === 'asc';
+
+  rows.sort((rowA, rowB) => {
+    const cellA = rowA.children[colIndex];
+    const cellB = rowB.children[colIndex];
+
+    let valA = cellA.querySelector('img')?.alt || cellA.textContent.trim();
+    let valB = cellB.querySelector('img')?.alt || cellB.textContent.trim();
+
+    const numA = parseFloat(valA.replace(/[^0-9.-]+/g, ''));
+    const numB = parseFloat(valB.replace(/[^0-9.-]+/g, ''));
+
+    if (!isNaN(numA) && !isNaN(numB) && !valA.includes('<')) {
+      return isAsc ? numA - numB : numB - numA;
+    }
+
+    return isAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+  });
+
+  rows.forEach(row => tbody.appendChild(row));
+
+  const headers = table.querySelectorAll('thead th');
+  headers.forEach((th, idx) => {
+    th.classList.remove('sort-asc', 'sort-desc');
+    const indicator = th.querySelector('.sort-indicator');
+    if (indicator) indicator.textContent = '';
+
+    if (idx === colIndex) {
+      th.classList.add(isAsc ? 'sort-asc' : 'sort-desc');
+      if (indicator) indicator.textContent = isAsc ? ' ▲' : ' ▼';
+    }
+  });
+}
+
+// Highlight rows in Outcome Matrix when clicking a Contender
+function toggleContenderHighlight(playerName) {
+  const allCards = document.querySelectorAll('.ptc-contender-card');
+  const allRows = document.querySelectorAll('.outcome-matrix-table tbody tr');
+
+  if (activeHighlightedPlayer === playerName) {
+    // Toggle off
+    activeHighlightedPlayer = null;
+    allCards.forEach(c => c.classList.remove('active-highlight'));
+    allRows.forEach(r => r.classList.remove('highlighted-row'));
+  } else {
+    // Toggle on
+    activeHighlightedPlayer = playerName;
+    
+    allCards.forEach(c => {
+      if (c.getAttribute('data-player') === playerName) {
+        c.classList.add('active-highlight');
+      } else {
+        c.classList.remove('active-highlight');
+      }
+    });
+
+    allRows.forEach(r => {
+      if (r.getAttribute('data-winner') === playerName) {
+        r.classList.add('highlighted-row');
+      } else {
+        r.classList.remove('highlighted-row');
+      }
+    });
+  }
+}
+
+
 function openPathToCrownModal() {
   const modal = document.getElementById('path-to-crown-modal');
   const body = document.getElementById('modal-crown-body');
   
+  activeHighlightedPlayer = null; // Reset highlight state on open
+  currentMatrixSort = { colIndex: null, direction: 'asc' };
+
   const week = document.getElementById('week-select').value;
   const weekData = poolData.weeks[week];
   if (!weekData) return;
@@ -2423,7 +2545,6 @@ function openPathToCrownModal() {
   const matchups = weekData.matchups || [];
   const remainingGames = matchups.filter(m => !m.winner || (m.status !== 'Final' && m.status !== 'STATUS_FINAL'));
 
-  // Check Sunday 7 PM CST / <=3 games rule
   if (!isSundayEveningOrLater(matchups)) {
     body.innerHTML = `
       <div style="text-align: center; padding: 30px 10px;">
@@ -2460,12 +2581,6 @@ function openPathToCrownModal() {
     currentWins[p] = computedStats[p]?.weeklyHistory[week]?.correct || 0;
   });
 
-  const maxPossibleWins = {};
-  (poolData.players || []).forEach(p => {
-    maxPossibleWins[p] = (currentWins[p] || 0) + remainingGames.length;
-  });
-
-  // Extract Game Teams
   const gamesToSimulate = remainingGames.map((m, idx) => {
     const teamsInGame = (m.game || '')
       .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
@@ -2479,7 +2594,7 @@ function openPathToCrownModal() {
     };
   });
 
-  // 2. Generate 2^N Permutations
+  // 2. Generate Permutations
   const numGames = gamesToSimulate.length;
   const totalPermutations = Math.pow(2, numGames);
   const permutationMatrix = [];
@@ -2516,7 +2631,6 @@ function openPathToCrownModal() {
     });
   }
 
-  // Helper to compute tiebreaker ranges
   function computeGroupRanges(contenderList) {
     const validPlayers = contenderList
       .filter(p => typeof tiebreakerPicks[p]?.predictedTotal === 'number')
@@ -2559,7 +2673,7 @@ function openPathToCrownModal() {
     return ranges;
   }
 
-  // 3. Process Raw Scenarios & Simplify Boolean Paths
+  // 3. Process Scenarios
   const rawScenariosByPlayer = {};
   (poolData.players || []).forEach(p => rawScenariosByPlayer[p] = []);
 
@@ -2694,7 +2808,6 @@ function openPathToCrownModal() {
     contenderScenarios[p] = simplifyScenarios(rawScenariosByPlayer[p]);
   });
 
-  // SORT MATRIX ROWS: 1. Outrights first, then Tiebreakers by Score
   matrixDisplayRows.sort((a, b) => {
     if (a.isOutright !== b.isOutright) return a.isOutright ? -1 : 1;
     if (a.sortVal !== b.sortVal) return a.sortVal - b.sortVal;
@@ -2712,10 +2825,10 @@ function openPathToCrownModal() {
       return predA - predB;
     });
 
-  // Render Modal HTML
+  // Render HTML
   let html = `
     <div style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem;">
-      ⚡ Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}.
+      ⚡ Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}. <span style="font-style: italic;">(Click a contender to highlight their paths)</span>
     </div>
   `;
 
@@ -2729,7 +2842,7 @@ function openPathToCrownModal() {
       const bulletsHtml = scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
 
       html += `
-        <div class="ptc-contender-card rank-2" style="border-left: 4px solid var(--secondary-color); background: #f8fafc;">
+        <div class="ptc-contender-card rank-2" data-player="${p}" onclick="toggleContenderHighlight('${p}')" style="border-left: 4px solid var(--secondary-color); background: #f8fafc; cursor: pointer; transition: all 0.2s ease;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <strong>${p} <span style="color: var(--text-muted); font-size: 0.8rem;">(${pWinsNow} Wins • Score Pred: ${predVal})</span></strong>
           </div>
@@ -2739,7 +2852,7 @@ function openPathToCrownModal() {
     });
   }
 
-  // OUTCOME MATRIX TABLE (Text Headers, Logo-Only Rows)
+  // OUTCOME MATRIX TABLE (With Sortable Headers & Data-Winner Rows)
   const matrixRowsHtml = matrixDisplayRows.map(row => {
     const gameCols = gamesToSimulate.map(g => {
       const winningTeamName = row.winnersMap[g.id];
@@ -2747,7 +2860,7 @@ function openPathToCrownModal() {
     }).join('');
 
     return `
-      <tr>
+      <tr data-winner="${row.winnerStr}">
         ${gameCols}
         <td class="text-center"><strong>${row.scoreRange}</strong></td>
         <td class="text-center"><strong>${row.winnerStr}</strong></td>
@@ -2755,15 +2868,19 @@ function openPathToCrownModal() {
     `;
   }).join('');
 
-  const tableHeadersHtml = gamesToSimulate.map(g => `
-    <th class="text-center">
+  const tableHeadersHtml = gamesToSimulate.map((g, idx) => `
+    <th class="text-center sortable-header" onclick="sortOutcomeMatrix(${idx})">
       <div class="matrix-header-stack">
         <span>${g.away}</span>
         <span class="matrix-at-symbol">@</span>
         <span>${g.home}</span>
       </div>
+      <span class="sort-indicator"></span>
     </th>
   `).join('');
+
+  const tiebreakerColIndex = gamesToSimulate.length;
+  const crownColIndex = gamesToSimulate.length + 1;
 
   html += `
     <h4 style="font-size: 0.95rem; margin: 20px 0 10px 0; color: var(--primary-color);">🔮 Outcome Matrix</h4>
@@ -2772,8 +2889,12 @@ function openPathToCrownModal() {
         <thead>
           <tr>
             ${tableHeadersHtml}
-            <th class="text-center">Tiebreaker</th>
-            <th class="text-center">Crown</th>
+            <th class="text-center sortable-header" onclick="sortOutcomeMatrix(${tiebreakerColIndex})">
+              Tiebreaker <span class="sort-indicator"></span>
+            </th>
+            <th class="text-center sortable-header" onclick="sortOutcomeMatrix(${crownColIndex})">
+              Crown <span class="sort-indicator"></span>
+            </th>
           </tr>
         </thead>
         <tbody>
