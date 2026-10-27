@@ -61,12 +61,14 @@ repo = Repo(".")
 # Load config from JSON file
 with open("parameters.json", "r") as f:
     parameters = json.load(f)
+    
+#Increment Week
+parameters['current_week'] = parameters["current_week"] + 1
 
 # Access your variables as standard Python types:
 season = parameters["season"]
 current_week = parameters["current_week"]
 players = parameters["players"]
-
 
 # =============================================================================
 # ENV VARIABLES
@@ -307,10 +309,48 @@ def update_existing_form(week_num, season_type, season_year):
 # =============================================================================
 # RUN UPDATE TO FORM 
 # =============================================================================
-update_existing_form(current_week, 2, season)
+update_existing_form(current_week, 2, season) #This may need to be updated come playoffs
 
+# Overwrite local data.json
+with open("parameters.json", "w", encoding="utf-8") as f:
+    json.dump(parameters, f, indent=2)
+
+print("Saved updates to parameters.json!","\n")
 
 # =============================================================================
 # SEND NOTIFICATION?
 # =============================================================================
 # public_url = f"https://docs.google.com/forms/d/{FORM_ID}/viewform"
+
+
+# =============================================================================
+# STAGE ALL CHANGES, COMMIT & PUSH TO GITHUB (End of Script)
+# =============================================================================
+# Check for modified, untracked, or already staged files across the entire repo
+has_modified = len(repo.index.diff(None)) > 0
+has_untracked = len(repo.untracked_files) > 0
+has_staged = len(repo.index.diff("HEAD")) > 0
+
+if not (has_modified or has_untracked or has_staged):
+    print("No changes detected in repository. Skipping commit and push.")
+else:
+    # 1. Stage all changes (modifications, new files, deletions)
+    repo.git.add(A=True)
+
+    # 2. Commit changes
+    repo.index.commit("Auto-update NFL pool data")
+    print("Committed changes")
+
+    # 3. Push to remote origin on active branch
+    print("Pushing updates to GitHub...")
+    push_info = repo.remote(name="origin").push()
+
+    # Check for errors in push response
+    has_error = False
+    for info in push_info:
+        if info.flags & info.ERROR:
+            print(f"Push error: {info.summary}")
+            has_error = True
+
+    if not has_error:
+        print("Successfully pushed all changes to GitHub!")
