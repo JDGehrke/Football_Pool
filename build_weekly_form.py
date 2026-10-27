@@ -37,22 +37,22 @@ os.environ["GIT_PYTHON_GIT_EXECUTABLE"] = max(git_paths, key=os.path.getmtime)
 from git import Repo
 repo = Repo(".")
 
-# try:
-#     print("Cleaning local uncommitted changes and untracked files...")
-#     # Discard local edits to tracked files
-#     repo.git.reset('--hard', 'HEAD')
+try:
+    print("Cleaning local uncommitted changes and untracked files...")
+    # Discard local edits to tracked files
+    repo.git.reset('--hard', 'HEAD')
     
-#     # Remove untracked files/folders (like 'index - Copy.html')
-#     repo.git.clean('-fd')
+    # Remove untracked files/folders (like 'index - Copy.html')
+    repo.git.clean('-fd')
 
-#     # Pull latest changes from origin
-#     origin = repo.remote(name="origin")
-#     print("Pulling latest changes from remote...")
-#     origin.pull(rebase=True)
+    # Pull latest changes from origin
+    origin = repo.remote(name="origin")
+    print("Pulling latest changes from remote...")
+    origin.pull(rebase=True)
 
-# except Exception as e:
-#     print(f"An error occurred during Git pull: {e}")
-#     raise e
+except Exception as e:
+    print(f"An error occurred during Git pull: {e}")
+    raise e
     
 
 # =============================================================================
@@ -338,7 +338,7 @@ else:
     repo.git.add(A=True)
 
     # 2. Commit changes
-    repo.index.commit("Auto-update NFL pool data")
+    repo.index.commit("Update Week Parameters")
     print("Committed changes")
 
     # 3. Push to remote origin on active branch
