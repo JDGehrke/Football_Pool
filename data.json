@@ -2,8 +2,8 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Tuesday @ 8:10am",
-    "currentWeek": "Week 7"
+    "lastUpdated": "Tuesday @ 9:10am",
+    "currentWeek": "Week 8"
   },
   "hall_of_fame": [
     {
@@ -4357,6 +4357,569 @@
           "WESLEY": {
             "winner": "DAL",
             "predictedTotal": 67
+          }
+        }
+      }
+    },
+    "Week 8": {
+      "lockTime": "2026-10-30T00:15Z",
+      "matchups": [
+        {
+          "id": "401873023",
+          "picks": {
+            "ANDI": "\u2014",
+            "AUSTIN": "\u2014",
+            "BETHANY": "\u2014",
+            "BRANDON": "\u2014",
+            "DAN": "\u2014",
+            "DEVIN": "\u2014",
+            "ELLY": "\u2014",
+            "EMILY": "\u2014",
+            "HENNIE": "\u2014",
+            "HUNTER": "\u2014",
+            "JEN": "\u2014",
+            "JIM": "\u2014",
+            "JORDAN": "\u2014",
+            "KAREN": "\u2014",
+            "KENNY": "\u2014",
+            "KENZIE": "\u2014",
+            "LYDIA": "\u2014",
+            "MADDIE": "\u2014",
+            "NICK": "\u2014",
+            "RICK": "\u2014",
+            "TONY": "\u2014",
+            "WESLEY": "\u2014"
+          },
+          "game": "CAR @ GB",
+          "date": "2026-10-30T00:15Z",
+          "winner": null,
+          "status": "Scheduled",
+          "awayScore": "0",
+          "homeScore": "0"
+        },
+        {
+          "id": "401873026",
+          "picks": {
+            "ANDI": "\u2014",
+            "AUSTIN": "\u2014",
+            "BETHANY": "\u2014",
+            "BRANDON": "\u2014",
+            "DAN": "\u2014",
+            "DEVIN": "\u2014",
+            "ELLY": "\u2014",
+            "EMILY": "\u2014",
+            "HENNIE": "\u2014",
+            "HUNTER": "\u2014",
+            "JEN": "\u2014",
+            "JIM": "\u2014",
+            "JORDAN": "\u2014",
+            "KAREN": "\u2014",
+            "KENNY": "\u2014",
+            "KENZIE": "\u2014",
+            "LYDIA": "\u2014",
+            "MADDIE": "\u2014",
+            "NICK": "\u2014",
+            "RICK": "\u2014",
+            "TONY": "\u2014",
+            "WESLEY": "\u2014"
+          },
+          "game": "BAL @ BUF",
+          "date": "2026-11-01T18:00Z",
+          "winner": null,
+          "status": "Scheduled",
+          "awayScore": "0",
+          "homeScore": "0"
+        },
+        {
+          "id": "401873031",
+          "picks": {
+            "ANDI": "\u2014",
+            "AUSTIN": "\u2014",
+            "BETHANY": "\u2014",
+            "BRANDON": "\u2014",
+            "DAN": "\u2014",
+            "DEVIN": "\u2014",
+            "ELLY": "\u2014",
+            "EMILY": "\u2014",
+            "HENNIE": "\u2014",
+            "HUNTER": "\u2014",
+            "JEN": "\u2014",
+            "JIM": "\u2014",
+            "JORDAN": "\u2014",
+            "KAREN": "\u2014",
+            "KENNY": "\u2014",
+            "KENZIE": "\u2014",
+            "LYDIA": "\u2014",
+            "MADDIE": "\u2014",
+            "NICK": "\u2014",
+            "RICK": "\u2014",
+            "TONY": "\u2014",
+            "WESLEY": "\u2014"
+          },
+          "game": "TEN @ CIN",
+          "date": "2026-11-01T18:00Z",
+          "winner": null,
+          "status": "Scheduled",
+          "awayScore": "0",
+          "homeScore": "0"
+        },
+        {
+          "id": "401873024",
+          "picks": {
+            "ANDI": "\u2014",
+            "AUSTIN": "\u2014",
+            "BETHANY": "\u2014",
+            "BRANDON": "\u2014",
+            "DAN": "\u2014",
+            "DEVIN": "\u2014",
+            "ELLY": "\u2014",
+            "EMILY": "\u2014",
+            "HENNIE": "\u2014",
+            "HUNTER": "\u2014",
+            "JEN": "\u2014",
+            "JIM": "\u2014",
+            "JORDAN": "\u2014",
+            "KAREN": "\u2014",
+            "KENNY": "\u2014",
+            "KENZIE": "\u2014",
+            "LYDIA": "\u2014",
+            "MADDIE": "\u2014",
+            "NICK": "\u2014",
+            "RICK": "\u2014",
+            "TONY": "\u2014",
+            "WESLEY": "\u2014"
+          },
+          "game": "ARI @ DAL",
+          "date": "2026-11-01T18:00Z",
+          "winner": null,
+          "status": "Scheduled",
+          "awayScore": "0",
+          "homeScore": "0"
+        },
+        {
+          "id": "401873030",
+          "picks": {
+            "ANDI": "\u2014",
+            "AUSTIN": "\u2014",
+            "BETHANY": "\u2014",
+            "BRANDON": "\u2014",
+            "DAN": "\u2014",
+            "DEVIN": "\u2014",
+            "ELLY": "\u2014",
+            "EMILY": "\u2014",
+            "HENNIE": "\u2014",
+            "HUNTER": "\u2014",
+            "JEN": "\u2014",
+            "JIM": "\u2014",
+            "JORDAN": "\u2014",
+            "KAREN": "\u2014",
+            "KENNY": "\u2014",
+            "KENZIE": "\u2014",
+            "LYDIA": "\u2014",
+            "MADDIE": "\u2014",
+            "NICK": "\u2014",
+            "RICK": "\u2014",
+            "TONY": "\u2014",
+            "WESLEY": "\u2014"
+          },
+          "game": "MIN @ DET",
+          "date": "2026-11-01T18:00Z",
+          "winner": null,
+          "status": "Scheduled",
+          "awayScore": "0",
+          "homeScore": "0"
+        },
+        {
+          "id": "401873029",
+          "picks": {
+            "ANDI": "\u2014",
+            "AUSTIN": "\u2014",
+            "BETHANY": "\u2014",
+            "BRANDON": "\u2014",
+            "DAN": "\u2014",
+            "DEVIN": "\u2014",
+            "ELLY": "\u2014",
+            "EMILY": "\u2014",
+            "HENNIE": "\u2014",
+            "HUNTER": "\u2014",
+            "JEN": "\u2014",
+            "JIM": "\u2014",
+            "JORDAN": "\u2014",
+            "KAREN": "\u2014",
+            "KENNY": "\u2014",
+            "KENZIE": "\u2014",
+            "LYDIA": "\u2014",
+            "MADDIE": "\u2014",
+            "NICK": "\u2014",
+            "RICK": "\u2014",
+            "TONY": "\u2014",
+            "WESLEY": "\u2014"
+          },
+          "game": "LV @ NYJ",
+          "date": "2026-11-01T18:00Z",
+          "winner": null,
+          "status": "Scheduled",
+          "awayScore": "0",
+          "homeScore": "0"
+        },
+        {
+          "id": "401873027",
+          "picks": {
+            "ANDI": "\u2014",
+            "AUSTIN": "\u2014",
+            "BETHANY": "\u2014",
+            "BRANDON": "\u2014",
+            "DAN": "\u2014",
+            "DEVIN": "\u2014",
+            "ELLY": "\u2014",
+            "EMILY": "\u2014",
+            "HENNIE": "\u2014",
+            "HUNTER": "\u2014",
+            "JEN": "\u2014",
+            "JIM": "\u2014",
+            "JORDAN": "\u2014",
+            "KAREN": "\u2014",
+            "KENNY": "\u2014",
+            "KENZIE": "\u2014",
+            "LYDIA": "\u2014",
+            "MADDIE": "\u2014",
+            "NICK": "\u2014",
+            "RICK": "\u2014",
+            "TONY": "\u2014",
+            "WESLEY": "\u2014"
+          },
+          "game": "CLE @ PIT",
+          "date": "2026-11-01T18:00Z",
+          "winner": null,
+          "status": "Scheduled",
+          "awayScore": "0",
+          "homeScore": "0"
+        },
+        {
+          "id": "401873025",
+          "picks": {
+            "ANDI": "\u2014",
+            "AUSTIN": "\u2014",
+            "BETHANY": "\u2014",
+            "BRANDON": "\u2014",
+            "DAN": "\u2014",
+            "DEVIN": "\u2014",
+            "ELLY": "\u2014",
+            "EMILY": "\u2014",
+            "HENNIE": "\u2014",
+            "HUNTER": "\u2014",
+            "JEN": "\u2014",
+            "JIM": "\u2014",
+            "JORDAN": "\u2014",
+            "KAREN": "\u2014",
+            "KENNY": "\u2014",
+            "KENZIE": "\u2014",
+            "LYDIA": "\u2014",
+            "MADDIE": "\u2014",
+            "NICK": "\u2014",
+            "RICK": "\u2014",
+            "TONY": "\u2014",
+            "WESLEY": "\u2014"
+          },
+          "game": "ATL @ TB",
+          "date": "2026-11-01T18:00Z",
+          "winner": null,
+          "status": "Scheduled",
+          "awayScore": "0",
+          "homeScore": "0"
+        },
+        {
+          "id": "401873028",
+          "picks": {
+            "ANDI": "\u2014",
+            "AUSTIN": "\u2014",
+            "BETHANY": "\u2014",
+            "BRANDON": "\u2014",
+            "DAN": "\u2014",
+            "DEVIN": "\u2014",
+            "ELLY": "\u2014",
+            "EMILY": "\u2014",
+            "HENNIE": "\u2014",
+            "HUNTER": "\u2014",
+            "JEN": "\u2014",
+            "JIM": "\u2014",
+            "JORDAN": "\u2014",
+            "KAREN": "\u2014",
+            "KENNY": "\u2014",
+            "KENZIE": "\u2014",
+            "LYDIA": "\u2014",
+            "MADDIE": "\u2014",
+            "NICK": "\u2014",
+            "RICK": "\u2014",
+            "TONY": "\u2014",
+            "WESLEY": "\u2014"
+          },
+          "game": "IND @ JAX",
+          "date": "2026-11-01T18:00Z",
+          "winner": null,
+          "status": "Scheduled",
+          "awayScore": "0",
+          "homeScore": "0"
+        },
+        {
+          "id": "401873032",
+          "picks": {
+            "ANDI": "\u2014",
+            "AUSTIN": "\u2014",
+            "BETHANY": "\u2014",
+            "BRANDON": "\u2014",
+            "DAN": "\u2014",
+            "DEVIN": "\u2014",
+            "ELLY": "\u2014",
+            "EMILY": "\u2014",
+            "HENNIE": "\u2014",
+            "HUNTER": "\u2014",
+            "JEN": "\u2014",
+            "JIM": "\u2014",
+            "JORDAN": "\u2014",
+            "KAREN": "\u2014",
+            "KENNY": "\u2014",
+            "KENZIE": "\u2014",
+            "LYDIA": "\u2014",
+            "MADDIE": "\u2014",
+            "NICK": "\u2014",
+            "RICK": "\u2014",
+            "TONY": "\u2014",
+            "WESLEY": "\u2014"
+          },
+          "game": "LAC @ LAR",
+          "date": "2026-11-01T21:05Z",
+          "winner": null,
+          "status": "Scheduled",
+          "awayScore": "0",
+          "homeScore": "0"
+        },
+        {
+          "id": "401873033",
+          "picks": {
+            "ANDI": "\u2014",
+            "AUSTIN": "\u2014",
+            "BETHANY": "\u2014",
+            "BRANDON": "\u2014",
+            "DAN": "\u2014",
+            "DEVIN": "\u2014",
+            "ELLY": "\u2014",
+            "EMILY": "\u2014",
+            "HENNIE": "\u2014",
+            "HUNTER": "\u2014",
+            "JEN": "\u2014",
+            "JIM": "\u2014",
+            "JORDAN": "\u2014",
+            "KAREN": "\u2014",
+            "KENNY": "\u2014",
+            "KENZIE": "\u2014",
+            "LYDIA": "\u2014",
+            "MADDIE": "\u2014",
+            "NICK": "\u2014",
+            "RICK": "\u2014",
+            "TONY": "\u2014",
+            "WESLEY": "\u2014"
+          },
+          "game": "KC @ DEN",
+          "date": "2026-11-01T21:25Z",
+          "winner": null,
+          "status": "Scheduled",
+          "awayScore": "0",
+          "homeScore": "0"
+        },
+        {
+          "id": "401873034",
+          "picks": {
+            "ANDI": "\u2014",
+            "AUSTIN": "\u2014",
+            "BETHANY": "\u2014",
+            "BRANDON": "\u2014",
+            "DAN": "\u2014",
+            "DEVIN": "\u2014",
+            "ELLY": "\u2014",
+            "EMILY": "\u2014",
+            "HENNIE": "\u2014",
+            "HUNTER": "\u2014",
+            "JEN": "\u2014",
+            "JIM": "\u2014",
+            "JORDAN": "\u2014",
+            "KAREN": "\u2014",
+            "KENNY": "\u2014",
+            "KENZIE": "\u2014",
+            "LYDIA": "\u2014",
+            "MADDIE": "\u2014",
+            "NICK": "\u2014",
+            "RICK": "\u2014",
+            "TONY": "\u2014",
+            "WESLEY": "\u2014"
+          },
+          "game": "NE @ MIA",
+          "date": "2026-11-01T21:25Z",
+          "winner": null,
+          "status": "Scheduled",
+          "awayScore": "0",
+          "homeScore": "0"
+        },
+        {
+          "id": "401873035",
+          "picks": {
+            "ANDI": "\u2014",
+            "AUSTIN": "\u2014",
+            "BETHANY": "\u2014",
+            "BRANDON": "\u2014",
+            "DAN": "\u2014",
+            "DEVIN": "\u2014",
+            "ELLY": "\u2014",
+            "EMILY": "\u2014",
+            "HENNIE": "\u2014",
+            "HUNTER": "\u2014",
+            "JEN": "\u2014",
+            "JIM": "\u2014",
+            "JORDAN": "\u2014",
+            "KAREN": "\u2014",
+            "KENNY": "\u2014",
+            "KENZIE": "\u2014",
+            "LYDIA": "\u2014",
+            "MADDIE": "\u2014",
+            "NICK": "\u2014",
+            "RICK": "\u2014",
+            "TONY": "\u2014",
+            "WESLEY": "\u2014"
+          },
+          "game": "PHI @ WSH",
+          "date": "2026-11-02T01:20Z",
+          "winner": null,
+          "status": "Scheduled",
+          "awayScore": "0",
+          "homeScore": "0"
+        },
+        {
+          "id": "401873036",
+          "picks": {
+            "ANDI": "\u2014",
+            "AUSTIN": "\u2014",
+            "BETHANY": "\u2014",
+            "BRANDON": "\u2014",
+            "DAN": "\u2014",
+            "DEVIN": "\u2014",
+            "ELLY": "\u2014",
+            "EMILY": "\u2014",
+            "HENNIE": "\u2014",
+            "HUNTER": "\u2014",
+            "JEN": "\u2014",
+            "JIM": "\u2014",
+            "JORDAN": "\u2014",
+            "KAREN": "\u2014",
+            "KENNY": "\u2014",
+            "KENZIE": "\u2014",
+            "LYDIA": "\u2014",
+            "MADDIE": "\u2014",
+            "NICK": "\u2014",
+            "RICK": "\u2014",
+            "TONY": "\u2014",
+            "WESLEY": "\u2014"
+          },
+          "game": "CHI @ SEA",
+          "date": "2026-11-03T01:15Z",
+          "winner": null,
+          "status": "Scheduled",
+          "awayScore": "0",
+          "homeScore": "0"
+        }
+      ],
+      "tiebreaker": {
+        "game": "CHI @ SEA",
+        "status": "Scheduled",
+        "winner": null,
+        "actualTotalScore": 0,
+        "picks": {
+          "ANDI": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "AUSTIN": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "BETHANY": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "BRANDON": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "DAN": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "DEVIN": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "ELLY": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "EMILY": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "HENNIE": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "HUNTER": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "JEN": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "JIM": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "JORDAN": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "KAREN": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "KENNY": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "KENZIE": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "LYDIA": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "MADDIE": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "NICK": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "RICK": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "TONY": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
+          },
+          "WESLEY": {
+            "winner": "\u2014",
+            "predictedTotal": "\u2014"
           }
         }
       }
