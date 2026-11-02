@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 6:20pm",
+    "lastUpdated": "Sunday @ 6:35pm",
     "currentWeek": "Week 8"
   },
   "hall_of_fame": [
@@ -4725,7 +4725,7 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "24",
-          "homeScore": "21"
+          "homeScore": "28"
         },
         {
           "id": "401873034",
@@ -4755,8 +4755,8 @@
           },
           "game": "NE @ MIA",
           "date": "2026-11-01T21:25Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "winner": "NE",
+          "status": "Final",
           "awayScore": "24",
           "homeScore": "19"
         },
