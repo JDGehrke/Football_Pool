@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Wednesday @ 8:10am",
+    "lastUpdated": "Wednesday @ 9:10am",
     "currentWeek": "Week 9"
   },
   "hall_of_fame": [
@@ -4930,8 +4930,11 @@
         {
           "id": "401873037",
           "picks": {
+            "WESLEY": "JAX",
             "KAREN": "BAL",
             "DEVIN": "JAX",
+            "NICK": "JAX",
+            "LYDIA": "JAX",
             "KENNY": "JAX",
             "AUSTIN": "JAX",
             "ELLY": "JAX",
@@ -4947,11 +4950,8 @@
             "JIM": "\u2014",
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
-            "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
-            "TONY": "\u2014",
-            "WESLEY": "\u2014"
+            "TONY": "\u2014"
           },
           "game": "JAX @ BAL",
           "date": "2026-11-06T01:15Z",
@@ -4963,8 +4963,11 @@
         {
           "id": "401873038",
           "picks": {
+            "WESLEY": "ATL",
             "KAREN": "ATL",
             "DEVIN": "ATL",
+            "NICK": "CIN",
+            "LYDIA": "ATL",
             "KENNY": "CIN",
             "AUSTIN": "CIN",
             "ELLY": "CIN",
@@ -4980,11 +4983,8 @@
             "JIM": "\u2014",
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
-            "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
-            "TONY": "\u2014",
-            "WESLEY": "\u2014"
+            "TONY": "\u2014"
           },
           "game": "CIN VS ATL",
           "date": "2026-11-08T14:30Z",
@@ -4996,8 +4996,11 @@
         {
           "id": "401873040",
           "picks": {
+            "WESLEY": "IND",
             "KAREN": "IND",
             "DEVIN": "IND",
+            "NICK": "DAL",
+            "LYDIA": "IND",
             "KENNY": "DAL",
             "AUSTIN": "DAL",
             "ELLY": "DAL",
@@ -5013,11 +5016,8 @@
             "JIM": "\u2014",
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
-            "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
-            "TONY": "\u2014",
-            "WESLEY": "\u2014"
+            "TONY": "\u2014"
           },
           "game": "DAL @ IND",
           "date": "2026-11-08T18:00Z",
@@ -5029,8 +5029,11 @@
         {
           "id": "401873045",
           "picks": {
+            "WESLEY": "KC",
             "KAREN": "KC",
             "DEVIN": "NYJ",
+            "NICK": "KC",
+            "LYDIA": "KC",
             "KENNY": "KC",
             "AUSTIN": "KC",
             "ELLY": "KC",
@@ -5046,11 +5049,8 @@
             "JIM": "\u2014",
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
-            "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
-            "TONY": "\u2014",
-            "WESLEY": "\u2014"
+            "TONY": "\u2014"
           },
           "game": "NYJ @ KC",
           "date": "2026-11-08T18:00Z",
@@ -5062,8 +5062,11 @@
         {
           "id": "401873042",
           "picks": {
+            "WESLEY": "MIA",
             "KAREN": "DET",
             "DEVIN": "MIA",
+            "NICK": "DET",
+            "LYDIA": "DET",
             "KENNY": "DET",
             "AUSTIN": "DET",
             "ELLY": "DET",
@@ -5079,11 +5082,8 @@
             "JIM": "\u2014",
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
-            "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
-            "TONY": "\u2014",
-            "WESLEY": "\u2014"
+            "TONY": "\u2014"
           },
           "game": "DET @ MIA",
           "date": "2026-11-08T18:00Z",
@@ -5095,8 +5095,11 @@
         {
           "id": "401873039",
           "picks": {
+            "WESLEY": "NO",
             "KAREN": "CLE",
             "DEVIN": "CLE",
+            "NICK": "CLE",
+            "LYDIA": "NO",
             "KENNY": "CLE",
             "AUSTIN": "NO",
             "ELLY": "CLE",
@@ -5112,11 +5115,8 @@
             "JIM": "\u2014",
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
-            "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
-            "TONY": "\u2014",
-            "WESLEY": "\u2014"
+            "TONY": "\u2014"
           },
           "game": "CLE @ NO",
           "date": "2026-11-08T18:00Z",
@@ -5128,8 +5128,11 @@
         {
           "id": "401873044",
           "picks": {
+            "WESLEY": "NYG",
             "KAREN": "PHI",
             "DEVIN": "PHI",
+            "NICK": "NYG",
+            "LYDIA": "PHI",
             "KENNY": "NYG",
             "AUSTIN": "NYG",
             "ELLY": "NYG",
@@ -5145,11 +5148,8 @@
             "JIM": "\u2014",
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
-            "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
-            "TONY": "\u2014",
-            "WESLEY": "\u2014"
+            "TONY": "\u2014"
           },
           "game": "NYG @ PHI",
           "date": "2026-11-08T18:00Z",
@@ -5161,8 +5161,11 @@
         {
           "id": "401873043",
           "picks": {
+            "WESLEY": "LAR",
             "KAREN": "LAR",
             "DEVIN": "LAR",
+            "NICK": "LAR",
+            "LYDIA": "LAR",
             "KENNY": "LAR",
             "AUSTIN": "LAR",
             "ELLY": "LAR",
@@ -5178,11 +5181,8 @@
             "JIM": "\u2014",
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
-            "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
-            "TONY": "\u2014",
-            "WESLEY": "\u2014"
+            "TONY": "\u2014"
           },
           "game": "LAR @ WSH",
           "date": "2026-11-08T18:00Z",
@@ -5194,8 +5194,11 @@
         {
           "id": "401873041",
           "picks": {
+            "WESLEY": "CAR",
             "KAREN": "DEN",
             "DEVIN": "CAR",
+            "NICK": "DEN",
+            "LYDIA": "CAR",
             "KENNY": "DEN",
             "AUSTIN": "DEN",
             "ELLY": "DEN",
@@ -5211,11 +5214,8 @@
             "JIM": "\u2014",
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
-            "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
-            "TONY": "\u2014",
-            "WESLEY": "\u2014"
+            "TONY": "\u2014"
           },
           "game": "DEN @ CAR",
           "date": "2026-11-08T18:00Z",
@@ -5227,8 +5227,11 @@
         {
           "id": "401873046",
           "picks": {
+            "WESLEY": "LAC",
             "KAREN": "HOU",
             "DEVIN": "HOU",
+            "NICK": "LAC",
+            "LYDIA": "LAC",
             "KENNY": "LAC",
             "AUSTIN": "HOU",
             "ELLY": "HOU",
@@ -5244,11 +5247,8 @@
             "JIM": "\u2014",
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
-            "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
-            "TONY": "\u2014",
-            "WESLEY": "\u2014"
+            "TONY": "\u2014"
           },
           "game": "HOU @ LAC",
           "date": "2026-11-08T21:05Z",
@@ -5260,8 +5260,11 @@
         {
           "id": "401873049",
           "picks": {
+            "WESLEY": "GB",
             "KAREN": "NE",
             "DEVIN": "GB",
+            "NICK": "GB",
+            "LYDIA": "GB",
             "KENNY": "GB",
             "AUSTIN": "NE",
             "ELLY": "GB",
@@ -5277,11 +5280,8 @@
             "JIM": "\u2014",
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
-            "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
-            "TONY": "\u2014",
-            "WESLEY": "\u2014"
+            "TONY": "\u2014"
           },
           "game": "GB @ NE",
           "date": "2026-11-08T21:25Z",
@@ -5293,8 +5293,11 @@
         {
           "id": "401873047",
           "picks": {
+            "WESLEY": "SF",
             "KAREN": "SF",
             "DEVIN": "SF",
+            "NICK": "SF",
+            "LYDIA": "LV",
             "KENNY": "SF",
             "AUSTIN": "SF",
             "ELLY": "LV",
@@ -5310,11 +5313,8 @@
             "JIM": "\u2014",
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
-            "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
-            "TONY": "\u2014",
-            "WESLEY": "\u2014"
+            "TONY": "\u2014"
           },
           "game": "LV @ SF",
           "date": "2026-11-08T21:25Z",
@@ -5326,8 +5326,11 @@
         {
           "id": "401873048",
           "picks": {
+            "WESLEY": "SEA",
             "KAREN": "SEA",
             "DEVIN": "SEA",
+            "NICK": "SEA",
+            "LYDIA": "SEA",
             "KENNY": "SEA",
             "AUSTIN": "SEA",
             "ELLY": "SEA",
@@ -5343,11 +5346,8 @@
             "JIM": "\u2014",
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
-            "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
-            "TONY": "\u2014",
-            "WESLEY": "\u2014"
+            "TONY": "\u2014"
           },
           "game": "ARI @ SEA",
           "date": "2026-11-08T21:25Z",
@@ -5359,8 +5359,11 @@
         {
           "id": "401873050",
           "picks": {
+            "WESLEY": "CHI",
             "KAREN": "TB",
             "DEVIN": "CHI",
+            "NICK": "CHI",
+            "LYDIA": "CHI",
             "KENNY": "CHI",
             "AUSTIN": "CHI",
             "ELLY": "CHI",
@@ -5376,11 +5379,8 @@
             "JIM": "\u2014",
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
-            "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
-            "TONY": "\u2014",
-            "WESLEY": "\u2014"
+            "TONY": "\u2014"
           },
           "game": "TB @ CHI",
           "date": "2026-11-09T01:20Z",
@@ -5392,8 +5392,11 @@
         {
           "id": "401873051",
           "picks": {
+            "WESLEY": "BUF",
             "KAREN": "MIN",
             "DEVIN": "MIN",
+            "NICK": "BUF",
+            "LYDIA": "MIN",
             "KENNY": "BUF",
             "AUSTIN": "BUF",
             "ELLY": "BUF",
@@ -5409,11 +5412,8 @@
             "JIM": "\u2014",
             "JORDAN": "\u2014",
             "KENZIE": "\u2014",
-            "LYDIA": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
-            "TONY": "\u2014",
-            "WESLEY": "\u2014"
+            "TONY": "\u2014"
           },
           "game": "BUF @ MIN",
           "date": "2026-11-10T01:15Z",
@@ -5494,16 +5494,16 @@
             "predictedTotal": "\u2014"
           },
           "LYDIA": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "MIN",
+            "predictedTotal": 60
           },
           "MADDIE": {
             "winner": "BUF",
             "predictedTotal": 42
           },
           "NICK": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "BUF",
+            "predictedTotal": 44
           },
           "RICK": {
             "winner": "\u2014",
@@ -5514,8 +5514,8 @@
             "predictedTotal": "\u2014"
           },
           "WESLEY": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "BUF",
+            "predictedTotal": 67
           }
         }
       }
