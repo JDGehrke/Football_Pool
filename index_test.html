@@ -557,22 +557,22 @@
       font-size: 0.85rem;
     }
 
-/* --- RESPONSIVE PLAYOFF TEAM DISPLAY --- */
-.playoff-team-desktop {
-  display: inline-block;
-}
-.playoff-team-mobile {
-  display: none;
-}
+    /* --- RESPONSIVE PLAYOFF TEAM DISPLAY --- */
+    .playoff-team-desktop {
+      display: inline-block;
+    }
+    .playoff-team-mobile {
+      display: none;
+    }
 
-@media (max-width: 600px) {
-  .playoff-team-desktop {
-    display: none !important;
-  }
-  .playoff-team-mobile {
-    display: inline-block !important;
-  }
-}
+    @media (max-width: 600px) {
+      .playoff-team-desktop {
+        display: none !important;
+      }
+      .playoff-team-mobile {
+        display: inline-block !important;
+      }
+    }
 
     .vertical-banner-row td {
       padding: 0 !important;
@@ -1073,7 +1073,7 @@
   <div id="tab-weekly" class="tab-content">
     <div style="margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
       <div style="display: flex; align-items: center; gap: 10px;">
-        <label for="week-select"><strong>Select Pool Weeksssss:</strong></label>
+        <label for="week-select"><strong>Select Pool Week:</strong></label>
         <select id="week-select" onchange="renderWeeklyTab()"></select>
       </div>
 
@@ -2473,242 +2473,226 @@
       }
     }
 
-// Cumulative Distribution Function for Normal Distribution (Z-score approximation)
-function normalCDF(x, mean = 44.0, stdDev = 10.5) {
-  const z = (x - mean) / stdDev;
-  const t = 1 / (1 + 0.2316419 * Math.abs(z));
-  const d = 0.3989423 * Math.exp(-z * z / 2);
-  const prob = d * t * (1 + t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))));
-  return z > 0 ? 1 - prob : prob;
-}
-
-// Multi-way Tiebreaker Math using pairwise continuous normal distribution
-function getMultiwayTiebreakerProbs(contenders, tiebreakerPicks, projectedTotal = 44.0) {
-  const result = {};
-
-  // Extract picks for active contenders
-  const playerPicks = contenders.map(p => ({
-    player: p,
-    pick: tiebreakerPicks[p]?.predictedTotal
-  }));
-
-  // Fallback to equal distribution if any contender missing a prediction
-  if (playerPicks.some(item => typeof item.pick !== 'number')) {
-    const equalShare = 1.0 / contenders.length;
-    contenders.forEach(p => { result[p] = equalShare; });
-    return result;
-  }
-
-  // Sort contenders ascending by tiebreaker prediction
-  playerPicks.sort((a, b) => a.pick - b.pick);
-
-  // Calculate midpoints between adjacent picks
-  const midpoints = [];
-  for (let i = 0; i < playerPicks.length - 1; i++) {
-    midpoints.push((playerPicks[i].pick + playerPicks[i + 1].pick) / 2);
-  }
-
-  // Compute CDF values at boundary midpoints
-  const cdfValues = midpoints.map(m => normalCDF(m, projectedTotal, 10.5));
-
-  // Assign probability range to each contender
-  playerPicks.forEach((item, idx) => {
-    if (idx === 0) {
-      result[item.player] = cdfValues[0];
-    } else if (idx === playerPicks.length - 1) {
-      result[item.player] = 1 - cdfValues[cdfValues.length - 1];
-    } else {
-      result[item.player] = cdfValues[idx] - cdfValues[idx - 1];
+    // Cumulative Distribution Function for Normal Distribution (Z-score approximation)
+    function normalCDF(x, mean = 44.0, stdDev = 10.5) {
+      const z = (x - mean) / stdDev;
+      const t = 1 / (1 + 0.2316419 * Math.abs(z));
+      const d = 0.3989423 * Math.exp(-z * z / 2);
+      const prob = d * t * (1 + t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))));
+      return z > 0 ? 1 - prob : prob;
     }
-  });
 
-  return result;
-}
+    // Multi-way Tiebreaker Math using pairwise continuous normal distribution
+    function getMultiwayTiebreakerProbs(contenders, tiebreakerPicks, projectedTotal = 44.0) {
+      const result = {};
 
-function openPathToCrownModal() {
-  const currentWeekData = poolData.weeks?.[currentWeekKey] || {};
-  const matchups = currentWeekData.matchups || [];
+      const playerPicks = contenders.map(p => ({
+        player: p,
+        pick: tiebreakerPicks[p]?.predictedTotal
+      }));
 
-  // Calculate current baseline win counts per player
-  const currentWins = {};
-  (poolData.players || []).forEach(p => currentWins[p] = 0);
-  
-  matchups.forEach(m => {
-    if (m.winner) {
-      const w = m.winner.trim().toUpperCase();
-      (poolData.players || []).forEach(p => {
-        if ((m.picks?.[p] || '').trim().toUpperCase() === w) {
-          currentWins[p]++;
+      if (playerPicks.some(item => typeof item.pick !== 'number')) {
+        const equalShare = 1.0 / contenders.length;
+        contenders.forEach(p => { result[p] = equalShare; });
+        return result;
+      }
+
+      playerPicks.sort((a, b) => a.pick - b.pick);
+
+      const midpoints = [];
+      for (let i = 0; i < playerPicks.length - 1; i++) {
+        midpoints.push((playerPicks[i].pick + playerPicks[i + 1].pick) / 2);
+      }
+
+      const cdfValues = midpoints.map(m => normalCDF(m, projectedTotal, 10.5));
+
+      playerPicks.forEach((item, idx) => {
+        if (idx === 0) {
+          result[item.player] = cdfValues[0];
+        } else if (idx === playerPicks.length - 1) {
+          result[item.player] = 1 - cdfValues[cdfValues.length - 1];
+        } else {
+          result[item.player] = cdfValues[idx] - cdfValues[idx - 1];
         }
       });
+
+      return result;
     }
-  });
 
-  // Identify remaining games that need simulation
-  const remainingGames = matchups.filter(m => !m.winner);
-  
-  // Extract tiebreaker predictions for active players
-  const tiebreakerPicks = currentWeekData.tiebreakers || {};
+    function openPathToCrownModal() {
+      const currentWeekKey = document.getElementById('week-select').value;
+      const currentWeekData = poolData.weeks?.[currentWeekKey] || {};
+      const matchups = currentWeekData.matchups || [];
 
-  // 1. Prepare remaining games and pull awayPCT / homePCT from data.json
-  const gamesToSimulate = remainingGames.map((m, idx) => {
-    const teamsInGame = (m.game || '')
-      .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
-      .map(t => t.trim().toUpperCase())
-      .filter(t => t.length >= 2);
-
-    const rawHomeProb = typeof m.homePCT === 'number' ? m.homePCT : 0.50;
-    const rawAwayProb = typeof m.awayPCT === 'number' ? m.awayPCT : 0.50;
-    
-    // Relative normalization to guarantee sum == 1.0
-    const totalProb = rawHomeProb + rawAwayProb || 1.0;
-    const homeProb = rawHomeProb / totalProb;
-    const awayProb = rawAwayProb / totalProb;
-
-    return {
-      id: idx,
-      away: teamsInGame[0] || 'AWAY',
-      home: teamsInGame[1] || 'HOME',
-      homeWinProb: homeProb,
-      awayWinProb: awayProb,
-      picks: m.picks || {}
-    };
-  });
-
-  const numGames = gamesToSimulate.length;
-  const totalPermutations = Math.pow(2, numGames);
-  const permutationMatrix = [];
-
-  // 2. Iterate through scenario permutations (2^N)
-  for (let i = 0; i < totalPermutations; i++) {
-    const outcomeObj = {};
-    const simulatedWinners = [];
-    let scenarioProbability = 1.0;
-
-    gamesToSimulate.forEach((g, bitIdx) => {
-      const isHomeWin = (i & (1 << bitIdx)) !== 0;
-      const winner = isHomeWin ? g.home : g.away;
+      const currentWins = {};
+      (poolData.players || []).forEach(p => currentWins[p] = 0);
       
-      outcomeObj[g.id] = winner;
-      simulatedWinners.push(winner);
-
-      const gameProb = isHomeWin ? g.homeWinProb : g.awayWinProb;
-      scenarioProbability *= gameProb;
-    });
-
-    const pScores = {};
-    (poolData.players || []).forEach(p => {
-      let extra = 0;
-      gamesToSimulate.forEach(g => {
-        const playerPick = (g.picks[p] || '').trim().toUpperCase();
-        if (playerPick === outcomeObj[g.id]) extra++;
+      matchups.forEach(m => {
+        if (m.winner) {
+          const w = m.winner.trim().toUpperCase();
+          (poolData.players || []).forEach(p => {
+            if ((m.picks?.[p] || '').trim().toUpperCase() === w) {
+              currentWins[p]++;
+            }
+          });
+        }
       });
-      pScores[p] = currentWins[p] + extra;
-    });
 
-    const maxScore = Math.max(...Object.values(pScores));
-    const topContenders = (poolData.players || []).filter(p => pScores[p] === maxScore);
+      const remainingGames = matchups.filter(m => !m.winner);
+      const tiebreakerPicks = currentWeekData.tiebreaker?.picks || currentWeekData.tiebreakers || {};
 
-    permutationMatrix.push({
-      simulatedWinners: simulatedWinners,
-      winnersMap: outcomeObj,
-      topContenders: topContenders,
-      maxScore: maxScore,
-      probability: scenarioProbability
-    });
-  }
+      const gamesToSimulate = remainingGames.map((m, idx) => {
+        const teamsInGame = (m.game || '')
+          .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
+          .map(t => t.trim().toUpperCase())
+          .filter(t => t.length >= 2);
 
-  // 3. Accumulate weighted win chances (including CDF tiebreaker math)
-  const playerCrownProbabilities = {};
-  (poolData.players || []).forEach(p => { playerCrownProbabilities[p] = 0; });
+        const rawHomeProb = typeof m.homePCT === 'number' ? m.homePCT : 0.50;
+        const rawAwayProb = typeof m.awayPCT === 'number' ? m.awayPCT : 0.50;
+        
+        const totalProb = rawHomeProb + rawAwayProb || 1.0;
+        const homeProb = rawHomeProb / totalProb;
+        const awayProb = rawAwayProb / totalProb;
 
-  const vegasTotal = currentWeekData?.vegasTotal || 44.0;
-
-  permutationMatrix.forEach(perm => {
-    const contenders = perm.topContenders;
-    const pathWeight = perm.probability;
-
-    if (contenders.length === 1) {
-      playerCrownProbabilities[contenders[0]] += pathWeight;
-    } else {
-      const tieProbs = getMultiwayTiebreakerProbs(contenders, tiebreakerPicks, vegasTotal);
-      contenders.forEach(p => {
-        playerCrownProbabilities[p] += pathWeight * (tieProbs[p] || (1 / contenders.length));
+        return {
+          id: idx,
+          away: teamsInGame[0] || 'AWAY',
+          home: teamsInGame[1] || 'HOME',
+          homeWinProb: homeProb,
+          awayWinProb: awayProb,
+          picks: m.picks || {}
+        };
       });
-    }
-  });
 
-  // Determine active contenders (players who win in at least 1 outcome permutation)
-  const activeContendersSet = new Set();
-  const contenderScenarios = {};
-  (poolData.players || []).forEach(p => { contenderScenarios[p] = []; });
+      const numGames = gamesToSimulate.length;
+      const totalPermutations = Math.pow(2, numGames);
+      const permutationMatrix = [];
 
-  permutationMatrix.forEach(perm => {
-    perm.topContenders.forEach(p => {
-      activeContendersSet.add(p);
-      
-      const scenarioText = gamesToSimulate.map(g => {
-        const winner = perm.winnersMap[g.id];
-        return `${winner} wins`;
-      }).join(', ');
+      for (let i = 0; i < totalPermutations; i++) {
+        const outcomeObj = {};
+        const simulatedWinners = [];
+        let scenarioProbability = 1.0;
 
-      contenderScenarios[p].push({
-        conditionText: scenarioText,
-        winnersMap: perm.winnersMap
+        gamesToSimulate.forEach((g, bitIdx) => {
+          const isHomeWin = (i & (1 << bitIdx)) !== 0;
+          const winner = isHomeWin ? g.home : g.away;
+          
+          outcomeObj[g.id] = winner;
+          simulatedWinners.push(winner);
+
+          const gameProb = isHomeWin ? g.homeWinProb : g.awayWinProb;
+          scenarioProbability *= gameProb;
+        });
+
+        const pScores = {};
+        (poolData.players || []).forEach(p => {
+          let extra = 0;
+          gamesToSimulate.forEach(g => {
+            const playerPick = (g.picks[p] || '').trim().toUpperCase();
+            if (playerPick === outcomeObj[g.id]) extra++;
+          });
+          pScores[p] = currentWins[p] + extra;
+        });
+
+        const maxScore = Math.max(...Object.values(pScores));
+        const topContenders = (poolData.players || []).filter(p => pScores[p] === maxScore);
+
+        permutationMatrix.push({
+          simulatedWinners: simulatedWinners,
+          winnersMap: outcomeObj,
+          topContenders: topContenders,
+          maxScore: maxScore,
+          probability: scenarioProbability
+        });
+      }
+
+      const playerCrownProbabilities = {};
+      (poolData.players || []).forEach(p => { playerCrownProbabilities[p] = 0; });
+
+      const vegasTotal = currentWeekData.tiebreaker?.vegasTotal || currentWeekData?.vegasTotal || 44.0;
+
+      permutationMatrix.forEach(perm => {
+        const contenders = perm.topContenders;
+        const pathWeight = perm.probability;
+
+        if (contenders.length === 1) {
+          playerCrownProbabilities[contenders[0]] += pathWeight;
+        } else {
+          const tieProbs = getMultiwayTiebreakerProbs(contenders, tiebreakerPicks, vegasTotal);
+          contenders.forEach(p => {
+            playerCrownProbabilities[p] += pathWeight * (tieProbs[p] || (1 / contenders.length));
+          });
+        }
       });
-    });
-  });
 
-  const activeContenders = Array.from(activeContendersSet).sort((a, b) => {
-    return playerCrownProbabilities[b] - playerCrownProbabilities[a];
-  });
+      const activeContendersSet = new Set();
+      const contenderScenarios = {};
+      (poolData.players || []).forEach(p => { contenderScenarios[p] = []; });
 
-  // Build Modal UI Content
-  let html = `
-    <div style="padding: 10px;">
-      <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
-        Probabilities are calculated across all <strong>${totalPermutations}</strong> remaining outcome scenarios using team win probabilities and Vegas tiebreaker projections.
-      </p>
-  `;
+      permutationMatrix.forEach(perm => {
+        perm.topContenders.forEach(p => {
+          activeContendersSet.add(p);
+          
+          const scenarioText = gamesToSimulate.map(g => {
+            const winner = perm.winnersMap[g.id];
+            return `${winner} wins`;
+          }).join(', ');
 
-  if (activeContenders.length === 0) {
-    html += `<p>No remaining games to simulate for this week.</p>`;
-  } else {
-    activeContenders.forEach(p => {
-      const pWinsNow = currentWins[p];
-      const predVal = tiebreakerPicks[p]?.predictedTotal ?? 'N/A';
-      const winPctStr = (playerCrownProbabilities[p] * 100).toFixed(1);
+          contenderScenarios[p].push({
+            conditionText: scenarioText,
+            winnersMap: perm.winnersMap
+          });
+        });
+      });
 
-      const scenarios = contenderScenarios[p];
-      const bulletsHtml = scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
+      const activeContenders = Array.from(activeContendersSet).sort((a, b) => {
+        return playerCrownProbabilities[b] - playerCrownProbabilities[a];
+      });
 
-      html += `
-        <div class="ptc-contender-card rank-2" data-player="${p}" onclick="toggleContenderHighlight('${p}')" style="border-left: 4px solid var(--secondary-color); background: #f8fafc; cursor: pointer; transition: all 0.2s ease; margin-bottom: 12px; padding: 12px; border-radius: 6px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <strong>${p} <span style="color: var(--text-muted); font-size: 0.8rem;">(${pWinsNow} Wins • Tiebreaker: ${predVal})</span></strong>
-            <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700; font-size: 0.85rem; padding: 4px 8px; border-radius: 12px;">
-              📊 ${winPctStr}% Crown Prob
-            </span>
-          </div>
-          <ul class="ptc-scenario-list" style="margin: 0; padding-left: 20px; font-size: 0.85rem;">${bulletsHtml}</ul>
-        </div>
+      let html = `
+        <div style="padding: 10px;">
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
+            Probabilities are calculated across all <strong>${totalPermutations}</strong> remaining outcome scenarios using team win probabilities and Vegas tiebreaker projections.
+          </p>
       `;
-    });
-  }
 
-  html += `</div>`;
+      if (activeContenders.length === 0) {
+        html += `<p>No remaining games to simulate for this week.</p>`;
+      } else {
+        activeContenders.forEach(p => {
+          const pWinsNow = currentWins[p];
+          const predVal = tiebreakerPicks[p]?.predictedTotal ?? 'N/A';
+          const winPctStr = (playerCrownProbabilities[p] * 100).toFixed(1);
 
-  // Insert content into modal container and show modal
-  const modalContentElem = document.getElementById('ptcModalContent');
-  if (modalContentElem) {
-    modalContentElem.innerHTML = html;
-  }
-  
-  const modalElem = document.getElementById('ptcModal');
-  if (modalElem) {
-    modalElem.style.display = 'block';
-  }
-}
+          const scenarios = contenderScenarios[p];
+          const bulletsHtml = scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
+
+          html += `
+            <div class="ptc-contender-card rank-2" data-player="${p}" onclick="toggleContenderHighlight('${p}')" style="border-left: 4px solid var(--secondary-color); background: #f8fafc; cursor: pointer; transition: all 0.2s ease; margin-bottom: 12px; padding: 12px; border-radius: 6px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong>${p} <span style="color: var(--text-muted); font-size: 0.8rem;">(${pWinsNow} Wins • Tiebreaker: ${predVal})</span></strong>
+                <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700; font-size: 0.85rem; padding: 4px 8px; border-radius: 12px;">
+                  📊 ${winPctStr}% Crown Prob
+                </span>
+              </div>
+              <ul class="ptc-scenario-list" style="margin: 0; padding-left: 20px; font-size: 0.85rem;">${bulletsHtml}</ul>
+            </div>
+          `;
+        });
+      }
+
+      html += `</div>`;
+
+      const modalBodyElem = document.getElementById('modal-crown-body');
+      if (modalBodyElem) {
+        modalBodyElem.innerHTML = html;
+      }
+      
+      const modalElem = document.getElementById('path-to-crown-modal');
+      if (modalElem) {
+        modalElem.classList.add('active');
+      }
+    }
 
     function closeCrownModal(e) {
       if (!e || e.target.id === 'path-to-crown-modal' || e.target.classList.contains('modal-close-btn')) {
@@ -2941,7 +2925,6 @@ function openPathToCrownModal() {
         const val = winPercentages[index];
         const y = val !== null ? (paddingTop + (1 - (val / 100)) * chartHeight) : null;
         
-        // Shorten label to just the number on mobile (e.g., "Week 1" -> "1")
         const shortW = isMobile ? w.replace('Week ', '').replace('Wk ', '') : w.replace('Week ', 'Wk ');
 
         return { x: x, y: y, week: shortW, val: val !== null ? `${val}%` : '-' };
@@ -3021,8 +3004,7 @@ function openPathToCrownModal() {
       }).join('');
     }
 
-
-function openTeamScheduleModal(team) {
+    function openTeamScheduleModal(team) {
       const modalTitle = document.getElementById('modal-team-title');
       const modalBody = document.getElementById('modal-team-body');
       
@@ -3031,7 +3013,6 @@ function openTeamScheduleModal(team) {
       let totalWins = 0, totalLosses = 0, totalTies = 0;
       const logRows = [];
 
-      // Iterate through all weeks in order to catch Bye Weeks properly
       Object.entries(poolData.weeks || {}).forEach(([weekKey, weekData]) => {
         const matchups = weekData.matchups || [];
         let teamFoundInWeek = false;
@@ -3101,7 +3082,6 @@ function openTeamScheduleModal(team) {
           });
         });
 
-        // If the team has no game scheduled this week, add a Bye Week row
         if (!teamFoundInWeek) {
           logRows.push({
             matchupCombined: `${weekKey}`,
@@ -3143,7 +3123,6 @@ function openTeamScheduleModal(team) {
 
       document.getElementById('team-breakdown-modal').classList.add('active');
     }
-
 
     function openTeamBreakdownModal(team) {
       const player = document.getElementById('player-select').value;
@@ -3547,7 +3526,7 @@ function openTeamScheduleModal(team) {
       });
     }
 
-function renderPlayoffPictureBlock(confTitle, confPrefix) {
+    function renderPlayoffPictureBlock(confTitle, confPrefix) {
       const seeded = calculateConferencePlayoffPicture(confPrefix);
       const playoffTeams = seeded.slice(0, 7);
       const huntTeams = seeded.slice(7);
@@ -3624,7 +3603,6 @@ function renderPlayoffPictureBlock(confTitle, confPrefix) {
         </div>
       `;
     }
-
 
     function renderPlayoffPicture() {
       document.getElementById('afc-playoff-picture').innerHTML = renderPlayoffPictureBlock('American Football Conference', 'AFC');
