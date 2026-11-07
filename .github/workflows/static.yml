@@ -6,6 +6,7 @@ on:
     # Only run this workflow if index.html is modified
     paths:
       - 'index.html'
+      - 'index_test.html'
       # You can add other assets required for building the page here:
       # - 'css/**'
       # - 'js/**'
