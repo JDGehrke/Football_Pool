@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 1:05pm",
+    "lastUpdated": "Sunday @ 1:20pm",
     "currentWeek": "Week 9"
   },
   "hall_of_fame": [
@@ -5029,8 +5029,8 @@
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "10",
           "homeScore": "7",
-          "awayPCT": "70.18",
-          "homePCT": "29.82"
+          "awayPCT": "70.36",
+          "homePCT": "29.64"
         },
         {
           "id": "401873045",
@@ -5062,10 +5062,10 @@
           "date": "2026-11-08T18:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "9",
+          "awayScore": "12",
           "homeScore": "14",
-          "awayPCT": "16.25",
-          "homePCT": "83.75"
+          "awayPCT": "18.47",
+          "homePCT": "81.53"
         },
         {
           "id": "401873042",
@@ -5096,11 +5096,11 @@
           "game": "DET @ MIA",
           "date": "2026-11-08T18:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "status": "Halftime",
           "awayScore": "6",
           "homeScore": "3",
-          "awayPCT": "76.93",
-          "homePCT": "23.07"
+          "awayPCT": "78.2",
+          "homePCT": "21.8"
         },
         {
           "id": "401873039",
@@ -5134,8 +5134,8 @@
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "3",
           "homeScore": "3",
-          "awayPCT": "49.58",
-          "homePCT": "50.42"
+          "awayPCT": "38.05",
+          "homePCT": "61.95"
         },
         {
           "id": "401873044",
@@ -5169,8 +5169,8 @@
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "6",
           "homeScore": "8",
-          "awayPCT": "46.64",
-          "homePCT": "53.36"
+          "awayPCT": "46.989999999999995",
+          "homePCT": "53.010000000000005"
         },
         {
           "id": "401873043",
@@ -5204,8 +5204,8 @@
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "3",
           "homeScore": "10",
-          "awayPCT": "47.150000000000006",
-          "homePCT": "52.849999999999994"
+          "awayPCT": "57.379999999999995",
+          "homePCT": "42.620000000000005"
         },
         {
           "id": "401873041",
@@ -5238,9 +5238,9 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "10",
-          "homeScore": "0",
-          "awayPCT": "82.61",
-          "homePCT": "17.39"
+          "homeScore": "7",
+          "awayPCT": "69.88",
+          "homePCT": "30.12"
         },
         {
           "id": "401873046",
