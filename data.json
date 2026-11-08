@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 5:20pm",
+    "lastUpdated": "Sunday @ 5:35pm",
     "currentWeek": "Week 9"
   },
   "hall_of_fame": [
@@ -5274,8 +5274,8 @@
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "31",
           "homeScore": "9",
-          "awayPCT": "98.36",
-          "homePCT": "1.6400000000000001"
+          "awayPCT": "99.38",
+          "homePCT": "0.62"
         },
         {
           "id": "401873049",
@@ -5306,11 +5306,11 @@
           "game": "GB @ NE",
           "date": "2026-11-08T21:25Z",
           "winner": null,
-          "status": "Halftime",
-          "awayScore": "24",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "awayScore": "31",
           "homeScore": "14",
-          "awayPCT": "76.78",
-          "homePCT": "23.22"
+          "awayPCT": "93.64",
+          "homePCT": "6.36"
         },
         {
           "id": "401873047",
@@ -5343,9 +5343,9 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "17",
-          "homeScore": "28",
-          "awayPCT": "8.379999999999995",
-          "homePCT": "91.62"
+          "homeScore": "35",
+          "awayPCT": "0.7199999999999989",
+          "homePCT": "99.28"
         },
         {
           "id": "401873048",
@@ -5378,9 +5378,9 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "3",
-          "homeScore": "14",
-          "awayPCT": "7.5",
-          "homePCT": "92.5"
+          "homeScore": "17",
+          "awayPCT": "7.109999999999999",
+          "homePCT": "92.89"
         },
         {
           "id": "401873050",
