@@ -2087,14 +2087,14 @@
       const btnCrown = document.getElementById('btn-path-to-crown');
 
       if (btnCrown) {
-        // Show button ONLY if viewing current week AND Sunday evening or later
-        if (week === currentWeekKey && isSundayEveningOrLater(matchups)) {
+        // Always show the button if it's the current week
+        if (week === currentWeekKey) {
           btnCrown.style.display = 'inline-flex';
         } else {
           btnCrown.style.display = 'none';
         }
       }
-      
+
       let lockDate = weekData.lockTime ? new Date(weekData.lockTime) : null;
       if (!lockDate && matchups.length > 0) {
         const dates = matchups.map(m => m.date).filter(Boolean).sort();
@@ -2120,7 +2120,8 @@
         activeWeekContainer.style.display = 'block';
         renderActiveWeekVisuals(week, weekData, matchups);
       }
-    }    
+    }
+
 
     function renderSubmissionTracker(weekData) {
       const lockTimeElem = document.getElementById('lock-time-value');
