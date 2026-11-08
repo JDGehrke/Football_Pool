@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 1:20pm",
+    "lastUpdated": "Sunday @ 1:35pm",
     "currentWeek": "Week 9"
   },
   "hall_of_fame": [
@@ -5029,8 +5029,8 @@
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "10",
           "homeScore": "7",
-          "awayPCT": "70.36",
-          "homePCT": "29.64"
+          "awayPCT": "71.80000000000001",
+          "homePCT": "28.199999999999996"
         },
         {
           "id": "401873045",
@@ -5061,11 +5061,11 @@
           "game": "NYJ @ KC",
           "date": "2026-11-08T18:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "status": "Halftime",
           "awayScore": "12",
           "homeScore": "14",
-          "awayPCT": "18.47",
-          "homePCT": "81.53"
+          "awayPCT": "22.28",
+          "homePCT": "77.72"
         },
         {
           "id": "401873042",
@@ -5096,11 +5096,11 @@
           "game": "DET @ MIA",
           "date": "2026-11-08T18:00Z",
           "winner": null,
-          "status": "Halftime",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "6",
           "homeScore": "3",
-          "awayPCT": "78.2",
-          "homePCT": "21.8"
+          "awayPCT": "77.49000000000001",
+          "homePCT": "22.509999999999998"
         },
         {
           "id": "401873039",
@@ -5131,11 +5131,11 @@
           "game": "CLE @ NO",
           "date": "2026-11-08T18:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "status": "Halftime",
           "awayScore": "3",
           "homeScore": "3",
-          "awayPCT": "38.05",
-          "homePCT": "61.95"
+          "awayPCT": "36.92999999999999",
+          "homePCT": "63.07000000000001"
         },
         {
           "id": "401873044",
@@ -5169,8 +5169,8 @@
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "6",
           "homeScore": "8",
-          "awayPCT": "46.989999999999995",
-          "homePCT": "53.010000000000005"
+          "awayPCT": "45.29",
+          "homePCT": "54.71"
         },
         {
           "id": "401873043",
@@ -5201,11 +5201,11 @@
           "game": "LAR @ WSH",
           "date": "2026-11-08T18:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "3",
+          "status": "Halftime",
+          "awayScore": "6",
           "homeScore": "10",
-          "awayPCT": "57.379999999999995",
-          "homePCT": "42.620000000000005"
+          "awayPCT": "54.57",
+          "homePCT": "45.43"
         },
         {
           "id": "401873041",
@@ -5236,11 +5236,11 @@
           "game": "DEN @ CAR",
           "date": "2026-11-08T18:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "10",
+          "status": "Halftime",
+          "awayScore": "13",
           "homeScore": "7",
-          "awayPCT": "69.88",
-          "homePCT": "30.12"
+          "awayPCT": "76.72",
+          "homePCT": "23.28"
         },
         {
           "id": "401873046",
