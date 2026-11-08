@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 11:50am",
+    "lastUpdated": "Sunday @ 12:05pm",
     "currentWeek": "Week 9"
   },
   "hall_of_fame": [
@@ -5026,11 +5026,11 @@
           "game": "DAL @ IND",
           "date": "2026-11-08T18:00Z",
           "winner": null,
-          "status": "Scheduled",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "61.1",
-          "homePCT": "38.6"
+          "awayPCT": "63.97",
+          "homePCT": "36.03"
         },
         {
           "id": "401873045",
@@ -5061,11 +5061,11 @@
           "game": "NYJ @ KC",
           "date": "2026-11-08T18:00Z",
           "winner": null,
-          "status": "Scheduled",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "19.7",
-          "homePCT": "80.2"
+          "awayPCT": "22.450000000000003",
+          "homePCT": "77.55"
         },
         {
           "id": "401873042",
@@ -5096,11 +5096,11 @@
           "game": "DET @ MIA",
           "date": "2026-11-08T18:00Z",
           "winner": null,
-          "status": "Scheduled",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "77.6",
-          "homePCT": "22.3"
+          "awayPCT": "79.5",
+          "homePCT": "20.5"
         },
         {
           "id": "401873039",
@@ -5131,11 +5131,11 @@
           "game": "CLE @ NO",
           "date": "2026-11-08T18:00Z",
           "winner": null,
-          "status": "Scheduled",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "31.7",
-          "homePCT": "68"
+          "awayPCT": "31.75",
+          "homePCT": "68.25"
         },
         {
           "id": "401873044",
@@ -5166,11 +5166,11 @@
           "game": "NYG @ PHI",
           "date": "2026-11-08T18:00Z",
           "winner": null,
-          "status": "Scheduled",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "52.7",
-          "homePCT": "47"
+          "awayPCT": "52.72",
+          "homePCT": "47.28"
         },
         {
           "id": "401873043",
@@ -5201,11 +5201,11 @@
           "game": "LAR @ WSH",
           "date": "2026-11-08T18:00Z",
           "winner": null,
-          "status": "Scheduled",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "72.9",
-          "homePCT": "26.9"
+          "awayPCT": "71.33",
+          "homePCT": "28.67"
         },
         {
           "id": "401873041",
@@ -5236,11 +5236,11 @@
           "game": "DEN @ CAR",
           "date": "2026-11-08T18:00Z",
           "winner": null,
-          "status": "Scheduled",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "63.2",
-          "homePCT": "36.5"
+          "awayPCT": "65.47",
+          "homePCT": "34.53"
         },
         {
           "id": "401873046",
