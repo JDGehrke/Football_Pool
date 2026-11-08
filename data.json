@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 1:50pm",
+    "lastUpdated": "Sunday @ 2:05pm",
     "currentWeek": "Week 9"
   },
   "hall_of_fame": [
@@ -5026,11 +5026,11 @@
           "game": "DAL @ IND",
           "date": "2026-11-08T18:00Z",
           "winner": null,
-          "status": "Halftime",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "17",
           "homeScore": "7",
-          "awayPCT": "84.69",
-          "homePCT": "15.310000000000002"
+          "awayPCT": "82.43",
+          "homePCT": "17.57"
         },
         {
           "id": "401873045",
@@ -5063,9 +5063,9 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "12",
-          "homeScore": "14",
-          "awayPCT": "13.049999999999997",
-          "homePCT": "86.95"
+          "homeScore": "21",
+          "awayPCT": "8.939999999999998",
+          "homePCT": "91.06"
         },
         {
           "id": "401873042",
@@ -5097,10 +5097,10 @@
           "date": "2026-11-08T18:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "9",
-          "homeScore": "3",
-          "awayPCT": "83.13",
-          "homePCT": "16.869999999999997"
+          "awayScore": "16",
+          "homeScore": "6",
+          "awayPCT": "91.8",
+          "homePCT": "8.200000000000001"
         },
         {
           "id": "401873039",
@@ -5133,9 +5133,9 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "6",
-          "homeScore": "3",
-          "awayPCT": "46.97",
-          "homePCT": "53.03"
+          "homeScore": "6",
+          "awayPCT": "41.120000000000005",
+          "homePCT": "58.879999999999995"
         },
         {
           "id": "401873044",
@@ -5166,11 +5166,11 @@
           "game": "NYG @ PHI",
           "date": "2026-11-08T18:00Z",
           "winner": null,
-          "status": "Halftime",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "6",
           "homeScore": "8",
-          "awayPCT": "45.48",
-          "homePCT": "54.52"
+          "awayPCT": "49.11",
+          "homePCT": "50.89"
         },
         {
           "id": "401873043",
@@ -5204,8 +5204,8 @@
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "13",
           "homeScore": "10",
-          "awayPCT": "73.11",
-          "homePCT": "26.889999999999997"
+          "awayPCT": "73.14",
+          "homePCT": "26.86"
         },
         {
           "id": "401873041",
@@ -5238,9 +5238,9 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "13",
-          "homeScore": "7",
-          "awayPCT": "69.07",
-          "homePCT": "30.930000000000003"
+          "homeScore": "14",
+          "awayPCT": "49.550000000000004",
+          "homePCT": "50.449999999999996"
         },
         {
           "id": "401873046",
