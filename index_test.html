@@ -2077,20 +2077,24 @@
       });
     }
 
-    function renderWeeklyTab() {
+function renderWeeklyTab() {
       const week = document.getElementById('week-select').value;
       const weekData = poolData.weeks[week];
       if (!weekData) return;
 
       const currentWeekKey = poolData.metadata?.currentWeek;
+      const matchups = weekData.matchups || [];
       const btnCrown = document.getElementById('btn-path-to-crown');
+
       if (btnCrown) {
-        if (week === currentWeekKey) {
+        // Show button ONLY if viewing current week AND Sunday evening or later
+        if (week === currentWeekKey && isSundayEveningOrLater(matchups)) {
           btnCrown.style.display = 'inline-flex';
         } else {
           btnCrown.style.display = 'none';
         }
       }
+      
 
       const matchups = weekData.matchups || [];
       
@@ -2518,181 +2522,264 @@
 
       return result;
     }
+function openPathToCrownModal() {
+  const currentWeekKey = document.getElementById('week-select').value;
+  const currentWeekData = poolData.weeks?.[currentWeekKey] || {};
+  const matchups = currentWeekData.matchups || [];
 
-    function openPathToCrownModal() {
-      const currentWeekKey = document.getElementById('week-select').value;
-      const currentWeekData = poolData.weeks?.[currentWeekKey] || {};
-      const matchups = currentWeekData.matchups || [];
+  const modalBodyElem = document.getElementById('modal-crown-body');
+  const modalElem = document.getElementById('path-to-crown-modal');
 
-      const currentWins = {};
-      (poolData.players || []).forEach(p => currentWins[p] = 0);
-      
-      matchups.forEach(m => {
-        if (m.winner) {
-          const w = m.winner.trim().toUpperCase();
-          (poolData.players || []).forEach(p => {
-            if ((m.picks?.[p] || '').trim().toUpperCase() === w) {
-              currentWins[p]++;
-            }
-          });
-        }
-      });
-
-      const remainingGames = matchups.filter(m => !m.winner);
-      const tiebreakerPicks = currentWeekData.tiebreaker?.picks || currentWeekData.tiebreakers || {};
-
-      const gamesToSimulate = remainingGames.map((m, idx) => {
-        const teamsInGame = (m.game || '')
-          .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
-          .map(t => t.trim().toUpperCase())
-          .filter(t => t.length >= 2);
-
-        const rawHomeProb = typeof m.homePCT === 'number' ? m.homePCT : 0.50;
-        const rawAwayProb = typeof m.awayPCT === 'number' ? m.awayPCT : 0.50;
-        
-        const totalProb = rawHomeProb + rawAwayProb || 1.0;
-        const homeProb = rawHomeProb / totalProb;
-        const awayProb = rawAwayProb / totalProb;
-
-        return {
-          id: idx,
-          away: teamsInGame[0] || 'AWAY',
-          home: teamsInGame[1] || 'HOME',
-          homeWinProb: homeProb,
-          awayWinProb: awayProb,
-          picks: m.picks || {}
-        };
-      });
-
-      const numGames = gamesToSimulate.length;
-      const totalPermutations = Math.pow(2, numGames);
-      const permutationMatrix = [];
-
-      for (let i = 0; i < totalPermutations; i++) {
-        const outcomeObj = {};
-        const simulatedWinners = [];
-        let scenarioProbability = 1.0;
-
-        gamesToSimulate.forEach((g, bitIdx) => {
-          const isHomeWin = (i & (1 << bitIdx)) !== 0;
-          const winner = isHomeWin ? g.home : g.away;
-          
-          outcomeObj[g.id] = winner;
-          simulatedWinners.push(winner);
-
-          const gameProb = isHomeWin ? g.homeWinProb : g.awayWinProb;
-          scenarioProbability *= gameProb;
-        });
-
-        const pScores = {};
-        (poolData.players || []).forEach(p => {
-          let extra = 0;
-          gamesToSimulate.forEach(g => {
-            const playerPick = (g.picks[p] || '').trim().toUpperCase();
-            if (playerPick === outcomeObj[g.id]) extra++;
-          });
-          pScores[p] = currentWins[p] + extra;
-        });
-
-        const maxScore = Math.max(...Object.values(pScores));
-        const topContenders = (poolData.players || []).filter(p => pScores[p] === maxScore);
-
-        permutationMatrix.push({
-          simulatedWinners: simulatedWinners,
-          winnersMap: outcomeObj,
-          topContenders: topContenders,
-          maxScore: maxScore,
-          probability: scenarioProbability
-        });
-      }
-
-      const playerCrownProbabilities = {};
-      (poolData.players || []).forEach(p => { playerCrownProbabilities[p] = 0; });
-
-      const vegasTotal = currentWeekData.tiebreaker?.vegasTotal || currentWeekData?.vegasTotal || 44.0;
-
-      permutationMatrix.forEach(perm => {
-        const contenders = perm.topContenders;
-        const pathWeight = perm.probability;
-
-        if (contenders.length === 1) {
-          playerCrownProbabilities[contenders[0]] += pathWeight;
-        } else {
-          const tieProbs = getMultiwayTiebreakerProbs(contenders, tiebreakerPicks, vegasTotal);
-          contenders.forEach(p => {
-            playerCrownProbabilities[p] += pathWeight * (tieProbs[p] || (1 / contenders.length));
-          });
-        }
-      });
-
-      const activeContendersSet = new Set();
-      const contenderScenarios = {};
-      (poolData.players || []).forEach(p => { contenderScenarios[p] = []; });
-
-      permutationMatrix.forEach(perm => {
-        perm.topContenders.forEach(p => {
-          activeContendersSet.add(p);
-          
-          const scenarioText = gamesToSimulate.map(g => {
-            const winner = perm.winnersMap[g.id];
-            return `${winner} wins`;
-          }).join(', ');
-
-          contenderScenarios[p].push({
-            conditionText: scenarioText,
-            winnersMap: perm.winnersMap
-          });
-        });
-      });
-
-      const activeContenders = Array.from(activeContendersSet).sort((a, b) => {
-        return playerCrownProbabilities[b] - playerCrownProbabilities[a];
-      });
-
-      let html = `
-        <div style="padding: 10px;">
-          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
-            Probabilities are calculated across all <strong>${totalPermutations}</strong> remaining outcome scenarios using team win probabilities and Vegas tiebreaker projections.
+  // 0. Safety Lock Check: Lock until Sunday 7:00 PM (or <= 3 games remaining)
+  if (!isSundayEveningOrLater(matchups)) {
+    if (modalBodyElem) {
+      modalBodyElem.innerHTML = `
+        <div style="padding: 30px 20px; text-align: center;">
+          <div style="font-size: 2.8rem; margin-bottom: 12px;">🔒</div>
+          <h4 style="font-size: 1.15rem; margin-bottom: 8px; color: var(--primary-color); font-weight: 700;">Path to the Crown is Locked</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 420px; margin: 0 auto; line-height: 1.5;">
+            Simulations unlock on <strong>Sunday evening at 7:00 PM</strong> (or when 3 or fewer games remain) to keep outcome paths focused and concise!
           </p>
+        </div>
       `;
-
-      if (activeContenders.length === 0) {
-        html += `<p>No remaining games to simulate for this week.</p>`;
-      } else {
-        activeContenders.forEach(p => {
-          const pWinsNow = currentWins[p];
-          const predVal = tiebreakerPicks[p]?.predictedTotal ?? 'N/A';
-          const winPctStr = (playerCrownProbabilities[p] * 100).toFixed(1);
-
-          const scenarios = contenderScenarios[p];
-          const bulletsHtml = scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
-
-          html += `
-            <div class="ptc-contender-card rank-2" data-player="${p}" onclick="toggleContenderHighlight('${p}')" style="border-left: 4px solid var(--secondary-color); background: #f8fafc; cursor: pointer; transition: all 0.2s ease; margin-bottom: 12px; padding: 12px; border-radius: 6px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <strong>${p} <span style="color: var(--text-muted); font-size: 0.8rem;">(${pWinsNow} Wins • Tiebreaker: ${predVal})</span></strong>
-                <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700; font-size: 0.85rem; padding: 4px 8px; border-radius: 12px;">
-                  📊 ${winPctStr}% Crown Prob
-                </span>
-              </div>
-              <ul class="ptc-scenario-list" style="margin: 0; padding-left: 20px; font-size: 0.85rem;">${bulletsHtml}</ul>
-            </div>
-          `;
-        });
-      }
-
-      html += `</div>`;
-
-      const modalBodyElem = document.getElementById('modal-crown-body');
-      if (modalBodyElem) {
-        modalBodyElem.innerHTML = html;
-      }
-      
-      const modalElem = document.getElementById('path-to-crown-modal');
-      if (modalElem) {
-        modalElem.classList.add('active');
-      }
     }
+    if (modalElem) modalElem.classList.add('active');
+    return;
+  }
+
+  // 1. Calculate current baseline win counts per player
+  const currentWins = {};
+  (poolData.players || []).forEach(p => currentWins[p] = 0);
+  
+  matchups.forEach(m => {
+    if (m.winner) {
+      const w = m.winner.trim().toUpperCase();
+      (poolData.players || []).forEach(p => {
+        if ((m.picks?.[p] || '').trim().toUpperCase() === w) {
+          currentWins[p]++;
+        }
+      });
+    }
+  });
+
+  // Identify remaining games that need simulation
+  const remainingGames = matchups.filter(m => !m.winner);
+  const tiebreakerPicks = currentWeekData.tiebreaker?.picks || currentWeekData.tiebreakers || {};
+
+  // Extract game teams and normalized win probabilities (awayPCT / homePCT)
+  const gamesToSimulate = remainingGames.map((m, idx) => {
+    const teamsInGame = (m.game || '')
+      .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
+      .map(t => t.trim().toUpperCase())
+      .filter(t => t.length >= 2);
+
+    const awayTeam = teamsInGame[0] || 'AWAY';
+    const homeTeam = teamsInGame[1] || 'HOME';
+
+    const rawHomeProb = typeof m.homePCT === 'number' ? m.homePCT : 0.50;
+    const rawAwayProb = typeof m.awayPCT === 'number' ? m.awayPCT : 0.50;
+    
+    // Relative normalization to guarantee sum == 1.0
+    const totalProb = rawHomeProb + rawAwayProb || 1.0;
+    const homeProb = rawHomeProb / totalProb;
+    const awayProb = rawAwayProb / totalProb;
+
+    return {
+      id: idx,
+      away: awayTeam,
+      home: homeTeam,
+      homeWinProb: homeProb,
+      awayWinProb: awayProb,
+      picks: m.picks || {}
+    };
+  });
+
+  const numGames = gamesToSimulate.length;
+  const totalPermutations = Math.pow(2, numGames);
+  const permutationMatrix = [];
+
+  // 2. Iterate through all outcome permutations (2^N)
+  for (let i = 0; i < totalPermutations; i++) {
+    const outcomeObj = {};
+    const simulatedWinners = [];
+    let scenarioProbability = 1.0;
+
+    gamesToSimulate.forEach((g, bitIdx) => {
+      const isHomeWin = (i & (1 << bitIdx)) !== 0;
+      const winner = isHomeWin ? g.home : g.away;
+      
+      outcomeObj[g.id] = winner;
+      simulatedWinners.push(winner);
+
+      const gameProb = isHomeWin ? g.homeWinProb : g.awayWinProb;
+      scenarioProbability *= gameProb;
+    });
+
+    const pScores = {};
+    (poolData.players || []).forEach(p => {
+      let extra = 0;
+      gamesToSimulate.forEach(g => {
+        const playerPick = (g.picks[p] || '').trim().toUpperCase();
+        if (playerPick === outcomeObj[g.id]) extra++;
+      });
+      pScores[p] = currentWins[p] + extra;
+    });
+
+    const maxScore = Math.max(...Object.values(pScores));
+    const topContenders = (poolData.players || []).filter(p => pScores[p] === maxScore);
+
+    permutationMatrix.push({
+      simulatedWinners: simulatedWinners,
+      winnersMap: outcomeObj,
+      topContenders: topContenders,
+      maxScore: maxScore,
+      probability: scenarioProbability
+    });
+  }
+
+  // 3. Accumulate weighted win chances using Normal CDF tiebreaker math
+  const playerCrownProbabilities = {};
+  (poolData.players || []).forEach(p => { playerCrownProbabilities[p] = 0; });
+
+  const vegasTotal = currentWeekData.tiebreaker?.vegasTotal || currentWeekData?.vegasTotal || 44.0;
+
+  permutationMatrix.forEach(perm => {
+    const contenders = perm.topContenders;
+    const pathWeight = perm.probability;
+
+    if (contenders.length === 1) {
+      playerCrownProbabilities[contenders[0]] += pathWeight;
+    } else {
+      const tieProbs = getMultiwayTiebreakerProbs(contenders, tiebreakerPicks, vegasTotal);
+      contenders.forEach(p => {
+        playerCrownProbabilities[p] += pathWeight * (tieProbs[p] || (1 / contenders.length));
+      });
+    }
+  });
+
+  // Group paths per active contender
+  const activeContendersSet = new Set();
+  const contenderScenarios = {};
+  (poolData.players || []).forEach(p => { contenderScenarios[p] = []; });
+
+  permutationMatrix.forEach(perm => {
+    perm.topContenders.forEach(p => {
+      activeContendersSet.add(p);
+      
+      const scenarioText = gamesToSimulate.map(g => {
+        const winner = perm.winnersMap[g.id];
+        return `${winner} wins`;
+      }).join(', ');
+
+      contenderScenarios[p].push({
+        conditionText: scenarioText,
+        winnersMap: perm.winnersMap
+      });
+    });
+  });
+
+  const activeContenders = Array.from(activeContendersSet).sort((a, b) => {
+    return playerCrownProbabilities[b] - playerCrownProbabilities[a];
+  });
+
+  // 4. Build Modal HTML Content
+  let html = `
+    <div style="padding: 10px;">
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+        Probabilities are calculated across all <strong>${totalPermutations}</strong> remaining outcome scenarios using team win probabilities and Vegas tiebreaker projections. <em>(Click any player card to highlight their winning outcomes in the table below)</em>.
+      </p>
+  `;
+
+  if (activeContenders.length === 0) {
+    html += `<p>No remaining games to simulate for this week.</p>`;
+  } else {
+    // Contender Summary Cards
+    activeContenders.forEach(p => {
+      const pWinsNow = currentWins[p];
+      const predVal = tiebreakerPicks[p]?.predictedTotal ?? 'N/A';
+      const winPctStr = (playerCrownProbabilities[p] * 100).toFixed(1);
+
+      const scenarios = contenderScenarios[p];
+      const bulletsHtml = scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
+
+      html += `
+        <div class="ptc-contender-card rank-2" data-player="${p}" onclick="toggleContenderHighlight('${p}')" style="border-left: 4px solid var(--secondary-color); background: #f8fafc; cursor: pointer; transition: all 0.2s ease; margin-bottom: 12px; padding: 12px; border-radius: 6px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <strong>${p} <span style="color: var(--text-muted); font-size: 0.8rem;">(${pWinsNow} Wins • Tiebreaker: ${predVal})</span></strong>
+            <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700; font-size: 0.85rem; padding: 4px 8px; border-radius: 12px;">
+              📊 ${winPctStr}% Crown Prob
+            </span>
+          </div>
+          <ul class="ptc-scenario-list" style="margin: 0; padding-left: 20px; font-size: 0.85rem;">${bulletsHtml}</ul>
+        </div>
+      `;
+    });
+
+    // 5. Build Individual Scenario Outcome Table at the Bottom
+    html += `
+      <h4 style="margin: 20px 0 10px 0; color: var(--primary-color); font-size: 1rem;">All Scenario Outcomes (${totalPermutations})</h4>
+      <div class="matrix-wrapper">
+        <table class="outcome-matrix-table" style="width: 100%; border-collapse: separate; border-spacing: 0;">
+          <thead>
+            <tr>
+              ${gamesToSimulate.map((g, idx) => `
+                <th class="text-center sortable-header" onclick="sortOutcomeMatrix(${idx})">
+                  <div class="matrix-header-stack">
+                    <span>${getTeamLogoHtml(g.away, false)}</span>
+                    <span class="matrix-at-symbol">@</span>
+                    <span>${getTeamLogoHtml(g.home, false)}</span>
+                  </div>
+                  <span class="sort-indicator"></span>
+                </th>
+              `).join('')}
+              <th class="text-center sortable-header" onclick="sortOutcomeMatrix(${gamesToSimulate.length})">
+                Leader / Winner
+                <span class="sort-indicator"></span>
+              </th>
+              <th class="text-center sortable-header" onclick="sortOutcomeMatrix(${gamesToSimulate.length + 1})">
+                Scenario Prob
+                <span class="sort-indicator"></span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            ${permutationMatrix.map(perm => {
+              const contendersStr = perm.topContenders.join(', ');
+              const probPctStr = (perm.probability * 100).toFixed(1) + '%';
+              
+              // Key attribute for highlighting matching rows when a player card is clicked
+              const winnerDataAttr = perm.topContenders.join(' ');
+
+              return `
+                <tr data-winner="${winnerDataAttr}">
+                  ${gamesToSimulate.map(g => {
+                    const winnerTeam = perm.winnersMap[g.id];
+                    return `<td class="text-center">${getTeamLogoHtml(winnerTeam, false)}</td>`;
+                  }).join('')}
+                  <td class="text-center"><strong>${contendersStr}</strong></td>
+                  <td class="text-center" style="font-weight: 600; color: var(--text-muted);">${probPctStr}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  html += `</div>`;
+
+  // Render modal content and open modal backdrop
+  if (modalBodyElem) {
+    modalBodyElem.innerHTML = html;
+  }
+  
+  if (modalElem) {
+    modalElem.classList.add('active');
+  }
+}
+
+
 
     function closeCrownModal(e) {
       if (!e || e.target.id === 'path-to-crown-modal' || e.target.classList.contains('modal-close-btn')) {
