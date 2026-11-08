@@ -209,11 +209,13 @@ for event in data.get("events", []):
     away = next(t for t in comp["competitors"] if t["homeAway"] == "away")
     home = next(t for t in comp["competitors"] if t["homeAway"] == "home")
     
+    #Clean Status
     if comp['status']['type'].get("description") == 'In Progress':
         status = "🔴 Live 🔴"
     else:
         status = comp['status']['type'].get("description")
 
+    #Get Winners
     if comp['status']['type'].get("description") != 'Final':
         winner = None
     elif away.get("winner") == True:
@@ -222,7 +224,17 @@ for event in data.get("events", []):
         winner = home["team"].get("abbreviation")
     else:
         winner = 'TIE'
+        
+    #Grab FPI Percentages
+    predictor = requests.get(fr"https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event={event['id']}").json()
+    if len(predictor['winprobability']) != 0:
+        pct = 100*predictor['winprobability'][-1]['homeWinPercentage']
+        predictor.update({'predictor':{'header': 'Matchup Predictor',
+                                       'awayTeam': {'id': '0', 'gameProjection': str(100-pct)},
+                                       'homeTeam': {'id': '0', 'gameProjection': str(pct)}}})
+        
 
+    #Add Rows to data for Json
     games_list.update({event['id']: 
         {
             "id": event.get("id"),
@@ -236,6 +248,7 @@ for event in data.get("events", []):
             "awayMascot": away["team"].get("name"),
             "awayScore": away.get("score"),
             "awayWinner": away.get("winner"),
+            "awayPCT": predictor['predictor']['awayTeam'].get('gameProjection'),
             
             "home": home["team"].get("displayName"),
             "homeShort": home["team"].get("abbreviation"),
@@ -243,6 +256,7 @@ for event in data.get("events", []):
             "homeMascot": home["team"].get("name"),
             "homeScore": home.get("score"),
             "homeWinner": home.get("winner"),
+            "homePCT": predictor['predictor']['homeTeam'].get('gameProjection'),
             
             #"status": comp['status']['type'].get("description"),
             "status": status,
@@ -252,6 +266,7 @@ for event in data.get("events", []):
             "winner": winner,
             }
         })
+    
     
         
 # =============================================================================
@@ -268,6 +283,8 @@ for game in picks_by_game:
          ,'status': games_list[gid].get('status')
          ,'awayScore': games_list[gid].get('awayScore')
          ,'homeScore': games_list[gid].get('homeScore')
+         ,'awayPCT': games_list[gid].get('awayPCT')
+         ,'homePCT': games_list[gid].get('homePCT')
          })
     
 #BUILD TIEBREAKER WITH FINAL GAME
