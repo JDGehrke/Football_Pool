@@ -1104,7 +1104,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v3.6 <span>🔮</span>
+        <span>🔮</span> Path to Crown v3.7 <span>🔮</span>
       </button>
     </div>
 
@@ -2589,6 +2589,7 @@
       return result;
     }
 
+
 function openPathToCrownModal() {
       const currentWeekKey = document.getElementById('week-select').value;
       const currentWeekData = poolData.weeks?.[currentWeekKey] || {};
@@ -2613,7 +2614,7 @@ function openPathToCrownModal() {
         return;
       }
 
-      // 1. Calculate current week wins for each player
+      // 1. Calculate current completed wins for each player
       const currentWins = {};
       (poolData.players || []).forEach(p => currentWins[p] = 0);
       
@@ -2640,10 +2641,10 @@ function openPathToCrownModal() {
         const awayTeam = teamsInGame[0] || 'AWAY';
         const homeTeam = teamsInGame[1] || 'HOME';
 
-        const rawHomeProb = typeof m.homePCT === 'number' ? m.homePCT : 0.50;
-        const rawAwayProb = typeof m.awayPCT === 'number' ? m.awayPCT : 0.50;
+        const rawHomeProb = parseFloat(m.homePCT) || 50.0;
+        const rawAwayProb = parseFloat(m.awayPCT) || 50.0;
         
-        const totalProb = rawHomeProb + rawAwayProb || 1.0;
+        const totalProb = (rawHomeProb + rawAwayProb) || 100.0;
         const homeProb = rawHomeProb / totalProb;
         const awayProb = rawAwayProb / totalProb;
 
@@ -2657,29 +2658,58 @@ function openPathToCrownModal() {
         };
       });
 
-      const numGames = gamesToSimulate.length;
-      const totalPermutations = Math.pow(2, numGames);
-      const vegasTotal = currentWeekData.tiebreaker?.vegasTotal || currentWeekData?.vegasTotal || 44.0;
+      // 2. Identify games where ALL players have the exact same pick (Irrelevant Outcome Games)
+      const meaningfulGames = [];
+      gamesToSimulate.forEach(g => {
+        const allPicks = (poolData.players || []).map(p => (g.picks[p] || '').trim().toUpperCase());
+        const firstPick = allPicks.find(pk => pk !== '' && pk !== '—');
+        const isUnanimous = firstPick && allPicks.every(pk => pk === firstPick || pk === '' || pk === '—');
+        
+        g.isUnanimous = isUnanimous;
+        g.unanimousPick = isUnanimous ? firstPick : null;
+        if (!isUnanimous) {
+          meaningfulGames.push(g);
+        }
+      });
 
-      // 2. Generate all game outcome permutations
+      // If all games are unanimous (e.g. BUF @ MIN), we simulate 1 scenario for the tiebreaker
+      const gamesToPermute = meaningfulGames.length > 0 ? meaningfulGames : gamesToSimulate.slice(0, 1);
+      const numGames = gamesToPermute.length;
+      const totalPermutations = Math.pow(2, numGames);
+      const vegasTotal = parseFloat(currentWeekData.tiebreaker?.vegasTotal || currentWeekData?.vegasTotal || 44.0);
+
+      // 3. Generate Outcome Permutations
       const gameScenarios = [];
       for (let i = 0; i < totalPermutations; i++) {
         const winnersMap = {};
         let scenarioProb = 1.0;
 
-        gamesToSimulate.forEach((g, bitIdx) => {
+        gamesToSimulate.forEach(g => {
+          if (g.isUnanimous) {
+            winnersMap[g.id] = 'ANY'; // Mark as irrelevant winner
+          }
+        });
+
+        gamesToPermute.forEach((g, bitIdx) => {
           const isHomeWin = (i & (1 << bitIdx)) !== 0;
           const winner = isHomeWin ? g.home : g.away;
           winnersMap[g.id] = winner;
           scenarioProb *= (isHomeWin ? g.homeWinProb : g.awayWinProb);
         });
 
-        // Compute scores for each player in this game outcome
+        // Calculate scores for each player in this scenario
         const pScores = {};
         (poolData.players || []).forEach(p => {
           let extra = 0;
           gamesToSimulate.forEach(g => {
-            if ((g.picks[p] || '').trim().toUpperCase() === winnersMap[g.id]) extra++;
+            const playerPick = (g.picks[p] || '').trim().toUpperCase();
+            const scenarioWinner = winnersMap[g.id];
+            
+            if (scenarioWinner === 'ANY' && playerPick && playerPick !== '—') {
+              extra++; // Everyone gets the win point
+            } else if (playerPick === scenarioWinner) {
+              extra++;
+            }
           });
           pScores[p] = currentWins[p] + extra;
         });
@@ -2695,7 +2725,7 @@ function openPathToCrownModal() {
         });
       }
 
-      // 3. Compute Tiebreaker Intervals for each game scenario
+      // 4. Compute Tiebreaker Intervals for each scenario
       const fullMatrixRows = [];
       const playerCrownProbabilities = {};
       (poolData.players || []).forEach(p => playerCrownProbabilities[p] = 0);
@@ -2706,12 +2736,9 @@ function openPathToCrownModal() {
         const contenders = sc.contenders;
         if (contenders.length === 0) return;
 
-        const gameConditions = gamesToSimulate.map(g => sc.winnersMap[g.id]);
-
-        // Check if remaining games are unanimous among contenders
-        const isUnanimousGame = gamesToSimulate.some(g => {
-          const picksInGame = contenders.map(c => (g.picks[c] || '').trim().toUpperCase());
-          return picksInGame.length > 0 && picksInGame.every(val => val === picksInGame[0] && val !== '—' && val !== '');
+        const gameConditions = gamesToSimulate.map(g => {
+          if (g.isUnanimous) return `${g.away}/${g.home}`;
+          return sc.winnersMap[g.id];
         });
 
         if (contenders.length === 1) {
@@ -2720,22 +2747,22 @@ function openPathToCrownModal() {
 
           fullMatrixRows.push({
             winnersMap: sc.winnersMap,
-            scoreText: isUnanimousGame ? 'Unanimous Pick (Tiebreaker Only)' : 'Outright (No Tiebreaker)',
+            scoreText: 'Outright (No Tiebreaker)',
             winner: winner,
             probability: sc.probability
           });
 
           playerClinchBullets[winner].push({
             gameCond: gameConditions.join(' & '),
-            scoreRange: isUnanimousGame ? 'Tiebreaker Decided' : 'Outright win'
+            scoreRange: 'Outright win'
           });
         } else {
+          // Parse predictions for tied contenders
           const pPicks = contenders.map(p => {
             const pickObj = tiebreakerPicks[p];
             let val = 0;
             if (typeof pickObj === 'number') val = pickObj;
-            else if (pickObj && typeof pickObj.predictedTotal === 'number') val = pickObj.predictedTotal;
-            else if (pickObj && !isNaN(parseFloat(pickObj.predictedTotal))) val = parseFloat(pickObj.predictedTotal);
+            else if (pickObj && pickObj.predictedTotal !== undefined) val = parseFloat(pickObj.predictedTotal) || 0;
             return { player: p, target: val };
           }).sort((a, b) => a.target - b.target);
 
@@ -2794,6 +2821,7 @@ function openPathToCrownModal() {
         }
       });
 
+      // Collect contenders who appear in matrix
       const activeContendersSet = new Set();
       fullMatrixRows.forEach(row => {
         row.winner.split(',').forEach(wName => {
@@ -2805,11 +2833,11 @@ function openPathToCrownModal() {
         return (playerCrownProbabilities[b] || 0) - (playerCrownProbabilities[a] || 0);
       });
 
-      // 4. Build Modal HTML
+      // 5. Build Modal HTML
       let html = `
         <div style="padding: 10px;">
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
-            ⚡ Simulating <strong>${totalPermutations}</strong> outcome paths. <em>(Click a contender to highlight their paths)</em>
+            ⚡ Simulating <strong>${gamesToPermute.length}</strong> decisive game outcomes. <em>(Click a contender to highlight their paths)</em>
           </p>
           <h4 style="margin-bottom: 12px; color: var(--primary-color); font-size: 1rem;">👑 Contenders & Clinch Paths</h4>
       `;
@@ -2825,11 +2853,11 @@ function openPathToCrownModal() {
           else if (pickObj && pickObj.predictedTotal !== undefined) predVal = pickObj.predictedTotal;
 
           const rawProb = (playerCrownProbabilities[p] || 0) * 100;
-          let winPctStr;
+          let winPctStr = '0.0%';
           if (rawProb > 0 && rawProb < 0.1) {
-            winPctStr = "<0.1%";
+            winPctStr = '<0.1%';
           } else {
-            winPctStr = rawProb.toFixed(1) + "%";
+            winPctStr = rawProb.toFixed(1) + '%';
           }
           
           const bullets = playerClinchBullets[p] || [];
@@ -2848,12 +2876,9 @@ function openPathToCrownModal() {
                 if (scoreR === 'Outright win') {
                   return `<li>Clinches outright if <strong>${condStr}</strong> win.</li>`;
                 }
-                if (scoreR === 'Tiebreaker Decided') {
-                  return `<li>Clinches via tiebreaker if <strong>${condStr}</strong>.</li>`;
-                }
                 return `<li>Clinches via tiebreaker if <strong>${condStr}</strong> win AND <strong>${scoreR}</strong>.</li>`;
               }).join('')
-            : `<li>Path depends on complex multi-way tiebreakers.</li>`;
+            : `<li>Path depends on tiebreaker total score.</li>`;
 
           const borderClass = idx === 0 ? 'rank-1' : 'rank-2';
 
@@ -2901,7 +2926,8 @@ function openPathToCrownModal() {
                   <tr data-winner="${row.winner}">
                     ${gamesToSimulate.map(g => {
                       const winnerTeam = row.winnersMap[g.id];
-                      return `<td class="text-center">${getTeamLogoHtml(winnerTeam, false)}</td>`;
+                      const displayTeam = winnerTeam === 'ANY' ? '<span style="color: var(--text-muted); font-size: 0.75rem;">ANY</span>' : getTeamLogoHtml(winnerTeam, false);
+                      return `<td class="text-center">${displayTeam}</td>`;
                     }).join('')}
                     <td class="text-center" style="font-weight: 600; font-size: 0.825rem; color: var(--primary-color);">${row.scoreText}</td>
                     <td class="text-center"><strong>${row.winner}</strong></td>
@@ -2918,7 +2944,6 @@ function openPathToCrownModal() {
       if (modalBodyElem) modalBodyElem.innerHTML = html;
       if (modalElem) modalElem.classList.add('active');
     }
-
 
     function closeCrownModal(e) {
       if (!e || e.target.id === 'path-to-crown-modal' || e.target.classList.contains('modal-close-btn')) {
