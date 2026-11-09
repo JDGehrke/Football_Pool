@@ -1104,7 +1104,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v3.21 <span>🔮</span>
+        <span>🔮</span> Path to Crown v3.22 <span>🔮</span>
       </button>
     </div>
 
@@ -2591,7 +2591,6 @@
 
 
 
-
 function openPathToCrownModal() {
   const modal = document.getElementById('path-to-crown-modal');
   const body = document.getElementById('modal-crown-body');
@@ -2646,21 +2645,21 @@ function openPathToCrownModal() {
       .map(t => t.trim().toUpperCase())
       .filter(t => t.length >= 2);
 
-    const rawHomeProb = parseFloat(m.homePCT) || 50.0;
-    const rawAwayProb = parseFloat(m.awayPCT) || 50.0;
-    const totalPct = (rawHomeProb + rawAwayProb) || 100.0;
+    const rawHome = parseFloat(m.homePCT) || 50.0;
+    const rawAway = parseFloat(m.awayPCT) || 50.0;
+    const totalP = rawHome + rawAway || 100.0;
 
     return {
       id: idx,
       away: teamsInGame[0] || 'AWAY',
       home: teamsInGame[1] || 'HOME',
-      awayWinProb: rawAwayProb / totalPct,
-      homeWinProb: rawHomeProb / totalPct,
+      homeWinProb: rawHome / totalP,
+      awayWinProb: rawAway / totalP,
       picks: m.picks || {}
     };
   });
 
-  // STEP 1: Contender Filtering - Identify players who can mathematically win
+  // STEP 1: Contender Filtering (Your trusted logic)
   let maxCurrentWins = 0;
   (poolData.players || []).forEach(p => {
     if (currentWins[p] > maxCurrentWins) maxCurrentWins = currentWins[p];
@@ -2678,7 +2677,7 @@ function openPathToCrownModal() {
     g.unanimousPick = g.isUnanimous ? firstPick : null;
   });
 
-  // STEP 2: Entity Grouping - Group contenders with identical picks/predictions into single card entities
+  // STEP 2: Entity Grouping (Group players with identical wins and score predictions)
   const playerGroupsMap = {};
   potentialContenders.forEach(p => {
     const wins = currentWins[p] || 0;
@@ -2715,7 +2714,7 @@ function openPathToCrownModal() {
     return null;
   }
 
-  // STEP 3: Permutation Sweep & Probability Allocation
+  // STEP 3: Permutation Sweep & Scenario Probability Calculation
   const numGames = gamesToSimulate.length;
   const totalPermutations = Math.pow(2, numGames);
   const vegasTotal = parseFloat(weekData.tiebreaker?.vegasTotal || weekData?.vegasTotal || 44.0);
@@ -2821,7 +2820,7 @@ function openPathToCrownModal() {
     }
   });
 
-  // STEP 4: Wildcard Shorthand Bullet Simplification
+  // STEP 4: Wildcard Shorthand Bullet Simplification (Your trusted function)
   function simplifyScenarios(scenarios) {
     const grouped = {};
     scenarios.forEach(s => {
@@ -2900,20 +2899,24 @@ function openPathToCrownModal() {
     });
   }
 
-  const activeCardGroups = Object.values(cardEntities).map(card => ({
-    title: card.title,
-    players: card.players,
-    wins: card.wins,
-    pred: card.pred,
-    totalProb: card.totalProb,
-    scenarios: simplifyScenarios(card.scenarios)
-  })).sort((a, b) => b.totalProb - a.totalProb);
+  // Filter out true 0% probability entities entirely so they never render
+  const activeCardGroups = Object.values(cardEntities)
+    .filter(card => card.totalProb > 0.000001)
+    .map(card => ({
+      title: card.title,
+      players: card.players,
+      wins: card.wins,
+      pred: card.pred,
+      totalProb: card.totalProb,
+      scenarios: simplifyScenarios(card.scenarios)
+    }))
+    .sort((a, b) => b.totalProb - a.totalProb);
 
   const isSoleWinner = activeCardGroups.length === 1 && activeCardGroups[0].players.length === 1;
 
   let html = `
     <div style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem;">
-      ⚡ Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}.
+      ⚡ Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}. ${!isSoleWinner ? '<span style="font-style: italic;">(Click a contender to highlight their paths)</span>' : ''}
     </div>
   `;
 
@@ -2926,7 +2929,7 @@ function openPathToCrownModal() {
           ${group.title} HAS CLINCHED THE CROWN!
         </h3>
         <p style="color: #b45309; font-size: 0.9rem; font-weight: 600; margin: 0;">
-          Calculated across all ${totalPermutations} remaining outcome scenarios &mdash; cannot be passed!
+          Calculated across all ${totalPermutations} remaining outcome scenarios &mdash; ${group.title} (${group.wins} Wins • Score Pred: ${group.pred}) cannot be passed!
         </p>
       </div>
     `;
@@ -2939,7 +2942,6 @@ function openPathToCrownModal() {
       let rawProb = group.totalProb * 100;
       let winPctStr = rawProb.toFixed(1) + '%';
       
-      // STEP 5: Display Edge-Case Formatting (No Mathematical Overrides)
       if (rawProb > 99.9 && rawProb < 100) {
         winPctStr = '>99.9%';
       } else if (rawProb > 0 && rawProb < 0.1) {
@@ -2965,7 +2967,6 @@ function openPathToCrownModal() {
   body.innerHTML = html;
   modal.classList.add('active');
 }
-
 
 
 
