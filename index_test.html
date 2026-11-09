@@ -922,7 +922,7 @@
     .modal-close-btn:hover { color: var(--text-main); }
     .modal-body { padding: 20px; overflow-y: auto; }
 
-    /* --- PATH TO CROWN STYLES (PROFESSIONAL & CLEAN) --- */
+    /* --- PATH TO CROWN STYLES --- */
     .ptc-container { font-family: system-ui, -apple-system, sans-serif; }
     .ptc-section-header { 
       font-size: 0.95rem; 
@@ -1147,7 +1147,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.3 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.4 <span>🔮</span>
       </button>
     </div>
 
@@ -2525,7 +2525,7 @@
       return 0.5 * (1 + erf((x - mean) / (stdDev * Math.sqrt(2))));
     }
 
-    /* --- ROBUST PATH TO CROWN ENGINE WITH DYNAMIC LIVE ODDS & CLICKABLE SCENARIOS --- */
+    /* --- ROBUST PATH TO CROWN ENGINE WITH CONDITIONAL PROBABILITY & DYNAMIC GRAPH VISIBILITY --- */
     function openPathToCrownModal() {
       const modal = document.getElementById('path-to-crown-modal');
       const body = document.getElementById('modal-crown-body');
@@ -2663,7 +2663,6 @@
         const outcomeObj = {};
         const simulatedWinners = [];
         let branchProb = 1.0;
-
         let matchesUserSelection = true;
 
         remainingGames.forEach((g, bitIdx) => {
@@ -2760,7 +2759,8 @@
         }
       }
 
-      if (totalValidProb > 0 && totalValidProb < 0.9999) {
+      // Re-normalize conditional probabilities based on the selected game state branch space
+      if (totalValidProb > 0) {
         Object.values(cardEntities).forEach(card => {
           card.totalProb /= totalValidProb;
         });
@@ -2790,7 +2790,8 @@
           const uniqueScenarios = Object.values(mergedMap).map(m => {
             const winArray = Array.from(m.winnersSet);
             const winStr = winArray.join(' / ');
-            const subPctStr = (m.totalSubProb * 100).toFixed(1) + '%';
+            const subPctVal = totalValidProb > 0 ? (m.totalSubProb / totalValidProb) * 100 : 0;
+            const subPctStr = subPctVal.toFixed(1) + '%';
             
             let mainCondition = '';
             if (m.isOutright) {
@@ -2909,7 +2910,7 @@
           <div id="ptc-playground-content" class="ptc-simulator-box" style="display: none;">
             <div id="ptc-matchup-selectors" class="ptc-matchup-row"></div>
 
-            <div id="ptc-tiebreaker-container" class="ptc-tb-box">
+            <div id="ptc-tiebreaker-container" class="ptc-tb-box" style="display: none;">
               <div class="ptc-tb-header">
                 <span>Standard Normal Distribution Tiebreaker Split</span>
               </div>
@@ -2919,19 +2920,19 @@
                   <!-- Base Line -->
                   <line x1="20" y1="135" x2="480" y2="135" stroke="#e2e8f0" stroke-width="1.5" />
 
-                  <!-- Uncolored Smooth Bell Curve -->
+                  <!-- Uncolored Clean Bell Curve Outline -->
                   <path d="M 20 135 C 100 135, 150 20, 250 20 C 350 20, 400 135, 480 135" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/>
 
                   <!-- Red Dashed Cutoff Line -->
                   <line id="line-cutoff" x1="${cutoffSvgX}" y1="12" x2="${cutoffSvgX}" y2="142" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 4"/>
                   
-                  <!-- Cutoff Number Above Graph (Just the number) -->
+                  <!-- Cutoff Number Badge -->
                   <g id="group-cutoff-badge" transform="translate(${cutoffSvgX}, 2)">
                     <rect x="-24" y="-12" width="48" height="16" fill="#ef4444" rx="3"></rect>
                     <text id="text-cutoff-val" x="0" y="0" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle">${sampleCutoff.toFixed(1)}</text>
                   </g>
 
-                  <!-- Player Region Names Underneath (Without ZONE, no clipping) -->
+                  <!-- Contender Labels -->
                   <text id="text-zone-a-label" x="${Math.max(40, cutoffSvgX / 2)}" y="148" fill="#1d4ed8" font-size="9.5" font-weight="700" text-anchor="middle">${playerALabel}</text>
                   <text id="text-zone-b-label" x="${cutoffSvgX + (480 - cutoffSvgX) / 2}" y="148" fill="#6d28d9" font-size="9.5" font-weight="700" text-anchor="middle">${playerBLabel}</text>
                 </svg>
@@ -3041,10 +3042,12 @@
       const gCtx = window._ptcGlobal;
       const unselectedCount = gCtx.gamesToSimulate.filter(g => currentSimulatedSelections[g.id] === null || currentSimulatedSelections[g.id] === undefined).length;
       const banner = document.getElementById('ptc-simulated-result-banner');
+      const tbContainer = document.getElementById('ptc-tiebreaker-container');
       if (!banner) return;
 
       if (unselectedCount > 0) {
-        banner.innerHTML = `⚠️ Please select winners for all ${gCtx.gamesToSimulate.length} matchups above to calculate the outcome.`;
+        if (tbContainer) tbContainer.style.display = 'none';
+        banner.innerHTML = `⚠️ Select game winners above to simulate tiebreakers and update probabilities.`;
         return;
       }
 
@@ -3063,17 +3066,16 @@
       const maxScore = Math.max(...Object.values(pScores));
       const winners = potentialContenders.filter(p => pScores[p] === maxScore);
 
-      const tbContainer = document.getElementById('ptc-tiebreaker-container');
-      let winnerText = '';
-
       if (winners.length === 1) {
+        // Outright winner: hide bell curve graph completely
         if (tbContainer) tbContainer.style.display = 'none';
-        winnerText = `👑 Winner: <strong>${winners[0]}</strong> (Outright with ${maxScore} Wins)`;
+        banner.innerHTML = `👑 Winner: <strong>${winners[0]}</strong> (Outright win with ${maxScore} Wins)`;
       } else {
+        // Multi-player tie: display the tiebreaker bell curve graph
         if (tbContainer) tbContainer.style.display = 'block';
 
         const winnerNames = winners.join(' / ');
-        winnerText = `👑 Tied at ${maxScore} Wins &mdash; Tiebreaker split active between ${winnerNames}`;
+        banner.innerHTML = `👑 Tied at ${maxScore} Wins &mdash; Tiebreaker split active between ${winnerNames}`;
 
         if (winners.length >= 2) {
           const sortedWinners = [...winners].sort((a, b) => {
@@ -3119,8 +3121,6 @@
           }
         }
       }
-
-      banner.innerHTML = winnerText;
     }
 
     function closeCrownModal(e) {
