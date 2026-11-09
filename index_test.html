@@ -1104,7 +1104,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v3.17 <span>🔮</span>
+        <span>🔮</span> Path to Crown v3.18 <span>🔮</span>
       </button>
     </div>
 
@@ -2589,6 +2589,11 @@
       return result;
     }
 
+
+
+
+
+
 function openPathToCrownModal() {
   const modal = document.getElementById('path-to-crown-modal');
   const body = document.getElementById('modal-crown-body');
@@ -2674,13 +2679,37 @@ function openPathToCrownModal() {
     g.unanimousPick = g.isUnanimous ? firstPick : null;
   });
 
+  // 1. CREATE DISTINCT PLAYER ENTITY GROUPS FIRST (e.g., Austin/Dan/Hunter share wins + prediction)
+  const playerGroupsMap = {}; // groupKey -> { title, players, wins, pred }
+  potentialContenders.forEach(p => {
+    const wins = currentWins[p] || 0;
+    const obj = tiebreakerPicks[p];
+    const pred = typeof obj === 'number' ? obj : (parseFloat(obj?.predictedTotal) || 0);
+    const key = `${wins}_${pred}`;
+
+    if (!playerGroupsMap[key]) {
+      playerGroupsMap[key] = { players: [], wins, pred };
+    }
+    playerGroupsMap[key].players.push(p);
+  });
+
+  const cardEntities = Object.values(playerGroupsMap).map(g => {
+    const sortedPlayers = g.players.sort();
+    return {
+      title: sortedPlayers.length > 1 ? sortedPlayers.join(' / ') : sortedPlayers[0],
+      players: sortedPlayers,
+      wins: g.wins,
+      pred: g.pred,
+      prob: 0,
+      scenarios: []
+    };
+  });
+
   const numGames = gamesToSimulate.length;
   const totalPermutations = Math.pow(2, numGames);
   const vegasTotal = parseFloat(weekData.tiebreaker?.vegasTotal || weekData?.vegasTotal || 44.0);
 
-  // 1. GENERATE ALL PERMUTATIONS & COLLECT RAW SCENARIOS
-  const permutationMatrix = [];
-
+  // 2. RUN PERMUTATIONS AND ALLOCATE PROBABILITIES DIRECTLY TO CARDS
   for (let i = 0; i < totalPermutations; i++) {
     const outcomeObj = {};
     const simulatedWinners = [];
@@ -2700,7 +2729,7 @@ function openPathToCrownModal() {
     });
 
     const pScores = {};
-    (poolData.players || []).forEach(p => {
+    potentialContenders.forEach(p => {
       let extra = 0;
       gamesToSimulate.forEach(g => {
         const playerPick = (g.picks[p] || '').trim().toUpperCase();
@@ -2710,77 +2739,42 @@ function openPathToCrownModal() {
     });
 
     const maxScore = Math.max(...Object.values(pScores));
-    const topContenders = (poolData.players || []).filter(p => pScores[p] === maxScore);
+    const winningPlayers = potentialContenders.filter(p => pScores[p] === maxScore);
 
-    permutationMatrix.push({
-      simulatedWinners,
-      scenarioProb,
-      topContenders
-    });
-  }
+    // Identify which card entities are tied for the max score in this permutation
+    const winningCards = cardEntities.filter(card => 
+      card.players.some(p => winningPlayers.includes(p))
+    );
 
-  // 2. BUILD DISTINCT CARD ENTITIES & AGGREGATE PROBABILITIES CLEANLY
-  const cardRegistry = {}; // key -> { title, players, wins, pred, prob, scenarios: [] }
-
-  function getOrCreateCard(playersArr) {
-    const sorted = Array.from(new Set(playersArr)).sort();
-    const title = sorted.join(' / ');
-    if (!cardRegistry[title]) {
-      cardRegistry[title] = {
-        title,
-        players: sorted,
-        wins: currentWins[sorted[0]] || 0,
-        pred: tiebreakerPicks[sorted[0]]?.predictedTotal ?? 'N/A',
-        prob: 0,
-        rawScenarios: []
-      };
-    }
-    return cardRegistry[title];
-  }
-
-  permutationMatrix.forEach(perm => {
-    if (perm.topContenders.length === 1) {
-      const card = getOrCreateCard([perm.topContenders[0]]);
-      card.prob += perm.scenarioProb;
-      card.rawScenarios.push({
-        winnersArray: perm.simulatedWinners,
+    if (winningCards.length === 1) {
+      const card = winningCards[0];
+      card.prob += scenarioProb;
+      card.scenarios.push({
+        winnersArray: simulatedWinners,
         isOutright: true,
         scoreRange: "Any Score",
         sortVal: -Infinity,
-        conditionText: `Clinches outright if <strong>${perm.simulatedWinners.join(' & ')}</strong> win.`
+        conditionText: `Clinches outright if <strong>${simulatedWinners.join(' & ')}</strong> win.`
       });
     } else {
-      // Group contenders by their unique score prediction signature
-      const predGroupsMap = {};
-      perm.topContenders.forEach(p => {
-        const obj = tiebreakerPicks[p];
-        const predVal = typeof obj === 'number' ? obj : (parseFloat(obj?.predictedTotal) || 0);
-        if (!predGroupsMap[predVal]) predGroupsMap[predVal] = [];
-        predGroupsMap[predVal].push(p);
-      });
+      // Sort winning cards by their predicted tiebreaker score
+      winningCards.sort((a, b) => a.pred - b.pred);
 
-      const sortedPreds = Object.keys(predGroupsMap).map(Number).sort((a, b) => a - b);
-      const distinctEntities = sortedPreds.map(predVal => ({
-        pred: predVal,
-        players: predGroupsMap[predVal]
-      }));
-
-      distinctEntities.forEach((entity, k) => {
+      winningCards.forEach((card, k) => {
         let minBound = -Infinity;
         let maxBound = Infinity;
         if (k > 0) {
-          minBound = (distinctEntities[k - 1].pred + entity.pred) / 2;
+          minBound = (winningCards[k - 1].pred + card.pred) / 2;
         }
-        if (k < distinctEntities.length - 1) {
-          maxBound = (entity.pred + distinctEntities[k + 1].pred) / 2;
+        if (k < winningCards.length - 1) {
+          maxBound = (card.pred + winningCards[k + 1].pred) / 2;
         }
 
         const probLower = minBound === -Infinity ? 0 : normalCDF(minBound, vegasTotal, 10.5);
         const probUpper = maxBound === Infinity ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
         const intervalScoreProb = Math.max(0, probUpper - probLower);
-        const intervalTotalProb = intervalScoreProb * perm.scenarioProb;
+        const intervalTotalProb = intervalScoreProb * scenarioProb;
 
-        const card = getOrCreateCard(entity.players);
         card.prob += intervalTotalProb;
 
         let scoreText = '';
@@ -2792,18 +2786,18 @@ function openPathToCrownModal() {
           scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
         }
 
-        card.rawScenarios.push({
-          winnersArray: perm.simulatedWinners,
+        card.scenarios.push({
+          winnersArray: simulatedWinners,
           isOutright: false,
           scoreRange: scoreText,
           sortVal: minBound === -Infinity ? -Infinity : minBound,
-          conditionText: `Clinches via tiebreaker if <strong>${perm.simulatedWinners.join(' & ')}</strong> win AND <strong>${scoreText}</strong>.`
+          conditionText: `Clinches via tiebreaker if <strong>${simulatedWinners.join(' & ')}</strong> win AND <strong>${scoreText}</strong>.`
         });
       });
     }
-  });
+  }
 
-  // 3. SIMPLIFY SCENARIO BULLETS FOR EACH CARD
+  // 3. SIMPLIFY BULLET PATHS FOR CLEAN UI DISPLAY
   function simplifyScenarios(scenarios) {
     const grouped = {};
     scenarios.forEach(s => {
@@ -2882,16 +2876,13 @@ function openPathToCrownModal() {
     });
   }
 
-  const activeCardGroups = Object.values(cardRegistry).map(card => ({
-    title: card.title,
-    players: card.players,
-    wins: card.wins,
-    pred: card.pred,
-    totalProb: card.prob,
-    scenarios: simplifyScenarios(card.rawScenarios)
-  })).sort((a, b) => b.totalProb - a.totalProb);
+  cardEntities.forEach(card => {
+    card.scenarios = simplifyScenarios(card.scenarios);
+  });
 
-  const isSoleWinner = activeCardGroups.length === 1 && activeCardGroups[0].players.length === 1;
+  cardEntities.sort((a, b) => b.prob - a.prob);
+
+  const isSoleWinner = cardEntities.length === 1 && cardEntities[0].players.length === 1;
 
   let html = `
     <div style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem;">
@@ -2900,7 +2891,7 @@ function openPathToCrownModal() {
   `;
 
   if (isSoleWinner) {
-    const group = activeCardGroups[0];
+    const group = cardEntities[0];
     html += `
       <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 10px; padding: 18px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);">
         <div style="font-size: 2.2rem; margin-bottom: 5px;">👑</div>
@@ -2912,13 +2903,13 @@ function openPathToCrownModal() {
         </p>
       </div>
     `;
-  } else if (activeCardGroups.length > 0) {
+  } else if (cardEntities.length > 0) {
     html += `<h4 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--primary-color);">👑 Contenders & Clinch Paths</h4>`;
 
-    activeCardGroups.forEach(group => {
+    cardEntities.forEach(group => {
       const bulletsHtml = group.scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
 
-      let rawProb = group.totalProb * 100;
+      let rawProb = group.prob * 100;
       if (rawProb === 0 && group.players.includes('MADDIE')) rawProb = 2.5; // Safety floor
 
       let winPctStr = '0.0%';
@@ -2947,6 +2938,7 @@ function openPathToCrownModal() {
   body.innerHTML = html;
   modal.classList.add('active');
 }
+
 
 
     function closeCrownModal(e) {
