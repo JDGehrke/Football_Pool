@@ -2677,7 +2677,7 @@ function openPathToCrownModal() {
     g.unanimousPick = g.isUnanimous ? firstPick : null;
   });
 
-  // STEP 2: Entity Grouping (Group players with identical wins and score predictions)
+  // STEP 2: Entity Grouping
   const playerGroupsMap = {};
   potentialContenders.forEach(p => {
     const wins = currentWins[p] || 0;
@@ -2701,7 +2701,7 @@ function openPathToCrownModal() {
       wins: g.wins,
       pred: g.pred,
       totalProb: 0,
-      scenarios: []
+      scenariosMap: {} // Map key -> scenario obj to prevent duplicates
     };
   });
 
@@ -2714,7 +2714,7 @@ function openPathToCrownModal() {
     return null;
   }
 
-  // STEP 3: Permutation Sweep & Scenario Probability Calculation
+  // STEP 3: Permutation Sweep & Single-Pass Probability Allocation
   const numGames = gamesToSimulate.length;
   const totalPermutations = Math.pow(2, numGames);
   const vegasTotal = parseFloat(weekData.tiebreaker?.vegasTotal || weekData?.vegasTotal || 44.0);
@@ -2773,13 +2773,17 @@ function openPathToCrownModal() {
     if (winningCards.length === 1) {
       const card = winningCards[0];
       card.totalProb += perm.scenarioProb;
-      card.scenarios.push({
-        winnersArray: perm.simulatedWinners,
-        isOutright: true,
-        scoreRange: "Any Score",
-        sortVal: -Infinity,
-        conditionText: `Clinches outright if <strong>${perm.simulatedWinners.join(' & ')}</strong> win.`
-      });
+
+      const scKey = `outright_${perm.simulatedWinners.join('_')}`;
+      if (!card.scenariosMap[scKey]) {
+        card.scenariosMap[scKey] = {
+          winnersArray: perm.simulatedWinners,
+          isOutright: true,
+          scoreRange: "Any Score",
+          sortVal: -Infinity,
+          conditionText: `Clinches outright if <strong>${perm.simulatedWinners.join(' & ')}</strong> win.`
+        };
+      }
     } else {
       winningCards.sort((a, b) => a.pred - b.pred);
 
@@ -2809,18 +2813,21 @@ function openPathToCrownModal() {
           scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
         }
 
-        card.scenarios.push({
-          winnersArray: perm.simulatedWinners,
-          isOutright: false,
-          scoreRange: scoreText,
-          sortVal: minBound === -Infinity ? -Infinity : minBound,
-          conditionText: `Clinches via tiebreaker if <strong>${perm.simulatedWinners.join(' & ')}</strong> win AND <strong>${scoreText}</strong>.`
-        });
+        const scKey = `tb_${perm.simulatedWinners.join('_')}_${scoreText}`;
+        if (!card.scenariosMap[scKey]) {
+          card.scenariosMap[scKey] = {
+            winnersArray: perm.simulatedWinners,
+            isOutright: false,
+            scoreRange: scoreText,
+            sortVal: minBound === -Infinity ? -Infinity : minBound,
+            conditionText: `Clinches via tiebreaker if <strong>${perm.simulatedWinners.join(' & ')}</strong> win AND <strong>${scoreText}</strong>.`
+          };
+        }
       });
     }
   });
 
-  // STEP 4: Wildcard Shorthand Bullet Simplification (Your trusted function)
+  // STEP 4: Bullet Simplification with Strict Deduplication
   function simplifyScenarios(scenarios) {
     const grouped = {};
     scenarios.forEach(s => {
@@ -2830,6 +2837,8 @@ function openPathToCrownModal() {
     });
 
     const simplified = [];
+    const seenTexts = new Set();
+
     Object.keys(grouped).forEach(key => {
       const [isOutrightStr, scoreRange] = key.split('_');
       const isOutright = isOutrightStr === 'true';
@@ -2869,21 +2878,22 @@ function openPathToCrownModal() {
 
       combined.forEach(winnersArr => {
         const formattedWinStr = winnersArr.join(' & ');
+        let conditionText = '';
         if (isOutright) {
-          simplified.push({
-            isOutright: true,
-            sortTier: 1,
-            sortVal: -Infinity,
-            conditionText: `Clinches outright if <strong>${formattedWinStr}</strong> win.`
-          });
+          conditionText = `Clinches outright if <strong>${formattedWinStr}</strong> win.`;
         } else {
+          conditionText = `Clinches via tiebreaker if <strong>${formattedWinStr}</strong> win AND <strong>${scoreRange}</strong>.`;
+        }
+
+        if (!seenTexts.has(conditionText)) {
+          seenTexts.add(conditionText);
           const matchObj = scenarios.find(s => s.scoreRange === scoreRange);
           const sVal = matchObj ? matchObj.sortVal : 0;
           simplified.push({
-            isOutright: false,
-            sortTier: 2,
+            isOutright,
+            sortTier: isOutright ? 1 : 2,
             sortVal: sVal,
-            conditionText: `Clinches via tiebreaker if <strong>${formattedWinStr}</strong> win AND <strong>${scoreRange}</strong>.`
+            conditionText
           });
         }
       });
@@ -2899,7 +2909,7 @@ function openPathToCrownModal() {
     });
   }
 
-  // Filter out true 0% probability entities entirely so they never render
+  // Filter out 0% cards completely
   const activeCardGroups = Object.values(cardEntities)
     .filter(card => card.totalProb > 0.000001)
     .map(card => ({
@@ -2908,7 +2918,7 @@ function openPathToCrownModal() {
       wins: card.wins,
       pred: card.pred,
       totalProb: card.totalProb,
-      scenarios: simplifyScenarios(card.scenarios)
+      scenarios: simplifyScenarios(Object.values(card.scenariosMap))
     }))
     .sort((a, b) => b.totalProb - a.totalProb);
 
