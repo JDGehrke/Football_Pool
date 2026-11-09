@@ -2467,15 +2467,25 @@
       return false;
     }
 
-    function normalCDF(x, mean = 44.0, stdDev = 10.5) {
-      const z = (x - mean) / stdDev;
-      const t = 1 / (1 + 0.2316419 * Math.abs(z));
-      const d = 0.3989423 * Math.exp(-z * z / 2);
-      const prob = d * t * (1 + t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))));
-      return z > 0 ? 1 - prob : prob;
+    function erf(x) {
+      const sign = (x >= 0) ? 1 : -1;
+      x = Math.abs(x);
+      const a1 =  0.254829592;
+      const a2 = -0.284496736;
+      const a3 =  1.421413741;
+      const a4 = -1.453152027;
+      const a5 =  1.061405429;
+      const p  =  0.3275911;
+      const t = 1.0 / (1.0 + p * x);
+      const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+      return sign * y;
     }
 
-    /* --- ROBUST PATH TO CROWN ENGINE WITH CLEAN GAUSSIAN CURVE --- */
+    function normalCDF(x, mean = 44.0, stdDev = 10.5) {
+      return 0.5 * (1 + erf((x - mean) / (stdDev * Math.sqrt(2))));
+    }
+
+    /* --- ROBUST PATH TO CROWN ENGINE WITH BULLETPROOF NORMAL CDF --- */
     function openPathToCrownModal() {
       const modal = document.getElementById('path-to-crown-modal');
       const body = document.getElementById('modal-crown-body');
@@ -2740,7 +2750,7 @@
         })
         .sort((a, b) => b.totalProb - a.totalProb);
 
-      // 5. Render Container UI with Clean Gaussian Curve SVG
+      // 5. Render Container UI with Gorgeous Styled Bell Curve SVG
       let html = `
         <div class="ptc-container">
           <div class="ptc-section-title" style="margin-top: 0;">👑 Contenders & Clinch Paths</div>
@@ -2784,33 +2794,36 @@
               </div>
 
               <div class="ptc-bell-curve-wrapper">
-                <svg class="ptc-bell-svg" viewBox="0 0 400 120" preserveAspectRatio="none">
+                <svg class="ptc-bell-svg" viewBox="0 0 500 160" preserveAspectRatio="none">
                   <defs>
                     <linearGradient id="jordanGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.4"/>
+                      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.45"/>
                       <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.05"/>
                     </linearGradient>
                     <linearGradient id="groupGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.4"/>
+                      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.45"/>
                       <stop offset="100%" stop-color="#a855f7" stop-opacity="0.05"/>
                     </linearGradient>
                   </defs>
 
-                  <!-- Perfectly Smooth Standard Gaussian Bell Curve Path -->
-                  <path d="M 10 110 C 90 110, 130 15, 200 15 C 270 15, 310 110, 390 110" fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round"/>
+                  <!-- Grid Base Line -->
+                  <line x1="20" y1="135" x2="480" y2="135" stroke="#e2e8f0" stroke-width="1.5" />
 
-                  <!-- Shaded Left Zone (< Cutoff) -->
-                  <path d="M 10 110 C 90 110, 130 15, 188 18 L 188 110 Z" fill="url(#jordanGrad)"/>
+                  <!-- Shaded Left Zone (< 43.0) -->
+                  <path d="M 20 135 C 100 135, 150 20, 230 20 L 230 135 Z" fill="url(#jordanGrad)"/>
 
-                  <!-- Shaded Right Zone (> Cutoff) -->
-                  <path d="M 188 18 C 210 18, 310 110, 390 110 L 188 110 Z" fill="url(#groupGrad)"/>
+                  <!-- Shaded Right Zone (> 43.0) -->
+                  <path d="M 230 20 C 310 20, 380 135, 480 135 L 230 135 Z" fill="url(#groupGrad)"/>
 
-                  <!-- Midpoint Cutoff Line -->
-                  <line x1="188" y1="10" x2="188" y2="110" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="4"/>
+                  <!-- Smooth Gaussian Bell Curve Stroke -->
+                  <path d="M 20 135 C 100 135, 150 20, 230 20 C 310 20, 380 135, 480 135" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round"/>
 
-                  <!-- Labels -->
-                  <text x="65" y="75" fill="#1d4ed8" font-size="10.5" font-weight="800">WIN ZONE A (&lt; 43.0)</text>
-                  <text x="210" y="75" fill="#6b21a8" font-size="10.5" font-weight="800">WIN ZONE B (&gt; 43.0)</text>
+                  <!-- Cutoff Boundary Line (43.0) -->
+                  <line x1="230" y1="12" x2="230" y2="142" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="5 4"/>
+
+                  <!-- Clean Zone Labels -->
+                  <text x="110" y="85" fill="#1d4ed8" font-size="11" font-weight="800" text-anchor="middle">JORDAN ZONE (&lt; 43.0)</text>
+                  <text x="360" y="85" fill="#6b21a8" font-size="11" font-weight="800" text-anchor="middle">GROUP ZONE (&gt; 43.0)</text>
                 </svg>
               </div>
               <div class="ptc-curve-labels">
