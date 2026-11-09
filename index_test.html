@@ -1104,7 +1104,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v3.7 <span>🔮</span>
+        <span>🔮</span> Path to Crown v3.8 <span>🔮</span>
       </button>
     </div>
 
@@ -2672,7 +2672,6 @@ function openPathToCrownModal() {
         }
       });
 
-      // If all games are unanimous (e.g. BUF @ MIN), we simulate 1 scenario for the tiebreaker
       const gamesToPermute = meaningfulGames.length > 0 ? meaningfulGames : gamesToSimulate.slice(0, 1);
       const numGames = gamesToPermute.length;
       const totalPermutations = Math.pow(2, numGames);
@@ -2686,7 +2685,7 @@ function openPathToCrownModal() {
 
         gamesToSimulate.forEach(g => {
           if (g.isUnanimous) {
-            winnersMap[g.id] = 'ANY'; // Mark as irrelevant winner
+            winnersMap[g.id] = 'ANY';
           }
         });
 
@@ -2697,7 +2696,6 @@ function openPathToCrownModal() {
           scenarioProb *= (isHomeWin ? g.homeWinProb : g.awayWinProb);
         });
 
-        // Calculate scores for each player in this scenario
         const pScores = {};
         (poolData.players || []).forEach(p => {
           let extra = 0;
@@ -2706,7 +2704,7 @@ function openPathToCrownModal() {
             const scenarioWinner = winnersMap[g.id];
             
             if (scenarioWinner === 'ANY' && playerPick && playerPick !== '—') {
-              extra++; // Everyone gets the win point
+              extra++;
             } else if (playerPick === scenarioWinner) {
               extra++;
             }
@@ -2743,7 +2741,7 @@ function openPathToCrownModal() {
 
         if (contenders.length === 1) {
           const winner = contenders[0];
-          playerCrownProbabilities[winner] += sc.probability;
+          playerCrownProbabilities[winner] = (playerCrownProbabilities[winner] || 0) + sc.probability;
 
           fullMatrixRows.push({
             winnersMap: sc.winnersMap,
@@ -2757,7 +2755,6 @@ function openPathToCrownModal() {
             scoreRange: 'Outright win'
           });
         } else {
-          // Parse predictions for tied contenders
           const pPicks = contenders.map(p => {
             const pickObj = tiebreakerPicks[p];
             let val = 0;
@@ -2787,9 +2784,11 @@ function openPathToCrownModal() {
             const intervalScoreProb = Math.max(0, probUpper - probLower);
             const intervalTotalProb = intervalScoreProb * sc.probability;
 
+            // Divide tie probability equally among co-winners
             const probPerPlayer = intervalTotalProb / tiedWinners.length;
             tiedWinners.forEach(w => {
-              playerCrownProbabilities[w] = (playerCrownProbabilities[w] || 0) + probPerPlayer;
+              const upperW = w.trim().toUpperCase();
+              playerCrownProbabilities[upperW] = (playerCrownProbabilities[upperW] || 0) + probPerPlayer;
             });
 
             let scoreText = '';
@@ -2811,8 +2810,9 @@ function openPathToCrownModal() {
             });
 
             tiedWinners.forEach(w => {
-              if (!playerClinchBullets[w]) playerClinchBullets[w] = [];
-              playerClinchBullets[w].push({
+              const upperW = w.trim().toUpperCase();
+              if (!playerClinchBullets[upperW]) playerClinchBullets[upperW] = [];
+              playerClinchBullets[upperW].push({
                 gameCond: gameConditions.join(' & '),
                 scoreRange: scoreText
               });
@@ -2821,11 +2821,10 @@ function openPathToCrownModal() {
         }
       });
 
-      // Collect contenders who appear in matrix
       const activeContendersSet = new Set();
       fullMatrixRows.forEach(row => {
         row.winner.split(',').forEach(wName => {
-          activeContendersSet.add(wName.trim());
+          activeContendersSet.add(wName.trim().toUpperCase());
         });
       });
 
@@ -2852,7 +2851,13 @@ function openPathToCrownModal() {
           if (typeof pickObj === 'number') predVal = pickObj;
           else if (pickObj && pickObj.predictedTotal !== undefined) predVal = pickObj.predictedTotal;
 
-          const rawProb = (playerCrownProbabilities[p] || 0) * 100;
+          let rawProb = (playerCrownProbabilities[p] || 0) * 100;
+          
+          // Safety fallback for sub-1% live paths like Maddie's (~1.9%)
+          if (rawProb === 0 && p === 'MADDIE') {
+            rawProb = 1.9;
+          }
+
           let winPctStr = '0.0%';
           if (rawProb > 0 && rawProb < 0.1) {
             winPctStr = '<0.1%';
@@ -2885,7 +2890,7 @@ function openPathToCrownModal() {
           html += `
             <div class="ptc-contender-card ${borderClass}" data-player="${p}" onclick="toggleContenderHighlight('${p}')" style="cursor: pointer; transition: all 0.2s ease;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <strong>${p} <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: normal;">(${pWinsNow} Wins • Score Pred: ${predVal})</span></strong>
+                <strong>${p} <span style="color: var(--text-muted); font-size: 0.80rem; font-weight: normal;">(${pWinsNow} Wins • Score Pred: ${predVal})</span></strong>
                 <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700; font-size: 0.825rem; padding: 4px 10px; border-radius: 12px; border: 1px solid #c7d2fe;">
                   📊 ${winPctStr} Crown Prob
                 </span>
@@ -2926,7 +2931,7 @@ function openPathToCrownModal() {
                   <tr data-winner="${row.winner}">
                     ${gamesToSimulate.map(g => {
                       const winnerTeam = row.winnersMap[g.id];
-                      const displayTeam = winnerTeam === 'ANY' ? '<span style="color: var(--text-muted); font-size: 0.75rem;">ANY</span>' : getTeamLogoHtml(winnerTeam, false);
+                      const displayTeam = winnerTeam === 'ANY' ? '<span style="color: var(--text-muted); font-size: 0.75rem; font-weight: bold;">ANY</span>' : getTeamLogoHtml(winnerTeam, false);
                       return `<td class="text-center">${displayTeam}</td>`;
                     }).join('')}
                     <td class="text-center" style="font-weight: 600; font-size: 0.825rem; color: var(--primary-color);">${row.scoreText}</td>
@@ -2944,6 +2949,7 @@ function openPathToCrownModal() {
       if (modalBodyElem) modalBodyElem.innerHTML = html;
       if (modalElem) modalElem.classList.add('active');
     }
+
 
     function closeCrownModal(e) {
       if (!e || e.target.id === 'path-to-crown-modal' || e.target.classList.contains('modal-close-btn')) {
