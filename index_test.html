@@ -2588,6 +2588,8 @@
 
       return result;
     }
+
+
 function openPathToCrownModal() {
       const currentWeekKey = document.getElementById('week-select').value;
       const currentWeekData = poolData.weeks?.[currentWeekKey] || {};
@@ -2705,7 +2707,6 @@ function openPathToCrownModal() {
         const contenders = sc.contenders;
         if (contenders.length === 0) return;
 
-        // Build game condition text for clinching bullet points (e.g. "TB & BUF/MIN win")
         const gameConditions = gamesToSimulate.map(g => sc.winnersMap[g.id]);
 
         if (contenders.length === 1) {
@@ -2724,13 +2725,11 @@ function openPathToCrownModal() {
             scoreRange: 'Outright win'
           });
         } else {
-          // Multiple contenders tied -> divide total score spectrum into winning intervals
           const pPicks = contenders.map(p => ({
             player: p,
             target: tiebreakerPicks[p]?.predictedTotal ?? 0
           })).sort((a, b) => a.target - b.target);
 
-          // Remove duplicate targets by grouping tied predictions
           const uniqueTargets = [];
           pPicks.forEach(item => {
             if (!uniqueTargets.some(u => u.target === item.target)) {
@@ -2740,7 +2739,6 @@ function openPathToCrownModal() {
 
           for (let k = 0; k < uniqueTargets.length; k++) {
             const currentItem = uniqueTargets[k];
-            // Find all players sharing this exact target score
             const tiedWinners = pPicks.filter(p => p.target === currentItem.target).map(p => p.player);
 
             let minBound = -Infinity;
@@ -2753,17 +2751,14 @@ function openPathToCrownModal() {
               maxBound = (currentItem.target + uniqueTargets[k + 1].target) / 2;
             }
 
-            // Probability calculation for this specific tiebreaker score window
             const probLower = minBound === -Infinity ? 0 : normalCDF(minBound, vegasTotal, 10.5);
             const probUpper = maxBound === Infinity ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
             const intervalProb = Math.max(0, probUpper - probLower) * sc.probability;
 
-            // Credit probability split evenly among tied players
             tiedWinners.forEach(w => {
               playerCrownProbabilities[w] += intervalProb / tiedWinners.length;
             });
 
-            // Format score range display text
             let scoreText = '';
             if (minBound === -Infinity) {
               scoreText = `Score < ${maxBound.toFixed(1)}`;
@@ -2792,10 +2787,17 @@ function openPathToCrownModal() {
         }
       });
 
-      // Filter to contenders who have > 0% chance to win
-      const activeContenders = (poolData.players || [])
-        .filter(p => playerCrownProbabilities[p] > 0)
-        .sort((a, b) => playerCrownProbabilities[b] - playerCrownProbabilities[a]);
+      // Collect all players who appear as a winner anywhere in the matrix or have > 0 probability
+      const activeContendersSet = new Set();
+      fullMatrixRows.forEach(row => {
+        row.winner.split(',').forEach(wName => {
+          activeContendersSet.add(wName.trim());
+        });
+      });
+
+      const activeContenders = Array.from(activeContendersSet).sort((a, b) => {
+        return (playerCrownProbabilities[b] || 0) - (playerCrownProbabilities[a] || 0);
+      });
 
       // 4. Build Modal HTML
       let html = `
@@ -2810,12 +2812,11 @@ function openPathToCrownModal() {
         html += `<p style="color: var(--text-muted);">No active outcome paths found.</p>`;
       } else {
         activeContenders.forEach((p, idx) => {
-          const pWinsNow = currentWins[p];
+          const pWinsNow = currentWins[p] || 0;
           const predVal = tiebreakerPicks[p]?.predictedTotal ?? 'N/A';
-          const winPctStr = (playerCrownProbabilities[p] * 100).toFixed(1);
+          const winPctStr = ((playerCrownProbabilities[p] || 0) * 100).toFixed(1);
           const bullets = playerClinchBullets[p] || [];
 
-          // Group identical game conditions to create clean summary bullets
           const groupedBullets = {};
           bullets.forEach(b => {
             if (!groupedBullets[b.scoreRange]) groupedBullets[b.scoreRange] = [];
@@ -2824,13 +2825,15 @@ function openPathToCrownModal() {
             }
           });
 
-          const bulletItemsHtml = Object.entries(groupedBullets).map(([scoreR, conds]) => {
-            const condStr = conds.join(' OR ');
-            if (scoreR === 'Outright win') {
-              return `<li>Clinches outright if <strong>${condStr}</strong> win.</li>`;
-            }
-            return `<li>Clinches via tiebreaker if <strong>${condStr}</strong> win AND <strong>${scoreR}</strong>.</li>`;
-          }).join('');
+          const bulletItemsHtml = Object.keys(groupedBullets).length > 0 
+            ? Object.entries(groupedBullets).map(([scoreR, conds]) => {
+                const condStr = conds.join(' OR ');
+                if (scoreR === 'Outright win') {
+                  return `<li>Clinches outright if <strong>${condStr}</strong> win.</li>`;
+                }
+                return `<li>Clinches via tiebreaker if <strong>${condStr}</strong> win AND <strong>${scoreR}</strong>.</li>`;
+              }).join('')
+            : `<li>Path depends on complex multi-way tiebreakers.</li>`;
 
           const borderClass = idx === 0 ? 'rank-1' : 'rank-2';
 
