@@ -963,6 +963,22 @@
     .collapse-toggle-btn { background: none; border: none; color: var(--secondary-color); font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 4px; }
     .collapse-toggle-btn:hover { text-decoration: underline; }
 
+    .btn-reset-playground {
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-reset-playground:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
     .hof-card-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -1120,7 +1136,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.2 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.3 <span>🔮</span>
       </button>
     </div>
 
@@ -2498,7 +2514,7 @@
       return 0.5 * (1 + erf((x - mean) / (stdDev * Math.sqrt(2))));
     }
 
-    /* --- ROBUST PATH TO CROWN ENGINE WITH PROFESSIONAL SVG & COLLAPSIBLE PLAYGROUND --- */
+    /* --- ROBUST PATH TO CROWN ENGINE WITH ACCURATE SVG CURVE & DEFAULT-COLLAPSED PLAYGROUND --- */
     function openPathToCrownModal() {
       const modal = document.getElementById('path-to-crown-modal');
       const body = document.getElementById('modal-crown-body');
@@ -2763,17 +2779,32 @@
         })
         .sort((a, b) => b.totalProb - a.totalProb);
 
-      // Determine top two players/groups for the bell curve labels
+      // Determine correct player zones for the bell curve (Left = Lower scores / Player A, Right = Higher scores / Player B)
       let playerALabel = "PLAYER A ZONE";
       let playerBLabel = "PLAYER B ZONE";
       if (activeCardGroups.length >= 2) {
-        playerALabel = activeCardGroups[0].title.toUpperCase() + " ZONE";
-        playerBLabel = activeCardGroups[1].title.toUpperCase() + " ZONE";
+        // Sort groups by prediction score to correctly match left vs right distribution
+        const sortedByPred = [...activeCardGroups].sort((x, y) => x.pred - y.pred);
+        playerALabel = sortedByPred[0].title.toUpperCase() + " ZONE";
+        playerBLabel = sortedByPred[1].title.toUpperCase() + " ZONE";
       } else if (activeCardGroups.length === 1) {
         playerALabel = activeCardGroups[0].title.toUpperCase() + " ZONE";
       }
 
-      // 5. Render Container UI with Professional Graph & Collapsible Playground
+      // Default cutoff for initial view (e.g. 43.0 or first tiebreaker threshold)
+      let sampleCutoff = 43.0;
+      if (activeCardGroups.length >= 2) {
+        sampleCutoff = (activeCardGroups[0].pred + activeCardGroups[1].pred) / 2;
+      }
+
+      // Calculate SVG X coordinate for cutoff based on Normal Distribution mapping (Mean ± 3.5 SD across 20 to 480 SVG coordinates)
+      const stdDev = 10.5;
+      const minVal = vegasTotal - (3.5 * stdDev);
+      const maxVal = vegasTotal + (3.5 * stdDev);
+      const clampCutoff = Math.max(minVal, Math.min(maxVal, sampleCutoff));
+      const cutoffSvgX = 20 + ((clampCutoff - minVal) / (maxVal - minVal)) * 460;
+
+      // 5. Render Container UI with Professional Graph & Collapsible Playground (Default hidden)
       let html = `
         <div class="ptc-container">
           <div class="ptc-section-header" style="margin-top: 0;">
@@ -2810,12 +2841,15 @@
 
           <div class="ptc-section-header">
             <span>🎮 Interactive Scenario Playground</span>
-            <button class="collapse-toggle-btn" onclick="togglePlaygroundCollapse()">
-              <span id="collapse-icon">▼</span> <span id="collapse-text">Hide Playground</span>
-            </button>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <button class="btn-reset-playground" onclick="resetPlaygroundSelections()">Reset Playground</button>
+              <button class="collapse-toggle-btn" onclick="togglePlaygroundCollapse()">
+                <span id="collapse-icon">▶</span> <span id="collapse-text">Show Playground</span>
+              </button>
+            </div>
           </div>
 
-          <div id="ptc-playground-content" class="ptc-simulator-box">
+          <div id="ptc-playground-content" class="ptc-simulator-box" style="display: none;">
             <div id="ptc-matchup-selectors" class="ptc-matchup-row"></div>
 
             <div id="ptc-tiebreaker-container" class="ptc-tb-box">
@@ -2824,7 +2858,7 @@
               </div>
 
               <div class="ptc-bell-curve-wrapper">
-                <svg class="ptc-bell-svg" viewBox="0 0 500 160" preserveAspectRatio="none">
+                <svg id="ptc-bell-svg-elem" class="ptc-bell-svg" viewBox="0 0 500 160" preserveAspectRatio="none">
                   <defs>
                     <linearGradient id="zoneAGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.35"/>
@@ -2840,24 +2874,26 @@
                   <line x1="20" y1="135" x2="480" y2="135" stroke="#e2e8f0" stroke-width="1.5" />
 
                   <!-- Shaded Left Zone -->
-                  <path d="M 20 135 C 100 135, 150 20, 230 20 L 230 135 Z" fill="url(#zoneAGrad)"/>
+                  <path id="path-zone-a" d="M 20 135 C 100 135, 150 20, ${cutoffSvgX} 20 L ${cutoffSvgX} 135 Z" fill="url(#zoneAGrad)"/>
 
                   <!-- Shaded Right Zone -->
-                  <path d="M 230 20 C 310 20, 380 135, 480 135 L 230 135 Z" fill="url(#zoneBGrad)"/>
+                  <path id="path-zone-b" d="M ${cutoffSvgX} 20 C 310 20, 380 135, 480 135 L ${cutoffSvgX} 135 Z" fill="url(#zoneBGrad)"/>
 
                   <!-- Smooth Bell Curve -->
-                  <path d="M 20 135 C 100 135, 150 20, 230 20 C 310 20, 380 135, 480 135" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M 20 135 C 100 135, 150 20, 250 20 C 350 20, 400 135, 480 135" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/>
 
                   <!-- Red Dashed Cutoff Line -->
-                  <line x1="230" y1="12" x2="230" y2="142" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 4"/>
+                  <line id="line-cutoff" x1="${cutoffSvgX}" y1="12" x2="${cutoffSvgX}" y2="142" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 4"/>
                   
                   <!-- Cutoff Label at Top of Red Line -->
-                  <rect x="195" y="0" width="70" height="18" fill="#ef4444" rx="4"></rect>
-                  <text x="230" y="12.5" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle">CUTOFF: 43.0</text>
+                  <g id="group-cutoff-badge" transform="translate(${cutoffSvgX}, 15)">
+                    <rect x="-35" y="0" width="70" height="18" fill="#ef4444" rx="4"></rect>
+                    <text id="text-cutoff-val" x="0" y="12.5" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle">CUTOFF: ${sampleCutoff.toFixed(1)}</text>
+                  </g>
 
-                  <!-- Player Region Names Underneath -->
-                  <text x="115" y="90" fill="#1d4ed8" font-size="10.5" font-weight="700" text-anchor="middle">${playerALabel}</text>
-                  <text x="345" y="90" fill="#6d28d9" font-size="10.5" font-weight="700" text-anchor="middle">${playerBLabel}</text>
+                  <!-- Player Region Names Underneath (Left & Right of Cutoff) -->
+                  <text id="text-zone-a-label" x="${Math.max(30, cutoffSvgX / 2)}" y="148" fill="#1d4ed8" font-size="9.5" font-weight="700" text-anchor="middle">${playerALabel}</text>
+                  <text id="text-zone-b-label" x="${cutoffSvgX + (480 - cutoffSvgX) / 2}" y="148" fill="#6d28d9" font-size="9.5" font-weight="700" text-anchor="middle">${playerBLabel}</text>
                 </svg>
               </div>
               <div class="ptc-curve-labels">
@@ -2896,7 +2932,7 @@
         `;
       });
 
-      window._ptcData = { potentialContenders, currentWins, gamesToSimulate, tiebreakerPicks, cardEntities, vegasTotal };
+      window._ptcData = { potentialContenders, currentWins, gamesToSimulate, tiebreakerPicks, cardEntities, vegasTotal, activeCardGroups };
       modal.classList.add('active');
       updateInteractiveSimulator();
     }
@@ -2915,6 +2951,21 @@
         icon.innerText = '▶';
         text.innerText = 'Show Playground';
       }
+    }
+
+    function resetPlaygroundSelections() {
+      const ctx = window._ptcData;
+      if (!ctx) return;
+
+      ctx.gamesToSimulate.forEach(g => {
+        currentSimulatedSelections[g.id] = null;
+        const gameCard = document.getElementById(`btn-${g.id}-${g.away}`)?.parentElement;
+        if (gameCard) {
+          gameCard.querySelectorAll('.ptc-team-btn').forEach(b => b.classList.remove('selected'));
+        }
+      });
+
+      updateInteractiveSimulator();
     }
 
     function selectSimulatedTeam(gameId, teamCode) {
@@ -2963,6 +3014,47 @@
 
         const winnerNames = winners.join(' / ');
         winnerText = `👑 Tied at ${maxScore} Wins &mdash; Tiebreaker split active between ${winnerNames}`;
+
+        // If exactly 2 contenders tied, update graph cutoff line & shading dynamically
+        if (winners.length === 2) {
+          const cardA = ctx.activeCardGroups.find(c => c.title.includes(winners[0]));
+          const cardB = ctx.activeCardGroups.find(c => c.title.includes(winners[1]));
+          
+          if (cardA && cardB) {
+            const dynamicCutoff = (cardA.pred + cardB.pred) / 2;
+            const stdDev = 10.5;
+            const minVal = ctx.vegasTotal - (3.5 * stdDev);
+            const maxVal = ctx.vegasTotal + (3.5 * stdDev);
+            const clampC = Math.max(minVal, Math.min(maxVal, dynamicCutoff));
+            const svgX = 20 + ((clampC - minVal) / (maxVal - minVal)) * 460;
+
+            // Update SVG elements dynamically
+            const pathA = document.getElementById('path-zone-a');
+            const pathB = document.getElementById('path-zone-b');
+            const lineCutoff = document.getElementById('line-cutoff');
+            const groupBadge = document.getElementById('group-cutoff-badge');
+            const textCutoffVal = document.getElementById('text-cutoff-val');
+            const textALabel = document.getElementById('text-zone-a-label');
+            const textBLabel = document.getElementById('text-zone-b-label');
+
+            if (pathA) pathA.setAttribute('d', `M 20 135 C 100 135, 150 20, ${svgX} 20 L ${svgX} 135 Z`);
+            if (pathB) pathB.setAttribute('d', `M ${svgX} 20 C 310 20, 380 135, 480 135 L ${svgX} 135 Z`);
+            if (lineCutoff) {
+              lineCutoff.setAttribute('x1', svgX);
+              lineCutoff.setAttribute('x2', svgX);
+            }
+            if (groupBadge) groupBadge.setAttribute('transform', `translate(${svgX}, 15)`);
+            if (textCutoffVal) textCutoffVal.textContent = `CUTOFF: ${dynamicCutoff.toFixed(1)}`;
+            if (textALabel) {
+              textALabel.setAttribute('x', Math.max(30, svgX / 2));
+              textALabel.textContent = `${winners[0].toUpperCase()} ZONE`;
+            }
+            if (textBLabel) {
+              textBLabel.setAttribute('x', svgX + (480 - svgX) / 2);
+              textBLabel.textContent = `${winners[1].toUpperCase()} ZONE`;
+            }
+          }
+        }
       }
 
       banner.innerHTML = winnerText;
