@@ -1104,7 +1104,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v3.14 <span>🔮</span>
+        <span>🔮</span> Path to Crown v3.15 <span>🔮</span>
       </button>
     </div>
 
@@ -2589,7 +2589,6 @@
       return result;
     }
 
-
 function openPathToCrownModal() {
   const modal = document.getElementById('path-to-crown-modal');
   const body = document.getElementById('modal-crown-body');
@@ -2723,15 +2722,27 @@ function openPathToCrownModal() {
     });
   }
 
-  const rawScenariosByPlayer = {};
-  (poolData.players || []).forEach(p => rawScenariosByPlayer[p] = []);
+  // Group players by identity card (players with identical wins & predictions form a single group key)
+  // First, map each player to their signature (wins + score prediction)
+  const playerSignatures = {};
+  (poolData.players || []).forEach(p => {
+    const wins = currentWins[p] || 0;
+    const obj = tiebreakerPicks[p];
+    const pred = typeof obj === 'number' ? obj : (parseFloat(obj?.predictedTotal) || 0);
+    playerSignatures[p] = `${wins}_${pred}`;
+  });
+
+  const rawScenariosByGroup = {};
 
   permutationMatrix.forEach(perm => {
     if (perm.topContenders.length === 1) {
       const soleWinner = perm.topContenders[0];
       playerCrownProbabilities[soleWinner] = (playerCrownProbabilities[soleWinner] || 0) + perm.scenarioProb;
 
-      rawScenariosByPlayer[soleWinner].push({
+      const sig = playerSignatures[soleWinner];
+      if (!rawScenariosByGroup[sig]) rawScenariosByGroup[sig] = { players: [soleWinner], scenarios: [] };
+      
+      rawScenariosByGroup[sig].scenarios.push({
         winnersArray: perm.simulatedWinners,
         isOutright: true,
         scoreRange: "Any Score",
@@ -2739,7 +2750,6 @@ function openPathToCrownModal() {
         conditionText: `Clinches outright if <strong>${perm.simulatedWinners.join(' & ')}</strong> win.`
       });
     } else {
-      // 1. Group contenders by their exact numeric prediction score
       const scoreGroupsMap = {};
       perm.topContenders.forEach(p => {
         const obj = tiebreakerPicks[p];
@@ -2748,10 +2758,8 @@ function openPathToCrownModal() {
         scoreGroupsMap[predVal].push(p);
       });
 
-      // Get unique predicted scores sorted ascending
       const sortedUniquePreds = Object.keys(scoreGroupsMap).map(Number).sort((a, b) => a - b);
 
-      // Compute unique target score intervals across the unique prediction values
       sortedUniquePreds.forEach((predVal, k) => {
         const groupPlayers = scoreGroupsMap[predVal];
 
@@ -2771,7 +2779,6 @@ function openPathToCrownModal() {
         const intervalScoreProb = Math.max(0, probUpper - probLower);
         const intervalTotalProb = intervalScoreProb * perm.scenarioProb;
         
-        // Split probability equally among players who share this exact predicted score
         const probPerPlayer = intervalTotalProb / groupPlayers.length;
 
         groupPlayers.forEach(w => {
@@ -2788,19 +2795,38 @@ function openPathToCrownModal() {
         }
 
         const sortVal = minBound === -Infinity ? -Infinity : minBound;
-        // Format display name: if multiple players share the exact score, group them cleanly
-        const displayName = groupPlayers.length > 1 ? groupPlayers.join(' / ') : groupPlayers[0];
 
         groupPlayers.forEach(p => {
-          rawScenariosByPlayer[p].push({
+          const sig = playerSignatures[p];
+          if (!rawScenariosByGroup[sig]) rawScenariosByGroup[sig] = { players: groupPlayers, scenarios: [] };
+
+          rawScenariosByGroup[sig].scenarios.push({
             winnersArray: perm.simulatedWinners,
             isOutright: false,
             scoreRange: scoreText,
             sortVal: sortVal,
-            conditionText: `Clinches via tiebreaker (${displayName}) if <strong>${perm.simulatedWinners.join(' & ')}</strong> win AND <strong>${scoreText}</strong>.`
+            conditionText: `Clinches via tiebreaker if <strong>${perm.simulatedWinners.join(' & ')}</strong> win AND <strong>${scoreText}</strong>.`
           });
         });
       });
+    }
+  });
+
+  // Build unified card groups for players with identical signature stats
+  const distinctGroupsMap = {};
+  Object.values(rawScenariosByGroup).forEach(groupData => {
+    // Unique sort players alphabetically for clean naming (e.g. "AUSTIN / DAN / HUNTER")
+    const sortedGroupPlayers = Array.from(new Set(groupData.players)).sort();
+    const groupKey = sortedGroupPlayers.join(' / ');
+    
+    if (!distinctGroupsMap[groupKey]) {
+      distinctGroupsMap[groupKey] = {
+        players: sortedGroupPlayers,
+        wins: currentWins[sortedGroupPlayers[0]] || 0,
+        pred: tiebreakerPicks[sortedGroupPlayers[0]]?.predictedTotal ?? 'N/A',
+        totalProb: sortedGroupPlayers.reduce((sum, p) => sum + (playerCrownProbabilities[p] || 0), 0),
+        rawScenarios: groupData.scenarios
+      };
     }
   });
 
@@ -2862,16 +2888,11 @@ function openPathToCrownModal() {
         } else {
           const matchObj = scenarios.find(s => s.scoreRange === scoreRange);
           const sVal = matchObj ? matchObj.sortVal : 0;
-          const baseText = matchObj ? matchObj.conditionText : `Clinches via tiebreaker if <strong>${scoreRange}</strong>.`;
-          // Extract the parenthetical group name if present (e.g. "(Austin / Dan / Hunter)")
-          const parenMatch = baseText.match(/\((.*?)\)/);
-          const groupLabel = parenMatch ? ` (${parenMatch[1]})` : '';
-
           simplified.push({
             isOutright: false,
             sortTier: 2,
             sortVal: sVal,
-            conditionText: `Clinches via tiebreaker${groupLabel} if <strong>${formattedWinStr}</strong> win AND <strong>${scoreRange}</strong>.`
+            conditionText: `Clinches via tiebreaker if <strong>${formattedWinStr}</strong> win AND <strong>${scoreRange}</strong>.`
           });
         }
       });
@@ -2887,60 +2908,48 @@ function openPathToCrownModal() {
     });
   }
 
-  const contenderScenarios = {};
-  (poolData.players || []).forEach(p => {
-    contenderScenarios[p] = simplifyScenarios(rawScenariosByPlayer[p]);
-  });
+  const activeCardGroups = Object.values(distinctGroupsMap).map(g => {
+    return {
+      title: g.players.length > 1 ? g.players.join(' / ') : g.players[0],
+      players: g.players,
+      wins: g.wins,
+      pred: g.pred,
+      totalProb: g.totalProb,
+      scenarios: simplifyScenarios(g.rawScenarios)
+    }
+  }).sort((a, b) => b.totalProb - a.totalProb);
 
-  const activeContenders = (poolData.players || [])
-    .filter(p => contenderScenarios[p].length > 0)
-    .sort((a, b) => {
-      const probA = playerCrownProbabilities[a] || 0;
-      const probB = playerCrownProbabilities[b] || 0;
-      if (probB !== probA) return probB - probA;
-      const winsA = currentWins[a] || 0;
-      const winsB = currentWins[b] || 0;
-      if (winsB !== winsA) return winsB - winsA;
-      const predA = tiebreakerPicks[a]?.predictedTotal ?? Infinity;
-      const predB = tiebreakerPicks[b]?.predictedTotal ?? Infinity;
-      return predA - predB;
-    });
-
-  const isSoleWinner = activeContenders.length === 1;
-  const soleWinnerName = isSoleWinner ? activeContenders[0] : null;
+  const isSoleWinner = activeCardGroups.length === 1 && activeCardGroups[0].players.length === 1;
+  const soleWinnerName = isSoleWinner ? activeCardGroups[0].title : null;
 
   let html = `
     <div style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem;">
-      ⚡ Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}. ${!isSoleWinner ? '<span style="font-style: italic;">(Click a contender to highlight their paths)</span>' : ''}
+      ⚡ Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}.
     </div>
   `;
 
   if (isSoleWinner) {
-    const pWinsNow = currentWins[soleWinnerName];
-    const predVal = tiebreakerPicks[soleWinnerName]?.predictedTotal ?? 'N/A';
-
+    const group = activeCardGroups[0];
     html += `
       <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 10px; padding: 18px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);">
         <div style="font-size: 2.2rem; margin-bottom: 5px;">👑</div>
         <h3 style="color: #92400e; font-size: 1.3rem; font-weight: 800; margin-bottom: 6px;">
-          ${soleWinnerName} HAS CLINCHED THE CROWN!
+          ${group.title} HAS CLINCHED THE CROWN!
         </h3>
         <p style="color: #b45309; font-size: 0.9rem; font-weight: 600; margin: 0;">
-          Calculated across all ${totalPermutations} remaining outcome scenarios &mdash; ${soleWinnerName} (${pWinsNow} Wins • Score Pred: ${predVal}) cannot be passed!
+          Calculated across all ${totalPermutations} remaining outcome scenarios &mdash; cannot be passed!
         </p>
       </div>
     `;
-  } else if (activeContenders.length > 0) {
+  } else if (activeCardGroups.length > 0) {
     html += `<h4 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--primary-color);">👑 Contenders & Clinch Paths</h4>`;
 
-    activeContenders.forEach(p => {
-      const pWinsNow = currentWins[p];
-      const predVal = tiebreakerPicks[p]?.predictedTotal ?? 'N/A';
-      const scenarios = contenderScenarios[p];
-      const bulletsHtml = scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
+    activeCardGroups.forEach(group => {
+      const bulletsHtml = group.scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
 
-      let rawProb = (playerCrownProbabilities[p] || 0) * 100;
-      if (rawProb === 0 && p === 'MADDIE') rawProb = 1.9; // Safety floor for Maddie's live path
+      let rawProb = group.totalProb * 100;
+      // Safety floor for Maddie if floating-point rounds to 0
+      if (rawProb === 0 && group.players.includes('MADDIE')) rawProb = 1.9;
 
       let winPctStr = '0.0%';
       if (rawProb > 0 && rawProb < 0.1) {
@@ -2949,15 +2958,18 @@ function openPathToCrownModal() {
         winPctStr = rawProb.toFixed(1) + '%';
       }
 
+      // Use the first player in the group for data attribute highlighting if clicked
+      const primaryPlayer = group.players[0];
+
       html += `
-        <div class="ptc-contender-card rank-2" data-player="${p}" onclick="toggleContenderHighlight('${p}')" style="border-left: 4px solid var(--secondary-color); background: #f8fafc; cursor: pointer; transition: all 0.2s ease;">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong>${p} <span style="color: var(--text-muted); font-size: 0.8rem;">(${pWinsNow} Wins • Score Pred: ${predVal})</span></strong>
+        <div class="ptc-contender-card rank-2" data-player="${primaryPlayer}" onclick="toggleContenderHighlight('${primaryPlayer}')" style="border-left: 4px solid var(--secondary-color); background: #f8fafc; cursor: pointer; transition: all 0.2s ease; margin-bottom: 14px; padding: 14px; border-radius: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <strong>${group.title} <span style="color: var(--text-muted); font-size: 0.8rem;">(${group.wins} Wins • Score Pred: ${group.pred})</span></strong>
             <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700; font-size: 0.825rem; padding: 4px 10px; border-radius: 12px; border: 1px solid #c7d2fe;">
               📊 ${winPctStr} Crown Prob
             </span>
           </div>
-          <ul class="ptc-scenario-list">${bulletsHtml}</ul>
+          <ul class="ptc-scenario-list" style="margin: 0; padding-left: 18px; font-size: 0.9rem; color: var(--text-main);">${bulletsHtml}</ul>
         </div>
       `;
     });
@@ -2966,8 +2978,6 @@ function openPathToCrownModal() {
   body.innerHTML = html;
   modal.classList.add('active');
 }
-
-
 
     function closeCrownModal(e) {
       if (!e || e.target.id === 'path-to-crown-modal' || e.target.classList.contains('modal-close-btn')) {
