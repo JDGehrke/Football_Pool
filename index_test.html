@@ -1104,7 +1104,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v3.26 <span>🔮</span>
+        <span>🔮</span> Path to Crown v3.27 <span>🔮</span>
       </button>
     </div>
 
@@ -2717,7 +2717,7 @@ function openPathToCrownModal() {
 
     gamesToSimulate.forEach((g, bitIdx) => {
       const isHomeWin = (i & (1 << bitIdx)) !== 0;
-      const winner = isHomeWin ? g.home : g.away;
+      const winner = isHomeWin ? g.home : g.away; // e.g., "MIN" or "BUF"
       outcomeObj[g.id] = winner;
       simulatedWinners.push(winner);
       branchProb *= (isHomeWin ? g.homeWinProb : g.awayWinProb);
