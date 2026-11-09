@@ -2668,15 +2668,6 @@ function openPathToCrownModal() {
     return (currentWins[p] + remainingGames.length) >= maxCurrentWins;
   });
 
-  gamesToSimulate.forEach(g => {
-    const contenderPicks = potentialContenders
-      .map(p => (g.picks[p] || '').trim().toUpperCase())
-      .filter(pk => pk !== '' && pk !== '—');
-    const firstPick = contenderPicks[0];
-    g.isUnanimous = firstPick && contenderPicks.every(pk => pk === firstPick);
-    g.unanimousPick = g.isUnanimous ? firstPick : null;
-  });
-
   // STEP 2: Entity Grouping
   const playerGroupsMap = {};
   potentialContenders.forEach(p => {
@@ -2701,7 +2692,7 @@ function openPathToCrownModal() {
       wins: g.wins,
       pred: g.pred,
       totalProb: 0,
-      scenariosMap: {} // Map key -> scenario obj to prevent duplicates
+      scenariosMap: {}
     };
   });
 
@@ -2714,28 +2705,19 @@ function openPathToCrownModal() {
     return null;
   }
 
-  // STEP 3: Direct Game-Branch Probability Calculation
+  // STEP 3: Single-Game Branch Probability Split
   const vegasTotal = parseFloat(weekData.tiebreaker?.vegasTotal || weekData?.vegasTotal || 44.0);
 
-  // Clear prior states
-  Object.values(cardEntities).forEach(card => {
-    card.totalProb = 0;
-    card.scenariosMap = {};
-  });
-
-  // Extract the single remaining game probabilities
   const g = gamesToSimulate[0]; 
-  const pBuffaloWin = g.awayWinProb; // BUF is away
-  const pMinnesotaWin = g.homeWinProb; // MIN is home
+  const pBuffaloWin = g ? g.awayWinProb : 0.5;
+  const pMinnesotaWin = g ? g.homeWinProb : 0.5;
 
-  // Evaluate the two possible game outcome branches independently
   const branches = [
-    { winnerName: g.away, branchProb: pBuffaloWin, winnersArray: [g.away] },
-    { winnerName: g.home, branchProb: pMinnesotaWin, winnersArray: [g.home] }
+    { winnerName: g ? g.away : 'BUF', branchProb: pBuffaloWin, winnersArray: [g ? g.away : 'BUF'] },
+    { winnerName: g ? g.home : 'MIN', branchProb: pMinnesotaWin, winnersArray: [g ? g.home : 'MIN'] }
   ];
 
   branches.forEach(branch => {
-    // Determine player scores if this branch happens
     const pScores = {};
     potentialContenders.forEach(p => {
       let extra = (g.picks[p] || '').trim().toUpperCase() === branch.winnerName ? 1 : 0;
@@ -2787,7 +2769,6 @@ function openPathToCrownModal() {
         const probUpper = maxBound === Infinity ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
         const intervalScoreProb = Math.max(0, probUpper - probLower);
         
-        // Card's probability for this branch = branch weight * normCDF interval slice
         card.totalProb += branch.branchProb * intervalScoreProb;
 
         let scoreText = '';
@@ -2813,89 +2794,7 @@ function openPathToCrownModal() {
     }
   });
 
-  // STEP 4: Bullet Simplification with Strict Deduplication
-  function simplifyScenarios(scenarios) {
-    const grouped = {};
-    scenarios.forEach(s => {
-      const key = `${s.isOutright}_${s.scoreRange}`;
-      if (!grouped[key]) grouped[key] = [];
-      grouped[key].push(s.winnersArray);
-    });
-
-    const simplified = [];
-    const seenTexts = new Set();
-
-    Object.keys(grouped).forEach(key => {
-      const [isOutrightStr, scoreRange] = key.split('_');
-      const isOutright = isOutrightStr === 'true';
-      const arrs = grouped[key];
-
-      let combined = arrs.map(a => [...a]);
-      
-      for (let gIdx = 0; gIdx < gamesToSimulate.length; gIdx++) {
-        const awayTeam = gamesToSimulate[gIdx].away;
-        const homeTeam = gamesToSimulate[gIdx].home;
-
-        const matchPairs = {};
-        combined.forEach(arr => {
-          const copy = [...arr];
-          const val = copy[gIdx];
-          copy[gIdx] = 'WILD';
-          const signature = copy.join(',');
-          if (!matchPairs[signature]) matchPairs[signature] = new Set();
-          matchPairs[signature].add(val);
-        });
-
-        Object.keys(matchPairs).forEach(sig => {
-          if (matchPairs[sig].size === 2) {
-            const sigArr = sig.split(',');
-            combined = combined.filter(arr => {
-              const cCopy = [...arr];
-              cCopy[gIdx] = 'WILD';
-              return cCopy.join(',') !== sig;
-            });
-            const wildcardRep = sigArr.map(x => x === 'WILD' ? `${awayTeam}/${homeTeam}` : x);
-            if (!combined.some(c => c.join(',') === wildcardRep.join(','))) {
-              combined.push(wildcardRep);
-            }
-          }
-        });
-      }
-
-      combined.forEach(winnersArr => {
-        const formattedWinStr = winnersArr.join(' & ');
-        let conditionText = '';
-        if (isOutright) {
-          conditionText = `Clinches outright if <strong>${formattedWinStr}</strong> win.`;
-        } else {
-          conditionText = `Clinches via tiebreaker if <strong>${formattedWinStr}</strong> win AND <strong>${scoreRange}</strong>.`;
-        }
-
-        if (!seenTexts.has(conditionText)) {
-          seenTexts.add(conditionText);
-          const matchObj = scenarios.find(s => s.scoreRange === scoreRange);
-          const sVal = matchObj ? matchObj.sortVal : 0;
-          simplified.push({
-            isOutright,
-            sortTier: isOutright ? 1 : 2,
-            sortVal: sVal,
-            conditionText
-          });
-        }
-      });
-    });
-
-    return simplified.sort((a, b) => {
-      if (a.sortTier !== b.sortTier) return a.sortTier - b.sortTier;
-      const countWildcards = (str) => (str.match(/\//g) || []).length;
-      const wcA = countWildcards(a.conditionText);
-      const wcB = countWildcards(b.conditionText);
-      if (wcA !== wcB) return wcB - wcA;
-      return a.sortVal - b.sortVal;
-    });
-  }
-
-  // Filter out 0% cards completely
+  // STEP 4: Render Non-Zero Contenders
   const activeCardGroups = Object.values(cardEntities)
     .filter(card => card.totalProb > 0.000001)
     .map(card => ({
@@ -2904,7 +2803,7 @@ function openPathToCrownModal() {
       wins: card.wins,
       pred: card.pred,
       totalProb: card.totalProb,
-      scenarios: simplifyScenarios(Object.values(card.scenariosMap))
+      scenarios: Object.values(card.scenariosMap)
     }))
     .sort((a, b) => b.totalProb - a.totalProb);
 
@@ -2912,7 +2811,7 @@ function openPathToCrownModal() {
 
   let html = `
     <div style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem;">
-      ⚡ Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}. ${!isSoleWinner ? '<span style="font-style: italic;">(Click a contender to highlight their paths)</span>' : ''}
+      ⚡ Simulating remaining outcome paths. ${!isSoleWinner ? '<span style="font-style: italic;">(Click a contender to highlight their paths)</span>' : ''}
     </div>
   `;
 
@@ -2925,7 +2824,7 @@ function openPathToCrownModal() {
           ${group.title} HAS CLINCHED THE CROWN!
         </h3>
         <p style="color: #b45309; font-size: 0.9rem; font-weight: 600; margin: 0;">
-          Calculated across all ${totalPermutations} remaining outcome scenarios &mdash; ${group.title} (${group.wins} Wins • Score Pred: ${group.pred}) cannot be passed!
+          Calculated across remaining outcome scenarios &mdash; ${group.title} (${group.wins} Wins • Score Pred: ${group.pred}) cannot be passed!
         </p>
       </div>
     `;
@@ -2963,6 +2862,7 @@ function openPathToCrownModal() {
   body.innerHTML = html;
   modal.classList.add('active');
 }
+
 
 
 
