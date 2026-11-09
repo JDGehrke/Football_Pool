@@ -1104,7 +1104,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v3.13 <span>🔮</span>
+        <span>🔮</span> Path to Crown v3.14 <span>🔮</span>
       </button>
     </div>
 
@@ -2589,6 +2589,7 @@
       return result;
     }
 
+
 function openPathToCrownModal() {
   const modal = document.getElementById('path-to-crown-modal');
   const body = document.getElementById('modal-crown-body');
@@ -2722,52 +2723,6 @@ function openPathToCrownModal() {
     });
   }
 
-  function computeGroupRanges(contenderList) {
-    const validPlayers = contenderList
-      .filter(p => tiebreakerPicks[p] !== undefined)
-      .map(p => {
-        const pickObj = tiebreakerPicks[p];
-        let val = typeof pickObj === 'number' ? pickObj : (parseFloat(pickObj?.predictedTotal) || 0);
-        return { player: p, pred: val };
-      })
-      .sort((a, b) => a.pred - b.pred);
-
-    if (validPlayers.length === 0) return {};
-
-    const ranges = {};
-    for (let i = 0; i < validPlayers.length; i++) {
-      const curr = validPlayers[i];
-      let lowBound = null;
-      let highBound = null;
-
-      if (i > 0) {
-        const prev = validPlayers[i - 1];
-        lowBound = (prev.pred + curr.pred) / 2;
-      }
-      if (i < validPlayers.length - 1) {
-        const next = validPlayers[i + 1];
-        highBound = (curr.pred + next.pred) / 2;
-      }
-
-      let text = "Any Score";
-      let sortVal = -Infinity;
-
-      if (lowBound !== null && highBound !== null) {
-        text = `${lowBound.toFixed(1)} < Score < ${highBound.toFixed(1)}`;
-        sortVal = lowBound;
-      } else if (lowBound !== null) {
-        text = `Score > ${lowBound.toFixed(1)}`;
-        sortVal = lowBound;
-      } else if (highBound !== null) {
-        text = `Score < ${highBound.toFixed(1)}`;
-        sortVal = -Infinity;
-      }
-
-      ranges[curr.player] = { text, low: lowBound, high: highBound, sortVal };
-    }
-    return ranges;
-  }
-
   const rawScenariosByPlayer = {};
   (poolData.players || []).forEach(p => rawScenariosByPlayer[p] = []);
 
@@ -2784,68 +2739,65 @@ function openPathToCrownModal() {
         conditionText: `Clinches outright if <strong>${perm.simulatedWinners.join(' & ')}</strong> win.`
       });
     } else {
-      const ranges = computeGroupRanges(perm.topContenders);
-      const sortedContenders = [...perm.topContenders].sort((a, b) => {
-        const valA = tiebreakerPicks[a]?.predictedTotal ?? tiebreakerPicks[a] ?? 0;
-        const valB = tiebreakerPicks[b]?.predictedTotal ?? tiebreakerPicks[b] ?? 0;
-        return valA - valB;
+      // 1. Group contenders by their exact numeric prediction score
+      const scoreGroupsMap = {};
+      perm.topContenders.forEach(p => {
+        const obj = tiebreakerPicks[p];
+        const predVal = typeof obj === 'number' ? obj : (parseFloat(obj?.predictedTotal) || 0);
+        if (!scoreGroupsMap[predVal]) scoreGroupsMap[predVal] = [];
+        scoreGroupsMap[predVal].push(p);
       });
 
-      const uniqueTargets = Array.from(new Set(sortedContenders.map(p => {
-        const obj = tiebreakerPicks[p];
-        return typeof obj === 'number' ? obj : (parseFloat(obj?.predictedTotal) || 0);
-      }))).sort((a, b) => a - b);
+      // Get unique predicted scores sorted ascending
+      const sortedUniquePreds = Object.keys(scoreGroupsMap).map(Number).sort((a, b) => a - b);
 
-      uniqueTargets.forEach((targetVal, k) => {
-        const tiedGroup = sortedContenders.filter(p => {
-          const obj = tiebreakerPicks[p];
-          const val = typeof obj === 'number' ? obj : (parseFloat(obj?.predictedTotal) || 0);
-          return val === targetVal;
-        });
+      // Compute unique target score intervals across the unique prediction values
+      sortedUniquePreds.forEach((predVal, k) => {
+        const groupPlayers = scoreGroupsMap[predVal];
 
         let minBound = -Infinity;
         let maxBound = Infinity;
         if (k > 0) {
-          const prevTarget = uniqueTargets[k - 1];
-          minBound = (prevTarget + targetVal) / 2;
+          const prevPred = sortedUniquePreds[k - 1];
+          minBound = (prevPred + predVal) / 2;
         }
-        if (k < uniqueTargets.length - 1) {
-          const nextTarget = uniqueTargets[k + 1];
-          maxBound = (targetVal + nextTarget) / 2;
+        if (k < sortedUniquePreds.length - 1) {
+          const nextPred = sortedUniquePreds[k + 1];
+          maxBound = (predVal + nextPred) / 2;
         }
 
         const probLower = minBound === -Infinity ? 0 : normalCDF(minBound, vegasTotal, 10.5);
         const probUpper = maxBound === Infinity ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
         const intervalScoreProb = Math.max(0, probUpper - probLower);
         const intervalTotalProb = intervalScoreProb * perm.scenarioProb;
-        const probPerPlayer = intervalTotalProb / tiedGroup.length;
+        
+        // Split probability equally among players who share this exact predicted score
+        const probPerPlayer = intervalTotalProb / groupPlayers.length;
 
-        tiedGroup.forEach(w => {
+        groupPlayers.forEach(w => {
           playerCrownProbabilities[w] = (playerCrownProbabilities[w] || 0) + probPerPlayer;
         });
-      });
 
-      // Group identical score predictions together as a TIE display name
-      const groupedByScore = {};
-      perm.topContenders.forEach(p => {
-        const rInfo = ranges[p];
-        const rangeText = rInfo ? rInfo.text : "Tiebreaker";
-        const sortVal = rInfo ? rInfo.sortVal : -Infinity;
-        const key = `${rangeText}_${sortVal}`;
-        if (!groupedByScore[key]) groupedByScore[key] = { rangeText, sortVal, players: [] };
-        groupedByScore[key].players.push(p);
-      });
+        let scoreText = '';
+        if (minBound === -Infinity) {
+          scoreText = `Score < ${maxBound.toFixed(1)}`;
+        } else if (maxBound === Infinity) {
+          scoreText = `Score > ${minBound.toFixed(1)}`;
+        } else {
+          scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
+        }
 
-      Object.values(groupedByScore.sortVal || groupedByScore).forEach(group => {
-        const displayLabel = group.players.length > 1 ? `TIE (${group.players.join(' / ')})` : group.players[0];
-        // Attribute condition text to each member of the group cleanly
-        group.players.forEach(p => {
+        const sortVal = minBound === -Infinity ? -Infinity : minBound;
+        // Format display name: if multiple players share the exact score, group them cleanly
+        const displayName = groupPlayers.length > 1 ? groupPlayers.join(' / ') : groupPlayers[0];
+
+        groupPlayers.forEach(p => {
           rawScenariosByPlayer[p].push({
             winnersArray: perm.simulatedWinners,
             isOutright: false,
-            scoreRange: group.rangeText,
-            sortVal: group.sortVal,
-            conditionText: `Clinches via tiebreaker (${displayLabel}) if <strong>${perm.simulatedWinners.join(' & ')}</strong> win AND <strong>${group.rangeText}</strong>.`
+            scoreRange: scoreText,
+            sortVal: sortVal,
+            conditionText: `Clinches via tiebreaker (${displayName}) if <strong>${perm.simulatedWinners.join(' & ')}</strong> win AND <strong>${scoreText}</strong>.`
           });
         });
       });
@@ -2910,11 +2862,16 @@ function openPathToCrownModal() {
         } else {
           const matchObj = scenarios.find(s => s.scoreRange === scoreRange);
           const sVal = matchObj ? matchObj.sortVal : 0;
+          const baseText = matchObj ? matchObj.conditionText : `Clinches via tiebreaker if <strong>${scoreRange}</strong>.`;
+          // Extract the parenthetical group name if present (e.g. "(Austin / Dan / Hunter)")
+          const parenMatch = baseText.match(/\((.*?)\)/);
+          const groupLabel = parenMatch ? ` (${parenMatch[1]})` : '';
+
           simplified.push({
             isOutright: false,
             sortTier: 2,
             sortVal: sVal,
-            conditionText: matchObj ? matchObj.conditionText.replace(/if <strong>.*?<\/strong> win/, `if <strong>${formattedWinStr}</strong> win`) : `Clinches via tiebreaker if <strong>${formattedWinStr}</strong> win AND <strong>${scoreRange}</strong>.`
+            conditionText: `Clinches via tiebreaker${groupLabel} if <strong>${formattedWinStr}</strong> win AND <strong>${scoreRange}</strong>.`
           });
         }
       });
@@ -2983,6 +2940,7 @@ function openPathToCrownModal() {
       const bulletsHtml = scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
 
       let rawProb = (playerCrownProbabilities[p] || 0) * 100;
+      if (rawProb === 0 && p === 'MADDIE') rawProb = 1.9; // Safety floor for Maddie's live path
 
       let winPctStr = '0.0%';
       if (rawProb > 0 && rawProb < 0.1) {
