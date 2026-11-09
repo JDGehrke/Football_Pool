@@ -683,7 +683,7 @@
       font-size: 0.9rem;
     }
 
-    /* --- KPI CARDS (RESPONSIVE: 4-WIDE DESKTOP, 2x2 MOBILE) --- */
+    /* --- KPI CARDS --- */
     .kpi-grid { 
       display: grid; 
       grid-template-columns: repeat(4, 1fr); 
@@ -866,7 +866,7 @@
     .pick-tie { background-color: #fef08a !important; color: #854d0e; font-weight: bold; }
     .pick-pending { background-color: #ffffff; color: var(--text-main); }
 
-    /* LINE & SCATTER CHART STYLES (RESPONSIVE X-AXIS LABELS) */
+    /* LINE & SCATTER CHART STYLES */
     .scatter-chart-wrapper { width: 100%; height: 220px; position: relative; padding: 10px 0; }
     .scatter-svg { width: 100%; height: 100%; overflow: visible; }
     .scatter-line { stroke: var(--secondary-color); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
@@ -897,8 +897,8 @@
       background: var(--card-bg);
       border-radius: 12px;
       width: 100%;
-      max-width: 650px;
-      max-height: 85vh;
+      max-width: 750px;
+      max-height: 90vh;
       display: flex;
       flex-direction: column;
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -922,30 +922,39 @@
     .modal-close-btn:hover { color: var(--text-main); }
     .modal-body { padding: 20px; overflow-y: auto; }
 
-    .ptc-contender-card {
-      background: #f8fafc;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 12px;
-    }
-    .ptc-contender-card.rank-1 {
-      border-left: 4px solid var(--gold);
-      background: #fffdf5;
-    }
-    .ptc-contender-card.rank-2 {
-      border-left: 4px solid var(--secondary-color);
-    }
-    .ptc-scenario-list {
-      margin-top: 8px;
-      padding-left: 20px;
-      font-size: 0.85rem;
-      color: var(--text-main);
-    }
-    .ptc-scenario-list li {
-      margin-bottom: 4px;
-      line-height: 1.4;
-    }
+    /* --- PATH TO CROWN V2.0 PLAYGROUND STYLES --- */
+    .ptc-container { font-family: system-ui, -apple-system, sans-serif; }
+    .ptc-section-title { font-size: 1rem; font-weight: 700; color: #1e293b; margin: 16px 0 10px 0; }
+    .ptc-divider { border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+
+    .ptc-cards-grid { display: flex; flex-direction: column; gap: 12px; }
+    .ptc-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+    .ptc-card-header { display: flex; justify-content: space-between; align-items: center; }
+    .ptc-card-title { font-size: 1.05rem; font-weight: 700; color: #0f172a; }
+    .ptc-card-sub { font-size: 0.8rem; color: #64748b; font-weight: 400; margin-left: 6px; }
+    .ptc-prob-badge { background: #3b82f6; color: #ffffff; font-weight: 700; font-size: 0.875rem; padding: 6px 12px; border-radius: 20px; }
+
+    .ptc-paths-toggle { font-size: 0.8rem; color: #3b82f6; font-weight: 600; cursor: pointer; margin-top: 8px; display: inline-block; }
+    .ptc-paths-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; padding-top: 8px; border-top: 1px dashed #e2e8f0; }
+    .ptc-path-row { font-size: 0.825rem; color: var(--text-main); line-height: 1.4; padding: 2px 0; }
+
+    .ptc-simulator-box { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 16px; }
+    .ptc-matchup-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+    .ptc-game-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; text-align: center; }
+    .ptc-game-title { font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 8px; }
+    .ptc-team-btn-group { display: flex; gap: 8px; }
+    .ptc-team-btn { border: 2px solid #cbd5e1; background: #ffffff; padding: 6px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; gap: 6px; }
+    .ptc-team-btn.selected { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
+
+    .ptc-tb-box { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 16px; }
+    .ptc-tb-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.875rem; font-weight: 700; }
+    .ptc-score-badge { background: #ef4444; color: #ffffff; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; }
+    .ptc-bell-curve-wrapper { position: relative; height: 110px; margin: 10px 0; }
+    .ptc-bell-svg { width: 100%; height: 100%; display: block; overflow: visible; }
+    .ptc-range-slider { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; }
+    .ptc-curve-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; }
+
+    .ptc-result-banner { background: #0f172a; color: #ffffff; padding: 14px; border-radius: 8px; text-align: center; font-size: 1rem; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
     .hof-card-grid {
       display: grid;
@@ -1104,7 +1113,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v3.27 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.0 <span>🔮</span>
       </button>
     </div>
 
@@ -1301,6 +1310,7 @@
     let teamOpponents = {};
     let teamVictories = {};
     let selectedMatrixPlayers = [];
+    let currentSimulatedSelections = {};
 
     const NFL_DIVISIONS = {
       "AFC East": ["BUF", "MIA", "NE", "NYJ"],
@@ -2251,7 +2261,6 @@
         ? topScorers.filter(p => computedStats[p]?.weeklyHistory[week]?.diff === winningDiff)
         : topScorers;
 
-      // Dynamic header for 3rd column: Score until all games complete, then +/-
       const col3Header = document.getElementById('col-3-header');
       if (col3Header) {
         col3Header.innerText = isWeekComplete ? '+/-' : 'Score';
@@ -2263,7 +2272,6 @@
         const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal ?? 'N/A';
         const diffStr = wHist.diff !== null ? `${wHist.diff}` : '-';
 
-        // Column 3 value: Score during week, +/- once all games complete
         const col3Value = isWeekComplete ? diffStr : pred;
 
         const gbChange = wHist.gbChange || 0;
@@ -2465,86 +2473,6 @@
       return false;
     }
 
-    let currentMatrixSort = { colIndex: null, direction: 'asc' };
-    let activeHighlightedPlayer = null;
-
-    function sortOutcomeMatrix(colIndex) {
-      const table = document.querySelector('.outcome-matrix-table');
-      if (!table) return;
-
-      const tbody = table.querySelector('tbody');
-      const rows = Array.from(tbody.querySelectorAll('tr'));
-
-      if (currentMatrixSort.colIndex === colIndex) {
-        currentMatrixSort.direction = currentMatrixSort.direction === 'asc' ? 'desc' : 'asc';
-      } else {
-        currentMatrixSort.colIndex = colIndex;
-        currentMatrixSort.direction = 'asc';
-      }
-
-      const isAsc = currentMatrixSort.direction === 'asc';
-
-      rows.sort((rowA, rowB) => {
-        const cellA = rowA.children[colIndex];
-        const cellB = rowB.children[colIndex];
-
-        let valA = cellA.querySelector('img')?.alt || cellA.textContent.trim();
-        let valB = cellB.querySelector('img')?.alt || cellB.textContent.trim();
-
-        const numA = parseFloat(valA.replace(/[^0-9.-]+/g, ''));
-        const numB = parseFloat(valB.replace(/[^0-9.-]+/g, ''));
-
-        if (!isNaN(numA) && !isNaN(numB) && !valA.includes('<')) {
-          return isAsc ? numA - numB : numB - numA;
-        }
-
-        return isAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
-      });
-
-      rows.forEach(row => tbody.appendChild(row));
-
-      const headers = table.querySelectorAll('thead th');
-      headers.forEach((th, idx) => {
-        th.classList.remove('sort-asc', 'sort-desc');
-        const indicator = th.querySelector('.sort-indicator');
-        if (indicator) indicator.textContent = '';
-
-        if (idx === colIndex) {
-          th.classList.add(isAsc ? 'sort-asc' : 'sort-desc');
-          if (indicator) indicator.textContent = isAsc ? ' ▲' : ' ▼';
-        }
-      });
-    }
-
-    function toggleContenderHighlight(playerName) {
-      const allCards = document.querySelectorAll('.ptc-contender-card');
-      const allRows = document.querySelectorAll('.outcome-matrix-table tbody tr');
-
-      if (activeHighlightedPlayer === playerName) {
-        activeHighlightedPlayer = null;
-        allCards.forEach(c => c.classList.remove('active-highlight'));
-        allRows.forEach(r => r.classList.remove('highlighted-row'));
-      } else {
-        activeHighlightedPlayer = playerName;
-        
-        allCards.forEach(c => {
-          if (c.getAttribute('data-player') === playerName) {
-            c.classList.add('active-highlight');
-          } else {
-            c.classList.remove('active-highlight');
-          }
-        });
-
-        allRows.forEach(r => {
-          if (r.getAttribute('data-winner') === playerName) {
-            r.classList.add('highlighted-row');
-          } else {
-            r.classList.remove('highlighted-row');
-          }
-        });
-      }
-    }
-
     function normalCDF(x, mean = 44.0, stdDev = 10.5) {
       const z = (x - mean) / stdDev;
       const t = 1 / (1 + 0.2316419 * Math.abs(z));
@@ -2553,358 +2481,428 @@
       return z > 0 ? 1 - prob : prob;
     }
 
-    function getMultiwayTiebreakerProbs(contenders, tiebreakerPicks, projectedTotal = 44.0) {
-      const result = {};
+    /* --- CLEAN SLATE PATH TO CROWN ENGINE WITH INTERACTIVE PLAYGROUND --- */
+    function openPathToCrownModal() {
+      const modal = document.getElementById('path-to-crown-modal');
+      const body = document.getElementById('modal-crown-body');
+      
+      const week = document.getElementById('week-select').value;
+      const weekData = poolData.weeks[week];
+      if (!weekData) return;
 
-      const playerPicks = contenders.map(p => ({
-        player: p,
-        pick: tiebreakerPicks[p]?.predictedTotal
-      }));
+      const matchups = weekData.matchups || [];
+      const remainingGames = matchups.filter(m => !m.winner || (m.status !== 'Final' && m.status !== 'STATUS_FINAL'));
 
-      if (playerPicks.some(item => typeof item.pick !== 'number')) {
-        const equalShare = 1.0 / contenders.length;
-        contenders.forEach(p => { result[p] = equalShare; });
-        return result;
+      if (!isSundayEveningOrLater(matchups)) {
+        body.innerHTML = `
+          <div style="text-align: center; padding: 30px 10px;">
+            <div style="font-size: 2.5rem; margin-bottom: 15px;">🔒</div>
+            <h4 style="font-size: 1.1rem; color: var(--primary-color); margin-bottom: 8px;">Path to Crown is Locked</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 400px; margin: 0 auto;">
+              Scenarios unlock on <strong>Sunday at 7:00 PM CST</strong> (or when 3 or fewer games remain in the week).
+            </p>
+          </div>
+        `;
+        modal.classList.add('active');
+        return;
       }
 
-      playerPicks.sort((a, b) => a.pick - b.pick);
-
-      const midpoints = [];
-      for (let i = 0; i < playerPicks.length - 1; i++) {
-        midpoints.push((playerPicks[i].pick + playerPicks[i + 1].pick) / 2);
+      if (remainingGames.length === 0) {
+        body.innerHTML = `
+          <div style="text-align: center; padding: 30px 10px;">
+            <div style="font-size: 2.5rem; margin-bottom: 15px;">🏁</div>
+            <h4 style="font-size: 1.1rem; color: var(--primary-color); margin-bottom: 8px;">Week Complete</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+              All games for ${week} have concluded and final results are posted.
+            </p>
+          </div>
+        `;
+        modal.classList.add('active');
+        return;
       }
 
-      const cdfValues = midpoints.map(m => normalCDF(m, projectedTotal, 10.5));
-
-      playerPicks.forEach((item, idx) => {
-        if (idx === 0) {
-          result[item.player] = cdfValues[0];
-        } else if (idx === playerPicks.length - 1) {
-          result[item.player] = 1 - cdfValues[cdfValues.length - 1];
-        } else {
-          result[item.player] = cdfValues[idx] - cdfValues[idx - 1];
-        }
+      const currentWins = {};
+      const tiebreakerPicks = weekData.tiebreaker?.picks || {};
+      
+      (poolData.players || []).forEach(p => {
+        currentWins[p] = computedStats[p]?.weeklyHistory[week]?.correct || 0;
       });
 
-      return result;
-    }
+      const gamesToSimulate = remainingGames.map((m, idx) => {
+        const teamsInGame = (m.game || '')
+          .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
+          .map(t => t.trim().toUpperCase())
+          .filter(t => t.length >= 2);
 
-
-
-function openPathToCrownModal() {
-  const modal = document.getElementById('path-to-crown-modal');
-  const body = document.getElementById('modal-crown-body');
-  
-  activeHighlightedPlayer = null;
-
-  const week = document.getElementById('week-select').value;
-  const weekData = poolData.weeks[week];
-  if (!weekData) return;
-
-  const matchups = weekData.matchups || [];
-  const remainingGames = matchups.filter(m => !m.winner || (m.status !== 'Final' && m.status !== 'STATUS_FINAL'));
-
-  if (!isSundayEveningOrLater(matchups)) {
-    body.innerHTML = `
-      <div style="text-align: center; padding: 30px 10px;">
-        <div style="font-size: 2.5rem; margin-bottom: 15px;">🔒</div>
-        <h4 style="font-size: 1.1rem; color: var(--primary-color); margin-bottom: 8px;">Path to Crown is Locked</h4>
-        <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 400px; margin: 0 auto;">
-          Scenarios unlock on <strong>Sunday at 7:00 PM CST</strong> (or when 3 or fewer games remain in the week).
-        </p>
-      </div>
-    `;
-    modal.classList.add('active');
-    return;
-  }
-
-  if (remainingGames.length === 0) {
-    body.innerHTML = `
-      <div style="text-align: center; padding: 30px 10px;">
-        <div style="font-size: 2.5rem; margin-bottom: 15px;">🏁</div>
-        <h4 style="font-size: 1.1rem; color: var(--primary-color); margin-bottom: 8px;">Week Complete</h4>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">
-          All games for ${week} have concluded and final results are posted.
-        </p>
-      </div>
-    `;
-    modal.classList.add('active');
-    return;
-  }
-
-  const currentWins = {};
-  const tiebreakerPicks = weekData.tiebreaker?.picks || {};
-  
-  (poolData.players || []).forEach(p => {
-    currentWins[p] = computedStats[p]?.weeklyHistory[week]?.correct || 0;
-  });
-
-  const gamesToSimulate = remainingGames.map((m, idx) => {
-    const teamsInGame = (m.game || '')
-      .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
-      .map(t => t.trim().toUpperCase())
-      .filter(t => t.length >= 2);
-
-    const rawHome = parseFloat(m.homePCT) || 50.0;
-    const rawAway = parseFloat(m.awayPCT) || 50.0;
-    const totalP = rawHome + rawAway || 100.0;
-
-    return {
-      id: idx,
-      away: teamsInGame[0] || 'AWAY',
-      home: teamsInGame[1] || 'HOME',
-      homeWinProb: rawHome / totalP,
-      awayWinProb: rawAway / totalP,
-      picks: m.picks || {}
-    };
-  });
-
-  // 1. Contender Filtering
-  let maxCurrentWins = 0;
-  (poolData.players || []).forEach(p => {
-    if (currentWins[p] > maxCurrentWins) maxCurrentWins = currentWins[p];
-  });
-  const potentialContenders = (poolData.players || []).filter(p => {
-    return (currentWins[p] + remainingGames.length) >= maxCurrentWins;
-  });
-
-  // 2. Entity Grouping (Group players with identical wins and score predictions)
-  const playerGroupsMap = {};
-  potentialContenders.forEach(p => {
-    const wins = currentWins[p] || 0;
-    const obj = tiebreakerPicks[p];
-    const pred = typeof obj === 'number' ? obj : (parseFloat(obj?.predictedTotal) || 0);
-    const key = `${wins}_${pred}`;
-
-    if (!playerGroupsMap[key]) {
-      playerGroupsMap[key] = { players: [], wins, pred };
-    }
-    playerGroupsMap[key].players.push(p);
-  });
-
-  const cardEntities = {};
-  Object.values(playerGroupsMap).forEach(g => {
-    const sortedPlayers = g.players.sort();
-    const title = sortedPlayers.length > 1 ? sortedPlayers.join(' / ') : sortedPlayers[0];
-    cardEntities[title] = {
-      title,
-      players: sortedPlayers,
-      wins: g.wins,
-      pred: g.pred,
-      totalProb: 0,
-      scenarios: []
-    };
-  });
-
-  function getCardByPlayer(p) {
-    for (let title in cardEntities) {
-      if (cardEntities[title].players.includes(p)) {
-        return cardEntities[title];
-      }
-    }
-    return null;
-  }
-
-  // 3. Rigorous Permutation Sweep ($2^N$ branches with full math evaluation)
-  const numGames = gamesToSimulate.length;
-  const totalPermutations = Math.pow(2, numGames);
-  const vegasTotal = parseFloat(weekData.tiebreaker?.vegasTotal || weekData?.vegasTotal || 44.0);
-
-  for (let i = 0; i < totalPermutations; i++) {
-    const outcomeObj = {};
-    const simulatedWinners = [];
-    let branchProb = 1.0;
-
-    gamesToSimulate.forEach((g, bitIdx) => {
-      const isHomeWin = (i & (1 << bitIdx)) !== 0;
-      const winner = isHomeWin ? g.home : g.away; // e.g., "MIN" or "BUF"
-      outcomeObj[g.id] = winner;
-      simulatedWinners.push(winner);
-      branchProb *= (isHomeWin ? g.homeWinProb : g.awayWinProb);
-    });
-
-    const pScores = {};
-    potentialContenders.forEach(p => {
-      let extra = 0;
-      gamesToSimulate.forEach(g => {
-        const playerPick = (g.picks[p] || '').trim().toUpperCase();
-        if (playerPick === outcomeObj[g.id]) extra++;
-      });
-      pScores[p] = currentWins[p] + extra;
-    });
-
-    const maxScore = Math.max(...Object.values(pScores));
-    const winningContenders = potentialContenders.filter(p => pScores[p] === maxScore);
-
-    const winningCardsMap = {};
-    winningContenders.forEach(p => {
-      const card = getCardByPlayer(p);
-      if (card && !winningCardsMap[card.title]) {
-        winningCardsMap[card.title] = card;
-      }
-    });
-
-    const winningCards = Object.values(winningCardsMap);
-
-    if (winningCards.length === 1) {
-      const card = winningCards[0];
-      card.totalProb += branchProb;
-      card.scenarios.push({
-        isOutright: true,
-        sortVal: -Infinity,
-        scoreRange: "Any Score",
-        winnersArray: simulatedWinners,
-        branchProb
-      });
-    } else {
-      winningCards.sort((a, b) => a.pred - b.pred);
-
-      winningCards.forEach((card, k) => {
-        let minBound = -Infinity;
-        let maxBound = Infinity;
-        
-        if (k > 0) {
-          minBound = (winningCards[k - 1].pred + card.pred) / 2;
-        }
-        if (k < winningCards.length - 1) {
-          maxBound = (card.pred + winningCards[k + 1].pred) / 2;
-        }
-
-        const probLower = minBound === -Infinity ? 0 : normalCDF(minBound, vegasTotal, 10.5);
-        const probUpper = maxBound === Infinity ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
-        const intervalScoreProb = Math.max(0, probUpper - probLower);
-        
-        // Exact mathematical accumulation: Branch Probability * CDF Interval Probability
-        card.totalProb += branchProb * intervalScoreProb;
-
-        let scoreText = '';
-        if (minBound === -Infinity) {
-          scoreText = `Score < ${maxBound.toFixed(1)}`;
-        } else if (maxBound === Infinity) {
-          scoreText = `Score > ${minBound.toFixed(1)}`;
-        } else {
-          scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
-        }
-
-        card.scenarios.push({
-          isOutright: false,
-          sortVal: minBound === -Infinity ? -Infinity : minBound,
-          scoreRange: scoreText,
-          winnersArray: simulatedWinners,
-          branchProb: branchProb * intervalScoreProb
-        });
-      });
-    }
-  }
-
-  // 4. Filter zero-probability cards and merge identical score conditions into unified rows
-  const activeCardGroups = Object.values(cardEntities)
-    .filter(card => card.totalProb > 0.000001)
-    .map(card => {
-      const mergedMap = {};
-
-      card.scenarios.forEach(s => {
-        const key = `${s.isOutright}_${s.scoreRange}`;
-        if (!mergedMap[key]) {
-          mergedMap[key] = {
-            isOutright: s.isOutright,
-            sortVal: s.sortVal,
-            scoreRange: s.scoreRange,
-            winnersSet: new Set()
-          };
-        }
-        s.winnersArray.forEach(w => mergedMap[key].winnersSet.add(w));
-      });
-
-      const uniqueScenarios = Object.values(mergedMap).map(m => {
-        const winArray = Array.from(m.winnersSet);
-        const winStr = winArray.join(' / ');
-        
-        let conditionText = '';
-        if (m.isOutright) {
-          conditionText = `Clinches outright if <strong>${winStr}</strong> win.`;
-        } else {
-          conditionText = `Clinches via tiebreaker if <strong>${winStr}</strong> win AND <strong>${m.scoreRange}</strong>.`;
-        }
+        const rawHome = parseFloat(m.homePCT) || 50.0;
+        const rawAway = parseFloat(m.awayPCT) || 50.0;
+        const totalP = rawHome + rawAway || 100.0;
 
         return {
-          isOutright: m.isOutright,
-          sortVal: m.sortVal,
-          conditionText
+          id: idx,
+          away: teamsInGame[0] || 'AWAY',
+          home: teamsInGame[1] || 'HOME',
+          awayWinProb: rawAway / totalP,
+          homeWinProb: rawHome / totalP,
+          rawAwayPCT: rawAway,
+          rawHomePCT: rawHome,
+          picks: m.picks || {}
         };
       });
 
-      return {
-        title: card.title,
-        players: card.players,
-        wins: card.wins,
-        pred: card.pred,
-        totalProb: card.totalProb,
-        scenarios: uniqueScenarios.sort((a, b) => {
-          if (a.isOutright !== b.isOutright) return a.isOutright ? -1 : 1;
-          return a.sortVal - b.sortVal;
-        })
-      };
-    })
-    .sort((a, b) => b.totalProb - a.totalProb);
+      // 1. Contender Filtering
+      let maxCurrentWins = 0;
+      (poolData.players || []).forEach(p => {
+        if (currentWins[p] > maxCurrentWins) maxCurrentWins = currentWins[p];
+      });
+      const potentialContenders = (poolData.players || []).filter(p => {
+        return (currentWins[p] + remainingGames.length) >= maxCurrentWins;
+      });
 
-  const isSoleWinner = activeCardGroups.length === 1 && activeCardGroups[0].players.length === 1;
+      // 2. Entity Grouping
+      const playerGroupsMap = {};
+      potentialContenders.forEach(p => {
+        const wins = currentWins[p] || 0;
+        const obj = tiebreakerPicks[p];
+        const pred = typeof obj === 'number' ? obj : (parseFloat(obj?.predictedTotal) || 0);
+        const key = `${wins}_${pred}`;
 
-  let html = `
-    <div style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem;">
-      ⚡ Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}. ${!isSoleWinner ? '<span style="font-style: italic;">(Click a contender to highlight their paths)</span>' : ''}
-    </div>
-  `;
+        if (!playerGroupsMap[key]) {
+          playerGroupsMap[key] = { players: [], wins, pred };
+        }
+        playerGroupsMap[key].players.push(p);
+      });
 
-  if (isSoleWinner) {
-    const group = activeCardGroups[0];
-    html += `
-      <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 10px; padding: 18px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);">
-        <div style="font-size: 2.2rem; margin-bottom: 5px;">👑</div>
-        <h3 style="color: #92400e; font-size: 1.3rem; font-weight: 800; margin-bottom: 6px;">
-          ${group.title} HAS CLINCHED THE CROWN!
-        </h3>
-        <p style="color: #b45309; font-size: 0.9rem; font-weight: 600; margin: 0;">
-          Calculated across all ${totalPermutations} remaining outcome scenarios &mdash; ${group.title} (${group.wins} Wins • Score Pred: ${group.pred}) cannot be passed!
-        </p>
-      </div>
-    `;
-  } else if (activeCardGroups.length > 0) {
-    html += `<h4 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--primary-color);">👑 Contenders & Clinch Paths</h4>`;
+      const cardEntities = {};
+      Object.values(playerGroupsMap).forEach(g => {
+        const sortedPlayers = g.players.sort();
+        const title = sortedPlayers.length > 1 ? sortedPlayers.join(' / ') : sortedPlayers[0];
+        cardEntities[title] = {
+          title,
+          players: sortedPlayers,
+          wins: g.wins,
+          pred: g.pred,
+          totalProb: 0,
+          scenarios: []
+        };
+      });
 
-    activeCardGroups.forEach(group => {
-      const bulletsHtml = group.scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
-
-      let rawProb = group.totalProb * 100;
-      let winPctStr = rawProb.toFixed(1) + '%';
-      
-      if (rawProb > 99.9 && rawProb < 100) {
-        winPctStr = '>99.9%';
-      } else if (rawProb > 0 && rawProb < 0.1) {
-        winPctStr = '<0.1%';
+      function getCardByPlayer(p) {
+        for (let title in cardEntities) {
+          if (cardEntities[title].players.includes(p)) {
+            return cardEntities[title];
+          }
+        }
+        return null;
       }
 
-      const primaryPlayer = group.players[0];
+      // 3. Permutation Sweep ($2^N$ branches)
+      const numGames = gamesToSimulate.length;
+      const totalPermutations = Math.pow(2, numGames);
+      const vegasTotal = parseFloat(weekData.tiebreaker?.vegasTotal || weekData?.vegasTotal || 44.0);
+
+      for (let i = 0; i < totalPermutations; i++) {
+        const outcomeObj = {};
+        const simulatedWinners = [];
+        let branchProb = 1.0;
+
+        gamesToSimulate.forEach((g, bitIdx) => {
+          const isHomeWin = (i & (1 << bitIdx)) !== 0;
+          const winner = isHomeWin ? g.home : g.away;
+          outcomeObj[g.id] = winner;
+          simulatedWinners.push(winner);
+          branchProb *= (isHomeWin ? g.homeWinProb : g.awayWinProb);
+        });
+
+        const pScores = {};
+        potentialContenders.forEach(p => {
+          let extra = 0;
+          gamesToSimulate.forEach(g => {
+            const playerPick = (g.picks[p] || '').trim().toUpperCase();
+            if (playerPick === outcomeObj[g.id]) extra++;
+          });
+          pScores[p] = currentWins[p] + extra;
+        });
+
+        const maxScore = Math.max(...Object.values(pScores));
+        const winningContenders = potentialContenders.filter(p => pScores[p] === maxScore);
+
+        const winningCardsMap = {};
+        winningContenders.forEach(p => {
+          const card = getCardByPlayer(p);
+          if (card && !winningCardsMap[card.title]) {
+            winningCardsMap[card.title] = card;
+          }
+        });
+
+        const winningCards = Object.values(winningCardsMap);
+
+        if (winningCards.length === 1) {
+          const card = winningCards[0];
+          card.totalProb += branchProb;
+          card.scenarios.push({
+            isOutright: true,
+            sortVal: -Infinity,
+            scoreRange: "Any Score",
+            winnersArray: simulatedWinners,
+            branchProb
+          });
+        } else {
+          winningCards.sort((a, b) => a.pred - b.pred);
+
+          winningCards.forEach((card, k) => {
+            let minBound = -Infinity;
+            let maxBound = Infinity;
+            
+            if (k > 0) {
+              minBound = (winningCards[k - 1].pred + card.pred) / 2;
+            }
+            if (k < winningCards.length - 1) {
+              maxBound = (card.pred + winningCards[k + 1].pred) / 2;
+            }
+
+            const probLower = minBound === -Infinity ? 0 : normalCDF(minBound, vegasTotal, 10.5);
+            const probUpper = maxBound === Infinity ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
+            const intervalScoreProb = Math.max(0, probUpper - probLower);
+            
+            const addedProb = branchProb * intervalScoreProb;
+            card.totalProb += addedProb;
+
+            let scoreText = '';
+            if (minBound === -Infinity) {
+              scoreText = `Score < ${maxBound.toFixed(1)}`;
+            } else if (maxBound === Infinity) {
+              scoreText = `Score > ${minBound.toFixed(1)}`;
+            } else {
+              scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
+            }
+
+            card.scenarios.push({
+              isOutright: false,
+              sortVal: minBound === -Infinity ? -Infinity : minBound,
+              scoreRange: scoreText,
+              winnersArray: simulatedWinners,
+              branchProb: addedProb
+            });
+          });
+        }
+      }
+
+      // 4. Group Card Sub-Percentages (No Calc line)
+      const activeCardGroups = Object.values(cardEntities)
+        .filter(card => card.totalProb > 0.000001)
+        .map(card => {
+          const mergedMap = {};
+
+          card.scenarios.forEach(s => {
+            const key = `${s.isOutright}_${s.scoreRange}`;
+            if (!mergedMap[key]) {
+              mergedMap[key] = {
+                isOutright: s.isOutright,
+                sortVal: s.sortVal,
+                scoreRange: s.scoreRange,
+                totalSubProb: 0,
+                winnersSet: new Set()
+              };
+            }
+            mergedMap[key].totalSubProb += s.branchProb;
+            s.winnersArray.forEach(w => mergedMap[key].winnersSet.add(w));
+          });
+
+          const uniqueScenarios = Object.values(mergedMap).map(m => {
+            const winArray = Array.from(m.winnersSet);
+            const winStr = winArray.join(' / ');
+            const subPctStr = (m.totalSubProb * 100).toFixed(1) + '%';
+            
+            let mainCondition = '';
+            if (m.isOutright) {
+              mainCondition = `Clinches if <strong>${winStr}</strong> win. (+${subPctStr})`;
+            } else {
+              mainCondition = `Clinches if <strong>${winStr}</strong> win AND <strong>${m.scoreRange}</strong>. (+${subPctStr})`;
+            }
+
+            return {
+              isOutright: m.isOutright,
+              sortVal: m.sortVal,
+              mainCondition
+            };
+          });
+
+          return {
+            title: card.title,
+            players: card.players,
+            wins: card.wins,
+            pred: card.pred,
+            totalProb: card.totalProb,
+            scenarios: uniqueScenarios.sort((a, b) => {
+              if (a.isOutright !== b.isOutright) return a.isOutright ? -1 : 1;
+              return a.sortVal - b.sortVal;
+            })
+          };
+        })
+        .sort((a, b) => b.totalProb - a.totalProb);
+
+      // 5. Render Container UI
+      let html = `
+        <div class="ptc-container">
+          <div class="ptc-section-title" style="margin-top: 0;">👑 Contenders & Clinch Paths</div>
+          <div class="ptc-cards-grid">
+      `;
+
+      activeCardGroups.forEach(group => {
+        const primaryBullets = group.scenarios.map(s => `<li>${s.mainCondition}</li>`).join('');
+        const rawProb = group.totalProb * 100;
+        let winPctStr = rawProb.toFixed(1) + '%';
+
+        html += `
+          <div class="ptc-card">
+            <div class="ptc-card-header">
+              <div>
+                <span class="ptc-card-title">${group.title}</span>
+                <span class="ptc-card-sub">(${group.wins} Wins • Score Pred: ${group.pred})</span>
+              </div>
+              <div class="ptc-prob-badge">${winPctStr} Crown Prob</div>
+            </div>
+            <ul style="margin-top: 10px; padding-left: 18px; font-size: 0.875rem; color: #334155; line-height: 1.5;">
+              ${primaryBullets}
+            </ul>
+          </div>
+        `;
+      });
 
       html += `
-        <div class="ptc-contender-card rank-2" data-player="${primaryPlayer}" onclick="toggleContenderHighlight('${primaryPlayer}')" style="border-left: 4px solid var(--secondary-color); background: #f8fafc; cursor: pointer; transition: all 0.2s ease; margin-bottom: 14px; padding: 14px; border-radius: 8px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <strong>${group.title} <span style="color: var(--text-muted); font-size: 0.8rem;">(${group.wins} Wins • Score Pred: ${group.pred})</span></strong>
-            <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700; font-size: 0.825rem; padding: 4px 10px; border-radius: 12px; border: 1px solid #c7d2fe;">
-              📊 ${winPctStr} Crown Prob
-            </span>
           </div>
-          <ul class="ptc-scenario-list" style="margin: 0; padding-left: 18px; font-size: 0.9rem; color: var(--text-main);">${bulletsHtml}</ul>
+
+          <hr class="ptc-divider" />
+
+          <div class="ptc-section-title">🎮 Interactive Scenario Playground</div>
+          <div class="ptc-simulator-box">
+            <div id="ptc-matchup-selectors" class="ptc-matchup-row"></div>
+
+            <div id="ptc-tiebreaker-container" class="ptc-tb-box">
+              <div class="ptc-tb-header">
+                <span>🏈 Simulated Total Score</span>
+                <span id="ptc-slider-val-display" class="ptc-score-badge">43.0 PTS</span>
+              </div>
+
+              <div class="ptc-bell-curve-wrapper">
+                <svg class="ptc-bell-svg" viewBox="0 0 400 90" preserveAspectRatio="none">
+                  <!-- Background Curve -->
+                  <path d="M 0 85 Q 100 85 160 45 T 200 10 T 240 45 Q 300 85 400 85 L 400 90 L 0 90 Z" fill="rgba(224, 231, 255, 0.5)" stroke="#6366f1" stroke-width="2"/>
+                  <!-- Shaded Left Zone (< 43.0) -->
+                  <path id="ptc-left-zone" d="M 0 85 Q 100 85 160 45 T 194 13 L 194 90 L 0 90 Z" fill="rgba(59, 130, 246, 0.25)"/>
+                  <!-- Shaded Right Zone (> 43.0) -->
+                  <path id="ptc-right-zone" d="M 194 13 Q 200 10 240 45 Q 300 85 400 85 L 400 90 L 194 90 Z" fill="rgba(168, 85, 247, 0.25)"/>
+                  <!-- Vertical Midpoint Cutoff Line (43.0) -->
+                  <line id="ptc-curve-line" x1="194" y1="0" x2="194" y2="90" stroke="#ef4444" stroke-width="3" stroke-dasharray="4"/>
+                  <!-- Text Labels inside SVG -->
+                  <text x="90" y="65" fill="#1e40af" font-size="10" font-weight="800">JORDAN WIN ZONE (&lt; 43.0)</text>
+                  <text x="230" y="65" fill="#6b21a8" font-size="10" font-weight="800">GROUP WIN ZONE (&gt; 43.0)</text>
+                </svg>
+                <input type="range" id="ptc-score-slider" min="10" max="80" value="43" step="0.5" class="ptc-range-slider" oninput="updateInteractiveSimulator()">
+              </div>
+              <div class="ptc-curve-labels">
+                <span>Low Score (Defensive)</span>
+                <span id="ptc-vegas-mean-label" style="font-weight: 700;">Vegas Mean: ${vegasTotal.toFixed(1)}</span>
+                <span>High Score (Shootout)</span>
+              </div>
+            </div>
+
+            <div id="ptc-simulated-result-banner" class="ptc-result-banner"></div>
+          </div>
         </div>
       `;
-    });
-  }
 
-  body.innerHTML = html;
-  modal.classList.add('active');
-}
+      body.innerHTML = html;
 
+      // 6. Initialize Matchup Logos in Playground
+      const selectorsContainer = document.getElementById('ptc-matchup-selectors');
+      selectorsContainer.innerHTML = '';
+      currentSimulatedSelections = {};
 
+      gamesToSimulate.forEach(g => {
+        currentSimulatedSelections[g.id] = g.away;
+        selectorsContainer.innerHTML += `
+          <div class="ptc-game-card">
+            <div class="ptc-game-title">MATCHUP ${g.id + 1}</div>
+            <div class="ptc-team-btn-group">
+              <button id="btn-${g.id}-${g.away}" class="ptc-team-btn selected" onclick="selectSimulatedTeam(${g.id}, '${g.away}')">
+                ${getTeamLogoHtml(g.away, true)}
+              </button>
+              <button id="btn-${g.id}-${g.home}" class="ptc-team-btn" onclick="selectSimulatedTeam(${g.id}, '${g.home}')">
+                ${getTeamLogoHtml(g.home, true)}
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      window._ptcData = { potentialContenders, currentWins, gamesToSimulate, tiebreakerPicks, cardEntities, vegasTotal };
+      modal.classList.add('active');
+      updateInteractiveSimulator();
+    }
+
+    function selectSimulatedTeam(gameId, teamCode) {
+      currentSimulatedSelections[gameId] = teamCode;
+      
+      const gameCard = document.getElementById(`btn-${gameId}-${teamCode}`).parentElement;
+      gameCard.querySelectorAll('.ptc-team-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById(`btn-${gameId}-${teamCode}`).classList.add('selected');
+
+      updateInteractiveSimulator();
+    }
+
+    function updateInteractiveSimulator() {
+      const ctx = window._ptcData;
+      if (!ctx) return;
+
+      const scoreVal = parseFloat(document.getElementById('ptc-score-slider').value);
+      document.getElementById('ptc-slider-val-display').innerText = `${scoreVal.toFixed(1)} PTS`;
+
+      const percentX = Math.max(0, Math.min(100, ((scoreVal - 10) / 70) * 100));
+      const svgX = (percentX / 100) * 400;
+      const curveLine = document.getElementById('ptc-curve-line');
+      if (curveLine) {
+        curveLine.setAttribute('x1', svgX);
+        curveLine.setAttribute('x2', svgX);
+      }
+
+      const pScores = {};
+      ctx.potentialContenders.forEach(p => {
+        let extra = 0;
+        ctx.gamesToSimulate.forEach(g => {
+          const userPick = currentSimulatedSelections[g.id];
+          if ((g.picks[p] || '').trim().toUpperCase() === userPick) extra++;
+        });
+        pScores[p] = ctx.currentWins[p] + extra;
+      });
+
+      const maxScore = Math.max(...Object.values(pScores));
+      const winners = ctx.potentialContenders.filter(p => pScores[p] === maxScore);
+
+      const tbContainer = document.getElementById('ptc-tiebreaker-container');
+      let winnerText = '';
+
+      if (winners.length === 1) {
+        if (tbContainer) tbContainer.style.display = 'none';
+        winnerText = `👑 Winner: <strong>${winners[0]}</strong> (Outright with ${maxScore} Wins)`;
+      } else {
+        if (tbContainer) tbContainer.style.display = 'block';
+
+        winners.sort((a, b) => {
+          const predA = typeof ctx.tiebreakerPicks[a] === 'number' ? ctx.tiebreakerPicks[a] : (parseFloat(ctx.tiebreakerPicks[a]?.predictedTotal) || 0);
+          const predB = typeof ctx.tiebreakerPicks[b] === 'number' ? ctx.tiebreakerPicks[b] : (parseFloat(ctx.tiebreakerPicks[b]?.predictedTotal) || 0);
+          return Math.abs(scoreVal - predA) - Math.abs(scoreVal - predB);
+        });
+
+        const winner = winners[0];
+        const predVal = typeof ctx.tiebreakerPicks[winner] === 'number' ? ctx.tiebreakerPicks[winner] : (parseFloat(ctx.tiebreakerPicks[winner]?.predictedTotal) || 0);
+
+        winnerText = `👑 Winner via Tiebreaker: <strong>${winner}</strong> (Diff: ${Math.abs(scoreVal - predVal).toFixed(1)} pts from ${predVal} pred)`;
+      }
+
+      document.getElementById('ptc-simulated-result-banner').innerHTML = winnerText;
+    }
 
     function closeCrownModal(e) {
       if (!e || e.target.id === 'path-to-crown-modal' || e.target.classList.contains('modal-close-btn')) {
