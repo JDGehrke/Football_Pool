@@ -1104,7 +1104,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v3.9 <span>🔮</span>
+        <span>🔮</span> Path to Crown v3.10 <span>🔮</span>
       </button>
     </div>
 
@@ -2590,6 +2590,7 @@
     }
 
 
+
 function openPathToCrownModal() {
       const currentWeekKey = document.getElementById('week-select').value;
       const currentWeekData = poolData.weeks?.[currentWeekKey] || {};
@@ -2663,28 +2664,25 @@ function openPathToCrownModal() {
       (poolData.players || []).forEach(p => {
         if (currentWins[p] > maxCurrentWins) maxCurrentWins = currentWins[p];
       });
+
       const potentialContenders = (poolData.players || []).filter(p => {
-        // Can they catch up with remaining games?
-        return currentWins[p] + remainingGames.length >= maxCurrentWins;
+        return (currentWins[p] + remainingGames.length) >= maxCurrentWins;
       });
 
-      // 2. Identify games where ALL potential contenders have the exact same pick (Irrelevant Outcome Games)
-      const meaningfulGames = [];
+      // 2. Identify unanimous games among contenders
       gamesToSimulate.forEach(g => {
-        const contenderPicks = potentialContenders.map(p => (g.picks[p] || '').trim().toUpperCase());
-        const validPicks = contenderPicks.filter(pk => pk !== '' && pk !== '—');
-        const firstPick = validPicks[0];
-        const isUnanimous = firstPick && validPicks.every(pk => pk === firstPick);
+        const contenderPicks = potentialContenders
+          .map(p => (g.picks[p] || '').trim().toUpperCase())
+          .filter(pk => pk !== '' && pk !== '—');
+
+        const firstPick = contenderPicks[0];
+        const isUnanimous = firstPick && contenderPicks.every(pk => pk === firstPick);
         
         g.isUnanimous = isUnanimous;
         g.unanimousPick = isUnanimous ? firstPick : null;
-        if (!isUnanimous) {
-          meaningfulGames.push(g);
-        }
       });
 
-      const gamesToPermute = meaningfulGames.length > 0 ? meaningfulGames : gamesToSimulate.slice(0, 1);
-      const numGames = gamesToPermute.length;
+      const numGames = gamesToSimulate.length;
       const totalPermutations = Math.pow(2, numGames);
       const vegasTotal = parseFloat(currentWeekData.tiebreaker?.vegasTotal || currentWeekData?.vegasTotal || 44.0);
 
@@ -2694,17 +2692,15 @@ function openPathToCrownModal() {
         const winnersMap = {};
         let scenarioProb = 1.0;
 
-        gamesToSimulate.forEach(g => {
+        gamesToSimulate.forEach((g, bitIdx) => {
           if (g.isUnanimous) {
-            winnersMap[g.id] = g.unanimousPick; // Lock unanimous pick as the fixed winner
+            winnersMap[g.id] = g.unanimousPick; // Background tracking uses actual pick
+          } else {
+            const isHomeWin = (i & (1 << bitIdx)) !== 0;
+            const winner = isHomeWin ? g.home : g.away;
+            winnersMap[g.id] = winner;
+            scenarioProb *= (isHomeWin ? g.homeWinProb : g.awayWinProb);
           }
-        });
-
-        gamesToPermute.forEach((g, bitIdx) => {
-          const isHomeWin = (i & (1 << bitIdx)) !== 0;
-          const winner = isHomeWin ? g.home : g.away;
-          winnersMap[g.id] = winner;
-          scenarioProb *= (isHomeWin ? g.homeWinProb : g.awayWinProb);
         });
 
         const pScores = {};
@@ -2741,8 +2737,13 @@ function openPathToCrownModal() {
         const contenders = sc.contenders;
         if (contenders.length === 0) return;
 
-        // Only list non-unanimous games in the conditional text for clarity
-        const gameConditions = gamesToPermute.map(g => sc.winnersMap[g.id]);
+        // Format game conditions: if a game is unanimous, render as "AWAY/HOME" (e.g., "BUF/MIN")
+        const gameConditions = gamesToSimulate.map(g => {
+          if (g.isUnanimous) {
+            return `${g.away}/${g.home}`;
+          }
+          return sc.winnersMap[g.id];
+        });
 
         if (contenders.length === 1) {
           const winner = contenders[0];
@@ -2840,7 +2841,7 @@ function openPathToCrownModal() {
       let html = `
         <div style="padding: 10px;">
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
-            ⚡ Simulating <strong>${gamesToPermute.length}</strong> decisive game outcomes (Buffalo @ Minnesota is unanimous). <em>(Click a contender to highlight their paths)</em>
+            ⚡ Simulating outcome paths. <em>(Click a contender to highlight their paths)</em>
           </p>
           <h4 style="margin-bottom: 12px; color: var(--primary-color); font-size: 1rem;">👑 Contenders & Clinch Paths</h4>
       `;
@@ -2856,10 +2857,6 @@ function openPathToCrownModal() {
           else if (pickObj && pickObj.predictedTotal !== undefined) predVal = pickObj.predictedTotal;
 
           let rawProb = (playerCrownProbabilities[p] || 0) * 100;
-          
-          if (rawProb === 0 && p === 'MADDIE') {
-            rawProb = 1.9;
-          }
 
           let winPctStr = '0.0%';
           if (rawProb > 0 && rawProb < 0.1) {
@@ -2893,7 +2890,363 @@ function openPathToCrownModal() {
           html += `
             <div class="ptc-contender-card ${borderClass}" data-player="${p}" onclick="toggleContenderHighlight('${p}')" style="cursor: pointer; transition: all 0.2s ease;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <strong>${p} <span style="color: var(--text-muted); font-size: 0.80rem; font-weight: normal;">(${pWinsNow} Wins • Score Pred: ${predValid = predVal})</span></strong>
+                <strong>${p} <span style="color: var(--text-muted); font-size: 0.80rem; font-weight: normal;">(${pWinsNow} Wins • Score Pred: ${predVal})</span></strong>
+                <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700; font-size: 0.825rem; padding: 4px 10px; border-radius: 12px; border: 1px solid #c7d2fe;">
+                  📊 ${winPctStr} Crown Prob
+                </span>
+              </div>
+              <ul class="ptc-scenario-list">${bulletItemsHtml}</ul>
+            </div>
+          `;
+        });
+
+        html += `
+          <h4 style="margin: 24px 0 10px 0; color: var(--primary-color); font-size: 1rem;">🔮 Outcome Matrix</h4>
+          <div class="matrix-wrapper">
+            <table class="outcome-matrix-table" style="width: 100%; border-collapse: separate; border-spacing: 0;">
+              <thead>
+                <tr>
+                  ${gamesToSimulate.map((g, idx) => `
+                    <th class="text-center sortable-header" onclick="sortOutcomeMatrix(${idx})">
+                      <div class="matrix-header-stack">
+                        <span>${getTeamLogoHtml(g.away, false)}</span>
+                        <span class="matrix-at-symbol">@</span>
+                        <span>${getTeamLogoHtml(g.home, false)}</span>
+                      </div>
+                      <span class="sort-indicator"></span>
+                    </th>
+                  `).join('')}
+                  <th class="text-center sortable-header" onclick="sortOutcomeMatrix(${gamesToSimulate.length})">
+                    TIEBREAKER
+                    <span class="sort-indicator"></span>
+                  </th>
+                  <th class="text-center sortable-header" onclick="sortOutcomeMatrix(${gamesToSimulate.length + 1})">
+                    CROWN
+                    <span class="sort-indicator"></span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                ${fullMatrixRows.map(row => `
+                  <tr data-winner="${row.winner}">
+                    ${gamesToSimulate.map(g => {
+                      const winnerTeam = row.winnersMap[g.id];
+                      return `<td class="text-center">${getTeamLogoHtml(winnerTeam, false)}</td>`;
+                    }).join('')}
+                    <td class="text-center" style="font-weight: 600; font-size: 0.825rem; color: var(--primary-color);">${row.scoreText}</td>
+                    <td class="text-center"><strong>${row.winner}</strong></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      html += `</div>`;
+
+      if (modalBodyElem) modalBodyElem.innerHTML = html;
+      if (modalElem) modalElem.classList.add('active');
+    }function openPathToCrownModal() {
+      const currentWeekKey = document.getElementById('week-select').value;
+      const currentWeekData = poolData.weeks?.[currentWeekKey] || {};
+      const matchups = currentWeekData.matchups || [];
+
+      const modalBodyElem = document.getElementById('modal-crown-body');
+      const modalElem = document.getElementById('path-to-crown-modal');
+
+      if (!isSundayEveningOrLater(matchups)) {
+        if (modalBodyElem) {
+          modalBodyElem.innerHTML = `
+            <div style="padding: 30px 20px; text-align: center;">
+              <div style="font-size: 2.8rem; margin-bottom: 12px;">🔒</div>
+              <h4 style="font-size: 1.15rem; margin-bottom: 8px; color: var(--primary-color); font-weight: 700;">Path to the Crown is Locked</h4>
+              <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 420px; margin: 0 auto; line-height: 1.5;">
+                Simulations unlock on <strong>Sunday evening at 7:00 PM</strong> (or when 3 or fewer games remain) to keep outcome paths focused and concise!
+              </p>
+            </div>
+          `;
+        }
+        if (modalElem) modalElem.classList.add('active');
+        return;
+      }
+
+      // 1. Calculate current completed wins for each player
+      const currentWins = {};
+      (poolData.players || []).forEach(p => currentWins[p] = 0);
+      
+      matchups.forEach(m => {
+        if (m.winner) {
+          const w = m.winner.trim().toUpperCase();
+          (poolData.players || []).forEach(p => {
+            if ((m.picks?.[p] || '').trim().toUpperCase() === w) {
+              currentWins[p]++;
+            }
+          });
+        }
+      });
+
+      const remainingGames = matchups.filter(m => !m.winner);
+      const tiebreakerPicks = currentWeekData.tiebreaker?.picks || currentWeekData.tiebreakers || {};
+
+      const gamesToSimulate = remainingGames.map((m, idx) => {
+        const teamsInGame = (m.game || '')
+          .split(/\s+@\s+|\s+vs\.?\s+|\s+v\.?\s+|\s- \s+/i)
+          .map(t => t.trim().toUpperCase())
+          .filter(t => t.length >= 2);
+
+        const awayTeam = teamsInGame[0] || 'AWAY';
+        const homeTeam = teamsInGame[1] || 'HOME';
+
+        const rawHomeProb = parseFloat(m.homePCT) || 50.0;
+        const rawAwayProb = parseFloat(m.awayPCT) || 50.0;
+        
+        const totalProb = (rawHomeProb + rawAwayProb) || 100.0;
+        const homeProb = rawHomeProb / totalProb;
+        const awayProb = rawAwayProb / totalProb;
+
+        return {
+          id: idx,
+          away: awayTeam,
+          home: homeTeam,
+          homeWinProb: homeProb,
+          awayWinProb: awayProb,
+          picks: m.picks || {}
+        };
+      });
+
+      // Find current max wins to identify actual contenders
+      let maxCurrentWins = 0;
+      (poolData.players || []).forEach(p => {
+        if (currentWins[p] > maxCurrentWins) maxCurrentWins = currentWins[p];
+      });
+
+      const potentialContenders = (poolData.players || []).filter(p => {
+        return (currentWins[p] + remainingGames.length) >= maxCurrentWins;
+      });
+
+      // 2. Identify unanimous games among contenders
+      gamesToSimulate.forEach(g => {
+        const contenderPicks = potentialContenders
+          .map(p => (g.picks[p] || '').trim().toUpperCase())
+          .filter(pk => pk !== '' && pk !== '—');
+
+        const firstPick = contenderPicks[0];
+        const isUnanimous = firstPick && contenderPicks.every(pk => pk === firstPick);
+        
+        g.isUnanimous = isUnanimous;
+        g.unanimousPick = isUnanimous ? firstPick : null;
+      });
+
+      const numGames = gamesToSimulate.length;
+      const totalPermutations = Math.pow(2, numGames);
+      const vegasTotal = parseFloat(currentWeekData.tiebreaker?.vegasTotal || currentWeekData?.vegasTotal || 44.0);
+
+      // 3. Generate Outcome Permutations
+      const gameScenarios = [];
+      for (let i = 0; i < totalPermutations; i++) {
+        const winnersMap = {};
+        let scenarioProb = 1.0;
+
+        gamesToSimulate.forEach((g, bitIdx) => {
+          if (g.isUnanimous) {
+            winnersMap[g.id] = g.unanimousPick; // Background tracking uses actual pick
+          } else {
+            const isHomeWin = (i & (1 << bitIdx)) !== 0;
+            const winner = isHomeWin ? g.home : g.away;
+            winnersMap[g.id] = winner;
+            scenarioProb *= (isHomeWin ? g.homeWinProb : g.awayWinProb);
+          }
+        });
+
+        const pScores = {};
+        (poolData.players || []).forEach(p => {
+          let extra = 0;
+          gamesToSimulate.forEach(g => {
+            const playerPick = (g.picks[p] || '').trim().toUpperCase();
+            if (playerPick === winnersMap[g.id]) {
+              extra++;
+            }
+          });
+          pScores[p] = currentWins[p] + extra;
+        });
+
+        const maxScore = Math.max(...Object.values(pScores));
+        const contenders = (poolData.players || []).filter(p => pScores[p] === maxScore);
+
+        gameScenarios.push({
+          winnersMap,
+          contenders,
+          maxScore,
+          probability: scenarioProb
+        });
+      }
+
+      // 4. Compute Tiebreaker Intervals for each scenario
+      const fullMatrixRows = [];
+      const playerCrownProbabilities = {};
+      (poolData.players || []).forEach(p => playerCrownProbabilities[p] = 0);
+      const playerClinchBullets = {};
+      (poolData.players || []).forEach(p => playerClinchBullets[p] = []);
+
+      gameScenarios.forEach(sc => {
+        const contenders = sc.contenders;
+        if (contenders.length === 0) return;
+
+        // Format game conditions: if a game is unanimous, render as "AWAY/HOME" (e.g., "BUF/MIN")
+        const gameConditions = gamesToSimulate.map(g => {
+          if (g.isUnanimous) {
+            return `${g.away}/${g.home}`;
+          }
+          return sc.winnersMap[g.id];
+        });
+
+        if (contenders.length === 1) {
+          const winner = contenders[0];
+          playerCrownProbabilities[winner] = (playerCrownProbabilities[winner] || 0) + sc.probability;
+
+          fullMatrixRows.push({
+            winnersMap: sc.winnersMap,
+            scoreText: 'Outright (No Tiebreaker)',
+            winner: winner,
+            probability: sc.probability
+          });
+
+          playerClinchBullets[winner].push({
+            gameCond: gameConditions.join(' & '),
+            scoreRange: 'Outright win'
+          });
+        } else {
+          const pPicks = contenders.map(p => {
+            const pickObj = tiebreakerPicks[p];
+            let val = 0;
+            if (typeof pickObj === 'number') val = pickObj;
+            else if (pickObj && pickObj.predictedTotal !== undefined) val = parseFloat(pickObj.predictedTotal) || 0;
+            return { player: p, target: val };
+          }).sort((a, b) => a.target - b.target);
+
+          const sortedUniqueTargets = Array.from(new Set(pPicks.map(x => x.target))).sort((a, b) => a - b);
+
+          for (let k = 0; k < sortedUniqueTargets.length; k++) {
+            const targetVal = sortedUniqueTargets[k];
+            const tiedWinners = pPicks.filter(p => p.target === targetVal).map(p => p.player);
+
+            let minBound = -Infinity;
+            let maxBound = Infinity;
+
+            if (k > 0) {
+              minBound = (sortedUniqueTargets[k - 1] + targetVal) / 2;
+            }
+            if (k < sortedUniqueTargets.length - 1) {
+              maxBound = (targetVal + sortedUniqueTargets[k + 1]) / 2;
+            }
+
+            const probLower = minBound === -Infinity ? 0 : normalCDF(minBound, vegasTotal, 10.5);
+            const probUpper = maxBound === Infinity ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
+            const intervalScoreProb = Math.max(0, probUpper - probLower);
+            const intervalTotalProb = intervalScoreProb * sc.probability;
+
+            const probPerPlayer = intervalTotalProb / tiedWinners.length;
+            tiedWinners.forEach(w => {
+              const upperW = w.trim().toUpperCase();
+              playerCrownProbabilities[upperW] = (playerCrownProbabilities[upperW] || 0) + probPerPlayer;
+            });
+
+            let scoreText = '';
+            if (minBound === -Infinity) {
+              scoreText = `Score < ${maxBound.toFixed(1)}`;
+            } else if (maxBound === Infinity) {
+              scoreText = `Score > ${minBound.toFixed(1)}`;
+            } else {
+              scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
+            }
+
+            const winnerStr = tiedWinners.join(', ');
+
+            fullMatrixRows.push({
+              winnersMap: sc.winnersMap,
+              scoreText: scoreText,
+              winner: winnerStr,
+              probability: intervalTotalProb
+            });
+
+            tiedWinners.forEach(w => {
+              const upperW = w.trim().toUpperCase();
+              if (!playerClinchBullets[upperW]) playerClinchBullets[upperW] = [];
+              playerClinchBullets[upperW].push({
+                gameCond: gameConditions.join(' & '),
+                scoreRange: scoreText
+              });
+            });
+          }
+        }
+      });
+
+      const activeContendersSet = new Set();
+      fullMatrixRows.forEach(row => {
+        row.winner.split(',').forEach(wName => {
+          activeContendersSet.add(wName.trim().toUpperCase());
+        });
+      });
+
+      const activeContenders = Array.from(activeContendersSet).sort((a, b) => {
+        return (playerCrownProbabilities[b] || 0) - (playerCrownProbabilities[a] || 0);
+      });
+
+      // 5. Build Modal HTML
+      let html = `
+        <div style="padding: 10px;">
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+            ⚡ Simulating outcome paths. <em>(Click a contender to highlight their paths)</em>
+          </p>
+          <h4 style="margin-bottom: 12px; color: var(--primary-color); font-size: 1rem;">👑 Contenders & Clinch Paths</h4>
+      `;
+
+      if (activeContenders.length === 0) {
+        html += `<p style="color: var(--text-muted);">No active outcome paths found.</p>`;
+      } else {
+        activeContenders.forEach((p, idx) => {
+          const pWinsNow = currentWins[p] || 0;
+          const pickObj = tiebreakerPicks[p];
+          let predVal = 'N/A';
+          if (typeof pickObj === 'number') predVal = pickObj;
+          else if (pickObj && pickObj.predictedTotal !== undefined) predVal = pickObj.predictedTotal;
+
+          let rawProb = (playerCrownProbabilities[p] || 0) * 100;
+
+          let winPctStr = '0.0%';
+          if (rawProb > 0 && rawProb < 0.1) {
+            winPctStr = '<0.1%';
+          } else {
+            winPctStr = rawProb.toFixed(1) + '%';
+          }
+          
+          const bullets = playerClinchBullets[p] || [];
+
+          const groupedBullets = {};
+          bullets.forEach(b => {
+            if (!groupedBullets[b.scoreRange]) groupedBullets[b.scoreRange] = [];
+            if (!groupedBullets[b.scoreRange].includes(b.gameCond)) {
+              groupedBullets[b.scoreRange].push(b.gameCond);
+            }
+          });
+
+          const bulletItemsHtml = Object.keys(groupedBullets).length > 0 
+            ? Object.entries(groupedBullets).map(([scoreR, conds]) => {
+                const condStr = conds.join(' OR ');
+                if (scoreR === 'Outright win') {
+                  return `<li>Clinches outright if <strong>${condStr}</strong> win.</li>`;
+                }
+                return `<li>Clinches via tiebreaker if <strong>${condStr}</strong> win AND <strong>${scoreR}</strong>.</li>`;
+              }).join('')
+            : `<li>Path depends on tiebreaker total score.</li>`;
+
+          const borderClass = idx === 0 ? 'rank-1' : 'rank-2';
+
+          html += `
+            <div class="ptc-contender-card ${borderClass}" data-player="${p}" onclick="toggleContenderHighlight('${p}')" style="cursor: pointer; transition: all 0.2s ease;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong>${p} <span style="color: var(--text-muted); font-size: 0.80rem; font-weight: normal;">(${pWinsNow} Wins • Score Pred: ${predVal})</span></strong>
                 <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700; font-size: 0.825rem; padding: 4px 10px; border-radius: 12px; border: 1px solid #c7d2fe;">
                   📊 ${winPctStr} Crown Prob
                 </span>
@@ -2951,7 +3304,6 @@ function openPathToCrownModal() {
       if (modalBodyElem) modalBodyElem.innerHTML = html;
       if (modalElem) modalElem.classList.add('active');
     }
-
 
     function closeCrownModal(e) {
       if (!e || e.target.id === 'path-to-crown-modal' || e.target.classList.contains('modal-close-btn')) {
