@@ -2589,7 +2589,6 @@
       return result;
     }
 
-
 function openPathToCrownModal() {
       const currentWeekKey = document.getElementById('week-select').value;
       const currentWeekData = poolData.weeks?.[currentWeekKey] || {};
@@ -2696,7 +2695,7 @@ function openPathToCrownModal() {
         });
       }
 
-// 3. Compute Tiebreaker Intervals for each game scenario
+      // 3. Compute Tiebreaker Intervals for each game scenario
       const fullMatrixRows = [];
       const playerCrownProbabilities = {};
       (poolData.players || []).forEach(p => playerCrownProbabilities[p] = 0);
@@ -2709,23 +2708,28 @@ function openPathToCrownModal() {
 
         const gameConditions = gamesToSimulate.map(g => sc.winnersMap[g.id]);
 
+        // Check if remaining games are unanimous among contenders
+        const isUnanimousGame = gamesToSimulate.some(g => {
+          const picksInGame = contenders.map(c => (g.picks[c] || '').trim().toUpperCase());
+          return picksInGame.length > 0 && picksInGame.every(val => val === picksInGame[0] && val !== '—' && val !== '');
+        });
+
         if (contenders.length === 1) {
           const winner = contenders[0];
           playerCrownProbabilities[winner] += sc.probability;
 
           fullMatrixRows.push({
             winnersMap: sc.winnersMap,
-            scoreText: 'Outright (No Tiebreaker)',
+            scoreText: isUnanimousGame ? 'Unanimous Pick (Tiebreaker Only)' : 'Outright (No Tiebreaker)',
             winner: winner,
             probability: sc.probability
           });
 
           playerClinchBullets[winner].push({
             gameCond: gameConditions.join(' & '),
-            scoreRange: 'Outright win'
+            scoreRange: isUnanimousGame ? 'Tiebreaker Decided' : 'Outright win'
           });
         } else {
-          // Get predictions for all tied contenders
           const pPicks = contenders.map(p => {
             const pickObj = tiebreakerPicks[p];
             let val = 0;
@@ -2735,7 +2739,6 @@ function openPathToCrownModal() {
             return { player: p, target: val };
           }).sort((a, b) => a.target - b.target);
 
-          // Get unique target predictions in ascending order
           const sortedUniqueTargets = Array.from(new Set(pPicks.map(x => x.target))).sort((a, b) => a - b);
 
           for (let k = 0; k < sortedUniqueTargets.length; k++) {
@@ -2757,7 +2760,6 @@ function openPathToCrownModal() {
             const intervalScoreProb = Math.max(0, probUpper - probLower);
             const intervalTotalProb = intervalScoreProb * sc.probability;
 
-            // Split tie probability equally among players tied at the exact same predicted score
             const probPerPlayer = intervalTotalProb / tiedWinners.length;
             tiedWinners.forEach(w => {
               playerCrownProbabilities[w] = (playerCrownProbabilities[w] || 0) + probPerPlayer;
@@ -2792,7 +2794,6 @@ function openPathToCrownModal() {
         }
       });
 
-      // Collect all contenders with win possibilities
       const activeContendersSet = new Set();
       fullMatrixRows.forEach(row => {
         row.winner.split(',').forEach(wName => {
@@ -2824,7 +2825,12 @@ function openPathToCrownModal() {
           else if (pickObj && pickObj.predictedTotal !== undefined) predVal = pickObj.predictedTotal;
 
           const rawProb = (playerCrownProbabilities[p] || 0) * 100;
-          const winPctStr = rawProb < 0.1 && rawProb > 0 ? rawProb.toFixed(2) : rawProb.toFixed(1);
+          let winPctStr;
+          if (rawProb > 0 && rawProb < 0.1) {
+            winPctStr = "<0.1%";
+          } else {
+            winPctStr = rawProb.toFixed(1) + "%";
+          }
           
           const bullets = playerClinchBullets[p] || [];
 
@@ -2842,6 +2848,9 @@ function openPathToCrownModal() {
                 if (scoreR === 'Outright win') {
                   return `<li>Clinches outright if <strong>${condStr}</strong> win.</li>`;
                 }
+                if (scoreR === 'Tiebreaker Decided') {
+                  return `<li>Clinches via tiebreaker if <strong>${condStr}</strong>.</li>`;
+                }
                 return `<li>Clinches via tiebreaker if <strong>${condStr}</strong> win AND <strong>${scoreR}</strong>.</li>`;
               }).join('')
             : `<li>Path depends on complex multi-way tiebreakers.</li>`;
@@ -2853,7 +2862,7 @@ function openPathToCrownModal() {
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                 <strong>${p} <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: normal;">(${pWinsNow} Wins • Score Pred: ${predVal})</span></strong>
                 <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700; font-size: 0.825rem; padding: 4px 10px; border-radius: 12px; border: 1px solid #c7d2fe;">
-                  📊 ${winPctStr}% Crown Prob
+                  📊 ${winPctStr} Crown Prob
                 </span>
               </div>
               <ul class="ptc-scenario-list">${bulletItemsHtml}</ul>
@@ -2909,7 +2918,6 @@ function openPathToCrownModal() {
       if (modalBodyElem) modalBodyElem.innerHTML = html;
       if (modalElem) modalElem.classList.add('active');
     }
-
 
 
     function closeCrownModal(e) {
