@@ -1104,7 +1104,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v3.24 <span>🔮</span>
+        <span>🔮</span> Path to Crown v3.25 <span>🔮</span>
       </button>
     </div>
 
@@ -2659,7 +2659,7 @@ function openPathToCrownModal() {
     };
   });
 
-  // STEP 1: Contender Filtering (Your trusted logic)
+  // 1. Contender Filtering (Your trusted logic)
   let maxCurrentWins = 0;
   (poolData.players || []).forEach(p => {
     if (currentWins[p] > maxCurrentWins) maxCurrentWins = currentWins[p];
@@ -2668,7 +2668,7 @@ function openPathToCrownModal() {
     return (currentWins[p] + remainingGames.length) >= maxCurrentWins;
   });
 
-  // STEP 2: Entity Grouping
+  // 2. Entity Grouping (Group players with identical wins and score predictions)
   const playerGroupsMap = {};
   potentialContenders.forEach(p => {
     const wins = currentWins[p] || 0;
@@ -2705,22 +2705,31 @@ function openPathToCrownModal() {
     return null;
   }
 
-  // STEP 3: Single-Game Branch Probability Split
+  // 3. Permutation Sweep & Natural Probability Slicing ($2^N$ branches)
+  const numGames = gamesToSimulate.length;
+  const totalPermutations = Math.pow(2, numGames);
   const vegasTotal = parseFloat(weekData.tiebreaker?.vegasTotal || weekData?.vegasTotal || 44.0);
 
-  const g = gamesToSimulate[0]; 
-  const pBuffaloWin = g ? g.awayWinProb : 0.5;
-  const pMinnesotaWin = g ? g.homeWinProb : 0.5;
+  for (let i = 0; i < totalPermutations; i++) {
+    const outcomeObj = {};
+    const simulatedWinners = [];
+    let branchProb = 1.0;
 
-  const branches = [
-    { winnerName: g ? g.away : 'BUF', branchProb: pBuffaloWin, winnersArray: [g ? g.away : 'BUF'] },
-    { winnerName: g ? g.home : 'MIN', branchProb: pMinnesotaWin, winnersArray: [g ? g.home : 'MIN'] }
-  ];
+    gamesToSimulate.forEach((g, bitIdx) => {
+      const isHomeWin = (i & (1 << bitIdx)) !== 0;
+      const winner = isHomeWin ? g.home : g.away;
+      outcomeObj[g.id] = winner;
+      simulatedWinners.push(winner);
+      branchProb *= (isHomeWin ? g.homeWinProb : g.awayWinProb);
+    });
 
-  branches.forEach(branch => {
     const pScores = {};
     potentialContenders.forEach(p => {
-      let extra = (g.picks[p] || '').trim().toUpperCase() === branch.winnerName ? 1 : 0;
+      let extra = 0;
+      gamesToSimulate.forEach(g => {
+        const playerPick = (g.picks[p] || '').trim().toUpperCase();
+        if (playerPick === outcomeObj[g.id]) extra++;
+      });
       pScores[p] = currentWins[p] + extra;
     });
 
@@ -2736,19 +2745,18 @@ function openPathToCrownModal() {
     });
 
     const winningCards = Object.values(winningCardsMap);
+    const winStr = simulatedWinners.join(' & ');
 
     if (winningCards.length === 1) {
       const card = winningCards[0];
-      card.totalProb += branch.branchProb;
+      card.totalProb += branchProb;
 
-      const scKey = `outright_${branch.winnerName}`;
+      const scKey = `outright_${winStr}`;
       if (!card.scenariosMap[scKey]) {
         card.scenariosMap[scKey] = {
-          winnersArray: branch.winnersArray,
           isOutright: true,
-          scoreRange: "Any Score",
           sortVal: -Infinity,
-          conditionText: `Clinches outright if <strong>${branch.winnerName}</strong> wins.`
+          conditionText: `Clinches outright if <strong>${winStr}</strong> win.`
         };
       }
     } else {
@@ -2769,7 +2777,8 @@ function openPathToCrownModal() {
         const probUpper = maxBound === Infinity ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
         const intervalScoreProb = Math.max(0, probUpper - probLower);
         
-        card.totalProb += branch.branchProb * intervalScoreProb;
+        // Accumulate naturally via branch probability * CDF interval slice
+        card.totalProb += branchProb * intervalScoreProb;
 
         let scoreText = '';
         if (minBound === -Infinity) {
@@ -2780,21 +2789,19 @@ function openPathToCrownModal() {
           scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
         }
 
-        const scKey = `tb_${branch.winnerName}_${scoreText}`;
+        const scKey = `tb_${winStr}_${scoreText}`;
         if (!card.scenariosMap[scKey]) {
           card.scenariosMap[scKey] = {
-            winnersArray: branch.winnersArray,
             isOutright: false,
-            scoreRange: scoreText,
             sortVal: minBound === -Infinity ? -Infinity : minBound,
-            conditionText: `Clinches via tiebreaker if <strong>${branch.winnerName}</strong> wins AND <strong>${scoreText}</strong>.`
+            conditionText: `Clinches via tiebreaker if <strong>${winStr}</strong> win AND <strong>${scoreText}</strong>.`
           };
         }
       });
     }
-  });
+  }
 
-  // STEP 4: Render Non-Zero Contenders
+  // 4. Filter zero-probability entities and prepare UI cards
   const activeCardGroups = Object.values(cardEntities)
     .filter(card => card.totalProb > 0.000001)
     .map(card => ({
@@ -2803,7 +2810,10 @@ function openPathToCrownModal() {
       wins: card.wins,
       pred: card.pred,
       totalProb: card.totalProb,
-      scenarios: Object.values(card.scenariosMap)
+      scenarios: Object.values(card.scenariosMap).sort((a, b) => {
+        if (a.isOutright !== b.isOutright) return a.isOutright ? -1 : 1;
+        return a.sortVal - b.sortVal;
+      })
     }))
     .sort((a, b) => b.totalProb - a.totalProb);
 
@@ -2811,7 +2821,7 @@ function openPathToCrownModal() {
 
   let html = `
     <div style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem;">
-      ⚡ Simulating remaining outcome paths. ${!isSoleWinner ? '<span style="font-style: italic;">(Click a contender to highlight their paths)</span>' : ''}
+      ⚡ Simulating ${totalPermutations} outcome path${totalPermutations > 1 ? 's' : ''}. ${!isSoleWinner ? '<span style="font-style: italic;">(Click a contender to highlight their paths)</span>' : ''}
     </div>
   `;
 
@@ -2824,7 +2834,7 @@ function openPathToCrownModal() {
           ${group.title} HAS CLINCHED THE CROWN!
         </h3>
         <p style="color: #b45309; font-size: 0.9rem; font-weight: 600; margin: 0;">
-          Calculated across remaining outcome scenarios &mdash; ${group.title} (${group.wins} Wins • Score Pred: ${group.pred}) cannot be passed!
+          Calculated across all ${totalPermutations} remaining outcome scenarios &mdash; ${group.title} (${group.wins} Wins • Score Pred: ${group.pred}) cannot be passed!
         </p>
       </div>
     `;
@@ -2862,7 +2872,6 @@ function openPathToCrownModal() {
   body.innerHTML = html;
   modal.classList.add('active');
 }
-
 
 
 
