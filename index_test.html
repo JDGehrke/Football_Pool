@@ -966,7 +966,7 @@
     .ptc-tb-box { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
     .ptc-tb-header { font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; color: #1e293b; }
     .ptc-bell-curve-wrapper { position: relative; width: 100%; margin: 10px 0; text-align: center; }
-    .ptc-bell-svg { width: 100%; max-height: 150px; display: block; overflow: visible; }
+    .ptc-bell-svg { width: 100%; max-height: 160px; display: block; overflow: visible; }
     .ptc-curve-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-top: 6px; font-weight: 500; }
 
     .ptc-result-banner { background: #1e293b; color: #ffffff; padding: 12px 16px; border-radius: 8px; text-align: center; font-size: 0.9rem; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -1147,7 +1147,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.4 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.5 <span>🔮</span>
       </button>
     </div>
 
@@ -1345,6 +1345,7 @@
     let teamVictories = {};
     let selectedMatrixPlayers = [];
     let currentSimulatedSelections = {};
+    let activeTiebreakerHighlight = null; // Stores { condition: '< 43.0' or '> 43.0', cutoff: 43.0 }
 
     const NFL_DIVISIONS = {
       "AFC East": ["BUF", "MIA", "NE", "NYJ"],
@@ -2525,7 +2526,11 @@
       return 0.5 * (1 + erf((x - mean) / (stdDev * Math.sqrt(2))));
     }
 
-    /* --- ROBUST PATH TO CROWN ENGINE WITH CONDITIONAL PROBABILITY & DYNAMIC GRAPH VISIBILITY --- */
+    function normalPDF(x, mean = 44.0, stdDev = 10.5) {
+      return (1 / (stdDev * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2));
+    }
+
+    /* --- ROBUST PATH TO CROWN ENGINE WITH CONDITIONAL PROBABILITY & GOLD HIGHLIGHTED REGIONS --- */
     function openPathToCrownModal() {
       const modal = document.getElementById('path-to-crown-modal');
       const body = document.getElementById('modal-crown-body');
@@ -2593,6 +2598,7 @@
         };
       });
 
+      activeTiebreakerHighlight = null;
       window._ptcGlobal = { currentWins, gamesToSimulate, tiebreakerPicks, vegasTotal, matchupsCount: gamesToSimulate.length };
       renderPathToCrownContent();
       modal.classList.add('active');
@@ -2759,7 +2765,6 @@
         }
       }
 
-      // Re-normalize conditional probabilities based on the selected game state branch space
       if (totalValidProb > 0) {
         Object.values(cardEntities).forEach(card => {
           card.totalProb /= totalValidProb;
@@ -2804,6 +2809,8 @@
               isOutright: m.isOutright,
               sortVal: m.sortVal,
               mainCondition,
+              scoreRange: m.scoreRange,
+              winnersArray: winArray,
               sampleOutcomeMap: m.sampleOutcomeMap
             };
           });
@@ -2855,6 +2862,34 @@
       const clampCutoff = Math.max(minVal, Math.min(maxVal, sampleCutoff));
       const cutoffSvgX = 20 + ((clampCutoff - minVal) / (maxVal - minVal)) * 460;
 
+      // Generate Gold Highlighted Area Path if active
+      let goldHighlightPath = '';
+      if (activeTiebreakerHighlight) {
+        const cutoffVal = activeTiebreakerHighlight.cutoff;
+        const clampedC = Math.max(minVal, Math.min(maxVal, cutoffVal));
+        const cSvgX = 20 + ((clampedC - minVal) / (maxVal - minVal)) * 460;
+
+        let startX = 20, endX = 480;
+        if (activeTiebreakerHighlight.condition === '<') {
+          startX = 20;
+          endX = cSvgX;
+        } else if (activeTiebreakerHighlight.condition === '>') {
+          startX = cSvgX;
+          endX = 480;
+        }
+
+        let pathD = `M ${startX} 135`;
+        for (let px = startX; px <= endX; px += 2) {
+          const scoreVal = minVal + ((px - 20) / 460) * (maxVal - minVal);
+          const pdfVal = normalPDF(scoreVal, vegasTotal, stdDev);
+          const peakHeight = 115;
+          const py = 135 - (pdfVal / 0.038) * peakHeight;
+          pathD += ` L ${px} ${Math.max(20, py)}`;
+        }
+        pathD += ` L ${endX} 135 Z`;
+        goldHighlightPath = `<path d="${pathD}" fill="#f59e0b" fill-opacity="0.35" />`;
+      }
+
       let html = `
         <div class="ptc-container">
           <div class="ptc-section-header" style="margin-top: 0;">
@@ -2863,14 +2898,28 @@
           <div class="ptc-cards-grid">
       `;
 
-      activeCardGroups.forEach((group, groupIdx) => {
+      activeCardGroups.forEach((group) => {
         const rawProb = group.totalProb * 100;
         let winPctStr = rawProb.toFixed(1) + '%';
 
-        const bulletsHtml = group.scenarios.map((s, sIdx) => {
+        const bulletsHtml = group.scenarios.map((s) => {
           const outcomeJson = encodeURIComponent(JSON.stringify(s.sampleOutcomeMap || {}));
+          let highlightDataAttr = '';
+          if (!s.isOutright) {
+            let condOp = '<';
+            let cutoffNum = sampleCutoff;
+            if (s.scoreRange.includes('>')) {
+              condOp = '>';
+              cutoffNum = parseFloat(s.scoreRange.replace('Score > ', '')) || sampleCutoff;
+            } else if (s.scoreRange.includes('<')) {
+              condOp = '<';
+              cutoffNum = parseFloat(s.scoreRange.replace('Score < ', '')) || sampleCutoff;
+            }
+            highlightDataAttr = `data-cond="${condOp}" data-cutoff="${cutoffNum}"`;
+          }
+
           return `
-            <li class="ptc-scenario-item" onclick="applyScenarioOutcome('${outcomeJson}')" title="Click to test this path in the playground">
+            <li class="ptc-scenario-item" onclick="handleScenarioClick(this, '${outcomeJson}')" ${highlightDataAttr} title="Click to test this path in the playground">
               ${s.mainCondition} 🔗
             </li>
           `;
@@ -2920,6 +2969,9 @@
                   <!-- Base Line -->
                   <line x1="20" y1="135" x2="480" y2="135" stroke="#e2e8f0" stroke-width="1.5" />
 
+                  <!-- Gold Highlighted Region Under Curve -->
+                  ${goldHighlightPath}
+
                   <!-- Uncolored Clean Bell Curve Outline -->
                   <path d="M 20 135 C 100 135, 150 20, 250 20 C 350 20, 400 135, 480 135" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/>
 
@@ -2932,12 +2984,21 @@
                     <text id="text-cutoff-val" x="0" y="0" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle">${sampleCutoff.toFixed(1)}</text>
                   </g>
 
-                  <!-- Contender Labels -->
-                  <text id="text-zone-a-label" x="${Math.max(40, cutoffSvgX / 2)}" y="148" fill="#1d4ed8" font-size="9.5" font-weight="700" text-anchor="middle">${playerALabel}</text>
-                  <text id="text-zone-b-label" x="${cutoffSvgX + (480 - cutoffSvgX) / 2}" y="148" fill="#6d28d9" font-size="9.5" font-weight="700" text-anchor="middle">${playerBLabel}</text>
+                  <!-- Multi-Contender Wrapped X-Axis Labels -->
+                  <foreignObject x="20" y="140" width="${cutoffSvgX - 20}" height="35">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 9px; font-weight: 700; color: #1d4ed8; text-align: center; word-break: break-word; line-height: 1.1;">
+                      <span id="text-zone-a-label">${playerALabel}</span>
+                    </div>
+                  </foreignObject>
+
+                  <foreignObject x="${cutoffSvgX}" y="140" width="${480 - cutoffSvgX}" height="35">
+                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 9px; font-weight: 700; color: #6d28d9; text-align: center; word-break: break-word; line-height: 1.1;">
+                      <span id="text-zone-b-label">${playerBLabel}</span>
+                    </div>
+                  </foreignObject>
                 </svg>
               </div>
-              <div class="ptc-curve-labels">
+              <div class="ptc-curve-labels" style="margin-top: 25px;">
                 <span>Low Score</span>
                 <span id="ptc-vegas-mean-label" style="font-weight: 600; color: #475569;">O/U : ${vegasTotal.toFixed(1)}</span>
                 <span>High Score</span>
@@ -2978,6 +3039,17 @@
       updateInteractiveSimulatorBanner();
     }
 
+    function handleScenarioClick(liElem, encodedJson) {
+      const cond = liElem.dataset.cond;
+      const cutoff = parseFloat(liElem.dataset.cutoff);
+      if (cond && !isNaN(cutoff)) {
+        activeTiebreakerHighlight = { condition: cond, cutoff: cutoff };
+      } else {
+        activeTiebreakerHighlight = null;
+      }
+      applyScenarioOutcome(encodedJson);
+    }
+
     function togglePlaygroundCollapse() {
       const content = document.getElementById('ptc-playground-content');
       const icon = document.getElementById('collapse-icon');
@@ -2999,6 +3071,7 @@
       gCtx.gamesToSimulate.forEach(g => {
         currentSimulatedSelections[g.id] = null;
       });
+      activeTiebreakerHighlight = null;
       renderPathToCrownContent();
       const content = document.getElementById('ptc-playground-content');
       if (content) content.style.display = 'block';
@@ -3010,6 +3083,7 @@
 
     function selectSimulatedTeam(gameId, teamCode) {
       currentSimulatedSelections[gameId] = teamCode;
+      activeTiebreakerHighlight = null;
       renderPathToCrownContent();
       const content = document.getElementById('ptc-playground-content');
       if (content) content.style.display = 'block';
@@ -3067,11 +3141,9 @@
       const winners = potentialContenders.filter(p => pScores[p] === maxScore);
 
       if (winners.length === 1) {
-        // Outright winner: hide bell curve graph completely
         if (tbContainer) tbContainer.style.display = 'none';
         banner.innerHTML = `👑 Winner: <strong>${winners[0]}</strong> (Outright win with ${maxScore} Wins)`;
       } else {
-        // Multi-player tie: display the tiebreaker bell curve graph
         if (tbContainer) tbContainer.style.display = 'block';
 
         const winnerNames = winners.join(' / ');
@@ -3110,14 +3182,8 @@
             }
             if (groupBadge) groupBadge.setAttribute('transform', `translate(${svgX}, 2)`);
             if (textCutoffVal) textCutoffVal.textContent = `${dynamicCutoff.toFixed(1)}`;
-            if (textALabel) {
-              textALabel.setAttribute('x', Math.max(40, svgX / 2));
-              textALabel.textContent = playerAName;
-            }
-            if (textBLabel) {
-              textBLabel.setAttribute('x', svgX + (480 - svgX) / 2);
-              textBLabel.textContent = playerBName;
-            }
+            if (textALabel) textALabel.textContent = playerAName;
+            if (textBLabel) textBLabel.textContent = playerBName;
           }
         }
       }
