@@ -1104,7 +1104,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v3.25 <span>🔮</span>
+        <span>🔮</span> Path to Crown v3.26 <span>🔮</span>
       </button>
     </div>
 
@@ -2659,7 +2659,7 @@ function openPathToCrownModal() {
     };
   });
 
-  // 1. Contender Filtering (Your trusted logic)
+  // 1. Contender Filtering
   let maxCurrentWins = 0;
   (poolData.players || []).forEach(p => {
     if (currentWins[p] > maxCurrentWins) maxCurrentWins = currentWins[p];
@@ -2692,7 +2692,7 @@ function openPathToCrownModal() {
       wins: g.wins,
       pred: g.pred,
       totalProb: 0,
-      scenariosMap: {}
+      scenarios: []
     };
   });
 
@@ -2705,7 +2705,7 @@ function openPathToCrownModal() {
     return null;
   }
 
-  // 3. Permutation Sweep & Natural Probability Slicing ($2^N$ branches)
+  // 3. Rigorous Permutation Sweep ($2^N$ branches with full math evaluation)
   const numGames = gamesToSimulate.length;
   const totalPermutations = Math.pow(2, numGames);
   const vegasTotal = parseFloat(weekData.tiebreaker?.vegasTotal || weekData?.vegasTotal || 44.0);
@@ -2745,20 +2745,17 @@ function openPathToCrownModal() {
     });
 
     const winningCards = Object.values(winningCardsMap);
-    const winStr = simulatedWinners.join(' & ');
 
     if (winningCards.length === 1) {
       const card = winningCards[0];
       card.totalProb += branchProb;
-
-      const scKey = `outright_${winStr}`;
-      if (!card.scenariosMap[scKey]) {
-        card.scenariosMap[scKey] = {
-          isOutright: true,
-          sortVal: -Infinity,
-          conditionText: `Clinches outright if <strong>${winStr}</strong> win.`
-        };
-      }
+      card.scenarios.push({
+        isOutright: true,
+        sortVal: -Infinity,
+        scoreRange: "Any Score",
+        winnersArray: simulatedWinners,
+        branchProb
+      });
     } else {
       winningCards.sort((a, b) => a.pred - b.pred);
 
@@ -2777,7 +2774,7 @@ function openPathToCrownModal() {
         const probUpper = maxBound === Infinity ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
         const intervalScoreProb = Math.max(0, probUpper - probLower);
         
-        // Accumulate naturally via branch probability * CDF interval slice
+        // Exact mathematical accumulation: Branch Probability * CDF Interval Probability
         card.totalProb += branchProb * intervalScoreProb;
 
         let scoreText = '';
@@ -2789,32 +2786,66 @@ function openPathToCrownModal() {
           scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
         }
 
-        const scKey = `tb_${winStr}_${scoreText}`;
-        if (!card.scenariosMap[scKey]) {
-          card.scenariosMap[scKey] = {
-            isOutright: false,
-            sortVal: minBound === -Infinity ? -Infinity : minBound,
-            conditionText: `Clinches via tiebreaker if <strong>${winStr}</strong> win AND <strong>${scoreText}</strong>.`
-          };
-        }
+        card.scenarios.push({
+          isOutright: false,
+          sortVal: minBound === -Infinity ? -Infinity : minBound,
+          scoreRange: scoreText,
+          winnersArray: simulatedWinners,
+          branchProb: branchProb * intervalScoreProb
+        });
       });
     }
   }
 
-  // 4. Filter zero-probability entities and prepare UI cards
+  // 4. Filter zero-probability cards and merge identical score conditions into unified rows
   const activeCardGroups = Object.values(cardEntities)
     .filter(card => card.totalProb > 0.000001)
-    .map(card => ({
-      title: card.title,
-      players: card.players,
-      wins: card.wins,
-      pred: card.pred,
-      totalProb: card.totalProb,
-      scenarios: Object.values(card.scenariosMap).sort((a, b) => {
-        if (a.isOutright !== b.isOutright) return a.isOutright ? -1 : 1;
-        return a.sortVal - b.sortVal;
-      })
-    }))
+    .map(card => {
+      const mergedMap = {};
+
+      card.scenarios.forEach(s => {
+        const key = `${s.isOutright}_${s.scoreRange}`;
+        if (!mergedMap[key]) {
+          mergedMap[key] = {
+            isOutright: s.isOutright,
+            sortVal: s.sortVal,
+            scoreRange: s.scoreRange,
+            winnersSet: new Set()
+          };
+        }
+        s.winnersArray.forEach(w => mergedMap[key].winnersSet.add(w));
+      });
+
+      const uniqueScenarios = Object.values(mergedMap).map(m => {
+        const winArray = Array.from(m.winnersSet);
+        const winStr = winArray.join(' / ');
+        
+        let conditionText = '';
+        if (m.isOutright) {
+          conditionText = `Clinches outright if <strong>${winStr}</strong> win.`;
+        } else {
+          conditionText = `Clinches via tiebreaker if <strong>${winStr}</strong> win AND <strong>${m.scoreRange}</strong>.`;
+        }
+
+        return {
+          isOutright: m.isOutright,
+          sortVal: m.sortVal,
+          conditionText
+        };
+      });
+
+      return {
+        title: card.title,
+        players: card.players,
+        wins: card.wins,
+        pred: card.pred,
+        totalProb: card.totalProb,
+        scenarios: uniqueScenarios.sort((a, b) => {
+          if (a.isOutright !== b.isOutright) return a.isOutright ? -1 : 1;
+          return a.sortVal - b.sortVal;
+        })
+      };
+    })
     .sort((a, b) => b.totalProb - a.totalProb);
 
   const isSoleWinner = activeCardGroups.length === 1 && activeCardGroups[0].players.length === 1;
