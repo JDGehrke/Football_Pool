@@ -2475,7 +2475,7 @@
       return z > 0 ? 1 - prob : prob;
     }
 
-    /* --- CLEAN SLATE PATH TO CROWN ENGINE WITH RIGOROUS MATH & PROPER GRAPH --- */
+    /* --- ROBUST PATH TO CROWN ENGINE WITH CLEAN GAUSSIAN CURVE --- */
     function openPathToCrownModal() {
       const modal = document.getElementById('path-to-crown-modal');
       const body = document.getElementById('modal-crown-body');
@@ -2515,6 +2515,7 @@
         return;
       }
 
+      const vegasTotal = parseFloat(weekData.tiebreaker?.vegasTotal || weekData?.vegasTotal || 44.0);
       const currentWins = {};
       const tiebreakerPicks = weekData.tiebreaker?.picks || {};
       
@@ -2551,14 +2552,20 @@
         return (currentWins[p] + remainingGames.length) >= maxCurrentWins;
       });
 
-      // 2. Entity Grouping
+      // 2. Entity Grouping with Robust Prediction Fallback
       const playerGroupsMap = {};
       potentialContenders.forEach(p => {
         const wins = currentWins[p] || 0;
         const obj = tiebreakerPicks[p];
-        const pred = typeof obj === 'number' ? obj : (parseFloat(obj?.predictedTotal) || 0);
-        const key = `${wins}_${pred}`;
+        let pred = vegasTotal;
+        if (typeof obj === 'number' && obj > 0) {
+          pred = obj;
+        } else if (obj && typeof obj === 'object') {
+          const val = parseFloat(obj.predictedTotal);
+          if (!isNaN(val) && val > 0) pred = val;
+        }
 
+        const key = `${wins}_${pred}`;
         if (!playerGroupsMap[key]) {
           playerGroupsMap[key] = { players: [], wins, pred };
         }
@@ -2591,7 +2598,6 @@
       // 3. Permutation Sweep ($2^N$ branches)
       const numGames = gamesToSimulate.length;
       const totalPermutations = Math.pow(2, numGames);
-      const vegasTotal = parseFloat(weekData.tiebreaker?.vegasTotal || weekData?.vegasTotal || 44.0);
 
       for (let i = 0; i < totalPermutations; i++) {
         const outcomeObj = {};
@@ -2734,7 +2740,7 @@
         })
         .sort((a, b) => b.totalProb - a.totalProb);
 
-      // 5. Render Container UI
+      // 5. Render Container UI with Clean Gaussian Curve SVG
       let html = `
         <div class="ptc-container">
           <div class="ptc-section-title" style="margin-top: 0;">👑 Contenders & Clinch Paths</div>
@@ -2773,7 +2779,7 @@
 
             <div id="ptc-tiebreaker-container" class="ptc-tb-box">
               <div class="ptc-tb-header">
-                <span>🏈 Normal Distribution Tiebreaker Split</span>
+                <span>🏈 Standard Normal Distribution Tiebreaker Split</span>
                 <span style="color: #64748b; font-size: 0.8rem;">Cutoff: 43.0 PTS</span>
               </div>
 
@@ -2790,21 +2796,21 @@
                     </linearGradient>
                   </defs>
 
-                  <!-- Standard Gaussian Curve Path -->
-                  <path d="M 10 110 C 100 110, 140 15, 200 15 C 260 15, 300 110, 390 110" fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round"/>
+                  <!-- Perfectly Smooth Standard Gaussian Bell Curve Path -->
+                  <path d="M 10 110 C 90 110, 130 15, 200 15 C 270 15, 310 110, 390 110" fill="none" stroke="#6366f1" stroke-width="3" stroke-linecap="round"/>
 
-                  <!-- Shaded Jordan Area (< 43.0) -->
-                  <path d="M 10 110 C 100 110, 140 15, 188 18 L 188 110 Z" fill="url(#jordanGrad)"/>
+                  <!-- Shaded Left Zone (< Cutoff) -->
+                  <path d="M 10 110 C 90 110, 130 15, 188 18 L 188 110 Z" fill="url(#jordanGrad)"/>
 
-                  <!-- Shaded Group Area (> 43.0) -->
-                  <path d="M 188 18 C 220 18, 300 110, 390 110 L 188 110 Z" fill="url(#groupGrad)"/>
+                  <!-- Shaded Right Zone (> Cutoff) -->
+                  <path d="M 188 18 C 210 18, 310 110, 390 110 L 188 110 Z" fill="url(#groupGrad)"/>
 
-                  <!-- Midpoint Cutoff Line (43.0) -->
+                  <!-- Midpoint Cutoff Line -->
                   <line x1="188" y1="10" x2="188" y2="110" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="4"/>
 
                   <!-- Labels -->
-                  <text x="80" y="75" fill="#1d4ed8" font-size="11" font-weight="800">JORDAN WIN ZONE (&lt; 43.0)</text>
-                  <text x="215" y="75" fill="#6b21a8" font-size="11" font-weight="800">GROUP WIN ZONE (&gt; 43.0)</text>
+                  <text x="65" y="75" fill="#1d4ed8" font-size="10.5" font-weight="800">WIN ZONE A (&lt; 43.0)</text>
+                  <text x="210" y="75" fill="#6b21a8" font-size="10.5" font-weight="800">WIN ZONE B (&gt; 43.0)</text>
                 </svg>
               </div>
               <div class="ptc-curve-labels">
