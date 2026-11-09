@@ -1104,7 +1104,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v3.23 <span>🔮</span>
+        <span>🔮</span> Path to Crown v3.24 <span>🔮</span>
       </button>
     </div>
 
@@ -2714,36 +2714,31 @@ function openPathToCrownModal() {
     return null;
   }
 
-  // STEP 3: Permutation Sweep & Direct Probability Allocation
-  const numGames = gamesToSimulate.length;
-  const totalPermutations = Math.pow(2, numGames);
+  // STEP 3: Direct Game-Branch Probability Calculation
   const vegasTotal = parseFloat(weekData.tiebreaker?.vegasTotal || weekData?.vegasTotal || 44.0);
 
-  for (let i = 0; i < totalPermutations; i++) {
-    const outcomeObj = {};
-    const simulatedWinners = [];
-    let scenarioProb = 1.0;
+  // Clear prior states
+  Object.values(cardEntities).forEach(card => {
+    card.totalProb = 0;
+    card.scenariosMap = {};
+  });
 
-    gamesToSimulate.forEach((g, bitIdx) => {
-      if (g.isUnanimous) {
-        outcomeObj[g.id] = g.unanimousPick;
-        simulatedWinners.push(`${g.away}/${g.home}`);
-      } else {
-        const isHomeWin = (i & (1 << bitIdx)) !== 0;
-        const winner = isHomeWin ? g.home : g.away;
-        outcomeObj[g.id] = winner;
-        simulatedWinners.push(winner);
-        scenarioProb *= (isHomeWin ? g.homeWinProb : g.awayWinProb);
-      }
-    });
+  // Extract the single remaining game probabilities
+  const g = gamesToSimulate[0]; 
+  const pBuffaloWin = g.awayWinProb; // BUF is away
+  const pMinnesotaWin = g.homeWinProb; // MIN is home
 
+  // Evaluate the two possible game outcome branches independently
+  const branches = [
+    { winnerName: g.away, branchProb: pBuffaloWin, winnersArray: [g.away] },
+    { winnerName: g.home, branchProb: pMinnesotaWin, winnersArray: [g.home] }
+  ];
+
+  branches.forEach(branch => {
+    // Determine player scores if this branch happens
     const pScores = {};
     potentialContenders.forEach(p => {
-      let extra = 0;
-      gamesToSimulate.forEach(g => {
-        const playerPick = (g.picks[p] || '').trim().toUpperCase();
-        if (playerPick === outcomeObj[g.id]) extra++;
-      });
+      let extra = (g.picks[p] || '').trim().toUpperCase() === branch.winnerName ? 1 : 0;
       pScores[p] = currentWins[p] + extra;
     });
 
@@ -2762,20 +2757,19 @@ function openPathToCrownModal() {
 
     if (winningCards.length === 1) {
       const card = winningCards[0];
-      card.totalProb += scenarioProb;
+      card.totalProb += branch.branchProb;
 
-      const scKey = `outright_${simulatedWinners.join('_')}`;
+      const scKey = `outright_${branch.winnerName}`;
       if (!card.scenariosMap[scKey]) {
         card.scenariosMap[scKey] = {
-          winnersArray: simulatedWinners,
+          winnersArray: branch.winnersArray,
           isOutright: true,
           scoreRange: "Any Score",
           sortVal: -Infinity,
-          conditionText: `Clinches outright if <strong>${simulatedWinners.join(' & ')}</strong> win.`
+          conditionText: `Clinches outright if <strong>${branch.winnerName}</strong> wins.`
         };
       }
     } else {
-      // Sort tied cards by predicted score ascending
       winningCards.sort((a, b) => a.pred - b.pred);
 
       winningCards.forEach((card, k) => {
@@ -2792,9 +2786,9 @@ function openPathToCrownModal() {
         const probLower = minBound === -Infinity ? 0 : normalCDF(minBound, vegasTotal, 10.5);
         const probUpper = maxBound === Infinity ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
         const intervalScoreProb = Math.max(0, probUpper - probLower);
-        const intervalTotalProb = intervalScoreProb * scenarioProb;
-
-        card.totalProb += intervalTotalProb;
+        
+        // Card's probability for this branch = branch weight * normCDF interval slice
+        card.totalProb += branch.branchProb * intervalScoreProb;
 
         let scoreText = '';
         if (minBound === -Infinity) {
@@ -2805,19 +2799,19 @@ function openPathToCrownModal() {
           scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
         }
 
-        const scKey = `tb_${simulatedWinners.join('_')}_${scoreText}`;
+        const scKey = `tb_${branch.winnerName}_${scoreText}`;
         if (!card.scenariosMap[scKey]) {
           card.scenariosMap[scKey] = {
-            winnersArray: simulatedWinners,
+            winnersArray: branch.winnersArray,
             isOutright: false,
             scoreRange: scoreText,
             sortVal: minBound === -Infinity ? -Infinity : minBound,
-            conditionText: `Clinches via tiebreaker if <strong>${simulatedWinners.join(' & ')}</strong> win AND <strong>${scoreText}</strong>.`
+            conditionText: `Clinches via tiebreaker if <strong>${branch.winnerName}</strong> wins AND <strong>${scoreText}</strong>.`
           };
         }
       });
     }
-  }
+  });
 
   // STEP 4: Bullet Simplification with Strict Deduplication
   function simplifyScenarios(scenarios) {
