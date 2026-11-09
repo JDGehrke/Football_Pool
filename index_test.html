@@ -1147,7 +1147,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.5 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.5.2 <span>🔮</span>
       </button>
     </div>
 
@@ -2530,7 +2530,7 @@
       return (1 / (stdDev * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2));
     }
 
-    /* --- ROBUST PATH TO CROWN ENGINE WITH CONDITIONAL PROBABILITY & GOLD HIGHLIGHTED REGIONS --- */
+    /* --- ROBUST PATH TO CROWN ENGINE WITH CONDITIONAL PROBABILITY & CORRECT REGION HIGHLIGHTS --- */
     function openPathToCrownModal() {
       const modal = document.getElementById('path-to-crown-modal');
       const body = document.getElementById('modal-crown-body');
@@ -2862,7 +2862,7 @@
       const clampCutoff = Math.max(minVal, Math.min(maxVal, sampleCutoff));
       const cutoffSvgX = 20 + ((clampCutoff - minVal) / (maxVal - minVal)) * 460;
 
-      // Generate Gold Highlighted Area Path if active
+      // Generate Gold Highlighted Area Path with Corrected Region Direction
       let goldHighlightPath = '';
       if (activeTiebreakerHighlight) {
         const cutoffVal = activeTiebreakerHighlight.cutoff;
@@ -3156,11 +3156,12 @@
             return (cardA?.pred || 0) - (cardB?.pred || 0);
           });
 
-          const playerAName = sortedWinners[0].toUpperCase();
-          const playerBName = sortedWinners[1].toUpperCase();
-
+          // Correctly pull full group titles for X-axis labels
           const cardA = activeCardGroups.find(c => c.title.includes(sortedWinners[0]));
           const cardB = activeCardGroups.find(c => c.title.includes(sortedWinners[1]));
+
+          const playerAName = cardA ? cardA.title.toUpperCase() : sortedWinners[0].toUpperCase();
+          const playerBName = cardB ? cardB.title.toUpperCase() : sortedWinners[1].toUpperCase();
           
           if (cardA && cardB) {
             const dynamicCutoff = (cardA.pred + cardB.pred) / 2;
