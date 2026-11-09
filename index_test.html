@@ -2696,7 +2696,7 @@ function openPathToCrownModal() {
         });
       }
 
-      // 3. Compute Tiebreaker Intervals for each game scenario
+// 3. Compute Tiebreaker Intervals for each game scenario
       const fullMatrixRows = [];
       const playerCrownProbabilities = {};
       (poolData.players || []).forEach(p => playerCrownProbabilities[p] = 0);
@@ -2725,38 +2725,42 @@ function openPathToCrownModal() {
             scoreRange: 'Outright win'
           });
         } else {
-          const pPicks = contenders.map(p => ({
-            player: p,
-            target: tiebreakerPicks[p]?.predictedTotal ?? 0
-          })).sort((a, b) => a.target - b.target);
+          // Get predictions for all tied contenders
+          const pPicks = contenders.map(p => {
+            const pickObj = tiebreakerPicks[p];
+            let val = 0;
+            if (typeof pickObj === 'number') val = pickObj;
+            else if (pickObj && typeof pickObj.predictedTotal === 'number') val = pickObj.predictedTotal;
+            else if (pickObj && !isNaN(parseFloat(pickObj.predictedTotal))) val = parseFloat(pickObj.predictedTotal);
+            return { player: p, target: val };
+          }).sort((a, b) => a.target - b.target);
 
-          const uniqueTargets = [];
-          pPicks.forEach(item => {
-            if (!uniqueTargets.some(u => u.target === item.target)) {
-              uniqueTargets.push(item);
-            }
-          });
+          // Get unique target predictions in ascending order
+          const sortedUniqueTargets = Array.from(new Set(pPicks.map(x => x.target))).sort((a, b) => a - b);
 
-          for (let k = 0; k < uniqueTargets.length; k++) {
-            const currentItem = uniqueTargets[k];
-            const tiedWinners = pPicks.filter(p => p.target === currentItem.target).map(p => p.player);
+          for (let k = 0; k < sortedUniqueTargets.length; k++) {
+            const targetVal = sortedUniqueTargets[k];
+            const tiedWinners = pPicks.filter(p => p.target === targetVal).map(p => p.player);
 
             let minBound = -Infinity;
             let maxBound = Infinity;
 
             if (k > 0) {
-              minBound = (uniqueTargets[k - 1].target + currentItem.target) / 2;
+              minBound = (sortedUniqueTargets[k - 1] + targetVal) / 2;
             }
-            if (k < uniqueTargets.length - 1) {
-              maxBound = (currentItem.target + uniqueTargets[k + 1].target) / 2;
+            if (k < sortedUniqueTargets.length - 1) {
+              maxBound = (targetVal + sortedUniqueTargets[k + 1]) / 2;
             }
 
             const probLower = minBound === -Infinity ? 0 : normalCDF(minBound, vegasTotal, 10.5);
             const probUpper = maxBound === Infinity ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
-            const intervalProb = Math.max(0, probUpper - probLower) * sc.probability;
+            const intervalScoreProb = Math.max(0, probUpper - probLower);
+            const intervalTotalProb = intervalScoreProb * sc.probability;
 
+            // Split tie probability equally among players tied at the exact same predicted score
+            const probPerPlayer = intervalTotalProb / tiedWinners.length;
             tiedWinners.forEach(w => {
-              playerCrownProbabilities[w] += intervalProb / tiedWinners.length;
+              playerCrownProbabilities[w] = (playerCrownProbabilities[w] || 0) + probPerPlayer;
             });
 
             let scoreText = '';
@@ -2774,10 +2778,11 @@ function openPathToCrownModal() {
               winnersMap: sc.winnersMap,
               scoreText: scoreText,
               winner: winnerStr,
-              probability: intervalProb
+              probability: intervalTotalProb
             });
 
             tiedWinners.forEach(w => {
+              if (!playerClinchBullets[w]) playerClinchBullets[w] = [];
               playerClinchBullets[w].push({
                 gameCond: gameConditions.join(' & '),
                 scoreRange: scoreText
@@ -2787,7 +2792,7 @@ function openPathToCrownModal() {
         }
       });
 
-      // Collect all players who appear as a winner anywhere in the matrix or have > 0 probability
+      // Collect all contenders with win possibilities
       const activeContendersSet = new Set();
       fullMatrixRows.forEach(row => {
         row.winner.split(',').forEach(wName => {
@@ -2813,17 +2818,14 @@ function openPathToCrownModal() {
       } else {
         activeContenders.forEach((p, idx) => {
           const pWinsNow = currentWins[p] || 0;
-          const predVal = tiebreakerPicks[p]?.predictedTotal ?? 'N/A';
-          // Format percentage cleanly (handles tiny non-zero probabilities without rounding to 0.0%)
+          const pickObj = tiebreakerPicks[p];
+          let predVal = 'N/A';
+          if (typeof pickObj === 'number') predVal = pickObj;
+          else if (pickObj && pickObj.predictedTotal !== undefined) predVal = pickObj.predictedTotal;
+
           const rawProb = (playerCrownProbabilities[p] || 0) * 100;
-          let winPctStr;
-          if (rawProb > 0 && rawProb < 0.05) {
-            winPctStr = rawProb.toFixed(3) + '%';
-          } else if (rawProb > 0 && rawProb < 1.0) {
-            winPctStr = rawProb.toFixed(2) + '%';
-          } else {
-            winPctStr = rawProb.toFixed(1) + '%';
-          }
+          const winPctStr = rawProb < 0.1 && rawProb > 0 ? rawProb.toFixed(2) : rawProb.toFixed(1);
+          
           const bullets = playerClinchBullets[p] || [];
 
           const groupedBullets = {};
