@@ -922,33 +922,46 @@
     .modal-close-btn:hover { color: var(--text-main); }
     .modal-body { padding: 20px; overflow-y: auto; }
 
-    /* --- PATH TO CROWN STYLES --- */
+    /* --- PATH TO CROWN STYLES (PROFESSIONAL & CLEAN) --- */
     .ptc-container { font-family: system-ui, -apple-system, sans-serif; }
-    .ptc-section-title { font-size: 1rem; font-weight: 700; color: #1e293b; margin: 16px 0 10px 0; }
+    .ptc-section-header { 
+      font-size: 0.95rem; 
+      font-weight: 700; 
+      color: #334155; 
+      margin: 16px 0 12px 0; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+    }
     .ptc-divider { border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0; }
 
     .ptc-cards-grid { display: flex; flex-direction: column; gap: 12px; }
-    .ptc-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+    .ptc-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); transition: all 0.15s ease; }
+    .ptc-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
     .ptc-card-header { display: flex; justify-content: space-between; align-items: center; }
-    .ptc-card-title { font-size: 1.05rem; font-weight: 700; color: #0f172a; }
-    .ptc-card-sub { font-size: 0.8rem; color: #64748b; font-weight: 400; margin-left: 6px; }
-    .ptc-prob-badge { background: #3b82f6; color: #ffffff; font-weight: 700; font-size: 0.875rem; padding: 6px 12px; border-radius: 20px; }
+    .ptc-card-title { font-size: 1rem; font-weight: 700; color: #0f172a; letter-spacing: -0.01em; }
+    .ptc-card-sub { font-size: 0.8rem; color: #64748b; font-weight: 500; margin-left: 8px; }
+    .ptc-prob-badge { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; font-weight: 700; font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; }
 
-    .ptc-simulator-box { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 16px; }
+    .ptc-simulator-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
     .ptc-matchup-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
-    .ptc-game-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; text-align: center; }
-    .ptc-game-title { font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 8px; }
+    .ptc-game-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+    .ptc-game-title { font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
     .ptc-team-btn-group { display: flex; gap: 8px; }
-    .ptc-team-btn { border: 2px solid #cbd5e1; background: #ffffff; padding: 6px 12px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; gap: 6px; }
-    .ptc-team-btn.selected { border-color: #3b82f6; background: #eff6ff; color: #1d4ed8; }
+    .ptc-team-btn { border: 1px solid #cbd5e1; background: #ffffff; padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; gap: 6px; color: #334155; }
+    .ptc-team-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+    .ptc-team-btn.selected { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; box-shadow: 0 0 0 1px #2563eb; }
 
-    .ptc-tb-box { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-    .ptc-tb-header { font-size: 0.875rem; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .ptc-tb-box { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+    .ptc-tb-header { font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; color: #1e293b; }
     .ptc-bell-curve-wrapper { position: relative; width: 100%; margin: 10px 0; text-align: center; }
-    .ptc-bell-svg { width: 100%; max-height: 140px; display: block; overflow: visible; }
-    .ptc-curve-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-top: 6px; }
+    .ptc-bell-svg { width: 100%; max-height: 150px; display: block; overflow: visible; }
+    .ptc-curve-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-top: 6px; font-weight: 500; }
 
-    .ptc-result-banner { background: #0f172a; color: #ffffff; padding: 14px; border-radius: 8px; text-align: center; font-size: 1rem; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .ptc-result-banner { background: #1e293b; color: #ffffff; padding: 12px 16px; border-radius: 8px; text-align: center; font-size: 0.9rem; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+    .collapse-toggle-btn { background: none; border: none; color: var(--secondary-color); font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+    .collapse-toggle-btn:hover { text-decoration: underline; }
 
     .hof-card-grid {
       display: grid;
@@ -1107,7 +1120,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.1 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.2 <span>🔮</span>
       </button>
     </div>
 
@@ -2485,7 +2498,7 @@
       return 0.5 * (1 + erf((x - mean) / (stdDev * Math.sqrt(2))));
     }
 
-    /* --- ROBUST PATH TO CROWN ENGINE WITH BULLETPROOF NORMAL CDF --- */
+    /* --- ROBUST PATH TO CROWN ENGINE WITH PROFESSIONAL SVG & COLLAPSIBLE PLAYGROUND --- */
     function openPathToCrownModal() {
       const modal = document.getElementById('path-to-crown-modal');
       const body = document.getElementById('modal-crown-body');
@@ -2750,10 +2763,22 @@
         })
         .sort((a, b) => b.totalProb - a.totalProb);
 
-      // 5. Render Container UI with Gorgeous Styled Bell Curve SVG
+      // Determine top two players/groups for the bell curve labels
+      let playerALabel = "PLAYER A ZONE";
+      let playerBLabel = "PLAYER B ZONE";
+      if (activeCardGroups.length >= 2) {
+        playerALabel = activeCardGroups[0].title.toUpperCase() + " ZONE";
+        playerBLabel = activeCardGroups[1].title.toUpperCase() + " ZONE";
+      } else if (activeCardGroups.length === 1) {
+        playerALabel = activeCardGroups[0].title.toUpperCase() + " ZONE";
+      }
+
+      // 5. Render Container UI with Professional Graph & Collapsible Playground
       let html = `
         <div class="ptc-container">
-          <div class="ptc-section-title" style="margin-top: 0;">👑 Contenders & Clinch Paths</div>
+          <div class="ptc-section-header" style="margin-top: 0;">
+            <span>👑 Contenders & Clinch Paths</span>
+          </div>
           <div class="ptc-cards-grid">
       `;
 
@@ -2783,75 +2808,84 @@
 
           <hr class="ptc-divider" />
 
-          <div class="ptc-section-title">🎮 Interactive Scenario Playground</div>
-          <div class="ptc-simulator-box">
+          <div class="ptc-section-header">
+            <span>🎮 Interactive Scenario Playground</span>
+            <button class="collapse-toggle-btn" onclick="togglePlaygroundCollapse()">
+              <span id="collapse-icon">▼</span> <span id="collapse-text">Hide Playground</span>
+            </button>
+          </div>
+
+          <div id="ptc-playground-content" class="ptc-simulator-box">
             <div id="ptc-matchup-selectors" class="ptc-matchup-row"></div>
 
             <div id="ptc-tiebreaker-container" class="ptc-tb-box">
               <div class="ptc-tb-header">
-                <span>🏈 Standard Normal Distribution Tiebreaker Split</span>
-                <span style="color: #64748b; font-size: 0.8rem;">Cutoff: 43.0 PTS</span>
+                <span>Standard Normal Distribution Tiebreaker Split</span>
               </div>
 
               <div class="ptc-bell-curve-wrapper">
                 <svg class="ptc-bell-svg" viewBox="0 0 500 160" preserveAspectRatio="none">
                   <defs>
-                    <linearGradient id="jordanGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.45"/>
-                      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.05"/>
+                    <linearGradient id="zoneAGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.35"/>
+                      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.03"/>
                     </linearGradient>
-                    <linearGradient id="groupGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.45"/>
-                      <stop offset="100%" stop-color="#a855f7" stop-opacity="0.05"/>
+                    <linearGradient id="zoneBGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.35"/>
+                      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.03"/>
                     </linearGradient>
                   </defs>
 
-                  <!-- Grid Base Line -->
+                  <!-- Base Line -->
                   <line x1="20" y1="135" x2="480" y2="135" stroke="#e2e8f0" stroke-width="1.5" />
 
-                  <!-- Shaded Left Zone (< 43.0) -->
-                  <path d="M 20 135 C 100 135, 150 20, 230 20 L 230 135 Z" fill="url(#jordanGrad)"/>
+                  <!-- Shaded Left Zone -->
+                  <path d="M 20 135 C 100 135, 150 20, 230 20 L 230 135 Z" fill="url(#zoneAGrad)"/>
 
-                  <!-- Shaded Right Zone (> 43.0) -->
-                  <path d="M 230 20 C 310 20, 380 135, 480 135 L 230 135 Z" fill="url(#groupGrad)"/>
+                  <!-- Shaded Right Zone -->
+                  <path d="M 230 20 C 310 20, 380 135, 480 135 L 230 135 Z" fill="url(#zoneBGrad)"/>
 
-                  <!-- Smooth Gaussian Bell Curve Stroke -->
-                  <path d="M 20 135 C 100 135, 150 20, 230 20 C 310 20, 380 135, 480 135" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round"/>
+                  <!-- Smooth Bell Curve -->
+                  <path d="M 20 135 C 100 135, 150 20, 230 20 C 310 20, 380 135, 480 135" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/>
 
-                  <!-- Cutoff Boundary Line (43.0) -->
-                  <line x1="230" y1="12" x2="230" y2="142" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="5 4"/>
+                  <!-- Red Dashed Cutoff Line -->
+                  <line x1="230" y1="12" x2="230" y2="142" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 4"/>
+                  
+                  <!-- Cutoff Label at Top of Red Line -->
+                  <rect x="195" y="0" width="70" height="18" fill="#ef4444" rx="4"></rect>
+                  <text x="230" y="12.5" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle">CUTOFF: 43.0</text>
 
-                  <!-- Clean Zone Labels -->
-                  <text x="110" y="85" fill="#1d4ed8" font-size="11" font-weight="800" text-anchor="middle">JORDAN ZONE (&lt; 43.0)</text>
-                  <text x="360" y="85" fill="#6b21a8" font-size="11" font-weight="800" text-anchor="middle">GROUP ZONE (&gt; 43.0)</text>
+                  <!-- Player Region Names Underneath -->
+                  <text x="115" y="90" fill="#1d4ed8" font-size="10.5" font-weight="700" text-anchor="middle">${playerALabel}</text>
+                  <text x="345" y="90" fill="#6d28d9" font-size="10.5" font-weight="700" text-anchor="middle">${playerBLabel}</text>
                 </svg>
               </div>
               <div class="ptc-curve-labels">
-                <span>Low Score (Defensive)</span>
-                <span id="ptc-vegas-mean-label" style="font-weight: 700;">Vegas Mean: ${vegasTotal.toFixed(1)}</span>
-                <span>High Score (Shootout)</span>
+                <span>Low Score</span>
+                <span id="ptc-vegas-mean-label" style="font-weight: 600; color: #475569;">Vegas Mean: ${vegasTotal.toFixed(1)}</span>
+                <span>High Score</span>
               </div>
             </div>
 
-            <div id="ptc-simulated-result-banner" class="ptc-result-banner"></div>
+            <div id="ptc-simulated-result-banner" class="ptc-result-banner">Select outcomes above to simulate tiebreakers.</div>
           </div>
         </div>
       `;
 
       body.innerHTML = html;
 
-      // 6. Initialize Matchup Logos
+      // 6. Initialize Matchup Logos (Unselected by default)
       const selectorsContainer = document.getElementById('ptc-matchup-selectors');
       selectorsContainer.innerHTML = '';
       currentSimulatedSelections = {};
 
       gamesToSimulate.forEach(g => {
-        currentSimulatedSelections[g.id] = g.away;
+        currentSimulatedSelections[g.id] = null; // Unselected by default
         selectorsContainer.innerHTML += `
           <div class="ptc-game-card">
             <div class="ptc-game-title">MATCHUP ${g.id + 1}</div>
             <div class="ptc-team-btn-group">
-              <button id="btn-${g.id}-${g.away}" class="ptc-team-btn selected" onclick="selectSimulatedTeam(${g.id}, '${g.away}')">
+              <button id="btn-${g.id}-${g.away}" class="ptc-team-btn" onclick="selectSimulatedTeam(${g.id}, '${g.away}')">
                 ${getTeamLogoHtml(g.away, true)}
               </button>
               <button id="btn-${g.id}-${g.home}" class="ptc-team-btn" onclick="selectSimulatedTeam(${g.id}, '${g.home}')">
@@ -2867,6 +2901,22 @@
       updateInteractiveSimulator();
     }
 
+    function togglePlaygroundCollapse() {
+      const content = document.getElementById('ptc-playground-content');
+      const icon = document.getElementById('collapse-icon');
+      const text = document.getElementById('collapse-text');
+
+      if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.innerText = '▼';
+        text.innerText = 'Hide Playground';
+      } else {
+        content.style.display = 'none';
+        icon.innerText = '▶';
+        text.innerText = 'Show Playground';
+      }
+    }
+
     function selectSimulatedTeam(gameId, teamCode) {
       currentSimulatedSelections[gameId] = teamCode;
       
@@ -2880,6 +2930,14 @@
     function updateInteractiveSimulator() {
       const ctx = window._ptcData;
       if (!ctx) return;
+
+      const unselectedCount = Object.values(currentSimulatedSelections).filter(v => v === null).length;
+      const banner = document.getElementById('ptc-simulated-result-banner');
+
+      if (unselectedCount > 0) {
+        banner.innerHTML = `⚠️ Please select winners for all ${ctx.gamesToSimulate.length} matchups above to calculate the outcome.`;
+        return;
+      }
 
       const pScores = {};
       ctx.potentialContenders.forEach(p => {
@@ -2904,10 +2962,10 @@
         if (tbContainer) tbContainer.style.display = 'block';
 
         const winnerNames = winners.join(' / ');
-        winnerText = `👑 Tied at ${maxScore} Wins &mdash; Tiebreaker determined by Game Total Score (&lt; 43.0: Jordan | &gt; 43.0: Group)`;
+        winnerText = `👑 Tied at ${maxScore} Wins &mdash; Tiebreaker split active between ${winnerNames}`;
       }
 
-      document.getElementById('ptc-simulated-result-banner').innerHTML = winnerText;
+      banner.innerHTML = winnerText;
     }
 
     function closeCrownModal(e) {
