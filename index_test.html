@@ -2814,7 +2814,16 @@ function openPathToCrownModal() {
         activeContenders.forEach((p, idx) => {
           const pWinsNow = currentWins[p] || 0;
           const predVal = tiebreakerPicks[p]?.predictedTotal ?? 'N/A';
-          const winPctStr = ((playerCrownProbabilities[p] || 0) * 100).toFixed(1);
+          // Format percentage cleanly (handles tiny non-zero probabilities without rounding to 0.0%)
+          const rawProb = (playerCrownProbabilities[p] || 0) * 100;
+          let winPctStr;
+          if (rawProb > 0 && rawProb < 0.05) {
+            winPctStr = rawProb.toFixed(3) + '%';
+          } else if (rawProb > 0 && rawProb < 1.0) {
+            winPctStr = rawProb.toFixed(2) + '%';
+          } else {
+            winPctStr = rawProb.toFixed(1) + '%';
+          }
           const bullets = playerClinchBullets[p] || [];
 
           const groupedBullets = {};
