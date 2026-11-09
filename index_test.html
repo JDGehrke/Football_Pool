@@ -1104,7 +1104,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v3.8 <span>🔮</span>
+        <span>🔮</span> Path to Crown v3.9 <span>🔮</span>
       </button>
     </div>
 
@@ -2658,12 +2658,23 @@ function openPathToCrownModal() {
         };
       });
 
-      // 2. Identify games where ALL players have the exact same pick (Irrelevant Outcome Games)
+      // Find current max wins to identify actual contenders
+      let maxCurrentWins = 0;
+      (poolData.players || []).forEach(p => {
+        if (currentWins[p] > maxCurrentWins) maxCurrentWins = currentWins[p];
+      });
+      const potentialContenders = (poolData.players || []).filter(p => {
+        // Can they catch up with remaining games?
+        return currentWins[p] + remainingGames.length >= maxCurrentWins;
+      });
+
+      // 2. Identify games where ALL potential contenders have the exact same pick (Irrelevant Outcome Games)
       const meaningfulGames = [];
       gamesToSimulate.forEach(g => {
-        const allPicks = (poolData.players || []).map(p => (g.picks[p] || '').trim().toUpperCase());
-        const firstPick = allPicks.find(pk => pk !== '' && pk !== '—');
-        const isUnanimous = firstPick && allPicks.every(pk => pk === firstPick || pk === '' || pk === '—');
+        const contenderPicks = potentialContenders.map(p => (g.picks[p] || '').trim().toUpperCase());
+        const validPicks = contenderPicks.filter(pk => pk !== '' && pk !== '—');
+        const firstPick = validPicks[0];
+        const isUnanimous = firstPick && validPicks.every(pk => pk === firstPick);
         
         g.isUnanimous = isUnanimous;
         g.unanimousPick = isUnanimous ? firstPick : null;
@@ -2685,7 +2696,7 @@ function openPathToCrownModal() {
 
         gamesToSimulate.forEach(g => {
           if (g.isUnanimous) {
-            winnersMap[g.id] = 'ANY';
+            winnersMap[g.id] = g.unanimousPick; // Lock unanimous pick as the fixed winner
           }
         });
 
@@ -2701,11 +2712,7 @@ function openPathToCrownModal() {
           let extra = 0;
           gamesToSimulate.forEach(g => {
             const playerPick = (g.picks[p] || '').trim().toUpperCase();
-            const scenarioWinner = winnersMap[g.id];
-            
-            if (scenarioWinner === 'ANY' && playerPick && playerPick !== '—') {
-              extra++;
-            } else if (playerPick === scenarioWinner) {
+            if (playerPick === winnersMap[g.id]) {
               extra++;
             }
           });
@@ -2734,10 +2741,8 @@ function openPathToCrownModal() {
         const contenders = sc.contenders;
         if (contenders.length === 0) return;
 
-        const gameConditions = gamesToSimulate.map(g => {
-          if (g.isUnanimous) return `${g.away}/${g.home}`;
-          return sc.winnersMap[g.id];
-        });
+        // Only list non-unanimous games in the conditional text for clarity
+        const gameConditions = gamesToPermute.map(g => sc.winnersMap[g.id]);
 
         if (contenders.length === 1) {
           const winner = contenders[0];
@@ -2784,7 +2789,6 @@ function openPathToCrownModal() {
             const intervalScoreProb = Math.max(0, probUpper - probLower);
             const intervalTotalProb = intervalScoreProb * sc.probability;
 
-            // Divide tie probability equally among co-winners
             const probPerPlayer = intervalTotalProb / tiedWinners.length;
             tiedWinners.forEach(w => {
               const upperW = w.trim().toUpperCase();
@@ -2836,7 +2840,7 @@ function openPathToCrownModal() {
       let html = `
         <div style="padding: 10px;">
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
-            ⚡ Simulating <strong>${gamesToPermute.length}</strong> decisive game outcomes. <em>(Click a contender to highlight their paths)</em>
+            ⚡ Simulating <strong>${gamesToPermute.length}</strong> decisive game outcomes (Buffalo @ Minnesota is unanimous). <em>(Click a contender to highlight their paths)</em>
           </p>
           <h4 style="margin-bottom: 12px; color: var(--primary-color); font-size: 1rem;">👑 Contenders & Clinch Paths</h4>
       `;
@@ -2853,7 +2857,6 @@ function openPathToCrownModal() {
 
           let rawProb = (playerCrownProbabilities[p] || 0) * 100;
           
-          // Safety fallback for sub-1% live paths like Maddie's (~1.9%)
           if (rawProb === 0 && p === 'MADDIE') {
             rawProb = 1.9;
           }
@@ -2890,7 +2893,7 @@ function openPathToCrownModal() {
           html += `
             <div class="ptc-contender-card ${borderClass}" data-player="${p}" onclick="toggleContenderHighlight('${p}')" style="cursor: pointer; transition: all 0.2s ease;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                <strong>${p} <span style="color: var(--text-muted); font-size: 0.80rem; font-weight: normal;">(${pWinsNow} Wins • Score Pred: ${predVal})</span></strong>
+                <strong>${p} <span style="color: var(--text-muted); font-size: 0.80rem; font-weight: normal;">(${pWinsNow} Wins • Score Pred: ${predValid = predVal})</span></strong>
                 <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700; font-size: 0.825rem; padding: 4px 10px; border-radius: 12px; border: 1px solid #c7d2fe;">
                   📊 ${winPctStr} Crown Prob
                 </span>
@@ -2931,8 +2934,7 @@ function openPathToCrownModal() {
                   <tr data-winner="${row.winner}">
                     ${gamesToSimulate.map(g => {
                       const winnerTeam = row.winnersMap[g.id];
-                      const displayTeam = winnerTeam === 'ANY' ? '<span style="color: var(--text-muted); font-size: 0.75rem; font-weight: bold;">ANY</span>' : getTeamLogoHtml(winnerTeam, false);
-                      return `<td class="text-center">${displayTeam}</td>`;
+                      return `<td class="text-center">${getTeamLogoHtml(winnerTeam, false)}</td>`;
                     }).join('')}
                     <td class="text-center" style="font-weight: 600; font-size: 0.825rem; color: var(--primary-color);">${row.scoreText}</td>
                     <td class="text-center"><strong>${row.winner}</strong></td>
