@@ -1104,7 +1104,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v3.22 <span>🔮</span>
+        <span>🔮</span> Path to Crown v3.23 <span>🔮</span>
       </button>
     </div>
 
@@ -2714,12 +2714,10 @@ function openPathToCrownModal() {
     return null;
   }
 
-  // STEP 3: Permutation Sweep & Single-Pass Probability Allocation
+  // STEP 3: Permutation Sweep & Direct Probability Allocation
   const numGames = gamesToSimulate.length;
   const totalPermutations = Math.pow(2, numGames);
   const vegasTotal = parseFloat(weekData.tiebreaker?.vegasTotal || weekData?.vegasTotal || 44.0);
-
-  const permutationMatrix = [];
 
   for (let i = 0; i < totalPermutations; i++) {
     const outcomeObj = {};
@@ -2750,18 +2748,10 @@ function openPathToCrownModal() {
     });
 
     const maxScore = Math.max(...Object.values(pScores));
-    const topContenders = potentialContenders.filter(p => pScores[p] === maxScore);
+    const winningContenders = potentialContenders.filter(p => pScores[p] === maxScore);
 
-    permutationMatrix.push({
-      simulatedWinners,
-      scenarioProb,
-      topContenders
-    });
-  }
-
-  permutationMatrix.forEach(perm => {
     const winningCardsMap = {};
-    perm.topContenders.forEach(p => {
+    winningContenders.forEach(p => {
       const card = getCardByPlayer(p);
       if (card && !winningCardsMap[card.title]) {
         winningCardsMap[card.title] = card;
@@ -2772,24 +2762,26 @@ function openPathToCrownModal() {
 
     if (winningCards.length === 1) {
       const card = winningCards[0];
-      card.totalProb += perm.scenarioProb;
+      card.totalProb += scenarioProb;
 
-      const scKey = `outright_${perm.simulatedWinners.join('_')}`;
+      const scKey = `outright_${simulatedWinners.join('_')}`;
       if (!card.scenariosMap[scKey]) {
         card.scenariosMap[scKey] = {
-          winnersArray: perm.simulatedWinners,
+          winnersArray: simulatedWinners,
           isOutright: true,
           scoreRange: "Any Score",
           sortVal: -Infinity,
-          conditionText: `Clinches outright if <strong>${perm.simulatedWinners.join(' & ')}</strong> win.`
+          conditionText: `Clinches outright if <strong>${simulatedWinners.join(' & ')}</strong> win.`
         };
       }
     } else {
+      // Sort tied cards by predicted score ascending
       winningCards.sort((a, b) => a.pred - b.pred);
 
       winningCards.forEach((card, k) => {
         let minBound = -Infinity;
         let maxBound = Infinity;
+        
         if (k > 0) {
           minBound = (winningCards[k - 1].pred + card.pred) / 2;
         }
@@ -2800,7 +2792,7 @@ function openPathToCrownModal() {
         const probLower = minBound === -Infinity ? 0 : normalCDF(minBound, vegasTotal, 10.5);
         const probUpper = maxBound === Infinity ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
         const intervalScoreProb = Math.max(0, probUpper - probLower);
-        const intervalTotalProb = intervalScoreProb * perm.scenarioProb;
+        const intervalTotalProb = intervalScoreProb * scenarioProb;
 
         card.totalProb += intervalTotalProb;
 
@@ -2813,14 +2805,14 @@ function openPathToCrownModal() {
           scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
         }
 
-        const scKey = `tb_${perm.simulatedWinners.join('_')}_${scoreText}`;
+        const scKey = `tb_${simulatedWinners.join('_')}_${scoreText}`;
         if (!card.scenariosMap[scKey]) {
           card.scenariosMap[scKey] = {
-            winnersArray: perm.simulatedWinners,
+            winnersArray: simulatedWinners,
             isOutright: false,
             scoreRange: scoreText,
             sortVal: minBound === -Infinity ? -Infinity : minBound,
-            conditionText: `Clinches via tiebreaker if <strong>${perm.simulatedWinners.join(' & ')}</strong> win AND <strong>${scoreText}</strong>.`
+            conditionText: `Clinches via tiebreaker if <strong>${simulatedWinners.join(' & ')}</strong> win AND <strong>${scoreText}</strong>.`
           };
         }
       });
