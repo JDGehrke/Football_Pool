@@ -942,6 +942,17 @@
     .ptc-card-title { font-size: 1rem; font-weight: 700; color: #0f172a; letter-spacing: -0.01em; }
     .ptc-card-sub { font-size: 0.8rem; color: #64748b; font-weight: 500; margin-left: 8px; }
     .ptc-prob-badge { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; font-weight: 700; font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; }
+    
+    .ptc-scenario-item {
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 4px;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    .ptc-scenario-item:hover {
+      background-color: #eff6ff;
+      color: #1d4ed8;
+    }
 
     .ptc-simulator-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
     .ptc-matchup-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
@@ -1136,7 +1147,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.2 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.3 <span>🔮</span>
       </button>
     </div>
 
@@ -2514,7 +2525,7 @@
       return 0.5 * (1 + erf((x - mean) / (stdDev * Math.sqrt(2))));
     }
 
-    /* --- ROBUST PATH TO CROWN ENGINE WITH ACCURATE SVG CURVE & DEFAULT-COLLAPSED PLAYGROUND --- */
+    /* --- ROBUST PATH TO CROWN ENGINE WITH DYNAMIC LIVE ODDS & CLICKABLE SCENARIOS --- */
     function openPathToCrownModal() {
       const modal = document.getElementById('path-to-crown-modal');
       const body = document.getElementById('modal-crown-body');
@@ -2582,7 +2593,18 @@
         };
       });
 
-      // 1. Contender Filtering
+      window._ptcGlobal = { currentWins, gamesToSimulate, tiebreakerPicks, vegasTotal, matchupsCount: gamesToSimulate.length };
+      renderPathToCrownContent();
+      modal.classList.add('active');
+    }
+
+    function runSimulationForSelections(selectionsObj) {
+      const gCtx = window._ptcGlobal;
+      const remainingGames = gCtx.gamesToSimulate;
+      const vegasTotal = gCtx.vegasTotal;
+      const currentWins = gCtx.currentWins;
+      const tiebreakerPicks = gCtx.tiebreakerPicks;
+
       let maxCurrentWins = 0;
       (poolData.players || []).forEach(p => {
         if (currentWins[p] > maxCurrentWins) maxCurrentWins = currentWins[p];
@@ -2591,7 +2613,6 @@
         return (currentWins[p] + remainingGames.length) >= maxCurrentWins;
       });
 
-      // 2. Entity Grouping with Robust Prediction Fallback
       const playerGroupsMap = {};
       potentialContenders.forEach(p => {
         const wins = currentWins[p] || 0;
@@ -2634,27 +2655,39 @@
         return null;
       }
 
-      // 3. Permutation Sweep ($2^N$ branches)
-      const numGames = gamesToSimulate.length;
+      const numGames = remainingGames.length;
       const totalPermutations = Math.pow(2, numGames);
+      let totalValidProb = 0;
 
       for (let i = 0; i < totalPermutations; i++) {
         const outcomeObj = {};
         const simulatedWinners = [];
         let branchProb = 1.0;
 
-        gamesToSimulate.forEach((g, bitIdx) => {
+        let matchesUserSelection = true;
+
+        remainingGames.forEach((g, bitIdx) => {
           const isHomeWin = (i & (1 << bitIdx)) !== 0;
           const winner = isHomeWin ? g.home : g.away;
+          
+          if (selectionsObj[g.id] !== null && selectionsObj[g.id] !== undefined) {
+            if (selectionsObj[g.id] !== winner) {
+              matchesUserSelection = false;
+            }
+          }
+
           outcomeObj[g.id] = winner;
           simulatedWinners.push(winner);
           branchProb *= (isHomeWin ? g.homeWinProb : g.awayWinProb);
         });
 
+        if (!matchesUserSelection) continue;
+        totalValidProb += branchProb;
+
         const pScores = {};
         potentialContenders.forEach(p => {
           let extra = 0;
-          gamesToSimulate.forEach(g => {
+          remainingGames.forEach(g => {
             const playerPick = (g.picks[p] || '').trim().toUpperCase();
             if (playerPick === outcomeObj[g.id]) extra++;
           });
@@ -2682,7 +2715,8 @@
             sortVal: -Infinity,
             scoreRange: "Any Score",
             winnersArray: simulatedWinners,
-            branchProb
+            branchProb,
+            gameOutcomeMap: { ...outcomeObj }
           });
         } else {
           winningCards.sort((a, b) => a.pred - b.pred);
@@ -2719,13 +2753,19 @@
               sortVal: minBound === -Infinity ? -Infinity : minBound,
               scoreRange: scoreText,
               winnersArray: simulatedWinners,
-              branchProb: addedProb
+              branchProb: addedProb,
+              gameOutcomeMap: { ...outcomeObj }
             });
           });
         }
       }
 
-      // 4. Group Card Scenarios cleanly
+      if (totalValidProb > 0 && totalValidProb < 0.9999) {
+        Object.values(cardEntities).forEach(card => {
+          card.totalProb /= totalValidProb;
+        });
+      }
+
       const activeCardGroups = Object.values(cardEntities)
         .filter(card => card.totalProb > 0.000001)
         .map(card => {
@@ -2739,7 +2779,8 @@
                 sortVal: s.sortVal,
                 scoreRange: s.scoreRange,
                 totalSubProb: 0,
-                winnersSet: new Set()
+                winnersSet: new Set(),
+                sampleOutcomeMap: s.gameOutcomeMap
               };
             }
             mergedMap[key].totalSubProb += s.branchProb;
@@ -2761,7 +2802,8 @@
             return {
               isOutright: m.isOutright,
               sortVal: m.sortVal,
-              mainCondition
+              mainCondition,
+              sampleOutcomeMap: m.sampleOutcomeMap
             };
           });
 
@@ -2779,7 +2821,17 @@
         })
         .sort((a, b) => b.totalProb - a.totalProb);
 
-      // Determine correct player region labels for the bell curve (Left vs Right)
+      return { activeCardGroups, potentialContenders };
+    }
+
+    function renderPathToCrownContent() {
+      const body = document.getElementById('modal-crown-body');
+      const gCtx = window._ptcGlobal;
+      const gamesToSimulate = gCtx.gamesToSimulate;
+      const vegasTotal = gCtx.vegasTotal;
+
+      const { activeCardGroups } = runSimulationForSelections(currentSimulatedSelections);
+
       let playerALabel = "PLAYER A";
       let playerBLabel = "PLAYER B";
       if (activeCardGroups.length >= 2) {
@@ -2802,18 +2854,6 @@
       const clampCutoff = Math.max(minVal, Math.min(maxVal, sampleCutoff));
       const cutoffSvgX = 20 + ((clampCutoff - minVal) / (maxVal - minVal)) * 460;
 
-      // Bell curve height generator matching SVG geometry: peak at y=20 (x=250), base at y=135
-      function getCurveY(x) {
-        const norm = (x - 250) / 75; // standard deviation spread in SVG coords
-        const peakY = 20;
-        const baseY = 135;
-        const h = (baseY - peakY) * Math.exp(-0.5 * norm * norm);
-        return baseY - h;
-      }
-
-      const yAtCutoff = getCurveY(cutoffSvgX);
-
-      // 5. Render Container UI with Professional Graph & Collapsible Playground (Default hidden)
       let html = `
         <div class="ptc-container">
           <div class="ptc-section-header" style="margin-top: 0;">
@@ -2822,10 +2862,18 @@
           <div class="ptc-cards-grid">
       `;
 
-      activeCardGroups.forEach(group => {
-        const primaryBullets = group.scenarios.map(s => `<li>${s.mainCondition}</li>`).join('');
+      activeCardGroups.forEach((group, groupIdx) => {
         const rawProb = group.totalProb * 100;
         let winPctStr = rawProb.toFixed(1) + '%';
+
+        const bulletsHtml = group.scenarios.map((s, sIdx) => {
+          const outcomeJson = encodeURIComponent(JSON.stringify(s.sampleOutcomeMap || {}));
+          return `
+            <li class="ptc-scenario-item" onclick="applyScenarioOutcome('${outcomeJson}')" title="Click to test this path in the playground">
+              ${s.mainCondition} 🔗
+            </li>
+          `;
+        }).join('');
 
         html += `
           <div class="ptc-card">
@@ -2836,8 +2884,8 @@
               </div>
               <div class="ptc-prob-badge">${winPctStr} Crown Prob</div>
             </div>
-            <ul style="margin-top: 10px; padding-left: 18px; font-size: 0.875rem; color: #334155; line-height: 1.5;">
-              ${primaryBullets}
+            <ul style="margin-top: 10px; padding-left: 18px; font-size: 0.875rem; color: #334155; line-height: 1.6;">
+              ${bulletsHtml}
             </ul>
           </div>
         `;
@@ -2868,46 +2916,29 @@
 
               <div class="ptc-bell-curve-wrapper">
                 <svg id="ptc-bell-svg-elem" class="ptc-bell-svg" viewBox="0 0 500 160" preserveAspectRatio="none">
-                  <defs>
-                    <linearGradient id="zoneAGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.35"/>
-                      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.03"/>
-                    </linearGradient>
-                    <linearGradient id="zoneBGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.35"/>
-                      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.03"/>
-                    </linearGradient>
-                  </defs>
-
                   <!-- Base Line -->
                   <line x1="20" y1="135" x2="480" y2="135" stroke="#e2e8f0" stroke-width="1.5" />
 
-                  <!-- Shaded Left Zone (Cleanly meeting curve at yAtCutoff) -->
-                  <path id="path-zone-a" d="M 20 135 C 100 135, 150 20, 250 20 C 250 20, ${cutoffSvgX} ${yAtCutoff}, ${cutoffSvgX} ${yAtCutoff} L ${cutoffSvgX} 135 Z" fill="url(#zoneAGrad)"/>
-
-                  <!-- Shaded Right Zone (Cleanly meeting curve at yAtCutoff) -->
-                  <path id="path-zone-b" d="M ${cutoffSvgX} ${yAtCutoff} C ${cutoffSvgX} ${yAtCutoff}, 350 20, 480 135 L ${cutoffSvgX} 135 Z" fill="url(#zoneBGrad)"/>
-
-                  <!-- Smooth Bell Curve -->
+                  <!-- Uncolored Smooth Bell Curve -->
                   <path d="M 20 135 C 100 135, 150 20, 250 20 C 350 20, 400 135, 480 135" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/>
 
                   <!-- Red Dashed Cutoff Line -->
                   <line id="line-cutoff" x1="${cutoffSvgX}" y1="12" x2="${cutoffSvgX}" y2="142" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 4"/>
                   
-                  <!-- Cutoff Number Above Graph -->
+                  <!-- Cutoff Number Above Graph (Just the number) -->
                   <g id="group-cutoff-badge" transform="translate(${cutoffSvgX}, 2)">
                     <rect x="-24" y="-12" width="48" height="16" fill="#ef4444" rx="3"></rect>
                     <text id="text-cutoff-val" x="0" y="0" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle">${sampleCutoff.toFixed(1)}</text>
                   </g>
 
-                  <!-- Player Region Names Underneath (Left & Right of Cutoff) -->
-                  <text id="text-zone-a-label" x="${Math.max(30, cutoffSvgX / 2)}" y="148" fill="#1d4ed8" font-size="9.5" font-weight="700" text-anchor="middle">${playerALabel}</text>
+                  <!-- Player Region Names Underneath (Without ZONE, no clipping) -->
+                  <text id="text-zone-a-label" x="${Math.max(40, cutoffSvgX / 2)}" y="148" fill="#1d4ed8" font-size="9.5" font-weight="700" text-anchor="middle">${playerALabel}</text>
                   <text id="text-zone-b-label" x="${cutoffSvgX + (480 - cutoffSvgX) / 2}" y="148" fill="#6d28d9" font-size="9.5" font-weight="700" text-anchor="middle">${playerBLabel}</text>
                 </svg>
               </div>
               <div class="ptc-curve-labels">
                 <span>Low Score</span>
-                <span id="ptc-vegas-mean-label" style="font-weight: 600; color: #475569;">Vegas Mean: ${vegasTotal.toFixed(1)}</span>
+                <span id="ptc-vegas-mean-label" style="font-weight: 600; color: #475569;">O/U : ${vegasTotal.toFixed(1)}</span>
                 <span>High Score</span>
               </div>
             </div>
@@ -2919,21 +2950,22 @@
 
       body.innerHTML = html;
 
-      // 6. Initialize Matchup Logos (Unselected by default)
       const selectorsContainer = document.getElementById('ptc-matchup-selectors');
       selectorsContainer.innerHTML = '';
-      currentSimulatedSelections = {};
 
       gamesToSimulate.forEach(g => {
-        currentSimulatedSelections[g.id] = null; // Unselected by default
+        const selTeam = currentSimulatedSelections[g.id];
+        const awaySelected = selTeam === g.away ? 'selected' : '';
+        const homeSelected = selTeam === g.home ? 'selected' : '';
+
         selectorsContainer.innerHTML += `
           <div class="ptc-game-card">
             <div class="ptc-game-title">MATCHUP ${g.id + 1}</div>
             <div class="ptc-team-btn-group">
-              <button id="btn-${g.id}-${g.away}" class="ptc-team-btn" onclick="selectSimulatedTeam(${g.id}, '${g.away}')">
+              <button id="btn-${g.id}-${g.away}" class="ptc-team-btn ${awaySelected}" onclick="selectSimulatedTeam(${g.id}, '${g.away}')">
                 ${getTeamLogoHtml(g.away, true)}
               </button>
-              <button id="btn-${g.id}-${g.home}" class="ptc-team-btn" onclick="selectSimulatedTeam(${g.id}, '${g.home}')">
+              <button id="btn-${g.id}-${g.home}" class="ptc-team-btn ${homeSelected}" onclick="selectSimulatedTeam(${g.id}, '${g.home}')">
                 ${getTeamLogoHtml(g.home, true)}
               </button>
             </div>
@@ -2941,9 +2973,8 @@
         `;
       });
 
-      window._ptcData = { potentialContenders, currentWins, gamesToSimulate, tiebreakerPicks, cardEntities, vegasTotal, activeCardGroups };
-      modal.classList.add('active');
-      updateInteractiveSimulator();
+      window._ptcData = { activeCardGroups };
+      updateInteractiveSimulatorBanner();
     }
 
     function togglePlaygroundCollapse() {
@@ -2963,54 +2994,74 @@
     }
 
     function resetPlaygroundSelections() {
-      const ctx = window._ptcData;
-      if (!ctx) return;
-
-      ctx.gamesToSimulate.forEach(g => {
+      const gCtx = window._ptcGlobal;
+      gCtx.gamesToSimulate.forEach(g => {
         currentSimulatedSelections[g.id] = null;
-        const gameCard = document.getElementById(`btn-${g.id}-${g.away}`)?.parentElement;
-        if (gameCard) {
-          gameCard.querySelectorAll('.ptc-team-btn').forEach(b => b.classList.remove('selected'));
-        }
       });
-
-      updateInteractiveSimulator();
+      renderPathToCrownContent();
+      const content = document.getElementById('ptc-playground-content');
+      if (content) content.style.display = 'block';
+      const icon = document.getElementById('collapse-icon');
+      const text = document.getElementById('collapse-text');
+      if (icon) icon.innerText = '▼';
+      if (text) text.innerText = 'Hide Playground';
     }
 
     function selectSimulatedTeam(gameId, teamCode) {
       currentSimulatedSelections[gameId] = teamCode;
-      
-      const gameCard = document.getElementById(`btn-${gameId}-${teamCode}`).parentElement;
-      gameCard.querySelectorAll('.ptc-team-btn').forEach(b => b.classList.remove('selected'));
-      document.getElementById(`btn-${gameId}-${teamCode}`).classList.add('selected');
-
-      updateInteractiveSimulator();
+      renderPathToCrownContent();
+      const content = document.getElementById('ptc-playground-content');
+      if (content) content.style.display = 'block';
+      const icon = document.getElementById('collapse-icon');
+      const text = document.getElementById('collapse-text');
+      if (icon) icon.innerText = '▼';
+      if (text) text.innerText = 'Hide Playground';
     }
 
-    function updateInteractiveSimulator() {
-      const ctx = window._ptcData;
-      if (!ctx) return;
+    function applyScenarioOutcome(encodedJson) {
+      try {
+        const outcomeMap = JSON.parse(decodeURIComponent(encodedJson));
+        currentSimulatedSelections = {};
+        Object.keys(outcomeMap).forEach(gameId => {
+          currentSimulatedSelections[gameId] = outcomeMap[gameId];
+        });
+        renderPathToCrownContent();
+        const content = document.getElementById('ptc-playground-content');
+        if (content) content.style.display = 'block';
+        const icon = document.getElementById('collapse-icon');
+        const text = document.getElementById('collapse-text');
+        if (icon) icon.innerText = '▼';
+        if (text) text.innerText = 'Hide Playground';
+      } catch (err) {
+        console.error("Error applying scenario outcome:", err);
+      }
+    }
 
-      const unselectedCount = Object.values(currentSimulatedSelections).filter(v => v === null).length;
+    function updateInteractiveSimulatorBanner() {
+      const gCtx = window._ptcGlobal;
+      const unselectedCount = gCtx.gamesToSimulate.filter(g => currentSimulatedSelections[g.id] === null || currentSimulatedSelections[g.id] === undefined).length;
       const banner = document.getElementById('ptc-simulated-result-banner');
+      if (!banner) return;
 
       if (unselectedCount > 0) {
-        banner.innerHTML = `⚠️ Please select winners for all ${ctx.gamesToSimulate.length} matchups above to calculate the outcome.`;
+        banner.innerHTML = `⚠️ Please select winners for all ${gCtx.gamesToSimulate.length} matchups above to calculate the outcome.`;
         return;
       }
 
+      const { activeCardGroups, potentialContenders } = runSimulationForSelections(currentSimulatedSelections);
+
       const pScores = {};
-      ctx.potentialContenders.forEach(p => {
+      potentialContenders.forEach(p => {
         let extra = 0;
-        ctx.gamesToSimulate.forEach(g => {
+        gCtx.gamesToSimulate.forEach(g => {
           const userPick = currentSimulatedSelections[g.id];
           if ((g.picks[p] || '').trim().toUpperCase() === userPick) extra++;
         });
-        pScores[p] = ctx.currentWins[p] + extra;
+        pScores[p] = gCtx.currentWins[p] + extra;
       });
 
       const maxScore = Math.max(...Object.values(pScores));
-      const winners = ctx.potentialContenders.filter(p => pScores[p] === maxScore);
+      const winners = potentialContenders.filter(p => pScores[p] === maxScore);
 
       const tbContainer = document.getElementById('ptc-tiebreaker-container');
       let winnerText = '';
@@ -3026,45 +3077,31 @@
 
         if (winners.length >= 2) {
           const sortedWinners = [...winners].sort((a, b) => {
-            const cardA = ctx.activeCardGroups.find(c => c.title.includes(a));
-            const cardB = ctx.activeCardGroups.find(c => c.title.includes(b));
+            const cardA = activeCardGroups.find(c => c.title.includes(a));
+            const cardB = activeCardGroups.find(c => c.title.includes(b));
             return (cardA?.pred || 0) - (cardB?.pred || 0);
           });
 
           const playerAName = sortedWinners[0].toUpperCase();
           const playerBName = sortedWinners[1].toUpperCase();
 
-          const cardA = ctx.activeCardGroups.find(c => c.title.includes(sortedWinners[0]));
-          const cardB = ctx.activeCardGroups.find(c => c.title.includes(sortedWinners[1]));
+          const cardA = activeCardGroups.find(c => c.title.includes(sortedWinners[0]));
+          const cardB = activeCardGroups.find(c => c.title.includes(sortedWinners[1]));
           
           if (cardA && cardB) {
             const dynamicCutoff = (cardA.pred + cardB.pred) / 2;
             const stdDev = 10.5;
-            const minVal = ctx.vegasTotal - (3.5 * stdDev);
-            const maxVal = ctx.vegasTotal + (3.5 * stdDev);
+            const minVal = gCtx.vegasTotal - (3.5 * stdDev);
+            const maxVal = gCtx.vegasTotal + (3.5 * stdDev);
             const clampC = Math.max(minVal, Math.min(maxVal, dynamicCutoff));
             const svgX = 20 + ((clampC - minVal) / (maxVal - minVal)) * 460;
 
-            function getCurveY(x) {
-              const norm = (x - 250) / 75;
-              const peakY = 20;
-              const baseY = 135;
-              const h = (baseY - peakY) * Math.exp(-0.5 * norm * norm);
-              return baseY - h;
-            }
-
-            const yAtCutoff = getCurveY(svgX);
-
-            const pathA = document.getElementById('path-zone-a');
-            const pathB = document.getElementById('path-zone-b');
             const lineCutoff = document.getElementById('line-cutoff');
             const groupBadge = document.getElementById('group-cutoff-badge');
             const textCutoffVal = document.getElementById('text-cutoff-val');
             const textALabel = document.getElementById('text-zone-a-label');
             const textBLabel = document.getElementById('text-zone-b-label');
 
-            if (pathA) pathA.setAttribute('d', `M 20 135 C 100 135, 150 20, 250 20 C 250 20, ${svgX} ${yAtCutoff}, ${svgX} ${yAtCutoff} L ${svgX} 135 Z`);
-            if (pathB) pathB.setAttribute('d', `M ${svgX} ${yAtCutoff} C ${svgX} ${yAtCutoff}, 350 20, 480 135 L ${svgX} 135 Z`);
             if (lineCutoff) {
               lineCutoff.setAttribute('x1', svgX);
               lineCutoff.setAttribute('x2', svgX);
@@ -3072,7 +3109,7 @@
             if (groupBadge) groupBadge.setAttribute('transform', `translate(${svgX}, 2)`);
             if (textCutoffVal) textCutoffVal.textContent = `${dynamicCutoff.toFixed(1)}`;
             if (textALabel) {
-              textALabel.setAttribute('x', Math.max(30, svgX / 2));
+              textALabel.setAttribute('x', Math.max(40, svgX / 2));
               textALabel.textContent = playerAName;
             }
             if (textBLabel) {
