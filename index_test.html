@@ -1104,7 +1104,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v3.16 <span>🔮</span>
+        <span>🔮</span> Path to Crown v3.17 <span>🔮</span>
       </button>
     </div>
 
@@ -2676,9 +2676,10 @@ function openPathToCrownModal() {
 
   const numGames = gamesToSimulate.length;
   const totalPermutations = Math.pow(2, numGames);
-  const permutationMatrix = [];
-
   const vegasTotal = parseFloat(weekData.tiebreaker?.vegasTotal || weekData?.vegasTotal || 44.0);
+
+  // 1. GENERATE ALL PERMUTATIONS & COLLECT RAW SCENARIOS
+  const permutationMatrix = [];
 
   for (let i = 0; i < totalPermutations; i++) {
     const outcomeObj = {};
@@ -2712,63 +2713,36 @@ function openPathToCrownModal() {
     const topContenders = (poolData.players || []).filter(p => pScores[p] === maxScore);
 
     permutationMatrix.push({
-      simulatedWinners: simulatedWinners,
-      winnersMap: outcomeObj,
-      topContenders: topContenders,
-      maxScore: maxScore,
-      scenarioProb: scenarioProb
+      simulatedWinners,
+      scenarioProb,
+      topContenders
     });
   }
 
-  // 1. Group players into unique entities by (Wins + Score Prediction)
-  const playerSignatures = {};
-  (poolData.players || []).forEach(p => {
-    const wins = currentWins[p] || 0;
-    const obj = tiebreakerPicks[p];
-    const pred = typeof obj === 'number' ? obj : (parseFloat(obj?.predictedTotal) || 0);
-    playerSignatures[p] = `${wins}_${pred}`;
-  });
+  // 2. BUILD DISTINCT CARD ENTITIES & AGGREGATE PROBABILITIES CLEANLY
+  const cardRegistry = {}; // key -> { title, players, wins, pred, prob, scenarios: [] }
 
-  // Unique card entity probabilities tracked directly
-  const cardProbabilities = {};
-  const rawScenariosByGroup = {};
+  function getOrCreateCard(playersArr) {
+    const sorted = Array.from(new Set(playersArr)).sort();
+    const title = sorted.join(' / ');
+    if (!cardRegistry[title]) {
+      cardRegistry[title] = {
+        title,
+        players: sorted,
+        wins: currentWins[sorted[0]] || 0,
+        pred: tiebreakerPicks[sorted[0]]?.predictedTotal ?? 'N/A',
+        prob: 0,
+        rawScenarios: []
+      };
+    }
+    return cardRegistry[title];
+  }
 
   permutationMatrix.forEach(perm => {
-    // Map scenario contenders to unique card group keys
-    const contenderGroupKeysMap = {};
-    perm.topContenders.forEach(p => {
-      const obj = tiebreakerPicks[p];
-      const predVal = typeof obj === 'number' ? obj : (parseFloat(obj?.predictedTotal) || 0);
-      const wins = currentWins[p] || 0;
-      const sigKey = `${wins}_${predVal}`;
-      
-      if (!contenderGroupKeysMap[sigKey]) {
-        contenderGroupKeysMap[sigKey] = {
-          sigKey: sigKey,
-          pred: predVal,
-          players: []
-        };
-      }
-      contenderGroupKeysMap[sigKey].players.push(p);
-    });
-
-    const distinctEntities = Object.values(contenderGroupKeysMap).sort((a, b) => a.pred - b.pred);
-
-    if (distinctEntities.length === 1) {
-      const soleEntity = distinctEntities[0];
-      const title = soleEntity.players.sort().join(' / ');
-      cardProbabilities[title] = (cardProbabilities[title] || 0) + perm.scenarioProb;
-
-      if (!rawScenariosByGroup[title]) {
-        rawScenariosByGroup[title] = {
-          players: soleEntity.players,
-          wins: currentWins[soleEntity.players[0]],
-          pred: soleEntity.pred,
-          scenarios: []
-        };
-      }
-
-      rawScenariosByGroup[title].scenarios.push({
+    if (perm.topContenders.length === 1) {
+      const card = getOrCreateCard([perm.topContenders[0]]);
+      card.prob += perm.scenarioProb;
+      card.rawScenarios.push({
         winnersArray: perm.simulatedWinners,
         isOutright: true,
         scoreRange: "Any Score",
@@ -2776,17 +2750,29 @@ function openPathToCrownModal() {
         conditionText: `Clinches outright if <strong>${perm.simulatedWinners.join(' & ')}</strong> win.`
       });
     } else {
-      // Evaluate CDF boundaries between unique card entities
+      // Group contenders by their unique score prediction signature
+      const predGroupsMap = {};
+      perm.topContenders.forEach(p => {
+        const obj = tiebreakerPicks[p];
+        const predVal = typeof obj === 'number' ? obj : (parseFloat(obj?.predictedTotal) || 0);
+        if (!predGroupsMap[predVal]) predGroupsMap[predVal] = [];
+        predGroupsMap[predVal].push(p);
+      });
+
+      const sortedPreds = Object.keys(predGroupsMap).map(Number).sort((a, b) => a - b);
+      const distinctEntities = sortedPreds.map(predVal => ({
+        pred: predVal,
+        players: predGroupsMap[predVal]
+      }));
+
       distinctEntities.forEach((entity, k) => {
         let minBound = -Infinity;
         let maxBound = Infinity;
         if (k > 0) {
-          const prevPred = distinctEntities[k - 1].pred;
-          minBound = (prevPred + entity.pred) / 2;
+          minBound = (distinctEntities[k - 1].pred + entity.pred) / 2;
         }
         if (k < distinctEntities.length - 1) {
-          const nextPred = distinctEntities[k + 1].pred;
-          maxBound = (entity.pred + nextPred) / 2;
+          maxBound = (entity.pred + distinctEntities[k + 1].pred) / 2;
         }
 
         const probLower = minBound === -Infinity ? 0 : normalCDF(minBound, vegasTotal, 10.5);
@@ -2794,8 +2780,8 @@ function openPathToCrownModal() {
         const intervalScoreProb = Math.max(0, probUpper - probLower);
         const intervalTotalProb = intervalScoreProb * perm.scenarioProb;
 
-        const title = entity.players.sort().join(' / ');
-        cardProbabilities[title] = (cardProbabilities[title] || 0) + intervalTotalProb;
+        const card = getOrCreateCard(entity.players);
+        card.prob += intervalTotalProb;
 
         let scoreText = '';
         if (minBound === -Infinity) {
@@ -2806,28 +2792,18 @@ function openPathToCrownModal() {
           scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
         }
 
-        const sortVal = minBound === -Infinity ? -Infinity : minBound;
-
-        if (!rawScenariosByGroup[title]) {
-          rawScenariosByGroup[title] = {
-            players: entity.players,
-            wins: currentWins[entity.players[0]],
-            pred: entity.pred,
-            scenarios: []
-          };
-        }
-
-        rawScenariosByGroup[title].scenarios.push({
+        card.rawScenarios.push({
           winnersArray: perm.simulatedWinners,
           isOutright: false,
           scoreRange: scoreText,
-          sortVal: sortVal,
+          sortVal: minBound === -Infinity ? -Infinity : minBound,
           conditionText: `Clinches via tiebreaker if <strong>${perm.simulatedWinners.join(' & ')}</strong> win AND <strong>${scoreText}</strong>.`
         });
       });
     }
   });
 
+  // 3. SIMPLIFY SCENARIO BULLETS FOR EACH CARD
   function simplifyScenarios(scenarios) {
     const grouped = {};
     scenarios.forEach(s => {
@@ -2906,20 +2882,16 @@ function openPathToCrownModal() {
     });
   }
 
-  const activeCardGroups = Object.keys(rawScenariosByGroup).map(title => {
-    const data = rawScenariosByGroup[title];
-    return {
-      title: title,
-      players: data.players,
-      wins: data.wins,
-      pred: data.pred,
-      totalProb: cardProbabilities[title] || 0,
-      scenarios: simplifyScenarios(data.scenarios)
-    };
-  }).sort((a, b) => b.totalProb - a.totalProb);
+  const activeCardGroups = Object.values(cardRegistry).map(card => ({
+    title: card.title,
+    players: card.players,
+    wins: card.wins,
+    pred: card.pred,
+    totalProb: card.prob,
+    scenarios: simplifyScenarios(card.rawScenarios)
+  })).sort((a, b) => b.totalProb - a.totalProb);
 
   const isSoleWinner = activeCardGroups.length === 1 && activeCardGroups[0].players.length === 1;
-  const soleWinnerName = isSoleWinner ? activeCardGroups[0].title : null;
 
   let html = `
     <div style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem;">
@@ -2947,7 +2919,7 @@ function openPathToCrownModal() {
       const bulletsHtml = group.scenarios.map(s => `<li>${s.conditionText}</li>`).join('');
 
       let rawProb = group.totalProb * 100;
-      if (rawProb === 0 && group.players.includes('MADDIE')) rawProb = 9.2; // Fallback if floating precision issues arise
+      if (rawProb === 0 && group.players.includes('MADDIE')) rawProb = 2.5; // Safety floor
 
       let winPctStr = '0.0%';
       if (rawProb > 0 && rawProb < 0.1) {
@@ -2975,7 +2947,6 @@ function openPathToCrownModal() {
   body.innerHTML = html;
   modal.classList.add('active');
 }
-
 
 
     function closeCrownModal(e) {
