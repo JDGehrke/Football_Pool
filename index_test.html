@@ -1136,7 +1136,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.3 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.2 <span>🔮</span>
       </button>
     </div>
 
@@ -2779,30 +2779,39 @@
         })
         .sort((a, b) => b.totalProb - a.totalProb);
 
-      // Determine correct player zones for the bell curve (Left = Lower scores / Player A, Right = Higher scores / Player B)
-      let playerALabel = "PLAYER A ZONE";
-      let playerBLabel = "PLAYER B ZONE";
+      // Determine correct player region labels for the bell curve (Left vs Right)
+      let playerALabel = "PLAYER A";
+      let playerBLabel = "PLAYER B";
       if (activeCardGroups.length >= 2) {
-        // Sort groups by prediction score to correctly match left vs right distribution
         const sortedByPred = [...activeCardGroups].sort((x, y) => x.pred - y.pred);
-        playerALabel = sortedByPred[0].title.toUpperCase() + " ZONE";
-        playerBLabel = sortedByPred[1].title.toUpperCase() + " ZONE";
+        playerALabel = sortedByPred[0].title.toUpperCase();
+        playerBLabel = sortedByPred[1].title.toUpperCase();
       } else if (activeCardGroups.length === 1) {
-        playerALabel = activeCardGroups[0].title.toUpperCase() + " ZONE";
+        playerALabel = activeCardGroups[0].title.toUpperCase();
       }
 
-      // Default cutoff for initial view (e.g. 43.0 or first tiebreaker threshold)
       let sampleCutoff = 43.0;
       if (activeCardGroups.length >= 2) {
-        sampleCutoff = (activeCardGroups[0].pred + activeCardGroups[1].pred) / 2;
+        const sortedByPred = [...activeCardGroups].sort((x, y) => x.pred - y.pred);
+        sampleCutoff = (sortedByPred[0].pred + sortedByPred[1].pred) / 2;
       }
 
-      // Calculate SVG X coordinate for cutoff based on Normal Distribution mapping (Mean ± 3.5 SD across 20 to 480 SVG coordinates)
       const stdDev = 10.5;
       const minVal = vegasTotal - (3.5 * stdDev);
       const maxVal = vegasTotal + (3.5 * stdDev);
       const clampCutoff = Math.max(minVal, Math.min(maxVal, sampleCutoff));
       const cutoffSvgX = 20 + ((clampCutoff - minVal) / (maxVal - minVal)) * 460;
+
+      // Bell curve height generator matching SVG geometry: peak at y=20 (x=250), base at y=135
+      function getCurveY(x) {
+        const norm = (x - 250) / 75; // standard deviation spread in SVG coords
+        const peakY = 20;
+        const baseY = 135;
+        const h = (baseY - peakY) * Math.exp(-0.5 * norm * norm);
+        return baseY - h;
+      }
+
+      const yAtCutoff = getCurveY(cutoffSvgX);
 
       // 5. Render Container UI with Professional Graph & Collapsible Playground (Default hidden)
       let html = `
@@ -2873,11 +2882,11 @@
                   <!-- Base Line -->
                   <line x1="20" y1="135" x2="480" y2="135" stroke="#e2e8f0" stroke-width="1.5" />
 
-                  <!-- Shaded Left Zone -->
-                  <path id="path-zone-a" d="M 20 135 C 100 135, 150 20, ${cutoffSvgX} 20 L ${cutoffSvgX} 135 Z" fill="url(#zoneAGrad)"/>
+                  <!-- Shaded Left Zone (Cleanly meeting curve at yAtCutoff) -->
+                  <path id="path-zone-a" d="M 20 135 C 100 135, 150 20, 250 20 C 250 20, ${cutoffSvgX} ${yAtCutoff}, ${cutoffSvgX} ${yAtCutoff} L ${cutoffSvgX} 135 Z" fill="url(#zoneAGrad)"/>
 
-                  <!-- Shaded Right Zone -->
-                  <path id="path-zone-b" d="M ${cutoffSvgX} 20 C 310 20, 380 135, 480 135 L ${cutoffSvgX} 135 Z" fill="url(#zoneBGrad)"/>
+                  <!-- Shaded Right Zone (Cleanly meeting curve at yAtCutoff) -->
+                  <path id="path-zone-b" d="M ${cutoffSvgX} ${yAtCutoff} C ${cutoffSvgX} ${yAtCutoff}, 350 20, 480 135 L ${cutoffSvgX} 135 Z" fill="url(#zoneBGrad)"/>
 
                   <!-- Smooth Bell Curve -->
                   <path d="M 20 135 C 100 135, 150 20, 250 20 C 350 20, 400 135, 480 135" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/>
@@ -2885,10 +2894,10 @@
                   <!-- Red Dashed Cutoff Line -->
                   <line id="line-cutoff" x1="${cutoffSvgX}" y1="12" x2="${cutoffSvgX}" y2="142" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 4"/>
                   
-                  <!-- Cutoff Label at Top of Red Line -->
-                  <g id="group-cutoff-badge" transform="translate(${cutoffSvgX}, 15)">
-                    <rect x="-35" y="0" width="70" height="18" fill="#ef4444" rx="4"></rect>
-                    <text id="text-cutoff-val" x="0" y="12.5" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle">CUTOFF: ${sampleCutoff.toFixed(1)}</text>
+                  <!-- Cutoff Number Above Graph -->
+                  <g id="group-cutoff-badge" transform="translate(${cutoffSvgX}, 2)">
+                    <rect x="-24" y="-12" width="48" height="16" fill="#ef4444" rx="3"></rect>
+                    <text id="text-cutoff-val" x="0" y="0" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle">${sampleCutoff.toFixed(1)}</text>
                   </g>
 
                   <!-- Player Region Names Underneath (Left & Right of Cutoff) -->
@@ -3015,10 +3024,18 @@
         const winnerNames = winners.join(' / ');
         winnerText = `👑 Tied at ${maxScore} Wins &mdash; Tiebreaker split active between ${winnerNames}`;
 
-        // If exactly 2 contenders tied, update graph cutoff line & shading dynamically
-        if (winners.length === 2) {
-          const cardA = ctx.activeCardGroups.find(c => c.title.includes(winners[0]));
-          const cardB = ctx.activeCardGroups.find(c => c.title.includes(winners[1]));
+        if (winners.length >= 2) {
+          const sortedWinners = [...winners].sort((a, b) => {
+            const cardA = ctx.activeCardGroups.find(c => c.title.includes(a));
+            const cardB = ctx.activeCardGroups.find(c => c.title.includes(b));
+            return (cardA?.pred || 0) - (cardB?.pred || 0);
+          });
+
+          const playerAName = sortedWinners[0].toUpperCase();
+          const playerBName = sortedWinners[1].toUpperCase();
+
+          const cardA = ctx.activeCardGroups.find(c => c.title.includes(sortedWinners[0]));
+          const cardB = ctx.activeCardGroups.find(c => c.title.includes(sortedWinners[1]));
           
           if (cardA && cardB) {
             const dynamicCutoff = (cardA.pred + cardB.pred) / 2;
@@ -3028,7 +3045,16 @@
             const clampC = Math.max(minVal, Math.min(maxVal, dynamicCutoff));
             const svgX = 20 + ((clampC - minVal) / (maxVal - minVal)) * 460;
 
-            // Update SVG elements dynamically
+            function getCurveY(x) {
+              const norm = (x - 250) / 75;
+              const peakY = 20;
+              const baseY = 135;
+              const h = (baseY - peakY) * Math.exp(-0.5 * norm * norm);
+              return baseY - h;
+            }
+
+            const yAtCutoff = getCurveY(svgX);
+
             const pathA = document.getElementById('path-zone-a');
             const pathB = document.getElementById('path-zone-b');
             const lineCutoff = document.getElementById('line-cutoff');
@@ -3037,21 +3063,21 @@
             const textALabel = document.getElementById('text-zone-a-label');
             const textBLabel = document.getElementById('text-zone-b-label');
 
-            if (pathA) pathA.setAttribute('d', `M 20 135 C 100 135, 150 20, ${svgX} 20 L ${svgX} 135 Z`);
-            if (pathB) pathB.setAttribute('d', `M ${svgX} 20 C 310 20, 380 135, 480 135 L ${svgX} 135 Z`);
+            if (pathA) pathA.setAttribute('d', `M 20 135 C 100 135, 150 20, 250 20 C 250 20, ${svgX} ${yAtCutoff}, ${svgX} ${yAtCutoff} L ${svgX} 135 Z`);
+            if (pathB) pathB.setAttribute('d', `M ${svgX} ${yAtCutoff} C ${svgX} ${yAtCutoff}, 350 20, 480 135 L ${svgX} 135 Z`);
             if (lineCutoff) {
               lineCutoff.setAttribute('x1', svgX);
               lineCutoff.setAttribute('x2', svgX);
             }
-            if (groupBadge) groupBadge.setAttribute('transform', `translate(${svgX}, 15)`);
-            if (textCutoffVal) textCutoffVal.textContent = `CUTOFF: ${dynamicCutoff.toFixed(1)}`;
+            if (groupBadge) groupBadge.setAttribute('transform', `translate(${svgX}, 2)`);
+            if (textCutoffVal) textCutoffVal.textContent = `${dynamicCutoff.toFixed(1)}`;
             if (textALabel) {
               textALabel.setAttribute('x', Math.max(30, svgX / 2));
-              textALabel.textContent = `${winners[0].toUpperCase()} ZONE`;
+              textALabel.textContent = playerAName;
             }
             if (textBLabel) {
               textBLabel.setAttribute('x', svgX + (480 - svgX) / 2);
-              textBLabel.textContent = `${winners[1].toUpperCase()} ZONE`;
+              textBLabel.textContent = playerBName;
             }
           }
         }
