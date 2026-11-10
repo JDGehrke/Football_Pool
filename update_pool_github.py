@@ -258,7 +258,7 @@ for event in data.get("events", []):
             "homeWinner": home.get("winner"),
             "homePCT": predictor['predictor']['homeTeam'].get('gameProjection'),
             
-            #"status": comp['status']['type'].get("description"),
+            "vegasTotal": predictor['pickcenter'][0].get('overUnder'),
             "status": status,
             "period": comp['status'].get("period"),
             "clock": comp['status'].get("displayClock"),
@@ -306,6 +306,7 @@ tiebreaker = {
                 'game': game.get('game')
                 ,'status': game.get('status')
                 ,'winner': game.get('winner')
+                ,'vegasTotal': games_list[gid].get('vegasTotal')
                 ,'actualTotalScore': games_list[gid].get('totalScore')
                 ,'picks': tiebreaker_picks
     }
