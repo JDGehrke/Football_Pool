@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Tuesday @ 8:10pm",
+    "lastUpdated": "Tuesday @ 9:10pm",
     "currentWeek": "Week 10"
   },
   "hall_of_fame": [
@@ -5559,6 +5559,7 @@
           "picks": {
             "ANDI": "NYG",
             "KAREN": "NYG",
+            "HENNIE": "NYG",
             "BETHANY": "NYG",
             "JEN": "NYG",
             "AUSTIN": "\u2014",
@@ -5567,7 +5568,6 @@
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "EMILY": "\u2014",
-            "HENNIE": "\u2014",
             "HUNTER": "\u2014",
             "JIM": "\u2014",
             "JORDAN": "\u2014",
@@ -5594,6 +5594,7 @@
           "picks": {
             "ANDI": "DET",
             "KAREN": "DET",
+            "HENNIE": "DET",
             "BETHANY": "NE",
             "JEN": "DET",
             "AUSTIN": "\u2014",
@@ -5602,7 +5603,6 @@
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "EMILY": "\u2014",
-            "HENNIE": "\u2014",
             "HUNTER": "\u2014",
             "JIM": "\u2014",
             "JORDAN": "\u2014",
@@ -5629,6 +5629,7 @@
           "picks": {
             "ANDI": "KC",
             "KAREN": "KC",
+            "HENNIE": "ATL",
             "BETHANY": "KC",
             "JEN": "KC",
             "AUSTIN": "\u2014",
@@ -5637,7 +5638,6 @@
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "EMILY": "\u2014",
-            "HENNIE": "\u2014",
             "HUNTER": "\u2014",
             "JIM": "\u2014",
             "JORDAN": "\u2014",
@@ -5664,6 +5664,7 @@
           "picks": {
             "ANDI": "CLE",
             "KAREN": "CLE",
+            "HENNIE": "CLE",
             "BETHANY": "HOU",
             "JEN": "CLE",
             "AUSTIN": "\u2014",
@@ -5672,7 +5673,6 @@
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "EMILY": "\u2014",
-            "HENNIE": "\u2014",
             "HUNTER": "\u2014",
             "JIM": "\u2014",
             "JORDAN": "\u2014",
@@ -5699,6 +5699,7 @@
           "picks": {
             "ANDI": "GB",
             "KAREN": "MIN",
+            "HENNIE": "GB",
             "BETHANY": "MIN",
             "JEN": "GB",
             "AUSTIN": "\u2014",
@@ -5707,7 +5708,6 @@
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "EMILY": "\u2014",
-            "HENNIE": "\u2014",
             "HUNTER": "\u2014",
             "JIM": "\u2014",
             "JORDAN": "\u2014",
@@ -5734,6 +5734,7 @@
           "picks": {
             "ANDI": "JAX",
             "KAREN": "JAX",
+            "HENNIE": "JAX",
             "BETHANY": "JAX",
             "JEN": "JAX",
             "AUSTIN": "\u2014",
@@ -5742,7 +5743,6 @@
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "EMILY": "\u2014",
-            "HENNIE": "\u2014",
             "HUNTER": "\u2014",
             "JIM": "\u2014",
             "JORDAN": "\u2014",
@@ -5769,6 +5769,7 @@
           "picks": {
             "ANDI": "IND",
             "KAREN": "IND",
+            "HENNIE": "IND",
             "BETHANY": "IND",
             "JEN": "IND",
             "AUSTIN": "\u2014",
@@ -5777,7 +5778,6 @@
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "EMILY": "\u2014",
-            "HENNIE": "\u2014",
             "HUNTER": "\u2014",
             "JIM": "\u2014",
             "JORDAN": "\u2014",
@@ -5804,6 +5804,7 @@
           "picks": {
             "ANDI": "NO",
             "KAREN": "NO",
+            "HENNIE": "NO",
             "BETHANY": "CAR",
             "JEN": "NO",
             "AUSTIN": "\u2014",
@@ -5812,7 +5813,6 @@
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "EMILY": "\u2014",
-            "HENNIE": "\u2014",
             "HUNTER": "\u2014",
             "JIM": "\u2014",
             "JORDAN": "\u2014",
@@ -5839,6 +5839,7 @@
           "picks": {
             "ANDI": "BUF",
             "KAREN": "NYJ",
+            "HENNIE": "BUF",
             "BETHANY": "BUF",
             "JEN": "BUF",
             "AUSTIN": "\u2014",
@@ -5847,7 +5848,6 @@
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "EMILY": "\u2014",
-            "HENNIE": "\u2014",
             "HUNTER": "\u2014",
             "JIM": "\u2014",
             "JORDAN": "\u2014",
@@ -5874,6 +5874,7 @@
           "picks": {
             "ANDI": "SEA",
             "KAREN": "LV",
+            "HENNIE": "SEA",
             "BETHANY": "LV",
             "JEN": "SEA",
             "AUSTIN": "\u2014",
@@ -5882,7 +5883,6 @@
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "EMILY": "\u2014",
-            "HENNIE": "\u2014",
             "HUNTER": "\u2014",
             "JIM": "\u2014",
             "JORDAN": "\u2014",
@@ -5909,6 +5909,7 @@
           "picks": {
             "ANDI": "ARI",
             "KAREN": "LAR",
+            "HENNIE": "LAR",
             "BETHANY": "LAR",
             "JEN": "LAR",
             "AUSTIN": "\u2014",
@@ -5917,7 +5918,6 @@
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "EMILY": "\u2014",
-            "HENNIE": "\u2014",
             "HUNTER": "\u2014",
             "JIM": "\u2014",
             "JORDAN": "\u2014",
@@ -5944,6 +5944,7 @@
           "picks": {
             "ANDI": "SF",
             "KAREN": "SF",
+            "HENNIE": "SF",
             "BETHANY": "SF",
             "JEN": "SF",
             "AUSTIN": "\u2014",
@@ -5952,7 +5953,6 @@
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "EMILY": "\u2014",
-            "HENNIE": "\u2014",
             "HUNTER": "\u2014",
             "JIM": "\u2014",
             "JORDAN": "\u2014",
@@ -5979,6 +5979,7 @@
           "picks": {
             "ANDI": "CIN",
             "KAREN": "CIN",
+            "HENNIE": "CIN",
             "BETHANY": "CIN",
             "JEN": "CIN",
             "AUSTIN": "\u2014",
@@ -5987,7 +5988,6 @@
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "EMILY": "\u2014",
-            "HENNIE": "\u2014",
             "HUNTER": "\u2014",
             "JIM": "\u2014",
             "JORDAN": "\u2014",
@@ -6014,6 +6014,7 @@
           "picks": {
             "ANDI": "BAL",
             "KAREN": "BAL",
+            "HENNIE": "BAL",
             "BETHANY": "BAL",
             "JEN": "BAL",
             "AUSTIN": "\u2014",
@@ -6022,7 +6023,6 @@
             "DEVIN": "\u2014",
             "ELLY": "\u2014",
             "EMILY": "\u2014",
-            "HENNIE": "\u2014",
             "HUNTER": "\u2014",
             "JIM": "\u2014",
             "JORDAN": "\u2014",
@@ -6085,8 +6085,8 @@
             "predictedTotal": "\u2014"
           },
           "HENNIE": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "BAL",
+            "predictedTotal": 69
           },
           "HUNTER": {
             "winner": "\u2014",
