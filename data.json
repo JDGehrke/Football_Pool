@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Wednesday @ 7:10pm",
+    "lastUpdated": "Wednesday @ 8:10pm",
     "currentWeek": "Week 10"
   },
   "hall_of_fame": [
@@ -5558,6 +5558,7 @@
           "id": "401873052",
           "picks": {
             "ANDI": "NYG",
+            "NICK": "NYG",
             "KAREN": "NYG",
             "HENNIE": "NYG",
             "BETHANY": "NYG",
@@ -5575,7 +5576,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -5593,6 +5593,7 @@
           "id": "401873053",
           "picks": {
             "ANDI": "DET",
+            "NICK": "DET",
             "KAREN": "DET",
             "HENNIE": "DET",
             "BETHANY": "NE",
@@ -5610,7 +5611,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -5628,6 +5628,7 @@
           "id": "401873058",
           "picks": {
             "ANDI": "KC",
+            "NICK": "KC",
             "KAREN": "KC",
             "HENNIE": "ATL",
             "BETHANY": "KC",
@@ -5645,7 +5646,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -5663,6 +5663,7 @@
           "id": "401873056",
           "picks": {
             "ANDI": "CLE",
+            "NICK": "CLE",
             "KAREN": "CLE",
             "HENNIE": "CLE",
             "BETHANY": "HOU",
@@ -5680,7 +5681,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -5698,6 +5698,7 @@
           "id": "401873060",
           "picks": {
             "ANDI": "GB",
+            "NICK": "GB",
             "KAREN": "MIN",
             "HENNIE": "GB",
             "BETHANY": "MIN",
@@ -5715,7 +5716,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -5733,6 +5733,7 @@
           "id": "401873057",
           "picks": {
             "ANDI": "JAX",
+            "NICK": "JAX",
             "KAREN": "JAX",
             "HENNIE": "JAX",
             "BETHANY": "JAX",
@@ -5750,7 +5751,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -5768,6 +5768,7 @@
           "id": "401873059",
           "picks": {
             "ANDI": "IND",
+            "NICK": "IND",
             "KAREN": "IND",
             "HENNIE": "IND",
             "BETHANY": "IND",
@@ -5785,7 +5786,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -5803,6 +5803,7 @@
           "id": "401873055",
           "picks": {
             "ANDI": "NO",
+            "NICK": "NO",
             "KAREN": "NO",
             "HENNIE": "NO",
             "BETHANY": "CAR",
@@ -5820,7 +5821,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -5838,6 +5838,7 @@
           "id": "401873054",
           "picks": {
             "ANDI": "BUF",
+            "NICK": "BUF",
             "KAREN": "NYJ",
             "HENNIE": "BUF",
             "BETHANY": "BUF",
@@ -5855,7 +5856,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -5873,6 +5873,7 @@
           "id": "401873062",
           "picks": {
             "ANDI": "SEA",
+            "NICK": "SEA",
             "KAREN": "LV",
             "HENNIE": "SEA",
             "BETHANY": "LV",
@@ -5890,7 +5891,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -5908,6 +5908,7 @@
           "id": "401873061",
           "picks": {
             "ANDI": "ARI",
+            "NICK": "LAR",
             "KAREN": "LAR",
             "HENNIE": "LAR",
             "BETHANY": "LAR",
@@ -5925,7 +5926,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -5943,6 +5943,7 @@
           "id": "401873063",
           "picks": {
             "ANDI": "SF",
+            "NICK": "SF",
             "KAREN": "SF",
             "HENNIE": "SF",
             "BETHANY": "SF",
@@ -5960,7 +5961,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -5978,6 +5978,7 @@
           "id": "401873064",
           "picks": {
             "ANDI": "CIN",
+            "NICK": "PIT",
             "KAREN": "CIN",
             "HENNIE": "CIN",
             "BETHANY": "CIN",
@@ -5995,7 +5996,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -6013,6 +6013,7 @@
           "id": "401873065",
           "picks": {
             "ANDI": "BAL",
+            "NICK": "BAL",
             "KAREN": "BAL",
             "HENNIE": "BAL",
             "BETHANY": "BAL",
@@ -6030,7 +6031,6 @@
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "MADDIE": "\u2014",
-            "NICK": "\u2014",
             "RICK": "\u2014",
             "TONY": "\u2014",
             "WESLEY": "\u2014"
@@ -6125,8 +6125,8 @@
             "predictedTotal": "\u2014"
           },
           "NICK": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "BAL",
+            "predictedTotal": 42
           },
           "RICK": {
             "winner": "\u2014",
