@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Thursday @ 11:10pm",
+    "lastUpdated": "Sunday @ 9:51am",
     "currentWeek": "Week 10"
   },
   "hall_of_fame": [
@@ -5618,11 +5618,11 @@
           "game": "NE VS DET",
           "date": "2026-11-15T14:30Z",
           "winner": null,
-          "status": "Scheduled",
-          "awayScore": "0",
-          "homeScore": "0",
-          "awayPCT": "47",
-          "homePCT": "52.6"
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "awayScore": "3",
+          "homeScore": "21",
+          "awayPCT": "7.13000000000001",
+          "homePCT": "92.86999999999999"
         },
         {
           "id": "401873058",
@@ -5656,8 +5656,8 @@
           "status": "Scheduled",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "78.1",
-          "homePCT": "21.7"
+          "awayPCT": "78.3",
+          "homePCT": "21.5"
         },
         {
           "id": "401873056",
@@ -5691,8 +5691,8 @@
           "status": "Scheduled",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "76.1",
-          "homePCT": "23.7"
+          "awayPCT": "76.6",
+          "homePCT": "23.3"
         },
         {
           "id": "401873060",
@@ -5726,8 +5726,8 @@
           "status": "Scheduled",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "43.9",
-          "homePCT": "55.7"
+          "awayPCT": "44.4",
+          "homePCT": "55.2"
         },
         {
           "id": "401873057",
@@ -5761,7 +5761,7 @@
           "status": "Scheduled",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "83.9",
+          "awayPCT": "84",
           "homePCT": "15.9"
         },
         {
@@ -5796,8 +5796,8 @@
           "status": "Scheduled",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "18",
-          "homePCT": "81.9"
+          "awayPCT": "17.8",
+          "homePCT": "82"
         },
         {
           "id": "401873055",
@@ -5831,8 +5831,8 @@
           "status": "Scheduled",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "49.7",
-          "homePCT": "49.9"
+          "awayPCT": "49.6",
+          "homePCT": "50"
         },
         {
           "id": "401873054",
@@ -5866,8 +5866,8 @@
           "status": "Scheduled",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "82.8",
-          "homePCT": "17.1"
+          "awayPCT": "82.6",
+          "homePCT": "17.3"
         },
         {
           "id": "401873062",
@@ -5901,8 +5901,8 @@
           "status": "Scheduled",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "73.9",
-          "homePCT": "25.9"
+          "awayPCT": "74.2",
+          "homePCT": "25.6"
         },
         {
           "id": "401873061",
@@ -5936,8 +5936,8 @@
           "status": "Scheduled",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "87.4",
-          "homePCT": "12.5"
+          "awayPCT": "87.2",
+          "homePCT": "12.6"
         },
         {
           "id": "401873063",
@@ -5971,8 +5971,8 @@
           "status": "Scheduled",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "63.7",
-          "homePCT": "36"
+          "awayPCT": "63.8",
+          "homePCT": "35.9"
         },
         {
           "id": "401873064",
@@ -6006,8 +6006,8 @@
           "status": "Scheduled",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "29.3",
-          "homePCT": "70.4"
+          "awayPCT": "29.2",
+          "homePCT": "70.5"
         },
         {
           "id": "401873065",
@@ -6041,8 +6041,8 @@
           "status": "Scheduled",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "54.4",
-          "homePCT": "45.3"
+          "awayPCT": "54.8",
+          "homePCT": "44.9"
         }
       ],
       "tiebreaker": {
