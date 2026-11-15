@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 3:57pm",
+    "lastUpdated": "Sunday @ 4:30pm",
     "currentWeek": "Week 10"
   },
   "hall_of_fame": [
@@ -5898,11 +5898,11 @@
           "game": "SEA @ LV",
           "date": "2026-11-15T21:05Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "status": "Halftime",
           "awayScore": "7",
           "homeScore": "10",
-          "awayPCT": "61.84",
-          "homePCT": "38.16"
+          "awayPCT": "58.56",
+          "homePCT": "41.44"
         },
         {
           "id": "401873061",
@@ -5934,10 +5934,10 @@
           "date": "2026-11-15T21:05Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "3",
+          "awayScore": "16",
           "homeScore": "6",
-          "awayPCT": "78.86",
-          "homePCT": "21.14"
+          "awayPCT": "94.76",
+          "homePCT": "5.24"
         },
         {
           "id": "401873063",
@@ -5969,10 +5969,10 @@
           "date": "2026-11-15T21:25Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "7",
-          "homeScore": "10",
-          "awayPCT": "55.88",
-          "homePCT": "44.12"
+          "awayScore": "10",
+          "homeScore": "16",
+          "awayPCT": "43.36",
+          "homePCT": "56.64"
         },
         {
           "id": "401873064",
