@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Monday @ 8:25pm",
+    "lastUpdated": "Monday @ 8:40pm",
     "currentWeek": "Week 10"
   },
   "hall_of_fame": [
@@ -6039,10 +6039,10 @@
           "date": "2026-11-17T01:15Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "10",
+          "awayScore": "17",
           "homeScore": "7",
-          "awayPCT": "74.78",
-          "homePCT": "25.22"
+          "awayPCT": "80.52",
+          "homePCT": "19.48"
         }
       ],
       "tiebreaker": {
@@ -6050,7 +6050,7 @@
         "status": "\ud83d\udd34 Live \ud83d\udd34",
         "winner": null,
         "vegasTotal": 39.5,
-        "actualTotalScore": 17,
+        "actualTotalScore": 24,
         "picks": {
           "ANDI": {
             "winner": "BAL",
