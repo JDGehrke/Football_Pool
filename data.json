@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Thursday @ 9:10pm",
+    "lastUpdated": "Thursday @ 10:10pm",
     "currentWeek": "Week 11"
   },
   "hall_of_fame": [
@@ -6174,12 +6174,12 @@
           },
           "game": "IND @ HOU",
           "date": "2026-11-20T01:15Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "winner": "HOU",
+          "status": "Final",
           "awayScore": "3",
-          "homeScore": "17",
-          "awayPCT": "4.950000000000003",
-          "homePCT": "95.05"
+          "homeScore": "26",
+          "awayPCT": "0.0",
+          "homePCT": "100.0"
         },
         {
           "id": "401873070",
