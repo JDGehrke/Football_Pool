@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Thursday @ 6:10pm",
+    "lastUpdated": "Thursday @ 6:59pm",
     "currentWeek": "Week 11"
   },
   "hall_of_fame": [
@@ -6150,6 +6150,7 @@
           "id": "401873066",
           "picks": {
             "ELLY": "HOU",
+            "JORDAN": "HOU",
             "TONY": "HOU",
             "JEN": "HOU",
             "JIM": "HOU",
@@ -6167,7 +6168,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HENNIE": "\u2014",
-            "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "RICK": "\u2014"
@@ -6185,6 +6185,7 @@
           "id": "401873070",
           "picks": {
             "ELLY": "BUF",
+            "JORDAN": "BUF",
             "TONY": "BUF",
             "JEN": "BUF",
             "JIM": "BUF",
@@ -6202,7 +6203,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HENNIE": "\u2014",
-            "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "RICK": "\u2014"
@@ -6220,6 +6220,7 @@
           "id": "401873071",
           "picks": {
             "ELLY": "CHI",
+            "JORDAN": "CHI",
             "TONY": "NO",
             "JEN": "CHI",
             "JIM": "CHI",
@@ -6237,7 +6238,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HENNIE": "\u2014",
-            "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "RICK": "\u2014"
@@ -6255,6 +6255,7 @@
           "id": "401873073",
           "picks": {
             "ELLY": "DAL",
+            "JORDAN": "DAL",
             "TONY": "DAL",
             "JEN": "DAL",
             "JIM": "DAL",
@@ -6272,7 +6273,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HENNIE": "\u2014",
-            "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "RICK": "\u2014"
@@ -6290,6 +6290,7 @@
           "id": "401873072",
           "picks": {
             "ELLY": "DET",
+            "JORDAN": "DET",
             "TONY": "DET",
             "JEN": "DET",
             "JIM": "DET",
@@ -6307,7 +6308,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HENNIE": "\u2014",
-            "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "RICK": "\u2014"
@@ -6325,6 +6325,7 @@
           "id": "401873067",
           "picks": {
             "ELLY": "KC",
+            "JORDAN": "KC",
             "TONY": "KC",
             "JEN": "KC",
             "JIM": "KC",
@@ -6342,7 +6343,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HENNIE": "\u2014",
-            "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "RICK": "\u2014"
@@ -6360,6 +6360,7 @@
           "id": "401873076",
           "picks": {
             "ELLY": "PIT",
+            "JORDAN": "PIT",
             "TONY": "PIT",
             "JEN": "PIT",
             "JIM": "PIT",
@@ -6377,7 +6378,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HENNIE": "\u2014",
-            "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "RICK": "\u2014"
@@ -6395,6 +6395,7 @@
           "id": "401873068",
           "picks": {
             "ELLY": "CAR",
+            "JORDAN": "CAR",
             "TONY": "BAL",
             "JEN": "CAR",
             "JIM": "CAR",
@@ -6412,7 +6413,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HENNIE": "\u2014",
-            "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "RICK": "\u2014"
@@ -6430,6 +6430,7 @@
           "id": "401873074",
           "picks": {
             "ELLY": "NYJ",
+            "JORDAN": "LAC",
             "TONY": "LAC",
             "JEN": "LAC",
             "JIM": "LAC",
@@ -6447,7 +6448,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HENNIE": "\u2014",
-            "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "RICK": "\u2014"
@@ -6465,6 +6465,7 @@
           "id": "401873075",
           "picks": {
             "ELLY": "DEN",
+            "JORDAN": "DEN",
             "TONY": "DEN",
             "JEN": "DEN",
             "JIM": "DEN",
@@ -6482,7 +6483,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HENNIE": "\u2014",
-            "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "RICK": "\u2014"
@@ -6500,6 +6500,7 @@
           "id": "401873069",
           "picks": {
             "ELLY": "JAX",
+            "JORDAN": "JAX",
             "TONY": "JAX",
             "JEN": "JAX",
             "JIM": "JAX",
@@ -6517,7 +6518,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HENNIE": "\u2014",
-            "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "RICK": "\u2014"
@@ -6535,6 +6535,7 @@
           "id": "401873077",
           "picks": {
             "ELLY": "SF",
+            "JORDAN": "SF",
             "TONY": "SF",
             "JEN": "SF",
             "JIM": "SF",
@@ -6552,7 +6553,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HENNIE": "\u2014",
-            "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "RICK": "\u2014"
@@ -6570,6 +6570,7 @@
           "id": "401873078",
           "picks": {
             "ELLY": "CIN",
+            "JORDAN": "CIN",
             "TONY": "CIN",
             "JEN": "CIN",
             "JIM": "CIN",
@@ -6587,7 +6588,6 @@
             "DAN": "\u2014",
             "DEVIN": "\u2014",
             "HENNIE": "\u2014",
-            "JORDAN": "\u2014",
             "KENZIE": "\u2014",
             "LYDIA": "\u2014",
             "RICK": "\u2014"
@@ -6658,8 +6658,8 @@
             "predictedTotal": 41
           },
           "JORDAN": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "CIN",
+            "predictedTotal": 40
           },
           "KAREN": {
             "winner": "CIN",
