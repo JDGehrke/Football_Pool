@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 1:35pm",
+    "lastUpdated": "Sunday @ 1:50pm",
     "currentWeek": "Week 11"
   },
   "hall_of_fame": [
@@ -6213,8 +6213,8 @@
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "6",
           "homeScore": "20",
-          "awayPCT": "1.5799999999999983",
-          "homePCT": "98.42"
+          "awayPCT": "2.010000000000005",
+          "homePCT": "97.99"
         },
         {
           "id": "401873071",
@@ -6245,11 +6245,11 @@
           "game": "NO @ CHI",
           "date": "2026-11-22T18:00Z",
           "winner": null,
-          "status": "Halftime",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "10",
           "homeScore": "16",
-          "awayPCT": "15.120000000000005",
-          "homePCT": "84.88"
+          "awayPCT": "14.549999999999997",
+          "homePCT": "85.45"
         },
         {
           "id": "401873073",
@@ -6280,11 +6280,11 @@
           "game": "TEN @ DAL",
           "date": "2026-11-22T18:00Z",
           "winner": null,
-          "status": "Halftime",
-          "awayScore": "9",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "awayScore": "16",
           "homeScore": "27",
-          "awayPCT": "2.3299999999999983",
-          "homePCT": "97.67"
+          "awayPCT": "6.1000000000000085",
+          "homePCT": "93.89999999999999"
         },
         {
           "id": "401873072",
@@ -6318,8 +6318,8 @@
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "7",
           "homeScore": "10",
-          "awayPCT": "29.019999999999996",
-          "homePCT": "70.98"
+          "awayPCT": "28.680000000000007",
+          "homePCT": "71.32"
         },
         {
           "id": "401873067",
@@ -6350,11 +6350,11 @@
           "game": "ARI @ KC",
           "date": "2026-11-22T18:00Z",
           "winner": null,
-          "status": "Halftime",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "7",
           "homeScore": "27",
-          "awayPCT": "1.0999999999999943",
-          "homePCT": "98.9"
+          "awayPCT": "0.9399999999999977",
+          "homePCT": "99.06"
         },
         {
           "id": "401873076",
@@ -6386,10 +6386,10 @@
           "date": "2026-11-22T18:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "3",
+          "awayScore": "6",
           "homeScore": "13",
-          "awayPCT": "27.039999999999992",
-          "homePCT": "72.96000000000001"
+          "awayPCT": "31.620000000000005",
+          "homePCT": "68.38"
         },
         {
           "id": "401873068",
@@ -6420,11 +6420,11 @@
           "game": "BAL @ CAR",
           "date": "2026-11-22T18:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "status": "Halftime",
           "awayScore": "26",
           "homeScore": "22",
-          "awayPCT": "50.53",
-          "homePCT": "49.47"
+          "awayPCT": "48.72",
+          "homePCT": "51.28"
         },
         {
           "id": "401873074",
