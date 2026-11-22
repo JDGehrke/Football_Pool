@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 11:50am",
+    "lastUpdated": "Sunday @ 12:05pm",
     "currentWeek": "Week 11"
   },
   "hall_of_fame": [
@@ -6151,6 +6151,7 @@
           "picks": {
             "ELLY": "HOU",
             "JORDAN": "HOU",
+            "KENZIE": "HOU",
             "TONY": "HOU",
             "JEN": "HOU",
             "JIM": "HOU",
@@ -6169,8 +6170,7 @@
             "RICK": "HOU",
             "NICK": "HOU",
             "KENNY": "IND",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "HENNIE": "\u2014"
           },
           "game": "IND @ HOU",
           "date": "2026-11-20T01:15Z",
@@ -6186,6 +6186,7 @@
           "picks": {
             "ELLY": "BUF",
             "JORDAN": "BUF",
+            "KENZIE": "BUF",
             "TONY": "BUF",
             "JEN": "BUF",
             "JIM": "BUF",
@@ -6204,23 +6205,23 @@
             "RICK": "BUF",
             "NICK": "BUF",
             "KENNY": "BUF",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "HENNIE": "\u2014"
           },
           "game": "MIA @ BUF",
           "date": "2026-11-22T18:00Z",
           "winner": null,
-          "status": "Scheduled",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "5.2",
-          "homePCT": "94.8"
+          "awayPCT": "4.359999999999999",
+          "homePCT": "95.64"
         },
         {
           "id": "401873071",
           "picks": {
             "ELLY": "CHI",
             "JORDAN": "CHI",
+            "KENZIE": "CHI",
             "TONY": "NO",
             "JEN": "CHI",
             "JIM": "CHI",
@@ -6239,23 +6240,23 @@
             "RICK": "CHI",
             "NICK": "CHI",
             "KENNY": "CHI",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "HENNIE": "\u2014"
           },
           "game": "NO @ CHI",
           "date": "2026-11-22T18:00Z",
           "winner": null,
-          "status": "Scheduled",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "21.2",
-          "homePCT": "78.6"
+          "awayPCT": "19.0",
+          "homePCT": "81.0"
         },
         {
           "id": "401873073",
           "picks": {
             "ELLY": "DAL",
             "JORDAN": "DAL",
+            "KENZIE": "DAL",
             "TONY": "DAL",
             "JEN": "DAL",
             "JIM": "DAL",
@@ -6274,23 +6275,23 @@
             "RICK": "DAL",
             "NICK": "DAL",
             "KENNY": "DAL",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "HENNIE": "\u2014"
           },
           "game": "TEN @ DAL",
           "date": "2026-11-22T18:00Z",
           "winner": null,
-          "status": "Scheduled",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "19.4",
-          "homePCT": "80.5"
+          "awayPCT": "17.30000000000001",
+          "homePCT": "82.69999999999999"
         },
         {
           "id": "401873072",
           "picks": {
             "ELLY": "DET",
             "JORDAN": "DET",
+            "KENZIE": "DET",
             "TONY": "DET",
             "JEN": "DET",
             "JIM": "DET",
@@ -6309,23 +6310,23 @@
             "RICK": "DET",
             "NICK": "DET",
             "KENNY": "DET",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "HENNIE": "\u2014"
           },
           "game": "TB @ DET",
           "date": "2026-11-22T18:00Z",
           "winner": null,
-          "status": "Scheduled",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "38.6",
-          "homePCT": "61.1"
+          "awayPCT": "37.239999999999995",
+          "homePCT": "62.760000000000005"
         },
         {
           "id": "401873067",
           "picks": {
             "ELLY": "KC",
             "JORDAN": "KC",
+            "KENZIE": "KC",
             "TONY": "KC",
             "JEN": "KC",
             "JIM": "KC",
@@ -6344,23 +6345,23 @@
             "RICK": "KC",
             "NICK": "KC",
             "KENNY": "KC",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "HENNIE": "\u2014"
           },
           "game": "ARI @ KC",
           "date": "2026-11-22T18:00Z",
           "winner": null,
-          "status": "Scheduled",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "11.4",
-          "homePCT": "88.5"
+          "awayPCT": "9.36",
+          "homePCT": "90.64"
         },
         {
           "id": "401873076",
           "picks": {
             "ELLY": "PIT",
             "JORDAN": "PIT",
+            "KENZIE": "PIT",
             "TONY": "PIT",
             "JEN": "PIT",
             "JIM": "PIT",
@@ -6379,23 +6380,23 @@
             "RICK": "PIT",
             "NICK": "PIT",
             "KENNY": "PIT",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "HENNIE": "\u2014"
           },
           "game": "PIT @ PHI",
           "date": "2026-11-22T18:00Z",
           "winner": null,
-          "status": "Scheduled",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "63.5",
-          "homePCT": "36.2"
+          "awayPCT": "65.64",
+          "homePCT": "34.36"
         },
         {
           "id": "401873068",
           "picks": {
             "ELLY": "CAR",
             "JORDAN": "CAR",
+            "KENZIE": "BAL",
             "TONY": "BAL",
             "JEN": "CAR",
             "JIM": "CAR",
@@ -6414,23 +6415,23 @@
             "RICK": "CAR",
             "NICK": "BAL",
             "KENNY": "CAR",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "HENNIE": "\u2014"
           },
           "game": "BAL @ CAR",
           "date": "2026-11-22T18:00Z",
           "winner": null,
-          "status": "Scheduled",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "30.8",
-          "homePCT": "69"
+          "awayPCT": "34.599999999999994",
+          "homePCT": "65.4"
         },
         {
           "id": "401873074",
           "picks": {
             "ELLY": "NYJ",
             "JORDAN": "LAC",
+            "KENZIE": "LAC",
             "TONY": "LAC",
             "JEN": "LAC",
             "JIM": "LAC",
@@ -6449,8 +6450,7 @@
             "RICK": "LAC",
             "NICK": "LAC",
             "KENNY": "LAC",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "HENNIE": "\u2014"
           },
           "game": "NYJ @ LAC",
           "date": "2026-11-22T21:05Z",
@@ -6466,6 +6466,7 @@
           "picks": {
             "ELLY": "DEN",
             "JORDAN": "DEN",
+            "KENZIE": "DEN",
             "TONY": "DEN",
             "JEN": "DEN",
             "JIM": "DEN",
@@ -6484,8 +6485,7 @@
             "RICK": "DEN",
             "NICK": "DEN",
             "KENNY": "DEN",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "HENNIE": "\u2014"
           },
           "game": "LV @ DEN",
           "date": "2026-11-22T21:25Z",
@@ -6501,6 +6501,7 @@
           "picks": {
             "ELLY": "JAX",
             "JORDAN": "JAX",
+            "KENZIE": "JAX",
             "TONY": "JAX",
             "JEN": "JAX",
             "JIM": "JAX",
@@ -6519,8 +6520,7 @@
             "RICK": "JAX",
             "NICK": "NYG",
             "KENNY": "JAX",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "HENNIE": "\u2014"
           },
           "game": "JAX @ NYG",
           "date": "2026-11-22T21:25Z",
@@ -6536,6 +6536,7 @@
           "picks": {
             "ELLY": "SF",
             "JORDAN": "SF",
+            "KENZIE": "SF",
             "TONY": "SF",
             "JEN": "SF",
             "JIM": "SF",
@@ -6554,8 +6555,7 @@
             "RICK": "MIN",
             "NICK": "SF",
             "KENNY": "SF",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "HENNIE": "\u2014"
           },
           "game": "MIN VS SF",
           "date": "2026-11-23T01:20Z",
@@ -6571,6 +6571,7 @@
           "picks": {
             "ELLY": "CIN",
             "JORDAN": "CIN",
+            "KENZIE": "WSH",
             "TONY": "CIN",
             "JEN": "CIN",
             "JIM": "CIN",
@@ -6589,8 +6590,7 @@
             "RICK": "CIN",
             "NICK": "CIN",
             "KENNY": "CIN",
-            "HENNIE": "\u2014",
-            "KENZIE": "\u2014"
+            "HENNIE": "\u2014"
           },
           "game": "CIN @ WSH",
           "date": "2026-11-24T01:15Z",
@@ -6670,8 +6670,8 @@
             "predictedTotal": 69
           },
           "KENZIE": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "WSH",
+            "predictedTotal": 51
           },
           "LYDIA": {
             "winner": "WSH",
