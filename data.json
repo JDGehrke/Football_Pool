@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 3:20pm",
+    "lastUpdated": "Sunday @ 3:35pm",
     "currentWeek": "Week 11"
   },
   "hall_of_fame": [
@@ -6457,9 +6457,9 @@
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "3",
-          "homeScore": "0",
-          "awayPCT": "37.529999999999994",
-          "homePCT": "62.470000000000006"
+          "homeScore": "3",
+          "awayPCT": "50.04",
+          "homePCT": "49.96"
         },
         {
           "id": "401873075",
@@ -6490,11 +6490,11 @@
           "game": "LV @ DEN",
           "date": "2026-11-22T21:25Z",
           "winner": null,
-          "status": "Scheduled",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "0",
           "homeScore": "0",
-          "awayPCT": "13.4",
-          "homePCT": "86.5"
+          "awayPCT": "13.290000000000006",
+          "homePCT": "86.71"
         },
         {
           "id": "401873069",
@@ -6525,11 +6525,11 @@
           "game": "JAX @ NYG",
           "date": "2026-11-22T21:25Z",
           "winner": null,
-          "status": "Scheduled",
-          "awayScore": "0",
+          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "awayScore": "3",
           "homeScore": "0",
-          "awayPCT": "81.4",
-          "homePCT": "18.5"
+          "awayPCT": "84.41",
+          "homePCT": "15.590000000000002"
         },
         {
           "id": "401873077",
