@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Sunday @ 5:35pm",
+    "lastUpdated": "Sunday @ 5:50pm",
     "currentWeek": "Week 11"
   },
   "hall_of_fame": [
@@ -6454,12 +6454,12 @@
           },
           "game": "NYJ @ LAC",
           "date": "2026-11-22T21:05Z",
-          "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "winner": "NYJ",
+          "status": "Final",
           "awayScore": "27",
-          "homeScore": "17",
-          "awayPCT": "90.0",
-          "homePCT": "10.0"
+          "homeScore": "24",
+          "awayPCT": "100.0",
+          "homePCT": "0.0"
         },
         {
           "id": "401873075",
@@ -6491,10 +6491,10 @@
           "date": "2026-11-22T21:25Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "10",
-          "homeScore": "17",
-          "awayPCT": "17.11",
-          "homePCT": "82.89"
+          "awayScore": "17",
+          "homeScore": "24",
+          "awayPCT": "11.539999999999992",
+          "homePCT": "88.46000000000001"
         },
         {
           "id": "401873069",
@@ -6528,8 +6528,8 @@
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "6",
           "homeScore": "20",
-          "awayPCT": "13.680000000000007",
-          "homePCT": "86.32"
+          "awayPCT": "13.780000000000001",
+          "homePCT": "86.22"
         },
         {
           "id": "401873077",
