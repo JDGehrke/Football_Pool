@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NFL Pick 'Em Dashboard</title>
+  <title>Orser Football Pool</title>
   <style>
     /* --- CSS VARIABLES & THEME --- */
     :root {
@@ -858,6 +858,8 @@
     .scatter-point { fill: #ffffff; stroke: var(--secondary-color); stroke-width: 3; r: 6; transition: all 0.2s ease; cursor: pointer; }
     .scatter-point:hover { r: 8; fill: var(--secondary-color); }
     .scatter-text-val { font-size: 11px; font-weight: bold; fill: var(--primary-color); text-anchor: middle; }
+    .scatter-text-val.pos { fill: var(--success); }
+    .scatter-text-val.neg { fill: var(--danger); }
     .scatter-text-label { font-size: 11px; font-weight: 600; fill: var(--text-muted); text-anchor: middle; }
     
     @media (max-width: 600px) {
@@ -1181,7 +1183,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.7.5 <span>🔮</span>
+        <span>🔮</span> Path to Crown <span>🔮</span>
       </button>
     </div>
 
@@ -2230,7 +2232,7 @@
       svg.innerHTML += chartHtml;
 
       svg.querySelectorAll('.point-group').forEach(group => {
-        group.addEventListener('mouseenter', (evt) => {
+        group.addEventListener('mouseenter', () => {
           const { name, wins, losses, weekly, pct, gb, rankstr, isleader, index, x, y } = group.dataset;
           const svgBox = svg.getBoundingClientRect();
           const containerBox = container.getBoundingClientRect();
@@ -2461,7 +2463,7 @@
           <tr>
             <td>${crownBadge}<strong>${p}</strong></td>
             <td class="text-center"><strong><span class="text-success">${wHist.correct}</span> - <span class="text-danger">${wHist.incorrect}</span></strong></td>
-            <td class="text-center"><strong>${col3Value}</strong></td>
+            <td class="text-center">${col3Value}</td>
             <td class="text-center ${gbClass}"><strong>${gbDisplay}</strong></td>
           </tr>
         `;
@@ -3343,7 +3345,7 @@
 
             <div id="ptc-tiebreaker-container" class="ptc-tb-box" style="display: none;">
               <div class="ptc-tb-header">
-                <span>Standard Normal Distribution Tiebreaker Split</span>
+                <span>Tiebreaker Distribution</span>
               </div>
 
               <div class="ptc-bell-curve-wrapper">
@@ -3854,15 +3856,18 @@
         const shortW = isMobile ? w.replace('Week ', '').replace('Wk ', '') : w.replace('Week ', 'Wk ');
 
         let labelText = '-';
+        let valClass = '';
         if (hasVal) {
           if (isGbMode) {
             labelText = rawVal > 0 ? `+${rawVal}` : `${rawVal}`;
+            if (rawVal > 0) valClass = 'pos';
+            else if (rawVal < 0) valClass = 'neg';
           } else {
             labelText = `${rawVal}%`;
           }
         }
 
-        return { x: x, y: y, week: shortW, val: labelText };
+        return { x: x, y: y, week: shortW, val: labelText, valClass: valClass };
       });
 
       const validPoints = points.filter(p => p.y !== null);
@@ -3878,7 +3883,7 @@
           ${points.map(p => `
             <g>
               ${p.y !== null ? `
-                <text x="${p.x}" y="${p.y - 12}" class="scatter-text-val">${p.val}</text>
+                <text x="${p.x}" y="${p.y - 12}" class="scatter-text-val ${p.valClass}">${p.val}</text>
                 <circle cx="${p.x}" cy="${p.y}" class="scatter-point" />
               ` : ''}
               <text x="${p.x}" y="${paddingTop + chartHeight + 25}" class="scatter-text-label">${p.week}</text>
