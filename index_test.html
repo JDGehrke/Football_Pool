@@ -1102,7 +1102,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.6.10 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.6.11 <span>🔮</span>
       </button>
     </div>
 
@@ -3405,13 +3405,14 @@
             return !s.isExactTie && minMatch && maxMatch;
           });
 
-          const tiedForRegion = matchingSeg && matchingSeg.winners && matchingSeg.winners.length > 1
-            ? matchingSeg.winners.join(' & ')
-            : winnerNames;
-
-          banner.innerHTML = `👑 Tied between <strong>${tiedForRegion}</strong> if ${winStr} win AND <strong>${condStr}</strong>`;
-        } else if (activeScenarioText) {
-          banner.innerHTML = decodeURIComponent(activeScenarioText);
+          if (matchingSeg && matchingSeg.winners && matchingSeg.winners.length > 1) {
+            const tiedForRegion = matchingSeg.winners.join(' & ');
+            banner.innerHTML = `👑 Tied between <strong>${tiedForRegion}</strong> if ${winStr} win AND <strong>${condStr}</strong>`;
+          } else if (matchingSeg && matchingSeg.winners && matchingSeg.winners.length === 1) {
+            banner.innerHTML = `👑 <strong>${matchingSeg.winners[0]}</strong> clinches if ${winStr} win AND <strong>${condStr}</strong>`;
+          } else {
+            banner.innerHTML = `👑 Tied at ${maxScore} Wins &mdash; Tiebreaker split active between <strong>${winnerNames}</strong> for <strong>${condStr}</strong>`;
+          }
         } else if (segments.length === 1 && !segments[0].isCrownSplit) {
           banner.innerHTML = `👑 Tied at ${maxScore} Wins &mdash; Even crown split between <strong>${winnerNames}</strong>`;
         } else {
