@@ -390,56 +390,6 @@
       object-fit: contain;
     }
 
-    /* --- OUTCOME MATRIX 3-ROW HEADER STACK --- */
-    .matrix-header-stack {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      line-height: 1.2;
-      gap: 2px;
-    }
-    .matrix-at-symbol {
-      font-size: 0.7rem;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-    .outcome-matrix-table img {
-      width: 24px;
-      height: 24px;
-      object-fit: contain;
-    }
-
-    .outcome-matrix-table th.sortable-header {
-      cursor: pointer;
-      user-select: none;
-      transition: background-color 0.15s ease;
-    }
-
-    .outcome-matrix-table th.sortable-header:hover {
-      background-color: #e2e8f0 !important;
-    }
-
-    .sort-indicator {
-      font-size: 0.65rem;
-      color: var(--primary-color);
-      margin-left: 2px;
-    }
-
-    .ptc-contender-card.active-highlight {
-      border-left-color: #f59e0b !important;
-      background-color: #fef3c7 !important;
-      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
-    }
-
-    .outcome-matrix-table tbody tr.highlighted-row {
-      background-color: #fef08a !important;
-      font-weight: bold;
-    }
-    .outcome-matrix-table tbody tr.highlighted-row td {
-      background-color: #fef08a !important;
-    }
-
     .clickable-team-cell {
       cursor: pointer;
       transition: background-color 0.15s ease;
@@ -583,7 +533,6 @@
       font-size: 0.85rem;
     }
 
-    /* --- RESPONSIVE PLAYOFF TEAM DISPLAY --- */
     .playoff-team-desktop {
       display: inline-block;
     }
@@ -683,7 +632,6 @@
       font-size: 0.9rem;
     }
 
-    /* --- KPI CARDS --- */
     .kpi-grid { 
       display: grid; 
       grid-template-columns: repeat(4, 1fr); 
@@ -866,7 +814,6 @@
     .pick-tie { background-color: #fef08a !important; color: #854d0e; font-weight: bold; }
     .pick-pending { background-color: #ffffff; color: var(--text-main); }
 
-    /* LINE & SCATTER CHART STYLES */
     .scatter-chart-wrapper { width: 100%; height: 220px; position: relative; padding: 10px 0; }
     .scatter-svg { width: 100%; height: 100%; overflow: visible; }
     .scatter-line { stroke: var(--secondary-color); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
@@ -1147,7 +1094,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.5.2 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.6.0 <span>🔮</span>
       </button>
     </div>
 
@@ -1345,7 +1292,7 @@
     let teamVictories = {};
     let selectedMatrixPlayers = [];
     let currentSimulatedSelections = {};
-    let activeTiebreakerHighlight = null; // Stores { condition: '< 43.0' or '> 43.0', cutoff: 43.0 }
+    let activeTiebreakerHighlight = null;
 
     const NFL_DIVISIONS = {
       "AFC East": ["BUF", "MIA", "NE", "NYJ"],
@@ -1357,6 +1304,15 @@
       "NFC South": ["ATL", "CAR", "NO", "TB"],
       "NFC West": ["ARI", "LAR", "SF", "SEA"]
     };
+
+    function formatCrownCount(val) {
+      const num = Number(val) || 0;
+      if (Math.abs(num - Math.round(num)) < 1e-6) {
+        return String(Math.round(num));
+      }
+      const rounded2 = Number(num.toFixed(2));
+      return String(rounded2);
+    }
 
     function getTeamDivision(team) {
       for (const [divName, teams] of Object.entries(NFL_DIVISIONS)) {
@@ -1708,7 +1664,7 @@
           if (maxWins > 0) {
             const topPlayers = poolData.players.filter(p => computedStats[p].weeklyHistory[weekKey].correct === maxWins);
             
-            let crownWinners = [topPlayers[0]];
+            let crownWinners = topPlayers;
             if (topPlayers.length > 1) {
               let minDiff = Infinity;
               topPlayers.forEach(p => {
@@ -1720,14 +1676,14 @@
 
               if (minDiff !== Infinity) {
                 crownWinners = topPlayers.filter(p => computedStats[p].weeklyHistory[weekKey].diff === minDiff);
-              } else {
-                crownWinners = topPlayers;
               }
             }
 
+            const splitShare = crownWinners.length > 0 ? (1 / crownWinners.length) : 0;
+
             crownWinners.forEach(crownWinner => {
               if (computedStats[crownWinner]) {
-                computedStats[crownWinner].crowns++;
+                computedStats[crownWinner].crowns += splitShare;
                 computedStats[crownWinner].weeksWon.push(weekKey);
                 const crownDiff = computedStats[crownWinner].weeklyHistory[weekKey].diff;
                 if (crownDiff !== null) {
@@ -1815,7 +1771,7 @@
       const crownWinners = [...poolData.players]
         .filter(p => computedStats[p].crowns > 0)
         .sort((a, b) => {
-          if (computedStats[b].crowns !== computedStats[a].crowns) {
+          if (Math.abs(computedStats[b].crowns - computedStats[a].crowns) > 1e-6) {
             return computedStats[b].crowns - computedStats[a].crowns;
           }
 
@@ -1836,12 +1792,13 @@
 
         crownBody.innerHTML = crownWinners.map((p, idx) => {
           const crowns = computedStats[p].crowns;
+          const crownLabel = formatCrownCount(crowns);
           const deltas = computedStats[p].winningDeltas;
           const avgDelta = deltas.length > 0 
             ? (deltas.reduce((a, b) => a + b, 0) / deltas.length).toFixed(1) 
             : 'N/A';
 
-          const isLeader = (idx === 0 || crowns === maxCrowns);
+          const isLeader = (idx === 0 || Math.abs(crowns - maxCrowns) < 1e-6);
           const badgeClass = isLeader ? 'badge-win' : 'badge-neutral';
 
           const crownDisplay = `
@@ -1850,7 +1807,7 @@
                  onmouseleave="hideCrownTooltip()">
               <span class="${badgeClass}">
                 <span class="crown-icon">👑</span>
-                <span class="crown-text">${crowns} ${crowns === 1 ? 'Win' : 'Wins'}</span>
+                <span class="crown-text">${crownLabel} ${Math.abs(crowns - 1) < 1e-6 ? 'Win' : 'Wins'}</span>
               </span>
             </div>
           `;
@@ -1887,7 +1844,7 @@
       if (!pStats) return;
 
       const weeksWon = pStats.weeksWon || [];
-      const totalCrowns = pStats.crowns || 0;
+      const totalCrowns = formatCrownCount(pStats.crowns || 0);
 
       let weeksHtml = '';
       if (weeksWon.length > 0) {
@@ -2014,7 +1971,7 @@
         name: name,
         wins: computedStats[name]?.correct || 0,
         losses: computedStats[name]?.incorrect || 0,
-        weeklyWins: computedStats[name]?.crowns || 0,
+        weeklyWins: formatCrownCount(computedStats[name]?.crowns || 0),
         rankStr: playerRanks[name]?.rankStr || '—',
         rankNum: playerRanks[name]?.rank || 1,
         gb: playerRanks[name]?.gb !== undefined ? playerRanks[name].gb : '—'
@@ -2302,7 +2259,7 @@
       }
 
       const trackerBody = document.querySelector('#week-tracker-table tbody');
-      trackerBody.innerHTML = sortedPlayers.map((p, idx) => {
+      trackerBody.innerHTML = sortedPlayers.map((p) => {
         const wHist = computedStats[p]?.weeklyHistory[week] || { correct: 0, incorrect: 0, diff: null, gbChange: 0 };
         const pred = weekData.tiebreaker?.picks?.[p]?.predictedTotal ?? 'N/A';
         const diffStr = wHist.diff !== null ? `${wHist.diff}` : '-';
@@ -2319,9 +2276,6 @@
         } else if (gbChange < 0) {
           gbDisplay = `${gbChange}`;
           gbClass = 'text-danger';
-        } else {
-          gbDisplay = '—';
-          gbClass = '';
         }
 
         let crownBadge = '';
@@ -2530,7 +2484,14 @@
       return (1 / (stdDev * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / stdDev, 2));
     }
 
-    /* --- ROBUST PATH TO CROWN ENGINE WITH CONDITIONAL PROBABILITY & CORRECT REGION HIGHLIGHTS --- */
+    function formatWinnersPerGame(outcomeMap, gamesToSimulate) {
+      return gamesToSimulate.map(g => {
+        const w = outcomeMap[g.id];
+        return Array.isArray(w) ? w.join('/') : w;
+      }).join(' & ');
+    }
+
+    /* --- PATH TO CROWN ENGINE: INDIVIDUAL PLAYERS, EVEN TIEBREAKER SPLITS, CLEAN SCENARIO TEXT --- */
     function openPathToCrownModal() {
       const modal = document.getElementById('path-to-crown-modal');
       const body = document.getElementById('modal-crown-body');
@@ -2598,7 +2559,12 @@
         };
       });
 
+      currentSimulatedSelections = {};
+      gamesToSimulate.forEach(g => {
+        currentSimulatedSelections[g.id] = null;
+      });
       activeTiebreakerHighlight = null;
+
       window._ptcGlobal = { currentWins, gamesToSimulate, tiebreakerPicks, vegasTotal, matchupsCount: gamesToSimulate.length };
       renderPathToCrownContent();
       modal.classList.add('active');
@@ -2615,11 +2581,13 @@
       (poolData.players || []).forEach(p => {
         if (currentWins[p] > maxCurrentWins) maxCurrentWins = currentWins[p];
       });
+
       const potentialContenders = (poolData.players || []).filter(p => {
         return (currentWins[p] + remainingGames.length) >= maxCurrentWins;
       });
 
-      const playerGroupsMap = {};
+      // Keep each contender individual so players with different picks never merge
+      const playerEntities = {};
       potentialContenders.forEach(p => {
         const wins = currentWins[p] || 0;
         const obj = tiebreakerPicks[p];
@@ -2631,35 +2599,15 @@
           if (!isNaN(val) && val > 0) pred = val;
         }
 
-        const key = `${wins}_${pred}`;
-        if (!playerGroupsMap[key]) {
-          playerGroupsMap[key] = { players: [], wins, pred };
-        }
-        playerGroupsMap[key].players.push(p);
-      });
-
-      const cardEntities = {};
-      Object.values(playerGroupsMap).forEach(g => {
-        const sortedPlayers = g.players.sort();
-        const title = sortedPlayers.length > 1 ? sortedPlayers.join(' / ') : sortedPlayers[0];
-        cardEntities[title] = {
-          title,
-          players: sortedPlayers,
-          wins: g.wins,
-          pred: g.pred,
+        playerEntities[p] = {
+          title: p,
+          players: [p],
+          wins,
+          pred,
           totalProb: 0,
           scenarios: []
         };
       });
-
-      function getCardByPlayer(p) {
-        for (let title in cardEntities) {
-          if (cardEntities[title].players.includes(p)) {
-            return cardEntities[title];
-          }
-        }
-        return null;
-      }
 
       const numGames = remainingGames.length;
       const totalPermutations = Math.pow(2, numGames);
@@ -2667,7 +2615,6 @@
 
       for (let i = 0; i < totalPermutations; i++) {
         const outcomeObj = {};
-        const simulatedWinners = [];
         let branchProb = 1.0;
         let matchesUserSelection = true;
 
@@ -2682,7 +2629,6 @@
           }
 
           outcomeObj[g.id] = winner;
-          simulatedWinners.push(winner);
           branchProb *= (isHomeWin ? g.homeWinProb : g.awayWinProb);
         });
 
@@ -2700,52 +2646,55 @@
         });
 
         const maxScore = Math.max(...Object.values(pScores));
-        const winningContenders = potentialContenders.filter(p => pScores[p] === maxScore);
+        const tiedPlayers = potentialContenders.filter(p => pScores[p] === maxScore);
 
-        const winningCardsMap = {};
-        winningContenders.forEach(p => {
-          const card = getCardByPlayer(p);
-          if (card && !winningCardsMap[card.title]) {
-            winningCardsMap[card.title] = card;
-          }
-        });
-
-        const winningCards = Object.values(winningCardsMap);
-
-        if (winningCards.length === 1) {
-          const card = winningCards[0];
-          card.totalProb += branchProb;
-          card.scenarios.push({
+        if (tiedPlayers.length === 1) {
+          const soleWinner = tiedPlayers[0];
+          const ent = playerEntities[soleWinner];
+          ent.totalProb += branchProb;
+          ent.scenarios.push({
             isOutright: true,
             sortVal: -Infinity,
             scoreRange: "Any Score",
-            winnersArray: simulatedWinners,
-            branchProb,
-            gameOutcomeMap: { ...outcomeObj }
+            outcomeMap: { ...outcomeObj },
+            branchProb
           });
         } else {
-          winningCards.sort((a, b) => a.pred - b.pred);
+          // Group tied players by identical tiebreaker prediction so equal predictions split evenly
+          const predBucketsMap = {};
+          tiedPlayers.forEach(p => {
+            const predVal = playerEntities[p].pred;
+            const pKey = String(predVal);
+            if (!predBucketsMap[pKey]) {
+              predBucketsMap[pKey] = { pred: predVal, players: [] };
+            }
+            predBucketsMap[pKey].players.push(p);
+          });
 
-          winningCards.forEach((card, k) => {
+          const sortedBuckets = Object.values(predBucketsMap).sort((a, b) => a.pred - b.pred);
+
+          sortedBuckets.forEach((bucket, k) => {
             let minBound = -Infinity;
             let maxBound = Infinity;
-            
+
             if (k > 0) {
-              minBound = (winningCards[k - 1].pred + card.pred) / 2;
+              minBound = (sortedBuckets[k - 1].pred + bucket.pred) / 2;
             }
-            if (k < winningCards.length - 1) {
-              maxBound = (card.pred + winningCards[k + 1].pred) / 2;
+            if (k < sortedBuckets.length - 1) {
+              maxBound = (bucket.pred + sortedBuckets[k + 1].pred) / 2;
             }
 
             const probLower = minBound === -Infinity ? 0 : normalCDF(minBound, vegasTotal, 10.5);
             const probUpper = maxBound === Infinity ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
             const intervalScoreProb = Math.max(0, probUpper - probLower);
-            
-            const addedProb = branchProb * intervalScoreProb;
-            card.totalProb += addedProb;
+
+            const splitFactor = 1 / bucket.players.length;
+            const addedProb = branchProb * intervalScoreProb * splitFactor;
 
             let scoreText = '';
-            if (minBound === -Infinity) {
+            if (minBound === -Infinity && maxBound === Infinity) {
+              scoreText = 'Any Score';
+            } else if (minBound === -Infinity) {
               scoreText = `Score < ${maxBound.toFixed(1)}`;
             } else if (maxBound === Infinity) {
               scoreText = `Score > ${minBound.toFixed(1)}`;
@@ -2753,74 +2702,122 @@
               scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
             }
 
-            card.scenarios.push({
-              isOutright: false,
-              sortVal: minBound === -Infinity ? -Infinity : minBound,
-              scoreRange: scoreText,
-              winnersArray: simulatedWinners,
-              branchProb: addedProb,
-              gameOutcomeMap: { ...outcomeObj }
+            bucket.players.forEach(p => {
+              const ent = playerEntities[p];
+              ent.totalProb += addedProb;
+              ent.scenarios.push({
+                isOutright: false,
+                sortVal: minBound === -Infinity ? -Infinity : minBound,
+                scoreRange: scoreText,
+                outcomeMap: { ...outcomeObj },
+                branchProb: addedProb,
+                splitCount: bucket.players.length
+              });
             });
           });
         }
       }
 
       if (totalValidProb > 0) {
-        Object.values(cardEntities).forEach(card => {
-          card.totalProb /= totalValidProb;
+        Object.values(playerEntities).forEach(ent => {
+          ent.totalProb /= totalValidProb;
         });
       }
 
-      const activeCardGroups = Object.values(cardEntities)
-        .filter(card => card.totalProb > 0.000001)
-        .map(card => {
+      const activeCardGroups = Object.values(playerEntities)
+        .filter(ent => ent.totalProb > 0.000001)
+        .map(ent => {
           const mergedMap = {};
 
-          card.scenarios.forEach(s => {
-            const key = `${s.isOutright}_${s.scoreRange}`;
+          ent.scenarios.forEach(s => {
+            const key = `${s.isOutright}_${s.scoreRange}_${s.splitCount || 1}`;
             if (!mergedMap[key]) {
               mergedMap[key] = {
                 isOutright: s.isOutright,
                 sortVal: s.sortVal,
                 scoreRange: s.scoreRange,
+                splitCount: s.splitCount || 1,
                 totalSubProb: 0,
-                winnersSet: new Set(),
-                sampleOutcomeMap: s.gameOutcomeMap
+                outcomeMaps: []
               };
             }
             mergedMap[key].totalSubProb += s.branchProb;
-            s.winnersArray.forEach(w => mergedMap[key].winnersSet.add(w));
+            mergedMap[key].outcomeMaps.push(s.outcomeMap);
           });
 
           const uniqueScenarios = Object.values(mergedMap).map(m => {
-            const winArray = Array.from(m.winnersSet);
-            const winStr = winArray.join(' / ');
+            // Collapse wildcard game outcomes cleanly per game (e.g., MIN/SF & CIN)
+            let combinedMaps = m.outcomeMaps.map(om => ({ ...om }));
+
+            for (let gIdx = 0; gIdx < remainingGames.length; gIdx++) {
+              const g = remainingGames[gIdx];
+              const matchPairs = {};
+
+              combinedMaps.forEach(om => {
+                const copy = { ...om };
+                const val = Array.isArray(copy[g.id]) ? copy[g.id].join('/') : copy[g.id];
+                copy[g.id] = 'WILD';
+                const sig = remainingGames.map(rg => Array.isArray(copy[rg.id]) ? copy[rg.id].join('/') : copy[rg.id]).join('|');
+                if (!matchPairs[sig]) matchPairs[sig] = new Set();
+                matchPairs[sig].add(val);
+              });
+
+              Object.keys(matchPairs).forEach(sig => {
+                if (matchPairs[sig].size === 2) {
+                  combinedMaps = combinedMaps.filter(om => {
+                    const copy = { ...om };
+                    copy[g.id] = 'WILD';
+                    const cSig = remainingGames.map(rg => Array.isArray(copy[rg.id]) ? copy[rg.id].join('/') : copy[rg.id]).join('|');
+                    return cSig !== sig;
+                  });
+
+                  const parts = sig.split('|');
+                  const repMap = {};
+                  remainingGames.forEach((rg, idx) => {
+                    repMap[rg.id] = parts[idx] === 'WILD' ? `${g.away}/${g.home}` : parts[idx];
+                  });
+
+                  const repSig = remainingGames.map(rg => repMap[rg.id]).join('|');
+                  const exists = combinedMaps.some(om => remainingGames.map(rg => om[rg.id]).join('|') === repSig);
+                  if (!exists) combinedMaps.push(repMap);
+                }
+              });
+            }
+
+            const winStr = combinedMaps.map(om => formatWinnersPerGame(om, remainingGames)).join(' or ');
             const subPctVal = totalValidProb > 0 ? (m.totalSubProb / totalValidProb) * 100 : 0;
             const subPctStr = subPctVal.toFixed(1) + '%';
-            
+            const splitNote = m.splitCount > 1 ? ` (split 1/${m.splitCount} on tie)` : '';
+
             let mainCondition = '';
             if (m.isOutright) {
               mainCondition = `Clinches if <strong>${winStr}</strong> win. (+${subPctStr})`;
             } else {
-              mainCondition = `Clinches if <strong>${winStr}</strong> win AND <strong>${m.scoreRange}</strong>. (+${subPctStr})`;
+              mainCondition = `Clinches if <strong>${winStr}</strong> win AND <strong>${m.scoreRange}</strong>${splitNote}. (+${subPctStr})`;
             }
+
+            const sampleMap = {};
+            const firstMap = m.outcomeMaps[0] || {};
+            remainingGames.forEach(g => {
+              const val = firstMap[g.id];
+              sampleMap[g.id] = Array.isArray(val) ? val[0] : val;
+            });
 
             return {
               isOutright: m.isOutright,
               sortVal: m.sortVal,
               mainCondition,
               scoreRange: m.scoreRange,
-              winnersArray: winArray,
-              sampleOutcomeMap: m.sampleOutcomeMap
+              sampleOutcomeMap: sampleMap
             };
           });
 
           return {
-            title: card.title,
-            players: card.players,
-            wins: card.wins,
-            pred: card.pred,
-            totalProb: card.totalProb,
+            title: ent.title,
+            players: ent.players,
+            wins: ent.wins,
+            pred: ent.pred,
+            totalProb: ent.totalProb,
             scenarios: uniqueScenarios.sort((a, b) => {
               if (a.isOutright !== b.isOutright) return a.isOutright ? -1 : 1;
               return a.sortVal - b.sortVal;
@@ -2862,7 +2859,6 @@
       const clampCutoff = Math.max(minVal, Math.min(maxVal, sampleCutoff));
       const cutoffSvgX = 20 + ((clampCutoff - minVal) / (maxVal - minVal)) * 460;
 
-      // Generate Gold Highlighted Area Path with Corrected Region Direction
       let goldHighlightPath = '';
       if (activeTiebreakerHighlight) {
         const cutoffVal = activeTiebreakerHighlight.cutoff;
@@ -2900,7 +2896,7 @@
 
       activeCardGroups.forEach((group) => {
         const rawProb = group.totalProb * 100;
-        let winPctStr = rawProb.toFixed(1) + '%';
+        const winPctStr = rawProb.toFixed(1) + '%';
 
         const bulletsHtml = group.scenarios.map((s) => {
           const outcomeJson = encodeURIComponent(JSON.stringify(s.sampleOutcomeMap || {}));
@@ -2966,25 +2962,16 @@
 
               <div class="ptc-bell-curve-wrapper">
                 <svg id="ptc-bell-svg-elem" class="ptc-bell-svg" viewBox="0 0 500 160" preserveAspectRatio="none">
-                  <!-- Base Line -->
                   <line x1="20" y1="135" x2="480" y2="135" stroke="#e2e8f0" stroke-width="1.5" />
-
-                  <!-- Gold Highlighted Region Under Curve -->
                   ${goldHighlightPath}
-
-                  <!-- Uncolored Clean Bell Curve Outline -->
                   <path d="M 20 135 C 100 135, 150 20, 250 20 C 350 20, 400 135, 480 135" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/>
-
-                  <!-- Red Dashed Cutoff Line -->
                   <line id="line-cutoff" x1="${cutoffSvgX}" y1="12" x2="${cutoffSvgX}" y2="142" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 4"/>
                   
-                  <!-- Cutoff Number Badge -->
                   <g id="group-cutoff-badge" transform="translate(${cutoffSvgX}, 2)">
                     <rect x="-24" y="-12" width="48" height="16" fill="#ef4444" rx="3"></rect>
                     <text id="text-cutoff-val" x="0" y="0" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle">${sampleCutoff.toFixed(1)}</text>
                   </g>
 
-                  <!-- Multi-Contender Wrapped X-Axis Labels -->
                   <foreignObject x="20" y="140" width="${cutoffSvgX - 20}" height="35">
                     <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 9px; font-weight: 700; color: #1d4ed8; text-align: center; word-break: break-word; line-height: 1.1;">
                       <span id="text-zone-a-label">${playerALabel}</span>
@@ -3151,14 +3138,13 @@
 
         if (winners.length >= 2) {
           const sortedWinners = [...winners].sort((a, b) => {
-            const cardA = activeCardGroups.find(c => c.title.includes(a));
-            const cardB = activeCardGroups.find(c => c.title.includes(b));
+            const cardA = activeCardGroups.find(c => c.players.includes(a));
+            const cardB = activeCardGroups.find(c => c.players.includes(b));
             return (cardA?.pred || 0) - (cardB?.pred || 0);
           });
 
-          // Correctly pull full group titles for X-axis labels
-          const cardA = activeCardGroups.find(c => c.title.includes(sortedWinners[0]));
-          const cardB = activeCardGroups.find(c => c.title.includes(sortedWinners[1]));
+          const cardA = activeCardGroups.find(c => c.players.includes(sortedWinners[0]));
+          const cardB = activeCardGroups.find(c => c.players.includes(sortedWinners[1]));
 
           const playerAName = cardA ? cardA.title.toUpperCase() : sortedWinners[0].toUpperCase();
           const playerBName = cardB ? cardB.title.toUpperCase() : sortedWinners[1].toUpperCase();
@@ -3371,7 +3357,7 @@
 
       const totalPicks = pStats.correct + pStats.incorrect;
       const accuracy = totalPicks > 0 ? ((pStats.correct / totalPicks) * 100).toFixed(1) + '%' : '0.0%';
-      const weeklyWins = pStats.crowns || 0;
+      const weeklyWins = formatCrownCount(pStats.crowns || 0);
 
       document.getElementById('player-kpi-banner').innerHTML = `
         <div class="kpi-card">
@@ -3476,7 +3462,7 @@
         const playerAccStr = finishedMatchups > 0 ? playerAccNum.toFixed(1) : 'N/A';
 
         const poolTotalPossibleAccPicks = poolStat.finishedMatchups * totalPoolPlayers;
-        const poolAccNum = poolTotalPossibleAccPicks > 0 ? (poolStat.correct / poolTotalPossibleAccPicks) * 100 : 'N/A';
+        const poolAccNum = poolTotalPossibleAccPicks > 0 ? (poolStat.correct / poolTotalPossibleAccPicks) * 100 : 0;
         const poolAccStr = poolTotalPossibleAccPicks > 0 ? poolAccNum.toFixed(1) : 'N/A';
 
         const pickPctClass = playerPickPctNum > poolPickPctNum ? 'stat-outperform' : '';
