@@ -913,7 +913,7 @@
     .ptc-tb-box { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
     .ptc-tb-header { font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; color: #1e293b; }
     .ptc-bell-curve-wrapper { position: relative; width: 100%; margin: 10px 0; text-align: center; }
-    .ptc-bell-svg { width: 100%; max-height: 160px; display: block; overflow: visible; }
+    .ptc-bell-svg { width: 100%; max-height: 185px; display: block; overflow: visible; }
     .ptc-curve-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-top: 6px; font-weight: 500; }
 
     .ptc-result-banner { background: #1e293b; color: #ffffff; padding: 12px 16px; border-radius: 8px; text-align: center; font-size: 0.9rem; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -1094,7 +1094,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.6.0 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.6.1 <span>🔮</span>
       </button>
     </div>
 
@@ -2491,7 +2491,108 @@
       }).join(' & ');
     }
 
-    /* --- PATH TO CROWN ENGINE: INDIVIDUAL PLAYERS, EVEN TIEBREAKER SPLITS, CLEAN SCENARIO TEXT --- */
+    /* --- DYNAMIC N-ZONE BELL CURVE SVG BUILDER --- */
+    function buildBellCurveSvgInner(vegasTotal, cutoffs, zoneLabels, highlightBounds) {
+      const stdDev = 10.5;
+      const minVal = vegasTotal - (3.5 * stdDev);
+      const maxVal = vegasTotal + (3.5 * stdDev);
+      const leftX = 20;
+      const rightX = 480;
+      const plotW = rightX - leftX;
+      const baseY = 135;
+      const peakY = 20;
+
+      const scoreToX = (val) => {
+        const clamped = Math.max(minVal, Math.min(maxVal, val));
+        return leftX + ((clamped - minVal) / (maxVal - minVal)) * plotW;
+      };
+
+      const peakDensity = normalPDF(vegasTotal, vegasTotal, stdDev);
+      const yAtScore = (scoreVal) => {
+        const dens = normalPDF(scoreVal, vegasTotal, stdDev);
+        return baseY - (dens / peakDensity) * (baseY - peakY);
+      };
+
+      // Build smooth standard normal bell curve path centered at O/U (x = 250)
+      let curvePathD = '';
+      for (let px = leftX; px <= rightX; px += 2) {
+        const scoreVal = minVal + ((px - leftX) / plotW) * (maxVal - minVal);
+        const py = yAtScore(scoreVal);
+        curvePathD += `${px === leftX ? 'M' : 'L'} ${px.toFixed(1)} ${py.toFixed(1)} `;
+      }
+
+      // Optional gold shaded zone when user clicks a specific tiebreaker scenario bullet
+      let goldHighlightPath = '';
+      if (highlightBounds && (highlightBounds.min !== null || highlightBounds.max !== null)) {
+        const hStartX = highlightBounds.min === null ? leftX : scoreToX(highlightBounds.min);
+        const hEndX = highlightBounds.max === null ? rightX : scoreToX(highlightBounds.max);
+        if (hEndX > hStartX) {
+          let hD = `M ${hStartX.toFixed(1)} ${baseY}`;
+          for (let px = hStartX; px <= hEndX; px += 2) {
+            const scoreVal = minVal + ((px - leftX) / plotW) * (maxVal - minVal);
+            hD += ` L ${px.toFixed(1)} ${yAtScore(scoreVal).toFixed(1)}`;
+          }
+          hD += ` L ${hEndX.toFixed(1)} ${baseY} Z`;
+          goldHighlightPath = `<path d="${hD}" fill="#f59e0b" fill-opacity="0.32" />`;
+        }
+      }
+
+      // Build zone boundaries [leftX, c1X, c2X, ..., rightX]
+      const cutoffPositions = cutoffs.map(c => ({
+        val: c,
+        x: scoreToX(c)
+      }));
+
+      const boundaries = [leftX, ...cutoffPositions.map(c => c.x), rightX];
+      const zoneColors = ['#1d4ed8', '#6d28d9', '#047857', '#b45309', '#be123c', '#0369a1'];
+
+      // Section player labels centered below each segment
+      let zonesHtml = '';
+      for (let i = 0; i < zoneLabels.length; i++) {
+        const zStart = boundaries[i];
+        const zEnd = boundaries[i + 1];
+        const zWidth = Math.max(10, zEnd - zStart);
+        const color = zoneColors[i % zoneColors.length];
+        const labelText = zoneLabels[i] || '';
+
+        zonesHtml += `
+          <foreignObject x="${zStart.toFixed(1)}" y="140" width="${zWidth.toFixed(1)}" height="42">
+            <div xmlns="http://www.w3.org/1999/xhtml"
+                 style="font-size: 9px; font-weight: 700; color: ${color}; text-align: center; word-break: break-word; line-height: 1.15; padding: 0 2px;">
+              ${labelText}
+            </div>
+          </foreignObject>
+        `;
+      }
+
+      // Dotted vertical lines + red cutoff number badges
+      let cutoffsHtml = '';
+      cutoffPositions.forEach((cp, idx) => {
+        // Slight vertical stagger only if two cutoff badges are extremely close horizontally
+        let badgeY = 2;
+        if (idx > 0 && Math.abs(cp.x - cutoffPositions[idx - 1].x) < 48) {
+          badgeY = (idx % 2 === 1) ? 19 : 2;
+        }
+
+        cutoffsHtml += `
+          <line x1="${cp.x.toFixed(1)}" y1="${badgeY + 6}" x2="${cp.x.toFixed(1)}" y2="142" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 4"/>
+          <g transform="translate(${cp.x.toFixed(1)}, ${badgeY})">
+            <rect x="-22" y="-11" width="44" height="15" fill="#ef4444" rx="3"></rect>
+            <text x="0" y="0" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle">${cp.val.toFixed(1)}</text>
+          </g>
+        `;
+      });
+
+      return `
+        <line x1="${leftX}" y1="${baseY}" x2="${rightX}" y2="${baseY}" stroke="#e2e8f0" stroke-width="1.5" />
+        ${goldHighlightPath}
+        <path d="${curvePathD.trim()}" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/>
+        ${cutoffsHtml}
+        ${zonesHtml}
+      `;
+    }
+
+    /* --- PATH TO CROWN ENGINE --- */
     function openPathToCrownModal() {
       const modal = document.getElementById('path-to-crown-modal');
       const body = document.getElementById('modal-crown-body');
@@ -2586,7 +2687,6 @@
         return (currentWins[p] + remainingGames.length) >= maxCurrentWins;
       });
 
-      // Keep each contender individual so players with different picks never merge
       const playerEntities = {};
       potentialContenders.forEach(p => {
         const wins = currentWins[p] || 0;
@@ -2655,12 +2755,13 @@
           ent.scenarios.push({
             isOutright: true,
             sortVal: -Infinity,
+            minBound: null,
+            maxBound: null,
             scoreRange: "Any Score",
             outcomeMap: { ...outcomeObj },
             branchProb
           });
         } else {
-          // Group tied players by identical tiebreaker prediction so equal predictions split evenly
           const predBucketsMap = {};
           tiedPlayers.forEach(p => {
             const predVal = playerEntities[p].pred;
@@ -2674,8 +2775,8 @@
           const sortedBuckets = Object.values(predBucketsMap).sort((a, b) => a.pred - b.pred);
 
           sortedBuckets.forEach((bucket, k) => {
-            let minBound = -Infinity;
-            let maxBound = Infinity;
+            let minBound = null;
+            let maxBound = null;
 
             if (k > 0) {
               minBound = (sortedBuckets[k - 1].pred + bucket.pred) / 2;
@@ -2684,19 +2785,19 @@
               maxBound = (bucket.pred + sortedBuckets[k + 1].pred) / 2;
             }
 
-            const probLower = minBound === -Infinity ? 0 : normalCDF(minBound, vegasTotal, 10.5);
-            const probUpper = maxBound === Infinity ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
+            const probLower = minBound === null ? 0 : normalCDF(minBound, vegasTotal, 10.5);
+            const probUpper = maxBound === null ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
             const intervalScoreProb = Math.max(0, probUpper - probLower);
 
             const splitFactor = 1 / bucket.players.length;
             const addedProb = branchProb * intervalScoreProb * splitFactor;
 
             let scoreText = '';
-            if (minBound === -Infinity && maxBound === Infinity) {
+            if (minBound === null && maxBound === null) {
               scoreText = 'Any Score';
-            } else if (minBound === -Infinity) {
+            } else if (minBound === null) {
               scoreText = `Score < ${maxBound.toFixed(1)}`;
-            } else if (maxBound === Infinity) {
+            } else if (maxBound === null) {
               scoreText = `Score > ${minBound.toFixed(1)}`;
             } else {
               scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
@@ -2707,7 +2808,9 @@
               ent.totalProb += addedProb;
               ent.scenarios.push({
                 isOutright: false,
-                sortVal: minBound === -Infinity ? -Infinity : minBound,
+                sortVal: minBound === null ? -Infinity : minBound,
+                minBound,
+                maxBound,
                 scoreRange: scoreText,
                 outcomeMap: { ...outcomeObj },
                 branchProb: addedProb,
@@ -2735,6 +2838,8 @@
               mergedMap[key] = {
                 isOutright: s.isOutright,
                 sortVal: s.sortVal,
+                minBound: s.minBound,
+                maxBound: s.maxBound,
                 scoreRange: s.scoreRange,
                 splitCount: s.splitCount || 1,
                 totalSubProb: 0,
@@ -2746,7 +2851,6 @@
           });
 
           const uniqueScenarios = Object.values(mergedMap).map(m => {
-            // Collapse wildcard game outcomes cleanly per game (e.g., MIN/SF & CIN)
             let combinedMaps = m.outcomeMaps.map(om => ({ ...om }));
 
             for (let gIdx = 0; gIdx < remainingGames.length; gIdx++) {
@@ -2806,6 +2910,8 @@
             return {
               isOutright: m.isOutright,
               sortVal: m.sortVal,
+              minBound: m.minBound,
+              maxBound: m.maxBound,
               mainCondition,
               scoreRange: m.scoreRange,
               sampleOutcomeMap: sampleMap
@@ -2826,7 +2932,7 @@
         })
         .sort((a, b) => b.totalProb - a.totalProb);
 
-      return { activeCardGroups, potentialContenders };
+      return { activeCardGroups, potentialContenders, playerEntities };
     }
 
     function renderPathToCrownContent() {
@@ -2837,54 +2943,7 @@
 
       const { activeCardGroups } = runSimulationForSelections(currentSimulatedSelections);
 
-      let playerALabel = "PLAYER A";
-      let playerBLabel = "PLAYER B";
-      if (activeCardGroups.length >= 2) {
-        const sortedByPred = [...activeCardGroups].sort((x, y) => x.pred - y.pred);
-        playerALabel = sortedByPred[0].title.toUpperCase();
-        playerBLabel = sortedByPred[1].title.toUpperCase();
-      } else if (activeCardGroups.length === 1) {
-        playerALabel = activeCardGroups[0].title.toUpperCase();
-      }
-
-      let sampleCutoff = 43.0;
-      if (activeCardGroups.length >= 2) {
-        const sortedByPred = [...activeCardGroups].sort((x, y) => x.pred - y.pred);
-        sampleCutoff = (sortedByPred[0].pred + sortedByPred[1].pred) / 2;
-      }
-
-      const stdDev = 10.5;
-      const minVal = vegasTotal - (3.5 * stdDev);
-      const maxVal = vegasTotal + (3.5 * stdDev);
-      const clampCutoff = Math.max(minVal, Math.min(maxVal, sampleCutoff));
-      const cutoffSvgX = 20 + ((clampCutoff - minVal) / (maxVal - minVal)) * 460;
-
-      let goldHighlightPath = '';
-      if (activeTiebreakerHighlight) {
-        const cutoffVal = activeTiebreakerHighlight.cutoff;
-        const clampedC = Math.max(minVal, Math.min(maxVal, cutoffVal));
-        const cSvgX = 20 + ((clampedC - minVal) / (maxVal - minVal)) * 460;
-
-        let startX = 20, endX = 480;
-        if (activeTiebreakerHighlight.condition === '<') {
-          startX = 20;
-          endX = cSvgX;
-        } else if (activeTiebreakerHighlight.condition === '>') {
-          startX = cSvgX;
-          endX = 480;
-        }
-
-        let pathD = `M ${startX} 135`;
-        for (let px = startX; px <= endX; px += 2) {
-          const scoreVal = minVal + ((px - 20) / 460) * (maxVal - minVal);
-          const pdfVal = normalPDF(scoreVal, vegasTotal, stdDev);
-          const peakHeight = 115;
-          const py = 135 - (pdfVal / 0.038) * peakHeight;
-          pathD += ` L ${px} ${Math.max(20, py)}`;
-        }
-        pathD += ` L ${endX} 135 Z`;
-        goldHighlightPath = `<path d="${pathD}" fill="#f59e0b" fill-opacity="0.35" />`;
-      }
+      const initialSvgInner = buildBellCurveSvgInner(vegasTotal, [], [], activeTiebreakerHighlight);
 
       let html = `
         <div class="ptc-container">
@@ -2902,16 +2961,9 @@
           const outcomeJson = encodeURIComponent(JSON.stringify(s.sampleOutcomeMap || {}));
           let highlightDataAttr = '';
           if (!s.isOutright) {
-            let condOp = '<';
-            let cutoffNum = sampleCutoff;
-            if (s.scoreRange.includes('>')) {
-              condOp = '>';
-              cutoffNum = parseFloat(s.scoreRange.replace('Score > ', '')) || sampleCutoff;
-            } else if (s.scoreRange.includes('<')) {
-              condOp = '<';
-              cutoffNum = parseFloat(s.scoreRange.replace('Score < ', '')) || sampleCutoff;
-            }
-            highlightDataAttr = `data-cond="${condOp}" data-cutoff="${cutoffNum}"`;
+            const minStr = s.minBound !== null && s.minBound !== undefined ? s.minBound : '';
+            const maxStr = s.maxBound !== null && s.maxBound !== undefined ? s.maxBound : '';
+            highlightDataAttr = `data-min="${minStr}" data-max="${maxStr}"`;
           }
 
           return `
@@ -2961,31 +3013,11 @@
               </div>
 
               <div class="ptc-bell-curve-wrapper">
-                <svg id="ptc-bell-svg-elem" class="ptc-bell-svg" viewBox="0 0 500 160" preserveAspectRatio="none">
-                  <line x1="20" y1="135" x2="480" y2="135" stroke="#e2e8f0" stroke-width="1.5" />
-                  ${goldHighlightPath}
-                  <path d="M 20 135 C 100 135, 150 20, 250 20 C 350 20, 400 135, 480 135" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/>
-                  <line id="line-cutoff" x1="${cutoffSvgX}" y1="12" x2="${cutoffSvgX}" y2="142" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 4"/>
-                  
-                  <g id="group-cutoff-badge" transform="translate(${cutoffSvgX}, 2)">
-                    <rect x="-24" y="-12" width="48" height="16" fill="#ef4444" rx="3"></rect>
-                    <text id="text-cutoff-val" x="0" y="0" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle">${sampleCutoff.toFixed(1)}</text>
-                  </g>
-
-                  <foreignObject x="20" y="140" width="${cutoffSvgX - 20}" height="35">
-                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 9px; font-weight: 700; color: #1d4ed8; text-align: center; word-break: break-word; line-height: 1.1;">
-                      <span id="text-zone-a-label">${playerALabel}</span>
-                    </div>
-                  </foreignObject>
-
-                  <foreignObject x="${cutoffSvgX}" y="140" width="${480 - cutoffSvgX}" height="35">
-                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-size: 9px; font-weight: 700; color: #6d28d9; text-align: center; word-break: break-word; line-height: 1.1;">
-                      <span id="text-zone-b-label">${playerBLabel}</span>
-                    </div>
-                  </foreignObject>
+                <svg id="ptc-bell-svg-elem" class="ptc-bell-svg" viewBox="0 0 500 185" preserveAspectRatio="none">
+                  ${initialSvgInner}
                 </svg>
               </div>
-              <div class="ptc-curve-labels" style="margin-top: 25px;">
+              <div class="ptc-curve-labels" style="margin-top: 18px;">
                 <span>Low Score</span>
                 <span id="ptc-vegas-mean-label" style="font-weight: 600; color: #475569;">O/U : ${vegasTotal.toFixed(1)}</span>
                 <span>High Score</span>
@@ -3027,10 +3059,16 @@
     }
 
     function handleScenarioClick(liElem, encodedJson) {
-      const cond = liElem.dataset.cond;
-      const cutoff = parseFloat(liElem.dataset.cutoff);
-      if (cond && !isNaN(cutoff)) {
-        activeTiebreakerHighlight = { condition: cond, cutoff: cutoff };
+      const minRaw = liElem.dataset.min;
+      const maxRaw = liElem.dataset.max;
+      const hasMin = minRaw !== undefined && minRaw !== '';
+      const hasMax = maxRaw !== undefined && maxRaw !== '';
+
+      if (hasMin || hasMax) {
+        activeTiebreakerHighlight = {
+          min: hasMin ? parseFloat(minRaw) : null,
+          max: hasMax ? parseFloat(maxRaw) : null
+        };
       } else {
         activeTiebreakerHighlight = null;
       }
@@ -3104,6 +3142,7 @@
       const unselectedCount = gCtx.gamesToSimulate.filter(g => currentSimulatedSelections[g.id] === null || currentSimulatedSelections[g.id] === undefined).length;
       const banner = document.getElementById('ptc-simulated-result-banner');
       const tbContainer = document.getElementById('ptc-tiebreaker-container');
+      const bellSvg = document.getElementById('ptc-bell-svg-elem');
       if (!banner) return;
 
       if (unselectedCount > 0) {
@@ -3112,7 +3151,7 @@
         return;
       }
 
-      const { activeCardGroups, potentialContenders } = runSimulationForSelections(currentSimulatedSelections);
+      const { potentialContenders, playerEntities } = runSimulationForSelections(currentSimulatedSelections);
 
       const pScores = {};
       potentialContenders.forEach(p => {
@@ -3133,45 +3172,39 @@
       } else {
         if (tbContainer) tbContainer.style.display = 'block';
 
-        const winnerNames = winners.join(' / ');
-        banner.innerHTML = `👑 Tied at ${maxScore} Wins &mdash; Tiebreaker split active between ${winnerNames}`;
-
-        if (winners.length >= 2) {
-          const sortedWinners = [...winners].sort((a, b) => {
-            const cardA = activeCardGroups.find(c => c.players.includes(a));
-            const cardB = activeCardGroups.find(c => c.players.includes(b));
-            return (cardA?.pred || 0) - (cardB?.pred || 0);
-          });
-
-          const cardA = activeCardGroups.find(c => c.players.includes(sortedWinners[0]));
-          const cardB = activeCardGroups.find(c => c.players.includes(sortedWinners[1]));
-
-          const playerAName = cardA ? cardA.title.toUpperCase() : sortedWinners[0].toUpperCase();
-          const playerBName = cardB ? cardB.title.toUpperCase() : sortedWinners[1].toUpperCase();
-          
-          if (cardA && cardB) {
-            const dynamicCutoff = (cardA.pred + cardB.pred) / 2;
-            const stdDev = 10.5;
-            const minVal = gCtx.vegasTotal - (3.5 * stdDev);
-            const maxVal = gCtx.vegasTotal + (3.5 * stdDev);
-            const clampC = Math.max(minVal, Math.min(maxVal, dynamicCutoff));
-            const svgX = 20 + ((clampC - minVal) / (maxVal - minVal)) * 460;
-
-            const lineCutoff = document.getElementById('line-cutoff');
-            const groupBadge = document.getElementById('group-cutoff-badge');
-            const textCutoffVal = document.getElementById('text-cutoff-val');
-            const textALabel = document.getElementById('text-zone-a-label');
-            const textBLabel = document.getElementById('text-zone-b-label');
-
-            if (lineCutoff) {
-              lineCutoff.setAttribute('x1', svgX);
-              lineCutoff.setAttribute('x2', svgX);
-            }
-            if (groupBadge) groupBadge.setAttribute('transform', `translate(${svgX}, 2)`);
-            if (textCutoffVal) textCutoffVal.textContent = `${dynamicCutoff.toFixed(1)}`;
-            if (textALabel) textALabel.textContent = playerAName;
-            if (textBLabel) textBLabel.textContent = playerBName;
+        // Group tied winners by identical tiebreaker prediction so equal predictions share their curve section
+        const predBucketsMap = {};
+        winners.forEach(p => {
+          const predVal = playerEntities[p]?.pred ?? gCtx.vegasTotal;
+          const pKey = String(predVal);
+          if (!predBucketsMap[pKey]) {
+            predBucketsMap[pKey] = { pred: predVal, players: [] };
           }
+          predBucketsMap[pKey].players.push(p);
+        });
+
+        const sortedBuckets = Object.values(predBucketsMap).sort((a, b) => a.pred - b.pred);
+        const cutoffs = [];
+        for (let k = 0; k < sortedBuckets.length - 1; k++) {
+          cutoffs.push((sortedBuckets[k].pred + sortedBuckets[k + 1].pred) / 2);
+        }
+
+        const zoneLabels = sortedBuckets.map(b => b.players.map(p => p.toUpperCase()).join(' / '));
+
+        if (bellSvg) {
+          bellSvg.innerHTML = buildBellCurveSvgInner(
+            gCtx.vegasTotal,
+            cutoffs,
+            zoneLabels,
+            activeTiebreakerHighlight
+          );
+        }
+
+        const winnerNames = winners.join(' / ');
+        if (sortedBuckets.length === 1) {
+          banner.innerHTML = `👑 Tied at ${maxScore} Wins &mdash; Even crown split between ${winnerNames} (Identical Score Pred: ${sortedBuckets[0].pred})`;
+        } else {
+          banner.innerHTML = `👑 Tied at ${maxScore} Wins &mdash; Tiebreaker split active between ${winnerNames}`;
         }
       }
     }
@@ -4144,7 +4177,7 @@
           ? `${overallName}<span class="hof-stat-sub">(${overallRecord})</span>` 
           : `${overallName}`;
 
-        const weeklyName = (season.weekly_wins?.name && season.weekly_wins.name !== 'N/A') ? season.weekly_wins.name : '—';
+        const weeklyName = (season.weekly_wins?.name && season.weekly_wins?.name !== 'N/A') ? season.weekly_wins.name : '—';
         const weeklyWins = season.weekly_wins?.wins;
         const weeklyDisplay = isValidStat(weeklyWins) 
           ? `${weeklyName}<span class="hof-stat-sub">(${weeklyWins} wins)</span>` 
