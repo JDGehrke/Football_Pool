@@ -1102,7 +1102,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.6.4 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.6.5 <span>🔮</span>
       </button>
     </div>
 
@@ -2692,8 +2692,7 @@
       for (let i = 0; i < sortedBuckets.length; i++) {
         for (let j = i + 1; j < sortedBuckets.length; j++) {
           const mid = (sortedBuckets[i].pred + sortedBuckets[j].pred) / 2;
-          const matchesBucket = sortedBuckets.some(b => Math.abs(b.pred - mid) < 1e-6);
-          if (matchesBucket && !exactMidpoints.some(m => Math.abs(m - mid) < 1e-6)) {
+          if (!exactMidpoints.some(m => Math.abs(m - mid) < 1e-6)) {
             exactMidpoints.push(mid);
           }
         }
@@ -2731,7 +2730,7 @@
         });
       }
 
-      // Build ordered intervals around exact midpoint tie bins (±0.5)
+      // Build ordered intervals around midpoint tie bins (±0.5)
       const intervals = [];
       let cursor = null;
 
