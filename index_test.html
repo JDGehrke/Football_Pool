@@ -31,6 +31,12 @@
       font-size: 0.875rem;
     }
 
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+    }
+
     /* --- HEADER --- */
     header { text-align: center; margin-bottom: 25px; padding: 20px; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); }
     header h1 { font-size: 1.85rem; margin-bottom: 5px; color: var(--primary-color); }
@@ -47,6 +53,12 @@
     /* --- CARDS & TABLES --- */
     .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: relative; overflow: visible; }
     .card h3 { margin-bottom: 15px; color: var(--primary-color); font-size: 1.15rem; }
+
+    @media (max-width: 600px) {
+      .card {
+        padding: 14px 10px;
+      }
+    }
     
     table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; }
     th, td { padding: 10px 12px; border-bottom: 1px solid var(--border-color); }
@@ -251,6 +263,15 @@
       transition: fill 0.2s ease;
     }
 
+    @media (max-width: 600px) {
+      .chart-label-text {
+        font-size: 10px;
+      }
+      .chart-value-text {
+        font-size: 10px;
+      }
+    }
+
     .point-group:hover .chart-label-text {
       fill: var(--secondary-color);
     }
@@ -441,6 +462,18 @@
       font-weight: 700;
       color: var(--primary-color);
       font-size: 0.9rem;
+    }
+
+    .profile-chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .profile-chart-header h3 {
+      margin-bottom: 0;
     }
 
     .pill-group {
@@ -816,6 +849,7 @@
     .scatter-chart-wrapper { width: 100%; height: 220px; position: relative; padding: 10px 0; }
     .scatter-svg { width: 100%; height: 100%; overflow: visible; }
     .scatter-line { stroke: var(--secondary-color); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .scatter-zero-line { stroke: #cbd5e1; stroke-width: 1.5; stroke-dasharray: 4 4; }
     .scatter-point { fill: #ffffff; stroke: var(--secondary-color); stroke-width: 3; r: 6; transition: all 0.2s ease; cursor: pointer; }
     .scatter-point:hover { r: 8; fill: var(--secondary-color); }
     .scatter-text-val { font-size: 11px; font-weight: bold; fill: var(--primary-color); text-anchor: middle; }
@@ -1142,7 +1176,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.7.2 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.7.5 <span>🔮</span>
       </button>
     </div>
 
@@ -1215,7 +1249,13 @@
     <div id="player-kpi-banner" class="kpi-grid"></div>
 
     <div class="card">
-      <h3>Weekly Performance</h3>
+      <div class="profile-chart-header">
+        <h3>Weekly Performance</h3>
+        <div class="pill-group">
+          <button id="pill-perf-pct" class="pill-btn active" onclick="switchPlayerChartMetric('pct')">Weekly %</button>
+          <button id="pill-perf-gb" class="pill-btn" onclick="switchPlayerChartMetric('gb')">GB Movement</button>
+        </div>
+      </div>
       <div id="player-trend-chart" class="scatter-chart-wrapper"></div>
     </div>
 
@@ -1344,6 +1384,7 @@
     let activeScenarioId = null;
     let activeTieGroupKey = null;
     let activeScenarioText = null;
+    let playerChartMetric = 'pct';
 
     const NFL_DIVISIONS = {
       "AFC East": ["BUF", "MIA", "NE", "NYJ"],
@@ -1447,6 +1488,10 @@
         window.addEventListener('resize', () => {
           const { sorted, playerRanks } = getPlayerRanks();
           renderSeasonLineChart(sorted, playerRanks);
+          const selectedPlayer = document.getElementById('player-select')?.value;
+          if (selectedPlayer && computedStats[selectedPlayer]) {
+            renderPerformanceChart(selectedPlayer);
+          }
         });
       } catch (err) {
         console.error("Error loading JSON:", err);
@@ -2037,11 +2082,12 @@
       }));
 
       const width = container.clientWidth || 800;
+      const isMobile = width < 600;
       const rowHeight = 36;
-      const paddingTop = 60;
-      const paddingBottom = 30;
-      const paddingLeft = 110;
-      const paddingRight = 45;
+      const paddingTop = 55;
+      const paddingBottom = 28;
+      const paddingLeft = isMobile ? 74 : 110;
+      const paddingRight = isMobile ? 24 : 45;
 
       const height = paddingTop + (playersData.length * rowHeight) + paddingBottom;
 
@@ -2119,6 +2165,9 @@
 
       chartHtml += `<path class="chart-line" d="${linePathD}" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />`;
 
+      const labelGap = isMobile ? 8 : 12;
+      const valueGap = isMobile ? 7 : 10;
+
       points.forEach((pt) => {
         const isLeader = pt.rankNum === 1;
         const fill = isLeader ? '#fffbeb' : '#ffffff';
@@ -2143,13 +2192,13 @@
             
             ${leaderPulseHtml}
             
-            <text x="${paddingLeft - 12}" y="${pt.y}" class="chart-label-text">${pt.name}</text>
+            <text x="${paddingLeft - labelGap}" y="${pt.y}" class="chart-label-text">${pt.name}</text>
             
             <circle cx="${pt.x}" cy="${pt.y}" r="5" 
                     fill="${fill}" stroke="${stroke}" stroke-width="${strokeWidth}" 
                     class="chart-point" />
             
-            <text x="${pt.x + 10}" y="${pt.y + 4}" class="chart-value-text">${pt.wins}</text>
+            <text x="${pt.x + valueGap}" y="${pt.y + 4}" class="chart-value-text">${pt.wins}</text>
           </g>
         `;
       });
@@ -2172,7 +2221,7 @@
               <span>${leaderBadge}</span>
             </div>
             <div class="tooltip-row">
-              <span>Season Record:</span> 
+              <span>Record:</span> 
               <span><span class="text-success">${wins}</span>-<span class="text-danger">${losses}</span></span>
             </div>
             <div class="tooltip-row"><span>Games Back:</span> <span>${gb}</span></div>
@@ -3484,9 +3533,24 @@
       }
     }
 
+    function switchPlayerChartMetric(metric) {
+      playerChartMetric = metric;
+      const pctBtn = document.getElementById('pill-perf-pct');
+      const gbBtn = document.getElementById('pill-perf-gb');
+      if (pctBtn && gbBtn) {
+        pctBtn.classList.toggle('active', metric === 'pct');
+        gbBtn.classList.toggle('active', metric === 'gb');
+      }
+      const player = document.getElementById('player-select')?.value;
+      if (player && computedStats[player]) {
+        renderPerformanceChart(player);
+      }
+    }
+
     function getPlayerGraphData(playerId) {
       const labels = [];
       const winPercentages = [];
+      const gbMovements = [];
       const now = new Date();
 
       Object.keys(poolData.weeks || {}).forEach(weekNum => {
@@ -3503,6 +3567,16 @@
 
         if (isLocked) {
           labels.push(`${weekNum}`);
+
+          const wHist = computedStats[playerId]?.weeklyHistory?.[weekNum];
+          const hasStartedOrFinished = matchups.some(m =>
+            m.winner || (m.status && !['Scheduled', 'Pre-Game'].includes(m.status))
+          );
+          if (wHist && hasStartedOrFinished) {
+            gbMovements.push(wHist.gbChange ?? 0);
+          } else {
+            gbMovements.push(null);
+          }
 
           const finishedMatchups = matchups.filter(m => 
             m.winner && m.winner !== '' && (m.status === 'STATUS_FINAL' || m.status === 'Final' || m.status === 'Completed' || m.status === 'Post-Game')
@@ -3535,7 +3609,7 @@
         }
       });
 
-      return { labels, winPercentages };
+      return { labels, winPercentages, gbMovements };
     }
 
     function getTeamPickAccuracy(playerId) {
@@ -3686,7 +3760,7 @@
 
     function renderPerformanceChart(player) {
       const chartContainer = document.getElementById('player-trend-chart');
-      const { labels, winPercentages } = getPlayerGraphData(player);
+      const { labels, winPercentages, gbMovements } = getPlayerGraphData(player);
       
       if (labels.length === 0) {
         chartContainer.innerHTML = "<p style='text-align:center; padding-top: 80px; color: var(--text-muted);'>No locked/completed weeks available.</p>";
@@ -3694,24 +3768,52 @@
       }
 
       const containerWidth = chartContainer.clientWidth || 800;
-      const paddingX = 50;
-      const paddingTop = 30;
-      const chartHeight = 140; 
-      const availableWidth = containerWidth - (paddingX * 2);
+      const paddingX = containerWidth < 600 ? 28 : 50;
+      const paddingTop = 32;
+      const chartHeight = 136; 
+      const availableWidth = Math.max(40, containerWidth - (paddingX * 2));
 
       const isMobile = containerWidth < 600;
+      const isGbMode = playerChartMetric === 'gb';
+
+      let minVal = 0;
+      let maxVal = 100;
+      if (isGbMode) {
+        const validGb = gbMovements.filter(v => v !== null && v !== undefined);
+        const rawMin = validGb.length > 0 ? Math.min(0, ...validGb) : -2;
+        const rawMax = validGb.length > 0 ? Math.max(0, ...validGb) : 2;
+        minVal = rawMin - 0.5;
+        maxVal = rawMax + 0.5;
+      }
+
+      const valueToY = (val) => {
+        const ratio = (val - minVal) / (maxVal - minVal || 1);
+        return paddingTop + (1 - ratio) * chartHeight;
+      };
+
+      const zeroLineY = isGbMode ? valueToY(0) : null;
 
       const points = labels.map((w, index) => {
         const x = labels.length === 1 
           ? containerWidth / 2 
           : paddingX + (index / (labels.length - 1)) * availableWidth;
         
-        const val = winPercentages[index];
-        const y = val !== null ? (paddingTop + (1 - (val / 100)) * chartHeight) : null;
+        const rawVal = isGbMode ? gbMovements[index] : winPercentages[index];
+        const hasVal = rawVal !== null && rawVal !== undefined;
+        const y = hasVal ? valueToY(rawVal) : null;
         
         const shortW = isMobile ? w.replace('Week ', '').replace('Wk ', '') : w.replace('Week ', 'Wk ');
 
-        return { x: x, y: y, week: shortW, val: val !== null ? `${val}%` : '-' };
+        let labelText = '-';
+        if (hasVal) {
+          if (isGbMode) {
+            labelText = rawVal > 0 ? `+${rawVal}` : `${rawVal}`;
+          } else {
+            labelText = `${rawVal}%`;
+          }
+        }
+
+        return { x: x, y: y, week: shortW, val: labelText };
       });
 
       const validPoints = points.filter(p => p.y !== null);
@@ -3719,6 +3821,10 @@
 
       chartContainer.innerHTML = `
         <svg class="scatter-svg" viewBox="0 0 ${containerWidth} 220" preserveAspectRatio="none">
+          ${zeroLineY !== null ? `
+            <line x1="${paddingX - 10}" y1="${zeroLineY}" x2="${containerWidth - paddingX + 10}" y2="${zeroLineY}" class="scatter-zero-line" />
+            <text x="${paddingX - 12}" y="${zeroLineY + 3}" class="grid-text" style="text-anchor: end;">0</text>
+          ` : ''}
           ${pathD ? `<path class="scatter-line" d="${pathD}" />` : ''}
           ${points.map(p => `
             <g>
