@@ -698,7 +698,6 @@
 
     @media (max-width: 480px) {
       .badge-win, .badge-neutral {
-        flex-direction: column;
         gap: 2px;
         padding: 4px 6px;
       }
@@ -1090,6 +1089,7 @@
           <defs>
             <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stop-color="#3b82f6" />
+              <stop offset="70%" stop-color="#3b82f6" />
               <stop offset="100%" stop-color="#f59e0b" />
             </linearGradient>
           </defs>
@@ -1142,7 +1142,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.7.1 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.7.2 <span>🔮</span>
       </button>
     </div>
 
@@ -1177,7 +1177,7 @@
                 <th>Player</th>
                 <th class="text-center">W-L</th>
                 <th class="text-center" id="col-3-header">Score</th>
-                <th class="text-center">Games Back</th>
+                <th class="text-center">GB</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -1852,13 +1852,21 @@
           const isLeader = (idx === 0 || Math.abs(crowns - maxCrowns) < 1e-6);
           const badgeClass = isLeader ? 'badge-win' : 'badge-neutral';
 
+          const wholeCrowns = Math.floor(crowns + 1e-6);
+          const hasFraction = Math.abs(crowns - wholeCrowns) > 1e-2;
+          const crownIconsHtml = wholeCrowns > 0
+            ? `<span class="crown-icon">${'👑'.repeat(wholeCrowns)}</span>`
+            : '';
+          const fractionTextHtml = hasFraction
+            ? `<span class="crown-text">${crownLabel}</span>`
+            : '';
+
           const crownDisplay = `
             <div class="badge-win-container" 
                  onmouseenter="showCrownTooltip(event, '${p}')" 
                  onmouseleave="hideCrownTooltip()">
               <span class="${badgeClass}">
-                <span class="crown-icon">👑</span>
-                <span class="crown-text">${crownLabel} ${Math.abs(crowns - 1) < 1e-6 ? 'Win' : 'Wins'}</span>
+                ${crownIconsHtml}${fractionTextHtml}
               </span>
             </div>
           `;
@@ -2006,9 +2014,9 @@
       const container = svg ? svg.parentElement : null;
       if (!svg || !tooltip || !container) return;
 
-      const defs = svg.querySelector('defs');
+      const existingDefs = svg.querySelector('defs');
       svg.innerHTML = '';
-      if (defs) svg.appendChild(defs);
+      if (existingDefs) svg.appendChild(existingDefs);
 
       if (!sortedPlayers || sortedPlayers.length === 0) return;
 
@@ -2048,6 +2056,20 @@
       const avgWins = (totalWinsSum / playersData.length).toFixed(1);
 
       const getX = (val) => paddingLeft + ((val / leaderWins) * chartWidth);
+      const avgX = getX(avgWins);
+      const avgOffsetPct = Math.max(0, Math.min(99, (((avgX - paddingLeft) / chartWidth) * 100))).toFixed(1);
+      const yellowStartPct = Math.min(100, (parseFloat(avgOffsetPct) + 6)).toFixed(1);
+
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="line-gradient" x1="${paddingLeft}" y1="0" x2="${paddingLeft + chartWidth}" y2="0" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#3b82f6" />
+            <stop offset="${avgOffsetPct}%" stop-color="#3b82f6" />
+            <stop offset="${yellowStartPct}%" stop-color="#f59e0b" />
+            <stop offset="100%" stop-color="#f59e0b" />
+          </linearGradient>
+        </defs>
+      `;
 
       let gridHtml = '';
       const step = leaderWins <= 10 ? 2 : Math.ceil(leaderWins / 5);
@@ -2059,7 +2081,6 @@
         `;
       }
 
-      const avgX = getX(avgWins);
       gridHtml += `
         <line x1="${avgX}" y1="${paddingTop - 10}" x2="${avgX}" y2="${height - paddingBottom + 5}" class="avg-line" />
         <text x="${avgX}" y="${height - paddingBottom + 20}" class="avg-text" text-anchor="middle">AVG: ${avgWins}</text>
@@ -3196,7 +3217,7 @@
               <span class="ptc-card-title">${group.title}</span>
               <span class="ptc-prob-badge">${winPctStr} Odds</span>
             </div>
-            <span class="ptc-card-sub">${group.wins}W · Pred ${group.pred}</span>
+            <span class="ptc-card-sub">${group.wins} Wins · Pred ${group.pred}</span>
             <ul class="ptc-scenario-list">
               ${bulletsHtml}
             </ul>
