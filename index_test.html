@@ -1102,7 +1102,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.6.6 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.6.7 <span>🔮</span>
       </button>
     </div>
 
@@ -2501,7 +2501,7 @@
     }
 
     /* --- DYNAMIC N-ZONE BELL CURVE SVG BUILDER --- */
-    function buildBellCurveSvgInner(vegasTotal, displayMidpoints, zoneLabels, highlightBounds) {
+    function buildBellCurveSvgInner(vegasTotal, cutoffs, zoneLabels, highlightBounds) {
       const stdDev = 10.5;
       const minVal = vegasTotal - (3.5 * stdDev);
       const maxVal = vegasTotal + (3.5 * stdDev);
@@ -2550,14 +2550,13 @@
         }
       }
 
-      const sortedMidpoints = [...displayMidpoints].sort((a, b) => a - b);
-      const midpointPositions = sortedMidpoints.map(m => ({
-        val: m,
-        x: scoreToX(m),
-        isGold: isExactTieHighlight && Math.abs(m - highlightBounds.exactScore) < 1e-6
+      const cutoffPositions = cutoffs.map(c => ({
+        val: c,
+        x: scoreToX(c),
+        isGold: isExactTieHighlight && Math.abs(c - highlightBounds.exactScore) < 1e-6
       }));
 
-      const boundaries = [leftX, ...midpointPositions.map(c => c.x), rightX];
+      const boundaries = [leftX, ...cutoffPositions.map(c => c.x), rightX];
       const zoneColors = ['#1d4ed8', '#6d28d9', '#047857', '#b45309', '#be123c', '#0369a1'];
 
       let zonesHtml = '';
@@ -2579,21 +2578,21 @@
       }
 
       let cutoffsHtml = '';
-      midpointPositions.forEach((mp, idx) => {
+      cutoffPositions.forEach((cp, idx) => {
         let badgeY = 2;
-        if (idx > 0 && Math.abs(mp.x - midpointPositions[idx - 1].x) < 48) {
+        if (idx > 0 && Math.abs(cp.x - cutoffPositions[idx - 1].x) < 48) {
           badgeY = (idx % 2 === 1) ? 19 : 2;
         }
 
-        const strokeColor = mp.isGold ? '#f59e0b' : '#ef4444';
-        const pillFill = mp.isGold ? '#f59e0b' : '#ef4444';
-        const strokeWidth = mp.isGold ? '2.5' : '2';
+        const lineColor = cp.isGold ? '#f59e0b' : '#ef4444';
+        const pillColor = cp.isGold ? '#f59e0b' : '#ef4444';
+        const strokeWidth = cp.isGold ? '2.5' : '2';
 
         cutoffsHtml += `
-          <line x1="${mp.x.toFixed(1)}" y1="${badgeY + 6}" x2="${mp.x.toFixed(1)}" y2="142" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-dasharray="4 4"/>
-          <g transform="translate(${mp.x.toFixed(1)}, ${badgeY})">
-            <rect x="-22" y="-11" width="44" height="15" fill="${pillFill}" rx="3"></rect>
-            <text x="0" y="0" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle">${mp.val.toFixed(1)}</text>
+          <line x1="${cp.x.toFixed(1)}" y1="${badgeY + 6}" x2="${cp.x.toFixed(1)}" y2="142" stroke="${lineColor}" stroke-width="${strokeWidth}" stroke-dasharray="4 4"/>
+          <g transform="translate(${cp.x.toFixed(1)}, ${badgeY})">
+            <rect x="-22" y="-11" width="44" height="15" fill="${pillColor}" rx="3"></rect>
+            <text x="0" y="0" fill="#ffffff" font-size="9.5" font-weight="700" text-anchor="middle">${cp.val.toFixed(1)}</text>
           </g>
         `;
       });
@@ -2687,32 +2686,6 @@
       modal.classList.add('active');
     }
 
-    function getAllMidpointsForTiedPlayers(tiedPlayers, playerEntities) {
-      const predBucketsMap = {};
-      tiedPlayers.forEach(p => {
-        const predVal = playerEntities[p].pred;
-        const pKey = String(predVal);
-        if (!predBucketsMap[pKey]) {
-          predBucketsMap[pKey] = { pred: predVal, players: [] };
-        }
-        predBucketsMap[pKey].players.push(p);
-      });
-
-      const sortedBuckets = Object.values(predBucketsMap).sort((a, b) => a.pred - b.pred);
-      const midpoints = [];
-
-      for (let i = 0; i < sortedBuckets.length; i++) {
-        for (let j = i + 1; j < sortedBuckets.length; j++) {
-          const mid = (sortedBuckets[i].pred + sortedBuckets[j].pred) / 2;
-          if (!midpoints.some(m => Math.abs(m - mid) < 1e-6)) {
-            midpoints.push(mid);
-          }
-        }
-      }
-
-      return midpoints.sort((a, b) => a - b);
-    }
-
     function buildTiebreakerSegmentsForTiedPlayers(tiedPlayers, playerEntities, vegasTotal) {
       const predBucketsMap = {};
       tiedPlayers.forEach(p => {
@@ -2725,107 +2698,32 @@
       });
 
       const sortedBuckets = Object.values(predBucketsMap).sort((a, b) => a.pred - b.pred);
-      const allMidpoints = getAllMidpointsForTiedPlayers(tiedPlayers, playerEntities);
+      const exactMidpoints = [];
 
-      // Only whole-number midpoints create a discrete integer tie bin [mid - 0.5, mid + 0.5]
-      const wholeNumberMidpoints = allMidpoints.filter(m => Number.isInteger(m));
-
-      if (wholeNumberMidpoints.length === 0) {
-        return sortedBuckets.map((bucket, k) => {
-          const minBound = k > 0 ? (sortedBuckets[k - 1].pred + bucket.pred) / 2 : null;
-          const maxBound = k < sortedBuckets.length - 1 ? (bucket.pred + sortedBuckets[k + 1].pred) / 2 : null;
-          const probLower = minBound === null ? 0 : normalCDF(minBound, vegasTotal, 10.5);
-          const probUpper = maxBound === null ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
-          const intervalScoreProb = Math.max(0, probUpper - probLower);
-
-          let scoreText = '';
-          if (minBound === null && maxBound === null) {
-            scoreText = 'Any Score';
-          } else if (minBound === null) {
-            scoreText = `Score < ${maxBound.toFixed(1)}`;
-          } else if (maxBound === null) {
-            scoreText = `Score > ${minBound.toFixed(1)}`;
-          } else {
-            scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
+      for (let i = 0; i < sortedBuckets.length; i++) {
+        for (let j = i + 1; j < sortedBuckets.length; j++) {
+          const mid = (sortedBuckets[i].pred + sortedBuckets[j].pred) / 2;
+          if (!exactMidpoints.some(m => Math.abs(m - mid) < 1e-6)) {
+            exactMidpoints.push(mid);
           }
-
-          return {
-            minBound,
-            maxBound,
-            isExactTie: false,
-            exactScore: null,
-            intervalScoreProb,
-            scoreText,
-            winners: bucket.players,
-            isCrownSplit: bucket.players.length > 1
-          };
-        });
+        }
       }
 
-      // Build ordered intervals around whole-number midpoint tie bins (±0.5)
+      exactMidpoints.sort((a, b) => a - b);
+
       const intervals = [];
       let cursor = null;
 
-      wholeNumberMidpoints.forEach(mid => {
-        const binLow = mid - 0.5;
-        const binHigh = mid + 0.5;
-
-        if (cursor === null || binLow > cursor + 1e-6) {
-          intervals.push({
-            minBound: cursor,
-            maxBound: binLow,
-            isExactTie: false,
-            exactScore: null
-          });
-        }
-
-        intervals.push({
-          minBound: binLow,
-          maxBound: binHigh,
-          isExactTie: true,
-          exactScore: mid
-        });
-
-        cursor = binHigh;
+      exactMidpoints.forEach(mid => {
+        intervals.push({ minBound: cursor, maxBound: mid });
+        cursor = mid;
       });
+      intervals.push({ minBound: cursor, maxBound: null });
 
-      intervals.push({
-        minBound: cursor,
-        maxBound: null,
-        isExactTie: false,
-        exactScore: null
-      });
-
-      return intervals.map(iv => {
+      const segments = intervals.map(iv => {
         const probLower = iv.minBound === null ? 0 : normalCDF(iv.minBound, vegasTotal, 10.5);
         const probUpper = iv.maxBound === null ? 1 : normalCDF(iv.maxBound, vegasTotal, 10.5);
         const intervalScoreProb = Math.max(0, probUpper - probLower);
-
-        if (iv.isExactTie) {
-          const tiedAtMid = tiedPlayers.filter(p => {
-            const pred = playerEntities[p].pred;
-            const diffMid = Math.abs(pred - iv.exactScore);
-            const isCloserToAnother = tiedPlayers.some(other => {
-              if (other === p) return false;
-              const otherDiffMid = Math.abs(playerEntities[other].pred - iv.exactScore);
-              return otherDiffMid < diffMid - 1e-6;
-            });
-            return !isCloserToAnother;
-          });
-
-          const winners = tiedAtMid.length > 0 ? tiedAtMid : tiedPlayers;
-
-          return {
-            minBound: iv.minBound,
-            maxBound: iv.maxBound,
-            isExactTie: true,
-            exactScore: iv.exactScore,
-            intervalScoreProb,
-            scoreText: `Total = ${iv.exactScore}`,
-            winners,
-            isCrownSplit: winners.length > 1
-          };
-        }
 
         const sampleScore = iv.minBound !== null && iv.maxBound !== null
           ? (iv.minBound + iv.maxBound) / 2
@@ -2865,6 +2763,33 @@
           isCrownSplit: closestPlayers.length > 1
         };
       });
+
+      // Add a tie bullet around whole-number midpoints (e.g., 60 -> [59.5, 60.5]) for tied adjacent players
+      for (let i = 0; i < sortedBuckets.length - 1; i++) {
+        const leftBucket = sortedBuckets[i];
+        const rightBucket = sortedBuckets[i + 1];
+        const mid = (leftBucket.pred + rightBucket.pred) / 2;
+
+        if (Number.isInteger(mid)) {
+          const binLow = mid - 0.5;
+          const binHigh = mid + 0.5;
+          const tieProb = Math.max(0, normalCDF(binHigh, vegasTotal, 10.5) - normalCDF(binLow, vegasTotal, 10.5));
+          const pairPlayers = [...leftBucket.players, ...rightBucket.players];
+
+          segments.push({
+            minBound: binLow,
+            maxBound: binHigh,
+            isExactTie: true,
+            exactScore: mid,
+            intervalScoreProb: tieProb,
+            scoreText: `Total = ${mid}`,
+            winners: pairPlayers,
+            isCrownSplit: true
+          });
+        }
+      }
+
+      return segments;
     }
 
     function runSimulationForSelections(selectionsObj) {
@@ -2974,8 +2899,10 @@
 
             seg.winners.forEach(p => {
               const ent = playerEntities[p];
-              ent.totalProb += shareIntervalProb;
-              ent.totalWinProb += fullIntervalProb;
+              if (!seg.isExactTie) {
+                ent.totalProb += shareIntervalProb;
+                ent.totalWinProb += fullIntervalProb;
+              }
               ent.scenarios.push({
                 isOutright: false,
                 isCrownSplit: seg.isCrownSplit,
@@ -3114,6 +3041,7 @@
             totalWinProb: ent.totalWinProb,
             scenarios: uniqueScenarios.sort((a, b) => {
               if (a.isOutright !== b.isOutright) return a.isOutright ? -1 : 1;
+              if (a.isExactTie !== b.isExactTie) return a.isExactTie ? 1 : -1;
               if (a.isCrownSplit !== b.isCrownSplit) return a.isCrownSplit ? 1 : -1;
               return a.sortVal - b.sortVal;
             })
@@ -3377,15 +3305,20 @@
         if (tbContainer) tbContainer.style.display = 'none';
         banner.innerHTML = `👑 Winner: <strong>${winners[0]}</strong> wins outright with ${maxScore} Wins`;
       } else {
-        const segments = buildTiebreakerSegmentsForTiedPlayers(winners, playerEntities, gCtx.vegasTotal);
-        const displayMidpoints = getAllMidpointsForTiedPlayers(winners, playerEntities);
+        const segments = buildTiebreakerSegmentsForTiedPlayers(winners, playerEntities, gCtx.vegasTotal).filter(s => !s.isExactTie);
+        const cutoffs = [];
+        for (let k = 0; k < segments.length - 1; k++) {
+          if (segments[k].maxBound !== null) {
+            cutoffs.push(segments[k].maxBound);
+          }
+        }
         const zoneLabels = segments.map(seg => seg.winners.map(p => p.toUpperCase()).join(' / '));
 
         if (tbContainer) tbContainer.style.display = 'block';
         if (bellSvg) {
           bellSvg.innerHTML = buildBellCurveSvgInner(
             gCtx.vegasTotal,
-            displayMidpoints,
+            cutoffs,
             zoneLabels,
             activeTiebreakerHighlight
           );
