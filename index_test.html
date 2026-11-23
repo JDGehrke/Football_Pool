@@ -22,6 +22,9 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    html, body {
+      overflow-x: clip;
+    }
     body { 
       background-color: var(--bg-color); 
       color: var(--text-main); 
@@ -178,7 +181,8 @@
     .line-chart-wrapper {
       position: relative;
       width: 100%;
-      overflow: visible;
+      overflow-x: clip;
+      overflow-y: visible;
       padding-top: 15px;
     }
 
@@ -290,6 +294,7 @@
       box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
       z-index: 1000;
       min-width: 160px;
+      max-width: calc(100vw - 20px);
     }
 
     .chart-tooltip {
@@ -305,7 +310,7 @@
       content: '';
       position: absolute;
       bottom: -5px;
-      left: 50%;
+      left: var(--arrow-left, 50%);
       transform: translateX(-50%);
       border-width: 5px 5px 0;
       border-style: solid;
@@ -2033,24 +2038,43 @@
       if (tooltip) tooltip.style.opacity = '0';
     }
 
-    function positionTooltip(evt, tooltip) {
+    function positionTooltip(evt, tooltip, boundsElement = null) {
       const target = evt.currentTarget;
       const rect = target.getBoundingClientRect();
-      
-      const pxX = rect.left + (rect.width / 2);
-      const pxY = rect.top + window.scrollY;
 
-      tooltip.style.left = `${pxX}px`;
-      tooltip.style.top = `${pxY}px`;
+      const anchorX = rect.left + (rect.width / 2);
+      const anchorY = rect.top + window.scrollY;
+
+      tooltip.style.left = `${anchorX}px`;
+      tooltip.style.top = `${anchorY}px`;
       tooltip.style.opacity = '1';
 
-      if (rect.top < 120) {
+      const isBottom = rect.top < 120;
+      if (isBottom) {
         tooltip.classList.add('tooltip-bottom');
         tooltip.style.transform = 'translate(-50%, 30px)';
       } else {
         tooltip.classList.remove('tooltip-bottom');
         tooltip.style.transform = 'translate(-50%, -105%)';
       }
+
+      const tipRect = tooltip.getBoundingClientRect();
+      const tipWidth = tipRect.width || 160;
+      const margin = 10;
+
+      const boundsRect = boundsElement ? boundsElement.getBoundingClientRect() : null;
+      const minLeft = boundsRect ? Math.max(margin, boundsRect.left + margin) : margin;
+      const maxRight = boundsRect ? Math.min(window.innerWidth - margin, boundsRect.right - margin) : (window.innerWidth - margin);
+
+      let desiredLeft = anchorX - (tipWidth / 2);
+      if (desiredLeft < minLeft) desiredLeft = minLeft;
+      if (desiredLeft + tipWidth > maxRight) desiredLeft = Math.max(minLeft, maxRight - tipWidth);
+
+      const clampedCenterX = desiredLeft + (tipWidth / 2);
+      tooltip.style.left = `${clampedCenterX}px`;
+
+      const arrowOffset = Math.max(12, Math.min(tipWidth - 12, anchorX - desiredLeft));
+      tooltip.style.setProperty('--arrow-left', `${arrowOffset}px`);
     }
 
     function renderSeasonLineChart(sortedPlayers, playerRanks) {
@@ -2206,12 +2230,13 @@
       svg.innerHTML += chartHtml;
 
       svg.querySelectorAll('.point-group').forEach(group => {
-        group.addEventListener('mouseenter', () => {
+        group.addEventListener('mouseenter', (evt) => {
           const { name, wins, losses, weekly, pct, gb, rankstr, isleader, index, x, y } = group.dataset;
           const svgBox = svg.getBoundingClientRect();
-          
-          const pxX = (x / width) * svgBox.width;
-          const pxY = (y / height) * svgBox.height;
+          const containerBox = container.getBoundingClientRect();
+
+          const pxX = containerBox.left - tooltip.parentElement.getBoundingClientRect().left + ((x / width) * svgBox.width);
+          const pxY = containerBox.top - tooltip.parentElement.getBoundingClientRect().top + ((y / height) * svgBox.height);
 
           const leaderBadge = isleader === 'true' ? `<span class="gold-crown">👑 ${rankstr}</span>` : `${rankstr}`;
 
@@ -2233,13 +2258,37 @@
           tooltip.style.top = `${pxY}px`;
           tooltip.style.opacity = '1';
 
-          if (parseInt(index, 10) === 0 || pxY < 90) {
+          const isBottom = parseInt(index, 10) === 0 || ((y / height) * svgBox.height) < 90;
+          if (isBottom) {
             tooltip.classList.add('tooltip-bottom');
             tooltip.style.transform = 'translate(-50%, 15px)';
           } else {
             tooltip.classList.remove('tooltip-bottom');
             tooltip.style.transform = 'translate(-50%, -120%)';
           }
+
+          const tipRect = tooltip.getBoundingClientRect();
+          const tipWidth = tipRect.width || 160;
+          const parentRect = tooltip.parentElement.getBoundingClientRect();
+          const margin = 8;
+
+          const minCenter = parentRect.left + margin + (tipWidth / 2);
+          const maxCenter = parentRect.right - margin - (tipWidth / 2);
+          const absAnchorX = svgBox.left + ((x / width) * svgBox.width);
+
+          let clampedAbsCenter = absAnchorX;
+          if (minCenter <= maxCenter) {
+            clampedAbsCenter = Math.max(minCenter, Math.min(maxCenter, absAnchorX));
+          } else {
+            clampedAbsCenter = parentRect.left + (parentRect.width / 2);
+          }
+
+          const relClampedCenter = clampedAbsCenter - parentRect.left;
+          tooltip.style.left = `${relClampedCenter}px`;
+
+          const tipLeftAfter = clampedAbsCenter - (tipWidth / 2);
+          const arrowPos = Math.max(12, Math.min(tipWidth - 12, absAnchorX - tipLeftAfter));
+          tooltip.style.setProperty('--arrow-left', `${arrowPos}px`);
         });
 
         group.addEventListener('mouseleave', () => {
