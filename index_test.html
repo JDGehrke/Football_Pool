@@ -888,9 +888,8 @@
     .ptc-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); transition: all 0.15s ease; }
     .ptc-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
     .ptc-card-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-    .ptc-card-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .ptc-card-sub { display: block; font-size: 0.78rem; color: #64748b; font-weight: 500; margin-top: 2px; }
     .ptc-card-title { font-size: 1rem; font-weight: 700; color: #0f172a; letter-spacing: -0.01em; }
-    .ptc-card-sub { font-size: 0.8rem; color: #64748b; font-weight: 500; }
     .ptc-prob-badge { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; font-weight: 700; font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
 
     .ptc-scenario-list {
@@ -934,16 +933,7 @@
       .modal-header { padding: 12px 14px; }
       .modal-body { padding: 12px; }
       .ptc-card { padding: 12px; }
-      .ptc-card-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-      }
-      .ptc-card-meta {
-        width: 100%;
-        justify-content: space-between;
-      }
-      .ptc-card-sub { font-size: 0.75rem; }
+      .ptc-card-sub { font-size: 0.74rem; }
       .ptc-prob-badge { font-size: 0.75rem; padding: 3px 8px; }
       .ptc-scenario-list {
         margin-top: 8px;
@@ -1152,7 +1142,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.7.0 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.7.1 <span>🔮</span>
       </button>
     </div>
 
@@ -2856,7 +2846,7 @@
             isExactTie: true,
             exactScore: mid,
             intervalScoreProb: tieProb,
-            scoreText: `Total = ${mid}`,
+            scoreText: `Score = ${mid}`,
             winners: pairPlayers,
             isCrownSplit: true
           });
@@ -3074,9 +3064,7 @@
 
             const winStr = combinedMaps.map(om => formatWinnersPerGame(om, remainingGames)).join(' or ');
             const oddsPctVal = totalValidProb > 0 ? (m.totalOddsProb / totalValidProb) * 100 : 0;
-            const sharePctVal = totalValidProb > 0 ? (m.totalShareProb / totalValidProb) * 100 : 0;
             const oddsPctStr = oddsPctVal.toFixed(1) + '%';
-            const sharePctStr = sharePctVal.toFixed(1) + '%';
 
             const tiedNamesStr = (m.tiedPlayers && m.tiedPlayers.length > 1)
               ? m.tiedPlayers.join(' & ')
@@ -3085,11 +3073,11 @@
             let mainCondition = '';
             if (m.isCrownSplit) {
               const scoreClause = m.scoreRange === 'Any score' ? '' : ` · <strong>${m.scoreRange}</strong>`;
-              mainCondition = `Tie: <strong>${winStr}</strong>${scoreClause} · <strong>+${oddsPctStr}</strong> (${sharePctStr} share)`;
+              mainCondition = `Tie: <strong>${winStr}</strong>${scoreClause} (${oddsPctStr})`;
             } else if (m.isOutright) {
-              mainCondition = `Win: <strong>${winStr}</strong> · <strong>+${oddsPctStr}</strong>`;
+              mainCondition = `Win: <strong>${winStr}</strong> (${oddsPctStr})`;
             } else {
-              mainCondition = `Win: <strong>${winStr}</strong> · <strong>${m.scoreRange}</strong> · <strong>+${oddsPctStr}</strong>`;
+              mainCondition = `Win: <strong>${winStr}</strong> · <strong>${m.scoreRange}</strong> (${oddsPctStr})`;
             }
 
             const tieGroupKey = m.isCrownSplit
@@ -3197,7 +3185,7 @@
                 onclick="handleScenarioClick(this, '${outcomeJson}')"
                 ${highlightDataAttr}
                 title="Tap to test this path in the playground">
-              ${s.mainCondition} 🔗
+              ${s.mainCondition}
             </li>
           `;
         }).join('');
@@ -3206,11 +3194,9 @@
           <div class="ptc-card">
             <div class="ptc-card-header">
               <span class="ptc-card-title">${group.title}</span>
-              <div class="ptc-card-meta">
-                <span class="ptc-card-sub">${group.wins}W · Pred ${group.pred}</span>
-                <span class="ptc-prob-badge">${winPctStr} Odds</span>
-              </div>
+              <span class="ptc-prob-badge">${winPctStr} Odds</span>
             </div>
+            <span class="ptc-card-sub">${group.wins}W · Pred ${group.pred}</span>
             <ul class="ptc-scenario-list">
               ${bulletsHtml}
             </ul>
@@ -3439,7 +3425,7 @@
         if (activeTiebreakerHighlight) {
           const hl = activeTiebreakerHighlight;
           const condStr = hl.isExactTie && typeof hl.exactScore === 'number'
-            ? `Total = ${hl.exactScore}`
+            ? `Score = ${hl.exactScore}`
             : (hl.min !== null && hl.max !== null
                 ? `${hl.min.toFixed(1)} < Score < ${hl.max.toFixed(1)}`
                 : (hl.max !== null ? `Score < ${hl.max.toFixed(1)}` : `Score > ${hl.min.toFixed(1)}`));
