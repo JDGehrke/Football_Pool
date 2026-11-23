@@ -1102,7 +1102,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.6.3 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.6.4 <span>🔮</span>
       </button>
     </div>
 
@@ -2675,6 +2675,164 @@
       modal.classList.add('active');
     }
 
+    function buildTiebreakerSegmentsForTiedPlayers(tiedPlayers, playerEntities, vegasTotal) {
+      const predBucketsMap = {};
+      tiedPlayers.forEach(p => {
+        const predVal = playerEntities[p].pred;
+        const pKey = String(predVal);
+        if (!predBucketsMap[pKey]) {
+          predBucketsMap[pKey] = { pred: predVal, players: [] };
+        }
+        predBucketsMap[pKey].players.push(p);
+      });
+
+      const sortedBuckets = Object.values(predBucketsMap).sort((a, b) => a.pred - b.pred);
+      const exactMidpoints = [];
+
+      for (let i = 0; i < sortedBuckets.length; i++) {
+        for (let j = i + 1; j < sortedBuckets.length; j++) {
+          const mid = (sortedBuckets[i].pred + sortedBuckets[j].pred) / 2;
+          const matchesBucket = sortedBuckets.some(b => Math.abs(b.pred - mid) < 1e-6);
+          if (matchesBucket && !exactMidpoints.some(m => Math.abs(m - mid) < 1e-6)) {
+            exactMidpoints.push(mid);
+          }
+        }
+      }
+
+      exactMidpoints.sort((a, b) => a - b);
+
+      if (exactMidpoints.length === 0) {
+        return sortedBuckets.map((bucket, k) => {
+          const minBound = k > 0 ? (sortedBuckets[k - 1].pred + bucket.pred) / 2 : null;
+          const maxBound = k < sortedBuckets.length - 1 ? (bucket.pred + sortedBuckets[k + 1].pred) / 2 : null;
+          const probLower = minBound === null ? 0 : normalCDF(minBound, vegasTotal, 10.5);
+          const probUpper = maxBound === null ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
+          const intervalScoreProb = Math.max(0, probUpper - probLower);
+
+          let scoreText = '';
+          if (minBound === null && maxBound === null) {
+            scoreText = 'Any Score';
+          } else if (minBound === null) {
+            scoreText = `Score < ${maxBound.toFixed(1)}`;
+          } else if (maxBound === null) {
+            scoreText = `Score > ${minBound.toFixed(1)}`;
+          } else {
+            scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
+          }
+
+          return {
+            minBound,
+            maxBound,
+            intervalScoreProb,
+            scoreText,
+            winners: bucket.players,
+            isCrownSplit: bucket.players.length > 1
+          };
+        });
+      }
+
+      // Build ordered intervals around exact midpoint tie bins (±0.5)
+      const intervals = [];
+      let cursor = null;
+
+      exactMidpoints.forEach(mid => {
+        const binLow = mid - 0.5;
+        const binHigh = mid + 0.5;
+
+        if (cursor === null || binLow > cursor + 1e-6) {
+          intervals.push({
+            minBound: cursor,
+            maxBound: binLow,
+            isExactMidpointBin: false,
+            midpointVal: null
+          });
+        }
+
+        intervals.push({
+          minBound: binLow,
+          maxBound: binHigh,
+          isExactMidpointBin: true,
+          midpointVal: mid
+        });
+
+        cursor = binHigh;
+      });
+
+      intervals.push({
+        minBound: cursor,
+        maxBound: null,
+        isExactMidpointBin: false,
+        midpointVal: null
+      });
+
+      return intervals.map(iv => {
+        const probLower = iv.minBound === null ? 0 : normalCDF(iv.minBound, vegasTotal, 10.5);
+        const probUpper = iv.maxBound === null ? 1 : normalCDF(iv.maxBound, vegasTotal, 10.5);
+        const intervalScoreProb = Math.max(0, probUpper - probLower);
+
+        if (iv.isExactMidpointBin) {
+          const tiedAtMid = tiedPlayers.filter(p => {
+            const pred = playerEntities[p].pred;
+            const diffMid = Math.abs(pred - iv.midpointVal);
+            const isCloserToAnother = tiedPlayers.some(other => {
+              if (other === p) return false;
+              const otherDiffMid = Math.abs(playerEntities[other].pred - iv.midpointVal);
+              return otherDiffMid < diffMid - 1e-6;
+            });
+            return !isCloserToAnother;
+          });
+
+          const winners = tiedAtMid.length > 0 ? tiedAtMid : tiedPlayers;
+          const midDisplay = Number.isInteger(iv.midpointVal) ? String(iv.midpointVal) : iv.midpointVal.toFixed(1);
+
+          return {
+            minBound: iv.minBound,
+            maxBound: iv.maxBound,
+            intervalScoreProb,
+            scoreText: `Total = ${midDisplay} (${iv.minBound.toFixed(1)}–${iv.maxBound.toFixed(1)})`,
+            winners,
+            isCrownSplit: winners.length > 1
+          };
+        }
+
+        const sampleScore = iv.minBound !== null && iv.maxBound !== null
+          ? (iv.minBound + iv.maxBound) / 2
+          : (iv.minBound !== null ? iv.minBound + 3.0 : iv.maxBound - 3.0);
+
+        let bestDist = Infinity;
+        let closestPlayers = [];
+        tiedPlayers.forEach(p => {
+          const dist = Math.abs(playerEntities[p].pred - sampleScore);
+          if (dist < bestDist - 1e-6) {
+            bestDist = dist;
+            closestPlayers = [p];
+          } else if (Math.abs(dist - bestDist) <= 1e-6) {
+            closestPlayers.push(p);
+          }
+        });
+
+        let scoreText = '';
+        if (iv.minBound === null && iv.maxBound === null) {
+          scoreText = 'Any Score';
+        } else if (iv.minBound === null) {
+          scoreText = `Score < ${iv.maxBound.toFixed(1)}`;
+        } else if (iv.maxBound === null) {
+          scoreText = `Score > ${iv.minBound.toFixed(1)}`;
+        } else {
+          scoreText = `${iv.minBound.toFixed(1)} < Score < ${iv.maxBound.toFixed(1)}`;
+        }
+
+        return {
+          minBound: iv.minBound,
+          maxBound: iv.maxBound,
+          intervalScoreProb,
+          scoreText,
+          winners: closestPlayers,
+          isCrownSplit: closestPlayers.length > 1
+        };
+      });
+    }
+
     function runSimulationForSelections(selectionsObj) {
       const gCtx = window._ptcGlobal;
       const remainingGames = gCtx.gamesToSimulate;
@@ -2771,64 +2929,28 @@
             splitCount: 1
           });
         } else {
-          const predBucketsMap = {};
-          tiedPlayers.forEach(p => {
-            const predVal = playerEntities[p].pred;
-            const pKey = String(predVal);
-            if (!predBucketsMap[pKey]) {
-              predBucketsMap[pKey] = { pred: predVal, players: [] };
-            }
-            predBucketsMap[pKey].players.push(p);
-          });
+          const segments = buildTiebreakerSegmentsForTiedPlayers(tiedPlayers, playerEntities, vegasTotal);
 
-          const sortedBuckets = Object.values(predBucketsMap).sort((a, b) => a.pred - b.pred);
-
-          sortedBuckets.forEach((bucket, k) => {
-            let minBound = null;
-            let maxBound = null;
-
-            if (k > 0) {
-              minBound = (sortedBuckets[k - 1].pred + bucket.pred) / 2;
-            }
-            if (k < sortedBuckets.length - 1) {
-              maxBound = (bucket.pred + sortedBuckets[k + 1].pred) / 2;
-            }
-
-            const probLower = minBound === null ? 0 : normalCDF(minBound, vegasTotal, 10.5);
-            const probUpper = maxBound === null ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
-            const intervalScoreProb = Math.max(0, probUpper - probLower);
-
-            const fullIntervalProb = branchProb * intervalScoreProb;
-            const splitFactor = 1 / bucket.players.length;
+          segments.forEach(seg => {
+            const fullIntervalProb = branchProb * seg.intervalScoreProb;
+            const splitFactor = seg.winners.length > 0 ? (1 / seg.winners.length) : 1;
             const shareIntervalProb = fullIntervalProb * splitFactor;
-            const isCrownSplit = bucket.players.length > 1;
 
-            let scoreText = '';
-            if (minBound === null && maxBound === null) {
-              scoreText = 'Any Score';
-            } else if (minBound === null) {
-              scoreText = `Score < ${maxBound.toFixed(1)}`;
-            } else if (maxBound === null) {
-              scoreText = `Score > ${minBound.toFixed(1)}`;
-            } else {
-              scoreText = `${minBound.toFixed(1)} < Score < ${maxBound.toFixed(1)}`;
-            }
-
-            bucket.players.forEach(p => {
+            seg.winners.forEach(p => {
               const ent = playerEntities[p];
               ent.totalProb += shareIntervalProb;
               ent.totalWinProb += fullIntervalProb;
               ent.scenarios.push({
                 isOutright: false,
-                isCrownSplit,
-                sortVal: minBound === null ? -Infinity : minBound,
-                minBound,
-                maxBound,
-                scoreRange: scoreText,
+                isCrownSplit: seg.isCrownSplit,
+                sortVal: seg.minBound === null ? -Infinity : seg.minBound,
+                minBound: seg.minBound,
+                maxBound: seg.maxBound,
+                scoreRange: seg.scoreText,
                 outcomeMap: { ...outcomeObj },
                 rawOddsProb: fullIntervalProb,
                 shareProb: shareIntervalProb,
-                splitCount: bucket.players.length
+                splitCount: seg.winners.length
               });
             });
           });
@@ -3206,23 +3328,14 @@
         if (tbContainer) tbContainer.style.display = 'none';
         banner.innerHTML = `👑 Winner: <strong>${winners[0]}</strong> wins outright with ${maxScore} Wins`;
       } else {
-        const predBucketsMap = {};
-        winners.forEach(p => {
-          const predVal = playerEntities[p]?.pred ?? gCtx.vegasTotal;
-          const pKey = String(predVal);
-          if (!predBucketsMap[pKey]) {
-            predBucketsMap[pKey] = { pred: predVal, players: [] };
-          }
-          predBucketsMap[pKey].players.push(p);
-        });
-
-        const sortedBuckets = Object.values(predBucketsMap).sort((a, b) => a.pred - b.pred);
+        const segments = buildTiebreakerSegmentsForTiedPlayers(winners, playerEntities, gCtx.vegasTotal);
         const cutoffs = [];
-        for (let k = 0; k < sortedBuckets.length - 1; k++) {
-          cutoffs.push((sortedBuckets[k].pred + sortedBuckets[k + 1].pred) / 2);
+        for (let k = 0; k < segments.length - 1; k++) {
+          if (segments[k].maxBound !== null) {
+            cutoffs.push(segments[k].maxBound);
+          }
         }
-
-        const zoneLabels = sortedBuckets.map(b => b.players.map(p => p.toUpperCase()).join(' / '));
+        const zoneLabels = segments.map(seg => seg.winners.map(p => p.toUpperCase()).join(' / '));
 
         if (tbContainer) tbContainer.style.display = 'block';
         if (bellSvg) {
@@ -3235,8 +3348,8 @@
         }
 
         const winnerNames = winners.join(' / ');
-        if (sortedBuckets.length === 1) {
-          banner.innerHTML = `👑 Tied at ${maxScore} Wins &mdash; Even crown split between ${winnerNames} (Identical Score Pred: ${sortedBuckets[0].pred})`;
+        if (segments.length === 1 && !segments[0].isCrownSplit) {
+          banner.innerHTML = `👑 Tied at ${maxScore} Wins &mdash; Even crown split between ${winnerNames}`;
         } else {
           banner.innerHTML = `👑 Tied at ${maxScore} Wins &mdash; Tiebreaker split active between ${winnerNames}`;
         }
