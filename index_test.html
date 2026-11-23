@@ -1102,7 +1102,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.6.7 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.6.8 <span>🔮</span>
       </button>
     </div>
 
@@ -2711,28 +2711,28 @@
 
       exactMidpoints.sort((a, b) => a - b);
 
-      const intervals = [];
+      // Build elementary intervals between consecutive midpoints
+      const rawIntervals = [];
       let cursor = null;
-
       exactMidpoints.forEach(mid => {
-        intervals.push({ minBound: cursor, maxBound: mid });
+        rawIntervals.push({ minBound: cursor, maxBound: mid });
         cursor = mid;
       });
-      intervals.push({ minBound: cursor, maxBound: null });
+      rawIntervals.push({ minBound: cursor, maxBound: null });
 
-      const segments = intervals.map(iv => {
-        const probLower = iv.minBound === null ? 0 : normalCDF(iv.minBound, vegasTotal, 10.5);
-        const probUpper = iv.maxBound === null ? 1 : normalCDF(iv.maxBound, vegasTotal, 10.5);
-        const intervalScoreProb = Math.max(0, probUpper - probLower);
-
-        const sampleScore = iv.minBound !== null && iv.maxBound !== null
-          ? (iv.minBound + iv.maxBound) / 2
-          : (iv.minBound !== null ? iv.minBound + 3.0 : iv.maxBound - 3.0);
+      // Determine winner(s) for each elementary interval using its midpoint
+      const evaluated = rawIntervals.map(iv => {
+        const testScore =
+          iv.minBound !== null && iv.maxBound !== null
+            ? (iv.minBound + iv.maxBound) / 2
+            : iv.minBound !== null
+              ? iv.minBound + 2.0
+              : iv.maxBound - 2.0;
 
         let bestDist = Infinity;
         let closestPlayers = [];
         tiedPlayers.forEach(p => {
-          const dist = Math.abs(playerEntities[p].pred - sampleScore);
+          const dist = Math.abs(playerEntities[p].pred - testScore);
           if (dist < bestDist - 1e-6) {
             bestDist = dist;
             closestPlayers = [p];
@@ -2740,6 +2740,30 @@
             closestPlayers.push(p);
           }
         });
+
+        return {
+          minBound: iv.minBound,
+          maxBound: iv.maxBound,
+          winners: closestPlayers
+        };
+      });
+
+      // Merge adjacent intervals that have the exact same winner(s)
+      const mergedIntervals = [];
+      evaluated.forEach(ev => {
+        const key = ev.winners.join('|');
+        const prev = mergedIntervals[mergedIntervals.length - 1];
+        if (prev && prev.winners.join('|') === key) {
+          prev.maxBound = ev.maxBound;
+        } else {
+          mergedIntervals.push({ ...ev });
+        }
+      });
+
+      const segments = mergedIntervals.map(iv => {
+        const probLower = iv.minBound === null ? 0 : normalCDF(iv.minBound, vegasTotal, 10.5);
+        const probUpper = iv.maxBound === null ? 1 : normalCDF(iv.maxBound, vegasTotal, 10.5);
+        const intervalScoreProb = Math.max(0, probUpper - probLower);
 
         let scoreText = '';
         if (iv.minBound === null && iv.maxBound === null) {
@@ -2759,12 +2783,12 @@
           exactScore: null,
           intervalScoreProb,
           scoreText,
-          winners: closestPlayers,
-          isCrownSplit: closestPlayers.length > 1
+          winners: iv.winners,
+          isCrownSplit: iv.winners.length > 1
         };
       });
 
-      // Add a tie bullet around whole-number midpoints (e.g., 60 -> [59.5, 60.5]) for tied adjacent players
+      // Keep whole-number midpoint tie bullets (e.g., Total = 60 -> [59.5, 60.5])
       for (let i = 0; i < sortedBuckets.length - 1; i++) {
         const leftBucket = sortedBuckets[i];
         const rightBucket = sortedBuckets[i + 1];
