@@ -878,17 +878,28 @@
       margin: 16px 0 12px 0; 
       display: flex; 
       justify-content: space-between; 
-      align-items: center; 
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
     }
     .ptc-divider { border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0; }
 
     .ptc-cards-grid { display: flex; flex-direction: column; gap: 12px; }
     .ptc-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); transition: all 0.15s ease; }
     .ptc-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .ptc-card-header { display: flex; justify-content: space-between; align-items: center; }
+    .ptc-card-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .ptc-card-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
     .ptc-card-title { font-size: 1rem; font-weight: 700; color: #0f172a; letter-spacing: -0.01em; }
-    .ptc-card-sub { font-size: 0.8rem; color: #64748b; font-weight: 500; margin-left: 8px; }
-    .ptc-prob-badge { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; font-weight: 700; font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; }
+    .ptc-card-sub { font-size: 0.8rem; color: #64748b; font-weight: 500; }
+    .ptc-prob-badge { background: #eff6ff; color: #1d4ed8; border: 1px solid #dbeafe; font-weight: 700; font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+
+    .ptc-scenario-list {
+      margin-top: 10px;
+      padding-left: 16px;
+      font-size: 0.875rem;
+      color: #334155;
+      line-height: 1.5;
+    }
     
     .ptc-scenario-item {
       cursor: pointer;
@@ -917,6 +928,45 @@
     .ptc-team-btn { border: 1px solid #cbd5e1; background: #ffffff; padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; gap: 6px; color: #334155; }
     .ptc-team-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
     .ptc-team-btn.selected { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; box-shadow: 0 0 0 1px #2563eb; }
+
+    @media (max-width: 600px) {
+      .modal-backdrop { padding: 10px; }
+      .modal-header { padding: 12px 14px; }
+      .modal-body { padding: 12px; }
+      .ptc-card { padding: 12px; }
+      .ptc-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+      .ptc-card-meta {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .ptc-card-sub { font-size: 0.75rem; }
+      .ptc-prob-badge { font-size: 0.75rem; padding: 3px 8px; }
+      .ptc-scenario-list {
+        margin-top: 8px;
+        padding-left: 14px;
+        font-size: 0.8rem;
+        line-height: 1.35;
+      }
+      .ptc-scenario-item {
+        padding: 4px 6px;
+        margin-bottom: 2px;
+      }
+      .ptc-simulator-box { padding: 12px; }
+      .ptc-matchup-row { gap: 10px; margin-bottom: 14px; }
+      .ptc-game-card { width: 100%; padding: 10px 12px; }
+      .ptc-team-btn-group { width: 100%; }
+      .ptc-team-btn {
+        flex: 1;
+        justify-content: center;
+        padding: 8px 10px;
+        font-size: 0.8rem;
+      }
+      .ptc-result-banner { padding: 10px 12px; font-size: 0.82rem; }
+    }
 
     .ptc-tb-box { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
     .ptc-tb-header { font-size: 0.85rem; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; color: #1e293b; }
@@ -1102,7 +1152,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.6.11 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.7.0 <span>🔮</span>
       </button>
     </div>
 
@@ -2768,7 +2818,7 @@
 
         let scoreText = '';
         if (iv.minBound === null && iv.maxBound === null) {
-          scoreText = 'Any Score';
+          scoreText = 'Any score';
         } else if (iv.minBound === null) {
           scoreText = `Score < ${iv.maxBound.toFixed(1)}`;
         } else if (iv.maxBound === null) {
@@ -2907,7 +2957,7 @@
             sortVal: -Infinity,
             minBound: null,
             maxBound: null,
-            scoreRange: "Any Score",
+            scoreRange: "Any score",
             tiedPlayers: [soleWinner],
             outcomeMap: { ...outcomeObj },
             rawOddsProb: branchProb,
@@ -3034,12 +3084,12 @@
 
             let mainCondition = '';
             if (m.isCrownSplit) {
-              const scoreClause = m.scoreRange === 'Any Score' ? '' : ` AND <strong>${m.scoreRange}</strong>`;
-              mainCondition = `Ties if <strong>${winStr}</strong> win${scoreClause}. (+${oddsPctStr} odds / +${sharePctStr} share)`;
+              const scoreClause = m.scoreRange === 'Any score' ? '' : ` · <strong>${m.scoreRange}</strong>`;
+              mainCondition = `Tie: <strong>${winStr}</strong>${scoreClause} · <strong>+${oddsPctStr}</strong> (${sharePctStr} share)`;
             } else if (m.isOutright) {
-              mainCondition = `Clinches if <strong>${winStr}</strong> win. (+${oddsPctStr} odds)`;
+              mainCondition = `Win: <strong>${winStr}</strong> · <strong>+${oddsPctStr}</strong>`;
             } else {
-              mainCondition = `Clinches if <strong>${winStr}</strong> win AND <strong>${m.scoreRange}</strong>. (+${oddsPctStr} odds)`;
+              mainCondition = `Win: <strong>${winStr}</strong> · <strong>${m.scoreRange}</strong> · <strong>+${oddsPctStr}</strong>`;
             }
 
             const tieGroupKey = m.isCrownSplit
@@ -3047,7 +3097,7 @@
               : null;
 
             const bannerText = m.isCrownSplit
-              ? (m.scoreRange === 'Any Score'
+              ? (m.scoreRange === 'Any score'
                   ? `👑 Tied between <strong>${tiedNamesStr}</strong> if ${winStr} win`
                   : `👑 Tied between <strong>${tiedNamesStr}</strong> if ${winStr} win AND <strong>${m.scoreRange}</strong>`)
               : (m.isOutright
@@ -3146,7 +3196,7 @@
                 data-banner-text="${encodeURIComponent(s.bannerText || '')}"
                 onclick="handleScenarioClick(this, '${outcomeJson}')"
                 ${highlightDataAttr}
-                title="Click to test this path in the playground">
+                title="Tap to test this path in the playground">
               ${s.mainCondition} 🔗
             </li>
           `;
@@ -3155,13 +3205,13 @@
         html += `
           <div class="ptc-card">
             <div class="ptc-card-header">
-              <div>
-                <span class="ptc-card-title">${group.title}</span>
-                <span class="ptc-card-sub">(${group.wins} Wins • Score Pred: ${group.pred})</span>
+              <span class="ptc-card-title">${group.title}</span>
+              <div class="ptc-card-meta">
+                <span class="ptc-card-sub">${group.wins}W · Pred ${group.pred}</span>
+                <span class="ptc-prob-badge">${winPctStr} Odds</span>
               </div>
-              <div class="ptc-prob-badge">${winPctStr} Crown Odds</div>
             </div>
-            <ul style="margin-top: 10px; padding-left: 18px; font-size: 0.875rem; color: #334155; line-height: 1.6;">
+            <ul class="ptc-scenario-list">
               ${bulletsHtml}
             </ul>
           </div>
