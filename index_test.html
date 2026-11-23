@@ -1102,7 +1102,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.6.8 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.6.9 <span>🔮</span>
       </button>
     </div>
 
@@ -1302,6 +1302,8 @@
     let currentSimulatedSelections = {};
     let activeTiebreakerHighlight = null;
     let activeScenarioId = null;
+    let activeTieGroupKey = null;
+    let activeScenarioText = null;
 
     const NFL_DIVISIONS = {
       "AFC East": ["BUF", "MIA", "NE", "NYJ"],
@@ -2680,6 +2682,8 @@
       });
       activeTiebreakerHighlight = null;
       activeScenarioId = null;
+      activeTieGroupKey = null;
+      activeScenarioText = null;
 
       window._ptcGlobal = { currentWins, gamesToSimulate, tiebreakerPicks, vegasTotal, matchupsCount: gamesToSimulate.length };
       renderPathToCrownContent();
@@ -2711,7 +2715,6 @@
 
       exactMidpoints.sort((a, b) => a - b);
 
-      // Build elementary intervals between consecutive midpoints
       const rawIntervals = [];
       let cursor = null;
       exactMidpoints.forEach(mid => {
@@ -2720,7 +2723,6 @@
       });
       rawIntervals.push({ minBound: cursor, maxBound: null });
 
-      // Determine winner(s) for each elementary interval using its midpoint
       const evaluated = rawIntervals.map(iv => {
         const testScore =
           iv.minBound !== null && iv.maxBound !== null
@@ -2748,7 +2750,6 @@
         };
       });
 
-      // Merge adjacent intervals that have the exact same winner(s)
       const mergedIntervals = [];
       evaluated.forEach(ev => {
         const key = ev.winners.join('|');
@@ -2788,7 +2789,6 @@
         };
       });
 
-      // Keep whole-number midpoint tie bullets (e.g., Total = 60 -> [59.5, 60.5])
       for (let i = 0; i < sortedBuckets.length - 1; i++) {
         const leftBucket = sortedBuckets[i];
         const rightBucket = sortedBuckets[i + 1];
@@ -3034,6 +3034,18 @@
               mainCondition = `Clinches if <strong>${winStr}</strong> win AND <strong>${m.scoreRange}</strong>. (+${oddsPctStr} odds)`;
             }
 
+            const tieGroupKey = m.isCrownSplit
+              ? `${winStr}__${m.isExactTie}__${m.scoreRange}`
+              : null;
+
+            const bannerText = m.isCrownSplit
+              ? (m.scoreRange === 'Any Score'
+                  ? `👑 Tied if ${winStr} win (${ent.title} / split)`
+                  : `👑 Tied if ${winStr} win AND ${m.scoreRange}`)
+              : (m.isOutright
+                  ? `👑 ${ent.title} clinches if ${winStr} win`
+                  : `👑 ${ent.title} clinches if ${winStr} win AND ${m.scoreRange}`);
+
             const sampleMap = {};
             const firstMap = m.outcomeMaps[0] || {};
             remainingGames.forEach(g => {
@@ -3050,6 +3062,8 @@
               sortVal: m.sortVal,
               minBound: m.minBound,
               maxBound: m.maxBound,
+              tieGroupKey,
+              bannerText,
               mainCondition,
               scoreRange: m.scoreRange,
               sampleOutcomeMap: sampleMap
@@ -3105,7 +3119,8 @@
 
         const bulletsHtml = group.scenarios.map((s) => {
           const outcomeJson = encodeURIComponent(JSON.stringify(s.sampleOutcomeMap || {}));
-          const isSelected = activeScenarioId === s.scenarioId;
+          const isSelected = activeScenarioId === s.scenarioId ||
+            (Boolean(activeTieGroupKey) && s.tieGroupKey === activeTieGroupKey);
           const activeClass = isSelected ? ' active-scenario' : '';
           let highlightDataAttr = '';
           if (!s.isOutright) {
@@ -3117,7 +3132,13 @@
           }
 
           return `
-            <li class="ptc-scenario-item${activeClass}" data-scenario-id="${s.scenarioId}" onclick="handleScenarioClick(this, '${outcomeJson}')" ${highlightDataAttr} title="Click to test this path in the playground">
+            <li class="ptc-scenario-item${activeClass}"
+                data-scenario-id="${s.scenarioId}"
+                data-tie-group="${s.tieGroupKey || ''}"
+                data-banner-text="${encodeURIComponent(s.bannerText || '')}"
+                onclick="handleScenarioClick(this, '${outcomeJson}')"
+                ${highlightDataAttr}
+                title="Click to test this path in the playground">
               ${s.mainCondition} 🔗
             </li>
           `;
@@ -3210,6 +3231,8 @@
 
     function handleScenarioClick(liElem, encodedJson) {
       activeScenarioId = liElem.dataset.scenarioId || null;
+      activeTieGroupKey = liElem.dataset.tieGroup || null;
+      activeScenarioText = liElem.dataset.bannerText || null;
 
       const minRaw = liElem.dataset.min;
       const maxRaw = liElem.dataset.max;
@@ -3255,6 +3278,8 @@
       });
       activeTiebreakerHighlight = null;
       activeScenarioId = null;
+      activeTieGroupKey = null;
+      activeScenarioText = null;
       renderPathToCrownContent();
       const content = document.getElementById('ptc-playground-content');
       if (content) content.style.display = 'block';
@@ -3268,6 +3293,8 @@
       currentSimulatedSelections[gameId] = teamCode;
       activeTiebreakerHighlight = null;
       activeScenarioId = null;
+      activeTieGroupKey = null;
+      activeScenarioText = null;
       renderPathToCrownContent();
       const content = document.getElementById('ptc-playground-content');
       if (content) content.style.display = 'block';
@@ -3349,7 +3376,17 @@
         }
 
         const winnerNames = winners.join(' / ');
-        if (segments.length === 1 && !segments[0].isCrownSplit) {
+        if (activeScenarioText) {
+          banner.innerHTML = decodeURIComponent(activeScenarioText);
+        } else if (activeTiebreakerHighlight) {
+          const hl = activeTiebreakerHighlight;
+          const condStr = hl.isExactTie && typeof hl.exactScore === 'number'
+            ? `Total = ${hl.exactScore}`
+            : (hl.min !== null && hl.max !== null
+                ? `${hl.min.toFixed(1)} < Score < ${hl.max.toFixed(1)}`
+                : (hl.max !== null ? `Score < ${hl.max.toFixed(1)}` : `Score > ${hl.min.toFixed(1)}`));
+          banner.innerHTML = `👑 Selected tiebreaker region: <strong>${condStr}</strong>`;
+        } else if (segments.length === 1 && !segments[0].isCrownSplit) {
           banner.innerHTML = `👑 Tied at ${maxScore} Wins &mdash; Even crown split between ${winnerNames}`;
         } else {
           banner.innerHTML = `👑 Tied at ${maxScore} Wins &mdash; Tiebreaker split active between ${winnerNames}`;
