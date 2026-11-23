@@ -1102,7 +1102,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.6.9 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.6.10 <span>🔮</span>
       </button>
     </div>
 
@@ -2908,6 +2908,7 @@
             minBound: null,
             maxBound: null,
             scoreRange: "Any Score",
+            tiedPlayers: [soleWinner],
             outcomeMap: { ...outcomeObj },
             rawOddsProb: branchProb,
             shareProb: branchProb,
@@ -2936,6 +2937,7 @@
                 minBound: seg.minBound,
                 maxBound: seg.maxBound,
                 scoreRange: seg.scoreText,
+                tiedPlayers: [...seg.winners],
                 outcomeMap: { ...outcomeObj },
                 rawOddsProb: fullIntervalProb,
                 shareProb: shareIntervalProb,
@@ -2959,7 +2961,8 @@
           const mergedMap = {};
 
           ent.scenarios.forEach(s => {
-            const key = `${s.isOutright}_${s.isCrownSplit}_${s.isExactTie}_${s.scoreRange}`;
+            const tiedKey = (s.tiedPlayers || [ent.title]).join(',');
+            const key = `${s.isOutright}_${s.isCrownSplit}_${s.isExactTie}_${s.scoreRange}_${tiedKey}`;
             if (!mergedMap[key]) {
               mergedMap[key] = {
                 isOutright: s.isOutright,
@@ -2970,6 +2973,7 @@
                 minBound: s.minBound,
                 maxBound: s.maxBound,
                 scoreRange: s.scoreRange,
+                tiedPlayers: s.tiedPlayers || [ent.title],
                 totalOddsProb: 0,
                 totalShareProb: 0,
                 outcomeMaps: []
@@ -3024,6 +3028,10 @@
             const oddsPctStr = oddsPctVal.toFixed(1) + '%';
             const sharePctStr = sharePctVal.toFixed(1) + '%';
 
+            const tiedNamesStr = (m.tiedPlayers && m.tiedPlayers.length > 1)
+              ? m.tiedPlayers.join(' & ')
+              : ent.title;
+
             let mainCondition = '';
             if (m.isCrownSplit) {
               const scoreClause = m.scoreRange === 'Any Score' ? '' : ` AND <strong>${m.scoreRange}</strong>`;
@@ -3035,16 +3043,16 @@
             }
 
             const tieGroupKey = m.isCrownSplit
-              ? `${winStr}__${m.isExactTie}__${m.scoreRange}`
+              ? `${winStr}__${m.isExactTie}__${m.scoreRange}__${tiedNamesStr}`
               : null;
 
             const bannerText = m.isCrownSplit
               ? (m.scoreRange === 'Any Score'
-                  ? `👑 Tied if ${winStr} win (${ent.title} / split)`
-                  : `👑 Tied if ${winStr} win AND ${m.scoreRange}`)
+                  ? `👑 Tied between <strong>${tiedNamesStr}</strong> if ${winStr} win`
+                  : `👑 Tied between <strong>${tiedNamesStr}</strong> if ${winStr} win AND <strong>${m.scoreRange}</strong>`)
               : (m.isOutright
-                  ? `👑 ${ent.title} clinches if ${winStr} win`
-                  : `👑 ${ent.title} clinches if ${winStr} win AND ${m.scoreRange}`);
+                  ? `👑 <strong>${ent.title}</strong> clinches if ${winStr} win`
+                  : `👑 <strong>${ent.title}</strong> clinches if ${winStr} win AND <strong>${m.scoreRange}</strong>`);
 
             const sampleMap = {};
             const firstMap = m.outcomeMaps[0] || {};
@@ -3119,7 +3127,7 @@
 
         const bulletsHtml = group.scenarios.map((s) => {
           const outcomeJson = encodeURIComponent(JSON.stringify(s.sampleOutcomeMap || {}));
-          const isSelected = activeScenarioId === s.scenarioId ||
+          const isSelected = (Boolean(activeScenarioId) && activeScenarioId === s.scenarioId) ||
             (Boolean(activeTieGroupKey) && s.tieGroupKey === activeTieGroupKey);
           const activeClass = isSelected ? ' active-scenario' : '';
           let highlightDataAttr = '';
@@ -3376,20 +3384,38 @@
         }
 
         const winnerNames = winners.join(' / ');
-        if (activeScenarioText) {
-          banner.innerHTML = decodeURIComponent(activeScenarioText);
-        } else if (activeTiebreakerHighlight) {
+        const winStr = gCtx.gamesToSimulate.map(g => currentSimulatedSelections[g.id]).join(' & ');
+
+        if (activeTiebreakerHighlight) {
           const hl = activeTiebreakerHighlight;
           const condStr = hl.isExactTie && typeof hl.exactScore === 'number'
             ? `Total = ${hl.exactScore}`
             : (hl.min !== null && hl.max !== null
                 ? `${hl.min.toFixed(1)} < Score < ${hl.max.toFixed(1)}`
                 : (hl.max !== null ? `Score < ${hl.max.toFixed(1)}` : `Score > ${hl.min.toFixed(1)}`));
-          banner.innerHTML = `👑 Selected tiebreaker region: <strong>${condStr}</strong>`;
+
+          const matchingSeg = buildTiebreakerSegmentsForTiedPlayers(winners, playerEntities, gCtx.vegasTotal).find(s => {
+            if (hl.isExactTie && typeof hl.exactScore === 'number') {
+              return s.isExactTie && Math.abs(s.exactScore - hl.exactScore) < 1e-6;
+            }
+            const minMatch = (hl.min === null && s.minBound === null) ||
+              (hl.min !== null && s.minBound !== null && Math.abs(hl.min - s.minBound) < 1e-6);
+            const maxMatch = (hl.max === null && s.maxBound === null) ||
+              (hl.max !== null && s.maxBound !== null && Math.abs(hl.max - s.maxBound) < 1e-6);
+            return !s.isExactTie && minMatch && maxMatch;
+          });
+
+          const tiedForRegion = matchingSeg && matchingSeg.winners && matchingSeg.winners.length > 1
+            ? matchingSeg.winners.join(' & ')
+            : winnerNames;
+
+          banner.innerHTML = `👑 Tied between <strong>${tiedForRegion}</strong> if ${winStr} win AND <strong>${condStr}</strong>`;
+        } else if (activeScenarioText) {
+          banner.innerHTML = decodeURIComponent(activeScenarioText);
         } else if (segments.length === 1 && !segments[0].isCrownSplit) {
-          banner.innerHTML = `👑 Tied at ${maxScore} Wins &mdash; Even crown split between ${winnerNames}`;
+          banner.innerHTML = `👑 Tied at ${maxScore} Wins &mdash; Even crown split between <strong>${winnerNames}</strong>`;
         } else {
-          banner.innerHTML = `👑 Tied at ${maxScore} Wins &mdash; Tiebreaker split active between ${winnerNames}`;
+          banner.innerHTML = `👑 Tied at ${maxScore} Wins &mdash; Tiebreaker split active between <strong>${winnerNames}</strong>`;
         }
       }
     }
