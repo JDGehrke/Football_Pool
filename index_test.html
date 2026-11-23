@@ -1094,7 +1094,7 @@
       </div>
 
       <button id="btn-path-to-crown" class="btn-crown-action" onclick="openPathToCrownModal()" style="display: none;">
-        <span>🔮</span> Path to Crown v4.6.1 <span>🔮</span>
+        <span>🔮</span> Path to Crown v4.6.2 <span>🔮</span>
       </button>
     </div>
 
@@ -2513,7 +2513,6 @@
         return baseY - (dens / peakDensity) * (baseY - peakY);
       };
 
-      // Build smooth standard normal bell curve path centered at O/U (x = 250)
       let curvePathD = '';
       for (let px = leftX; px <= rightX; px += 2) {
         const scoreVal = minVal + ((px - leftX) / plotW) * (maxVal - minVal);
@@ -2521,7 +2520,6 @@
         curvePathD += `${px === leftX ? 'M' : 'L'} ${px.toFixed(1)} ${py.toFixed(1)} `;
       }
 
-      // Optional gold shaded zone when user clicks a specific tiebreaker scenario bullet
       let goldHighlightPath = '';
       if (highlightBounds && (highlightBounds.min !== null || highlightBounds.max !== null)) {
         const hStartX = highlightBounds.min === null ? leftX : scoreToX(highlightBounds.min);
@@ -2537,7 +2535,6 @@
         }
       }
 
-      // Build zone boundaries [leftX, c1X, c2X, ..., rightX]
       const cutoffPositions = cutoffs.map(c => ({
         val: c,
         x: scoreToX(c)
@@ -2546,7 +2543,6 @@
       const boundaries = [leftX, ...cutoffPositions.map(c => c.x), rightX];
       const zoneColors = ['#1d4ed8', '#6d28d9', '#047857', '#b45309', '#be123c', '#0369a1'];
 
-      // Section player labels centered below each segment
       let zonesHtml = '';
       for (let i = 0; i < zoneLabels.length; i++) {
         const zStart = boundaries[i];
@@ -2565,10 +2561,8 @@
         `;
       }
 
-      // Dotted vertical lines + red cutoff number badges
       let cutoffsHtml = '';
       cutoffPositions.forEach((cp, idx) => {
-        // Slight vertical stagger only if two cutoff badges are extremely close horizontally
         let badgeY = 2;
         if (idx > 0 && Math.abs(cp.x - cutoffPositions[idx - 1].x) < 48) {
           badgeY = (idx % 2 === 1) ? 19 : 2;
@@ -2704,7 +2698,8 @@
           players: [p],
           wins,
           pred,
-          totalProb: 0,
+          totalProb: 0,    // Expected crown share (sum across all players = 100%)
+          totalWinProb: 0, // Actual probability of finishing 1st (outright or tied)
           scenarios: []
         };
       });
@@ -2752,14 +2747,18 @@
           const soleWinner = tiedPlayers[0];
           const ent = playerEntities[soleWinner];
           ent.totalProb += branchProb;
+          ent.totalWinProb += branchProb;
           ent.scenarios.push({
             isOutright: true,
+            isCrownSplit: false,
             sortVal: -Infinity,
             minBound: null,
             maxBound: null,
             scoreRange: "Any Score",
             outcomeMap: { ...outcomeObj },
-            branchProb
+            rawOddsProb: branchProb,
+            shareProb: branchProb,
+            splitCount: 1
           });
         } else {
           const predBucketsMap = {};
@@ -2789,8 +2788,10 @@
             const probUpper = maxBound === null ? 1 : normalCDF(maxBound, vegasTotal, 10.5);
             const intervalScoreProb = Math.max(0, probUpper - probLower);
 
+            const fullIntervalProb = branchProb * intervalScoreProb;
             const splitFactor = 1 / bucket.players.length;
-            const addedProb = branchProb * intervalScoreProb * splitFactor;
+            const shareIntervalProb = fullIntervalProb * splitFactor;
+            const isCrownSplit = bucket.players.length > 1;
 
             let scoreText = '';
             if (minBound === null && maxBound === null) {
@@ -2805,15 +2806,18 @@
 
             bucket.players.forEach(p => {
               const ent = playerEntities[p];
-              ent.totalProb += addedProb;
+              ent.totalProb += shareIntervalProb;
+              ent.totalWinProb += fullIntervalProb;
               ent.scenarios.push({
                 isOutright: false,
+                isCrownSplit,
                 sortVal: minBound === null ? -Infinity : minBound,
                 minBound,
                 maxBound,
                 scoreRange: scoreText,
                 outcomeMap: { ...outcomeObj },
-                branchProb: addedProb,
+                rawOddsProb: fullIntervalProb,
+                shareProb: shareIntervalProb,
                 splitCount: bucket.players.length
               });
             });
@@ -2824,29 +2828,32 @@
       if (totalValidProb > 0) {
         Object.values(playerEntities).forEach(ent => {
           ent.totalProb /= totalValidProb;
+          ent.totalWinProb /= totalValidProb;
         });
       }
 
       const activeCardGroups = Object.values(playerEntities)
-        .filter(ent => ent.totalProb > 0.000001)
+        .filter(ent => ent.totalWinProb > 0.000001)
         .map(ent => {
           const mergedMap = {};
 
           ent.scenarios.forEach(s => {
-            const key = `${s.isOutright}_${s.scoreRange}_${s.splitCount || 1}`;
+            const key = `${s.isOutright}_${s.isCrownSplit}_${s.scoreRange}`;
             if (!mergedMap[key]) {
               mergedMap[key] = {
                 isOutright: s.isOutright,
+                isCrownSplit: s.isCrownSplit,
                 sortVal: s.sortVal,
                 minBound: s.minBound,
                 maxBound: s.maxBound,
                 scoreRange: s.scoreRange,
-                splitCount: s.splitCount || 1,
-                totalSubProb: 0,
+                totalOddsProb: 0,
+                totalShareProb: 0,
                 outcomeMaps: []
               };
             }
-            mergedMap[key].totalSubProb += s.branchProb;
+            mergedMap[key].totalOddsProb += s.rawOddsProb;
+            mergedMap[key].totalShareProb += s.shareProb;
             mergedMap[key].outcomeMaps.push(s.outcomeMap);
           });
 
@@ -2889,15 +2896,19 @@
             }
 
             const winStr = combinedMaps.map(om => formatWinnersPerGame(om, remainingGames)).join(' or ');
-            const subPctVal = totalValidProb > 0 ? (m.totalSubProb / totalValidProb) * 100 : 0;
-            const subPctStr = subPctVal.toFixed(1) + '%';
-            const splitNote = m.splitCount > 1 ? ` (split 1/${m.splitCount} on tie)` : '';
+            const oddsPctVal = totalValidProb > 0 ? (m.totalOddsProb / totalValidProb) * 100 : 0;
+            const sharePctVal = totalValidProb > 0 ? (m.totalShareProb / totalValidProb) * 100 : 0;
+            const oddsPctStr = oddsPctVal.toFixed(1) + '%';
+            const sharePctStr = sharePctVal.toFixed(1) + '%';
 
             let mainCondition = '';
-            if (m.isOutright) {
-              mainCondition = `Clinches if <strong>${winStr}</strong> win. (+${subPctStr})`;
+            if (m.isCrownSplit) {
+              const scoreClause = m.scoreRange === 'Any Score' ? '' : ` AND <strong>${m.scoreRange}</strong>`;
+              mainCondition = `Ties if <strong>${winStr}</strong> win${scoreClause}. (+${oddsPctStr} odds / +${sharePctStr} share)`;
+            } else if (m.isOutright) {
+              mainCondition = `Clinches if <strong>${winStr}</strong> win. (+${oddsPctStr} odds)`;
             } else {
-              mainCondition = `Clinches if <strong>${winStr}</strong> win AND <strong>${m.scoreRange}</strong>${splitNote}. (+${subPctStr})`;
+              mainCondition = `Clinches if <strong>${winStr}</strong> win AND <strong>${m.scoreRange}</strong>. (+${oddsPctStr} odds)`;
             }
 
             const sampleMap = {};
@@ -2909,6 +2920,7 @@
 
             return {
               isOutright: m.isOutright,
+              isCrownSplit: m.isCrownSplit,
               sortVal: m.sortVal,
               minBound: m.minBound,
               maxBound: m.maxBound,
@@ -2924,13 +2936,20 @@
             wins: ent.wins,
             pred: ent.pred,
             totalProb: ent.totalProb,
+            totalWinProb: ent.totalWinProb,
             scenarios: uniqueScenarios.sort((a, b) => {
               if (a.isOutright !== b.isOutright) return a.isOutright ? -1 : 1;
+              if (a.isCrownSplit !== b.isCrownSplit) return a.isCrownSplit ? 1 : -1;
               return a.sortVal - b.sortVal;
             })
           };
         })
-        .sort((a, b) => b.totalProb - a.totalProb);
+        .sort((a, b) => {
+          if (Math.abs(b.totalProb - a.totalProb) > 1e-6) {
+            return b.totalProb - a.totalProb;
+          }
+          return b.totalWinProb - a.totalWinProb;
+        });
 
       return { activeCardGroups, potentialContenders, playerEntities };
     }
@@ -2954,8 +2973,8 @@
       `;
 
       activeCardGroups.forEach((group) => {
-        const rawProb = group.totalProb * 100;
-        const winPctStr = rawProb.toFixed(1) + '%';
+        const rawWinProb = group.totalWinProb * 100;
+        const winPctStr = rawWinProb.toFixed(1) + '%';
 
         const bulletsHtml = group.scenarios.map((s) => {
           const outcomeJson = encodeURIComponent(JSON.stringify(s.sampleOutcomeMap || {}));
@@ -2980,7 +2999,7 @@
                 <span class="ptc-card-title">${group.title}</span>
                 <span class="ptc-card-sub">(${group.wins} Wins • Score Pred: ${group.pred})</span>
               </div>
-              <div class="ptc-prob-badge">${winPctStr} Crown Prob</div>
+              <div class="ptc-prob-badge">${winPctStr} Crown Odds</div>
             </div>
             <ul style="margin-top: 10px; padding-left: 18px; font-size: 0.875rem; color: #334155; line-height: 1.6;">
               ${bulletsHtml}
@@ -3172,7 +3191,6 @@
       } else {
         if (tbContainer) tbContainer.style.display = 'block';
 
-        // Group tied winners by identical tiebreaker prediction so equal predictions share their curve section
         const predBucketsMap = {};
         winners.forEach(p => {
           const predVal = playerEntities[p]?.pred ?? gCtx.vegasTotal;
