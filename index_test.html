@@ -3132,10 +3132,8 @@
 
             seg.winners.forEach(p => {
               const ent = playerEntities[p];
-              if (!seg.isExactTie) {
-                ent.totalProb += shareIntervalProb;
-                ent.totalWinProb += fullIntervalProb;
-              }
+              ent.totalProb += shareIntervalProb;
+              ent.totalWinProb += shareIntervalProb;
               ent.scenarios.push({
                 isOutright: false,
                 isCrownSplit: seg.isCrownSplit,
