@@ -2971,7 +2971,8 @@
       const segments = mergedIntervals.map(iv => {
         const probLower = iv.minBound === null ? 0 : normalCDF(iv.minBound, vegasTotal, stdDev);
         const probUpper = iv.maxBound === null ? 1 : normalCDF(iv.maxBound, vegasTotal, stdDev);
-        const intervalScoreProb = Math.max(0, probUpper - probLower);
+        const rawDiff = probUpper - probLower;
+        const intervalScoreProb = rawDiff > 0 ? rawDiff : 1e-15;
 
         let scoreText = '';
         if (iv.minBound === null && iv.maxBound === null) {
@@ -3004,7 +3005,8 @@
         if (Number.isInteger(mid)) {
           const binLow = mid - 0.5;
           const binHigh = mid + 0.5;
-          const tieProb = Math.max(0, normalCDF(binHigh, vegasTotal, stdDev) - normalCDF(binLow, vegasTotal, stdDev));
+          const rawTieDiff = normalCDF(binHigh, vegasTotal, stdDev) - normalCDF(binLow, vegasTotal, stdDev);
+          const tieProb = rawTieDiff > 0 ? rawTieDiff : 1e-15;
           const pairPlayers = [...leftBucket.players, ...rightBucket.players];
 
           segments.push({
@@ -3162,7 +3164,7 @@
       }
 
       const activeCardGroups = Object.values(playerEntities)
-        .filter(ent => ent.totalWinProb > 0.000001)
+        .filter(ent => ent.scenarios.length > 0 && ent.totalWinProb > 0)
         .map(ent => {
           const mergedMap = {};
 
@@ -3230,7 +3232,7 @@
 
             const winStr = combinedMaps.map(om => formatWinnersPerGame(om, remainingGames)).join(' or ');
             const oddsPctVal = totalValidProb > 0 ? (m.totalOddsProb / totalValidProb) * 100 : 0;
-            const oddsPctStr = (oddsPctVal > 0 && oddsPctVal < 0.1) ? '<.1%' : (oddsPctVal.toFixed(1) + '%');
+            const oddsPctStr = (oddsPctVal > 0 && oddsPctVal < 0.1) ? '<.1%' : (oddsPctVal > 99.9 && oddsPctVal < 100) ? '>99.9%' : (oddsPctVal.toFixed(1) + '%');
 
             const tiedNamesStr = (m.tiedPlayers && m.tiedPlayers.length > 1)
               ? m.tiedPlayers.join(' & ')
@@ -3326,9 +3328,14 @@
           <div class="ptc-cards-grid">
       `;
 
+      const hasMultipleContenders = activeCardGroups.length > 1;
       activeCardGroups.forEach((group) => {
         const rawWinProb = group.totalWinProb * 100;
-        const winPctStr = (rawWinProb > 0 && rawWinProb < 0.1) ? '<.1%' : (rawWinProb.toFixed(1) + '%');
+        const winPctStr = (rawWinProb > 0 && rawWinProb < 0.1)
+          ? '<.1%'
+          : (hasMultipleContenders && rawWinProb > 99.9)
+            ? '>99.9%'
+            : (rawWinProb.toFixed(1) + '%');
 
         const bulletsHtml = group.scenarios.map((s) => {
           const outcomeJson = encodeURIComponent(JSON.stringify(s.sampleOutcomeMap || {}));
