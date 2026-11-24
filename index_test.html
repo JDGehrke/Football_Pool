@@ -3230,7 +3230,7 @@
 
             const winStr = combinedMaps.map(om => formatWinnersPerGame(om, remainingGames)).join(' or ');
             const oddsPctVal = totalValidProb > 0 ? (m.totalOddsProb / totalValidProb) * 100 : 0;
-            const oddsPctStr = oddsPctVal.toFixed(1) + '%';
+            const oddsPctStr = (oddsPctVal > 0 && oddsPctVal < 0.1) ? '<.1%' : (oddsPctVal.toFixed(1) + '%');
 
             const tiedNamesStr = (m.tiedPlayers && m.tiedPlayers.length > 1)
               ? m.tiedPlayers.join(' & ')
