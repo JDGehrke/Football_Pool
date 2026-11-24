@@ -964,9 +964,12 @@
     .ptc-game-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 16px; text-align: center; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
     .ptc-game-title { font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
     .ptc-team-btn-group { display: flex; gap: 8px; }
-    .ptc-team-btn { border: 1px solid #cbd5e1; background: #ffffff; padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; gap: 6px; color: #334155; }
+    .ptc-team-btn { border: 1px solid #cbd5e1; background: #ffffff; padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.15s ease; display: flex; align-items: center; gap: 8px; color: #334155; }
     .ptc-team-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
     .ptc-team-btn.selected { border-color: #2563eb; background: #eff6ff; color: #1d4ed8; box-shadow: 0 0 0 1px #2563eb; }
+    .ptc-team-btn-info { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; }
+    .ptc-team-btn-sub { font-size: 0.7rem; font-weight: 500; color: #64748b; margin-top: 2px; }
+    .ptc-team-btn.selected .ptc-team-btn-sub { color: #2563eb; }
 
     @media (max-width: 600px) {
       .modal-backdrop { padding: 10px; }
@@ -2663,9 +2666,50 @@
       }).join(' & ');
     }
 
+    function parseClockToSeconds(clockVal) {
+      if (typeof clockVal === 'number' && !isNaN(clockVal)) return clockVal;
+      if (typeof clockVal === 'string') {
+        const trimmed = clockVal.trim();
+        if (trimmed.includes(':')) {
+          const parts = trimmed.split(':');
+          const mins = parseInt(parts[0], 10) || 0;
+          const secs = parseFloat(parts[1]) || 0;
+          return (mins * 60) + secs;
+        }
+        const num = parseFloat(trimmed);
+        if (!isNaN(num)) return num;
+      }
+      return 0;
+    }
+
+    function getLiveTiebreakerStdDev(tb, fallbackMatchup) {
+      const source = (tb && (tb.period !== undefined || tb.clock !== undefined || tb.status))
+        ? tb
+        : fallbackMatchup;
+
+      if (!source || !source.status) return 10.5;
+
+      const statusNorm = source.status.toUpperCase();
+      if (statusNorm.includes('SCHEDULED') || statusNorm.includes('PRE-GAME')) {
+        return 10.5;
+      }
+      if (statusNorm.includes('FINAL')) {
+        return 0.5;
+      }
+
+      const period = parseInt(source.period, 10) || 1;
+      const clockSec = parseClockToSeconds(source.clock !== undefined ? source.clock : source.clockSeconds);
+
+      const secondsRemaining = period <= 4
+        ? ((4 - period) * 900) + clockSec
+        : Math.min(300, clockSec);
+
+      const fractionRemaining = Math.max(0, Math.min(1, secondsRemaining / 3600));
+      return Math.max(1.5, 10.5 * Math.sqrt(fractionRemaining));
+    }
+
     /* --- DYNAMIC N-ZONE BELL CURVE SVG BUILDER --- */
-    function buildBellCurveSvgInner(vegasTotal, cutoffs, zoneLabels, highlightBounds) {
-      const stdDev = 10.5;
+    function buildBellCurveSvgInner(vegasTotal, cutoffs, zoneLabels, highlightBounds, stdDev = 10.5) {
       const minVal = vegasTotal - (3.5 * stdDev);
       const maxVal = vegasTotal + (3.5 * stdDev);
       const leftX = 20;
@@ -2810,6 +2854,8 @@
       }
 
       const vegasTotal = parseFloat(weekData.tiebreaker?.vegasTotal || weekData?.vegasTotal || 44.0);
+      const tiebreakerMatchup = matchups[matchups.length - 1] || remainingGames[remainingGames.length - 1];
+      const liveTiebreakerStdDev = getLiveTiebreakerStdDev(weekData.tiebreaker, tiebreakerMatchup);
       const currentWins = {};
       const tiebreakerPicks = weekData.tiebreaker?.picks || {};
       
@@ -2846,12 +2892,12 @@
       activeTieGroupKey = null;
       activeScenarioText = null;
 
-      window._ptcGlobal = { currentWins, gamesToSimulate, tiebreakerPicks, vegasTotal, matchupsCount: gamesToSimulate.length };
+      window._ptcGlobal = { currentWins, gamesToSimulate, tiebreakerPicks, vegasTotal, liveTiebreakerStdDev, matchupsCount: gamesToSimulate.length };
       renderPathToCrownContent();
       modal.classList.add('active');
     }
 
-    function buildTiebreakerSegmentsForTiedPlayers(tiedPlayers, playerEntities, vegasTotal) {
+    function buildTiebreakerSegmentsForTiedPlayers(tiedPlayers, playerEntities, vegasTotal, stdDev = 10.5) {
       const predBucketsMap = {};
       tiedPlayers.forEach(p => {
         const predVal = playerEntities[p].pred;
@@ -2923,8 +2969,8 @@
       });
 
       const segments = mergedIntervals.map(iv => {
-        const probLower = iv.minBound === null ? 0 : normalCDF(iv.minBound, vegasTotal, 10.5);
-        const probUpper = iv.maxBound === null ? 1 : normalCDF(iv.maxBound, vegasTotal, 10.5);
+        const probLower = iv.minBound === null ? 0 : normalCDF(iv.minBound, vegasTotal, stdDev);
+        const probUpper = iv.maxBound === null ? 1 : normalCDF(iv.maxBound, vegasTotal, stdDev);
         const intervalScoreProb = Math.max(0, probUpper - probLower);
 
         let scoreText = '';
@@ -2958,7 +3004,7 @@
         if (Number.isInteger(mid)) {
           const binLow = mid - 0.5;
           const binHigh = mid + 0.5;
-          const tieProb = Math.max(0, normalCDF(binHigh, vegasTotal, 10.5) - normalCDF(binLow, vegasTotal, 10.5));
+          const tieProb = Math.max(0, normalCDF(binHigh, vegasTotal, stdDev) - normalCDF(binLow, vegasTotal, stdDev));
           const pairPlayers = [...leftBucket.players, ...rightBucket.players];
 
           segments.push({
@@ -2981,6 +3027,7 @@
       const gCtx = window._ptcGlobal;
       const remainingGames = gCtx.gamesToSimulate;
       const vegasTotal = gCtx.vegasTotal;
+      const stdDev = gCtx.liveTiebreakerStdDev || 10.5;
       const currentWins = gCtx.currentWins;
       const tiebreakerPicks = gCtx.tiebreakerPicks;
 
@@ -3076,7 +3123,7 @@
             splitCount: 1
           });
         } else {
-          const segments = buildTiebreakerSegmentsForTiedPlayers(tiedPlayers, playerEntities, vegasTotal);
+          const segments = buildTiebreakerSegmentsForTiedPlayers(tiedPlayers, playerEntities, vegasTotal, stdDev);
 
           segments.forEach(seg => {
             const fullIntervalProb = branchProb * seg.intervalScoreProb;
@@ -3267,10 +3314,11 @@
       const gCtx = window._ptcGlobal;
       const gamesToSimulate = gCtx.gamesToSimulate;
       const vegasTotal = gCtx.vegasTotal;
+      const stdDev = gCtx.liveTiebreakerStdDev || 10.5;
 
       const { activeCardGroups } = runSimulationForSelections(currentSimulatedSelections);
 
-      const initialSvgInner = buildBellCurveSvgInner(vegasTotal, [], [], activeTiebreakerHighlight);
+      const initialSvgInner = buildBellCurveSvgInner(vegasTotal, [], [], activeTiebreakerHighlight, stdDev);
 
       let html = `
         <div class="ptc-container">
@@ -3374,16 +3422,26 @@
         const selTeam = currentSimulatedSelections[g.id];
         const awaySelected = selTeam === g.away ? 'selected' : '';
         const homeSelected = selTeam === g.home ? 'selected' : '';
+        const awayPctStr = (g.awayWinProb * 100).toFixed(1) + '%';
+        const homePctStr = (g.homeWinProb * 100).toFixed(1) + '%';
 
         selectorsContainer.innerHTML += `
           <div class="ptc-game-card">
             <div class="ptc-game-title">MATCHUP ${g.id + 1}</div>
             <div class="ptc-team-btn-group">
               <button id="btn-${g.id}-${g.away}" class="ptc-team-btn ${awaySelected}" onclick="selectSimulatedTeam(${g.id}, '${g.away}')">
-                ${getTeamLogoHtml(g.away, true)}
+                ${getTeamLogoHtml(g.away, false)}
+                <span class="ptc-team-btn-info">
+                  <span>${g.away}</span>
+                  <span class="ptc-team-btn-sub">${awayPctStr}</span>
+                </span>
               </button>
               <button id="btn-${g.id}-${g.home}" class="ptc-team-btn ${homeSelected}" onclick="selectSimulatedTeam(${g.id}, '${g.home}')">
-                ${getTeamLogoHtml(g.home, true)}
+                ${getTeamLogoHtml(g.home, false)}
+                <span class="ptc-team-btn-info">
+                  <span>${g.home}</span>
+                  <span class="ptc-team-btn-sub">${homePctStr}</span>
+                </span>
               </button>
             </div>
           </div>
@@ -3521,7 +3579,8 @@
         if (tbContainer) tbContainer.style.display = 'none';
         banner.innerHTML = `👑 Winner: <strong>${winners[0]}</strong> wins outright with ${maxScore} Wins`;
       } else {
-        const segments = buildTiebreakerSegmentsForTiedPlayers(winners, playerEntities, gCtx.vegasTotal).filter(s => !s.isExactTie);
+        const stdDev = gCtx.liveTiebreakerStdDev || 10.5;
+        const segments = buildTiebreakerSegmentsForTiedPlayers(winners, playerEntities, gCtx.vegasTotal, stdDev).filter(s => !s.isExactTie);
         const cutoffs = [];
         for (let k = 0; k < segments.length - 1; k++) {
           if (segments[k].maxBound !== null) {
@@ -3536,7 +3595,8 @@
             gCtx.vegasTotal,
             cutoffs,
             zoneLabels,
-            activeTiebreakerHighlight
+            activeTiebreakerHighlight,
+            stdDev
           );
         }
 
@@ -3551,7 +3611,7 @@
                 ? `${hl.min.toFixed(1)} < Score < ${hl.max.toFixed(1)}`
                 : (hl.max !== null ? `Score < ${hl.max.toFixed(1)}` : `Score > ${hl.min.toFixed(1)}`));
 
-          const matchingSeg = buildTiebreakerSegmentsForTiedPlayers(winners, playerEntities, gCtx.vegasTotal).find(s => {
+          const matchingSeg = buildTiebreakerSegmentsForTiedPlayers(winners, playerEntities, gCtx.vegasTotal, stdDev).find(s => {
             if (hl.isExactTie && typeof hl.exactScore === 'number') {
               return s.isExactTie && Math.abs(s.exactScore - hl.exactScore) < 1e-6;
             }
