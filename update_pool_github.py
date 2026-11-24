@@ -233,7 +233,9 @@ for event in data.get("events", []):
                                        'awayTeam': {'id': '0', 'gameProjection': str(100-pct)},
                                        'homeTeam': {'id': '0', 'gameProjection': str(pct)}}})
         
-
+    #Vegas Line
+    odds = requests.get(fr"https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/events/{event['id']}/competitions/{event['id']}/odds").json()['items'][-1] #Most Recent Lines
+    
     #Add Rows to data for Json
     games_list.update({event['id']: 
         {
@@ -258,16 +260,14 @@ for event in data.get("events", []):
             "homeWinner": home.get("winner"),
             "homePCT": predictor['predictor']['homeTeam'].get('gameProjection'),
             
-            "vegasTotal": predictor['pickcenter'][0].get('overUnder'),
             "status": status,
             "period": comp['status'].get("period"),
             "clock": comp['status'].get("displayClock"),
+            "vegasTotal": odds.get('overUnder'),# "vegasTotal": predictor['pickcenter'][0].get('overUnder'),
             "totalScore": int(away.get("score")) + int(home.get("score")),
             "winner": winner,
             }
         })
-    
-    
         
 # =============================================================================
 # FINALIZING MATCHUPS FOR JSON 
@@ -286,7 +286,7 @@ for game in picks_by_game:
          ,'awayPCT': games_list[gid].get('awayPCT')
          ,'homePCT': games_list[gid].get('homePCT')
          })
-    
+
 #BUILD TIEBREAKER WITH FINAL GAME
 tiebreaker_picks = {}
 for p in players: 
@@ -305,17 +305,18 @@ for p in players:
 tiebreaker = {
                 'game': game.get('game')
                 ,'status': game.get('status')
+                ,'period': games_list[gid].get('period')
+                ,'clock': games_list[gid].get('clock')
                 ,'winner': game.get('winner')
                 ,'vegasTotal': games_list[gid].get('vegasTotal')
                 ,'actualTotalScore': games_list[gid].get('totalScore')
                 ,'picks': tiebreaker_picks
     }
-    
+
 #FINAL WEEK DICTIONARY
 week_json = {'lockTime': games_list[picks_by_game[0]['id']]['date']
              ,'matchups': picks_by_game
              ,'tiebreaker': tiebreaker}
-
 
 # =============================================================================
 # UPDATE JSON
