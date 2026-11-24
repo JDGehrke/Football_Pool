@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Monday @ 9:07pm",
+    "lastUpdated": "Monday @ 9:10pm",
     "currentWeek": "Week 11"
   },
   "hall_of_fame": [
@@ -6598,17 +6598,15 @@
           "status": "\ud83d\udd34 Live \ud83d\udd34",
           "awayScore": "10",
           "homeScore": "10",
-          "awayPCT": "68.41",
-          "homePCT": "31.59"
+          "awayPCT": "68.94",
+          "homePCT": "31.06"
         }
       ],
       "tiebreaker": {
         "game": "CIN @ WSH",
         "status": "\ud83d\udd34 Live \ud83d\udd34",
-        "period": 3,
-        "clock": "11:47",
         "winner": null,
-        "vegasTotal": 44.5,
+        "vegasTotal": 54.5,
         "actualTotalScore": 20,
         "picks": {
           "ANDI": {
