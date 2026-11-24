@@ -347,8 +347,8 @@ for p in players:
 tiebreaker = {
                 'game': game.get('game')
                 ,'status': game.get('status')
-                ,'period': game.get('period')
-                ,'clock': game.get('clock')
+                ,'period': games_list[gid].get('period')
+                ,'clock': games_list[gid].get('clock')
                 ,'winner': game.get('winner')
                 ,'vegasTotal': games_list[gid].get('vegasTotal')
                 ,'actualTotalScore': games_list[gid].get('totalScore')
