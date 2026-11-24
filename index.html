@@ -3328,7 +3328,7 @@
 
       activeCardGroups.forEach((group) => {
         const rawWinProb = group.totalWinProb * 100;
-        const winPctStr = rawWinProb.toFixed(1) + '%';
+        const winPctStr = (rawWinProb > 0 && rawWinProb < 0.1) ? '<.1%' : (rawWinProb.toFixed(1) + '%');
 
         const bulletsHtml = group.scenarios.map((s) => {
           const outcomeJson = encodeURIComponent(JSON.stringify(s.sampleOutcomeMap || {}));
