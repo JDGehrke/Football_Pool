@@ -2467,7 +2467,7 @@
             <td>${crownBadge}<strong>${p}</strong></td>
             <td class="text-center"><strong><span class="text-success">${wHist.correct}</span> - <span class="text-danger">${wHist.incorrect}</span></strong></td>
             <td class="text-center">${col3Value}</td>
-            <td class="text-center ${gbClass}"><strong>${gbDisplay}</strong></td>
+            <td class="text-center ${gbClass}">${gbDisplay}</td>
           </tr>
         `;
       }).join('');
@@ -3403,7 +3403,10 @@
               </div>
               <div class="ptc-curve-labels" style="margin-top: 18px;">
                 <span>Low Score</span>
-                <span id="ptc-vegas-mean-label" style="font-weight: 600; color: #475569;">O/U : ${vegasTotal.toFixed(1)}</span>
+                <span id="ptc-vegas-mean-label" style="display: flex; flex-direction: column; align-items: center; line-height: 1.2;">
+                  <span style="font-weight: 600; color: #475569;">O/U : ${vegasTotal.toFixed(1)}</span>
+                  <span id="ptc-stddev-sublabel" style="font-size: 0.65rem; font-weight: 500; color: #94a3b8; margin-top: 2px;">&sigma;: ${stdDev.toFixed(1)}</span>
+                </span>
                 <span>High Score</span>
               </div>
             </div>
@@ -3598,6 +3601,10 @@
             activeTiebreakerHighlight,
             stdDev
           );
+        }
+        const stdSubLabel = document.getElementById('ptc-stddev-sublabel');
+        if (stdSubLabel) {
+          stdSubLabel.innerHTML = `&sigma;: ${stdDev.toFixed(1)}`;
         }
 
         const winnerNames = winners.join(' / ');
