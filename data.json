@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Thursday @ 2:20pm",
+    "lastUpdated": "Thursday @ 2:35pm",
     "currentWeek": "Week 12"
   },
   "hall_of_fame": [
@@ -6769,11 +6769,11 @@
           "game": "CHI @ DET",
           "date": "2026-11-26T18:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "17",
+          "status": "End of Period",
+          "awayScore": "24",
           "homeScore": "26",
-          "awayPCT": "17.75999999999999",
-          "homePCT": "82.24000000000001"
+          "awayPCT": "32.06",
+          "homePCT": "67.94"
         },
         {
           "id": "401873080",
