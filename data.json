@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Wednesday @ 8:10pm",
+    "lastUpdated": "Wednesday @ 8:39pm",
     "currentWeek": "Week 12"
   },
   "hall_of_fame": [
@@ -6717,6 +6717,7 @@
             "JORDAN": "LAR",
             "EMILY": "GB",
             "BETHANY": "LAR",
+            "ANDI": "LAR",
             "HUNTER": "GB",
             "DAN": "GB",
             "BRANDON": "LAR",
@@ -6726,7 +6727,6 @@
             "KENZIE": "GB",
             "DEVIN": "GB",
             "WESLEY": "GB",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -6735,10 +6735,10 @@
           "date": "2026-11-26T01:00Z",
           "winner": null,
           "status": "\ud83d\udd34 Live \ud83d\udd34",
-          "awayScore": "10",
+          "awayScore": "13",
           "homeScore": "13",
-          "awayPCT": "26.900000000000006",
-          "homePCT": "73.1"
+          "awayPCT": "34.769999999999996",
+          "homePCT": "65.23"
         },
         {
           "id": "401873081",
@@ -6752,6 +6752,7 @@
             "JORDAN": "DET",
             "EMILY": "CHI",
             "BETHANY": "DET",
+            "ANDI": "DET",
             "HUNTER": "CHI",
             "DAN": "DET",
             "BRANDON": "CHI",
@@ -6761,7 +6762,6 @@
             "KENZIE": "CHI",
             "DEVIN": "CHI",
             "WESLEY": "DET",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -6787,6 +6787,7 @@
             "JORDAN": "DAL",
             "EMILY": "DAL",
             "BETHANY": "DAL",
+            "ANDI": "DAL",
             "HUNTER": "DAL",
             "DAN": "DAL",
             "BRANDON": "DAL",
@@ -6796,7 +6797,6 @@
             "KENZIE": "DAL",
             "DEVIN": "PHI",
             "WESLEY": "DAL",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -6822,6 +6822,7 @@
             "JORDAN": "KC",
             "EMILY": "BUF",
             "BETHANY": "BUF",
+            "ANDI": "BUF",
             "HUNTER": "BUF",
             "DAN": "KC",
             "BRANDON": "BUF",
@@ -6831,7 +6832,6 @@
             "KENZIE": "BUF",
             "DEVIN": "BUF",
             "WESLEY": "BUF",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -6857,6 +6857,7 @@
             "JORDAN": "DEN",
             "EMILY": "DEN",
             "BETHANY": "DEN",
+            "ANDI": "DEN",
             "HUNTER": "DEN",
             "DAN": "DEN",
             "BRANDON": "DEN",
@@ -6866,7 +6867,6 @@
             "KENZIE": "PIT",
             "DEVIN": "DEN",
             "WESLEY": "PIT",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -6892,6 +6892,7 @@
             "JORDAN": "CIN",
             "EMILY": "CIN",
             "BETHANY": "CIN",
+            "ANDI": "CIN",
             "HUNTER": "CIN",
             "DAN": "CIN",
             "BRANDON": "CIN",
@@ -6901,7 +6902,6 @@
             "KENZIE": "CIN",
             "DEVIN": "CIN",
             "WESLEY": "NO",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -6927,6 +6927,7 @@
             "JORDAN": "NYG",
             "EMILY": "NYG",
             "BETHANY": "NYG",
+            "ANDI": "NYG",
             "HUNTER": "NYG",
             "DAN": "NYG",
             "BRANDON": "NYG",
@@ -6936,7 +6937,6 @@
             "KENZIE": "NYG",
             "DEVIN": "IND",
             "WESLEY": "NYG",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -6962,6 +6962,7 @@
             "JORDAN": "MIA",
             "EMILY": "NYJ",
             "BETHANY": "NYJ",
+            "ANDI": "NYJ",
             "HUNTER": "NYJ",
             "DAN": "NYJ",
             "BRANDON": "NYJ",
@@ -6971,7 +6972,6 @@
             "KENZIE": "NYJ",
             "DEVIN": "MIA",
             "WESLEY": "MIA",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -6997,6 +6997,7 @@
             "JORDAN": "MIN",
             "EMILY": "MIN",
             "BETHANY": "MIN",
+            "ANDI": "MIN",
             "HUNTER": "MIN",
             "DAN": "MIN",
             "BRANDON": "MIN",
@@ -7006,7 +7007,6 @@
             "KENZIE": "MIN",
             "DEVIN": "ATL",
             "WESLEY": "ATL",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -7032,6 +7032,7 @@
             "JORDAN": "JAX",
             "EMILY": "JAX",
             "BETHANY": "JAX",
+            "ANDI": "JAX",
             "HUNTER": "JAX",
             "DAN": "JAX",
             "BRANDON": "JAX",
@@ -7041,7 +7042,6 @@
             "KENZIE": "JAX",
             "DEVIN": "JAX",
             "WESLEY": "JAX",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -7067,6 +7067,7 @@
             "JORDAN": "HOU",
             "EMILY": "BAL",
             "BETHANY": "HOU",
+            "ANDI": "HOU",
             "HUNTER": "HOU",
             "DAN": "HOU",
             "BRANDON": "HOU",
@@ -7076,7 +7077,6 @@
             "KENZIE": "BAL",
             "DEVIN": "BAL",
             "WESLEY": "BAL",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -7102,6 +7102,7 @@
             "JORDAN": "LAC",
             "EMILY": "LAC",
             "BETHANY": "NE",
+            "ANDI": "NE",
             "HUNTER": "NE",
             "DAN": "LAC",
             "BRANDON": "NE",
@@ -7111,7 +7112,6 @@
             "KENZIE": "NE",
             "DEVIN": "NE",
             "WESLEY": "LAC",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -7137,6 +7137,7 @@
             "JORDAN": "WSH",
             "EMILY": "WSH",
             "BETHANY": "WSH",
+            "ANDI": "ARI",
             "HUNTER": "WSH",
             "DAN": "WSH",
             "BRANDON": "WSH",
@@ -7146,7 +7147,6 @@
             "KENZIE": "WSH",
             "DEVIN": "ARI",
             "WESLEY": "ARI",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -7172,6 +7172,7 @@
             "JORDAN": "SF",
             "EMILY": "SEA",
             "BETHANY": "SF",
+            "ANDI": "SF",
             "HUNTER": "SF",
             "DAN": "SF",
             "BRANDON": "SF",
@@ -7181,7 +7182,6 @@
             "KENZIE": "SF",
             "DEVIN": "SEA",
             "WESLEY": "SEA",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -7207,6 +7207,7 @@
             "JORDAN": "CLE",
             "EMILY": "CLE",
             "BETHANY": "LV",
+            "ANDI": "CLE",
             "HUNTER": "CLE",
             "DAN": "CLE",
             "BRANDON": "CLE",
@@ -7216,7 +7217,6 @@
             "KENZIE": "CLE",
             "DEVIN": "LV",
             "WESLEY": "LV",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -7242,6 +7242,7 @@
             "JORDAN": "CAR",
             "EMILY": "CAR",
             "BETHANY": "CAR",
+            "ANDI": "TB",
             "HUNTER": "TB",
             "DAN": "TB",
             "BRANDON": "CAR",
@@ -7251,7 +7252,6 @@
             "KENZIE": "TB",
             "DEVIN": "CAR",
             "WESLEY": "CAR",
-            "ANDI": "\u2014",
             "ELLY": "\u2014",
             "HENNIE": "\u2014",
             "KENNY": "\u2014"
@@ -7276,8 +7276,8 @@
         "actualTotalScore": 0,
         "picks": {
           "ANDI": {
-            "winner": "\u2014",
-            "predictedTotal": "\u2014"
+            "winner": "TB",
+            "predictedTotal": 46
           },
           "AUSTIN": {
             "winner": "CAR",
