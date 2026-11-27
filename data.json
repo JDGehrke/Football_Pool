@@ -2,7 +2,7 @@
   "metadata": {
     "title": "\ud83c\udfc8 Lynn Orser Memorial Football Pool \ud83c\udfc8",
     "subtitle": "2026 Live Dashboard",
-    "lastUpdated": "Friday @ 3:10pm",
+    "lastUpdated": "Friday @ 3:25pm",
     "currentWeek": "Week 12"
   },
   "hall_of_fame": [
@@ -6874,11 +6874,11 @@
           "game": "DEN @ PIT",
           "date": "2026-11-27T20:00Z",
           "winner": null,
-          "status": "\ud83d\udd34 Live \ud83d\udd34",
+          "status": "Halftime",
           "awayScore": "5",
-          "homeScore": "14",
-          "awayPCT": "17.510000000000005",
-          "homePCT": "82.49"
+          "homeScore": "24",
+          "awayPCT": "5.289999999999992",
+          "homePCT": "94.71000000000001"
         },
         {
           "id": "401873087",
